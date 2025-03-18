@@ -1,0 +1,33 @@
+{
+  "name": "pcm-agents-react",
+  "version": "0.0.2",
+  "description": "React wrapper components for pcm-agents",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/types/index.d.ts",
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "npm run tsc",
+    "tsc": "tsc -p . --outDir ./dist",
+    "test": "node ./__tests__/react-library.test.js"
+  },
+  "dependencies": {
+    "@stencil/react-output-target": "^0.8.2",
+    "pcm-agents": "*"
+  },
+  "peerDependencies": {
+    "react": "^17.0.0 || ^18.0.0",
+    "react-dom": "^17.0.0 || ^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.18",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.8.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

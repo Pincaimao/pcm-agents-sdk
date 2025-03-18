@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0" />
+    <title>Stencil Component Starter</title>
+
+    <script type="module" src="/build/pcm-agents.esm.js"></script>
+    <script nomodule src="/build/pcm-agents.js"></script>
+  </head>
+  <body>
+    <my-component first="Stencil" middle="'Don't call me a framework'" last="JS"></my-component>
+    
+    <!-- 添加 float-image 组件测试 -->
+    <float-image 
+      id="test-float-image"
+      src="https://picsum.photos/200" 
+      alt="客服图片" 
+      width="80" 
+      height="80">
+    </float-image>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM 已加载，正在设置事件监听器...');
+        
+          const floatImage = document.querySelector('float-image');
+          console.log('找到浮窗组件:', floatImage);
+          
+          if (floatImage) {
+            console.log('正在添加事件监听器...');
+            
+            // 添加事件监听器
+            floatImage.addEventListener('floatImageClick', function(event) {
+              console.log('浮窗图片点击事件被触发!', event);
+              alert('浮窗图片被点击了！');
+            });
+            
+            console.log('事件监听器已添加');
+          } else {
+            console.error('未找到浮窗组件');
+          }
+      });
+    </script>
+  </body>
+</html>
