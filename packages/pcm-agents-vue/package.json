@@ -1,6 +1,6 @@
 {
   "name": "pcm-agents-vue",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "description": "Vue wrapper components for pcm-agents",
   "main": "dist/components.js",
   "module": "dist/components.js",
@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@stencil/vue-output-target": "^0.10.7",
-    "pcm-agents": "*"
+    "pcm-agents": "link:../pcm-agents"
   },
   "bugs": {
     "url": "https://github.com/zzy-life/stenciljs_demo/issues"

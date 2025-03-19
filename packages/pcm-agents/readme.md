@@ -16,11 +16,11 @@ Stencil 组件只是 Web 组件，因此它们可以在任何主要框架中工�
 
 ### 1. 创建组件文件夹
 
-在 `src/components` 目录下创建一个新的文件夹，文件夹名称应该与组件名称相匹配。例如，对于 `float-image` 组件，创建 `src/components/float-image` 文件夹。
+在 `src/components` 目录下创建一个新的文件夹，文件夹名称应该与组件名称相匹配。例如，对于 `pcm-chat-modal` 组件，创建 `src/components/pcm-chat-modal` 文件夹。
 
 ### 2. 创建组件主文件
 
-在组件文件夹中创建一个 TypeScript 文件，命名为 `组件名.tsx`。例如：`float-image.tsx`。
+在组件文件夹中创建一个 TypeScript 文件，命名为 `组件名.tsx`。例如：`pcm-chat-modal.tsx`。
 
 这个文件应该包含组件的主要逻辑和结构：
 
@@ -28,11 +28,11 @@ Stencil 组件只是 Web 组件，因此它们可以在任何主要框架中工�
 import { Component, Prop, h } from '@stencil/core';
 
 @Component({
-  tag: 'float-image', // 这将是在 HTML 中使用的标签名
-  styleUrl: 'float-image.css', // 指向组件的样式文件
+  tag: 'pcm-chat-modal', // 这将是在 HTML 中使用的标签名
+  styleUrl: 'pcm-chat-modal.css', // 指向组件的样式文件
   shadow: true, // 启用 Shadow DOM
 })
-export class FloatImage {
+export class PcmChatModal {
   // 使用 @Prop 装饰器定义组件的属性
   @Prop() src: string;
   @Prop() alt: string = '默认值';
@@ -50,7 +50,7 @@ export class FloatImage {
 
 ### 3. 创建样式文件
 
-创建一个 CSS 文件，命名为 `组件名.css`。例如：`float-image.css`。
+创建一个 CSS 文件，命名为 `组件名.css`。例如：`pcm-chat-modal.css`。
 
 ```css
 :host {
@@ -64,8 +64,8 @@ export class FloatImage {
 
 为组件创建单元测试和端到端测试文件：
 
-- 单元测试：`组件名.spec.ts`（例如：`float-image.spec.ts`）
-- 端到端测试：`组件名.e2e.ts`（例如：`float-image.e2e.ts`）
+- 单元测试：`组件名.spec.ts`（例如：`pcm-chat-modal.spec.ts`）
+- 端到端测试：`组件名.e2e.ts`（例如：`pcm-chat-modal.e2e.ts`）
 
 ### 5. 创建自述文件（可选）
 
@@ -85,7 +85,7 @@ npm test
 构建成功后，你可以在 HTML 中使用你的组件：
 
 ```html
-<float-image src="path/to/image.jpg" alt="描述文本"></float-image>
+<pcm-chat-modal src="path/to/image.jpg" alt="描述文本"></pcm-chat-modal>
 ```
 
 ### 8. 测试你的组件
@@ -109,21 +109,21 @@ npm test
 </head>
 <body>
   <!-- 添加你的组件实例，使用可访问的图片URL -->
-  <float-image 
+  <pcm-chat-modal 
     src="https://via.placeholder.com/150" 
     alt="客服图片" 
     width="80px" 
     height="80px">
-  </float-image>
+  </pcm-chat-modal>
   
   <!-- 测试点击事件 -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       // 给组件一些时间来加载
-        const floatImage = document.querySelector('float-image');
-        if (floatImage) {
+        const PcmChatModal = document.querySelector('pcm-chat-modal');
+        if (PcmChatModal) {
           // 监听点击事件
-          floatImage.addEventListener('floatImageClick', function() {
+          PcmChatModal.addEventListener('PcmChatModalClick', function() {
             alert('浮窗图片被点击了！');
           });
         }
@@ -149,7 +149,7 @@ npm test
    declare namespace Components {
      /* ... 其他组件 ... */
      
-     interface FloatImage {
+     interface PcmChatModal {
        /**
         * 图片的替代文本
         */
@@ -196,7 +196,7 @@ npm start
 4. 尝试添加一些临时样式来确认组件是否已渲染：
    ```html
    <style>
-     float-image {
+     pcm-chat-modal {
        border: 2px solid red;
      }
    </style>
@@ -207,11 +207,11 @@ npm start
 以下是一个完整的组件文件结构示例：
 
 ```
-src/components/float-image/
-├── float-image.tsx      # 组件主文件
-├── float-image.css      # 样式文件
-├── float-image.spec.ts  # 单元测试
-├── float-image.e2e.ts   # 端到端测试
+src/components/pcm-chat-modal/
+├── pcm-chat-modal.tsx      # 组件主文件
+├── pcm-chat-modal.css      # 样式文件
+├── pcm-chat-modal.spec.ts  # 单元测试
+├── pcm-chat-modal.e2e.ts   # 端到端测试
 └── readme.md            # 组件文档
 ```
 

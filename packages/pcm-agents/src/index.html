@@ -7,39 +7,66 @@
 
     <script type="module" src="/build/pcm-agents.esm.js"></script>
     <script nomodule src="/build/pcm-agents.js"></script>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      }
+      .demo-controls {
+        margin: 20px;
+        padding: 20px;
+        border: 1px solid #eee;
+        border-radius: 8px;
+      }
+      button {
+        padding: 8px 16px;
+        background-color: #1890ff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 10px;
+      }
+    </style>
   </head>
   <body>
+    <div class="demo-controls">
+      <h2>组件演示</h2>
+      <button id="open-chat">打开聊天</button>
+    </div>
+
     <my-component first="Stencil" middle="'Don't call me a framework'" last="JS"></my-component>
     
-    <!-- 添加 float-image 组件测试 -->
-    <float-image 
-      id="test-float-image"
-      src="https://picsum.photos/200" 
-      alt="客服图片" 
-      width="80" 
-      height="80">
-    </float-image>
+
+    <!-- 添加聊天模态框组件 -->
+    <pcm-chat-modal 
+      id="pcm-chat-modal" 
+      modal-title="在线客服" 
+      icon="https://www.ylzhaopin.com/Public/Newhome/images/sidebar/tochat.png"
+    ></pcm-chat-modal>
 
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         console.log('DOM 已加载，正在设置事件监听器...');
         
-          const floatImage = document.querySelector('float-image');
-          console.log('找到浮窗组件:', floatImage);
+        // 聊天模态框事件监听
+        const chatModal = document.getElementById('pcm-chat-modal');
+        if (chatModal) {
+          chatModal.addEventListener('messageSent', function(event) {
+            console.log('发送消息:', event.detail);
+          });
           
-          if (floatImage) {
-            console.log('正在添加事件监听器...');
-            
-            // 添加事件监听器
-            floatImage.addEventListener('floatImageClick', function(event) {
-              console.log('浮窗图片点击事件被触发!', event);
-              alert('浮窗图片被点击了！');
-            });
-            
-            console.log('事件监听器已添加');
-          } else {
-            console.error('未找到浮窗组件');
-          }
+          chatModal.addEventListener('modalClosed', function() {
+            console.log('聊天窗口已关闭');
+          });
+        }
+
+        // 打开聊天按钮事件监听
+        const openChatButton = document.getElementById('open-chat');
+        if (openChatButton && chatModal) {
+          openChatButton.addEventListener('click', function() {
+            chatModal.isOpen = true;
+          });
+        }
       });
     </script>
   </body>

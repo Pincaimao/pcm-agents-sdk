@@ -9,20 +9,9 @@
 
 import type { EventName, StencilReactComponent } from '@stencil/react-output-target/runtime';
 import { createComponent } from '@stencil/react-output-target/runtime';
-import { FloatImage as FloatImageElement, defineCustomElement as defineFloatImage } from "pcm-agents/dist/components/float-image.js";
 import { MyComponent as MyComponentElement, defineCustomElement as defineMyComponent } from "pcm-agents/dist/components/my-component.js";
+import { PcmChatModal as PcmChatModalElement, defineCustomElement as definePcmChatModal } from "pcm-agents/dist/components/pcm-chat-modal.js";
 import React from 'react';
-
-type FloatImageEvents = { onFloatImageClick: EventName<CustomEvent<void>> };
-
-export const FloatImage: StencilReactComponent<FloatImageElement, FloatImageEvents> = /*@__PURE__*/ createComponent<FloatImageElement, FloatImageEvents>({
-    tagName: 'float-image',
-    elementClass: FloatImageElement,
-    // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
-    react: React,
-    events: { onFloatImageClick: 'floatImageClick' } as FloatImageEvents,
-    defineCustomElement: defineFloatImage
-});
 
 type MyComponentEvents = NonNullable<unknown>;
 
@@ -33,4 +22,21 @@ export const MyComponent: StencilReactComponent<MyComponentElement, MyComponentE
     react: React,
     events: {} as MyComponentEvents,
     defineCustomElement: defineMyComponent
+});
+
+type PcmChatModalEvents = {
+    onMessageSent: EventName<CustomEvent<string>>,
+    onModalClosed: EventName<CustomEvent<void>>
+};
+
+export const PcmChatModal: StencilReactComponent<PcmChatModalElement, PcmChatModalEvents> = /*@__PURE__*/ createComponent<PcmChatModalElement, PcmChatModalEvents>({
+    tagName: 'pcm-chat-modal',
+    elementClass: PcmChatModalElement,
+    // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
+    react: React,
+    events: {
+        onMessageSent: 'messageSent',
+        onModalClosed: 'modalClosed'
+    } as PcmChatModalEvents,
+    defineCustomElement: definePcmChatModal
 });

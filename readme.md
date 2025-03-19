@@ -1,5 +1,7 @@
 ## 设置
 
+项目使用pnpm
+
 ### 项目结构
 
 [文档](https://stenciljs.com/docs/react)
@@ -36,13 +38,14 @@ top-most-directory/
     <script type="module" src="https://unpkg.com/pcm-agents"></script>
 </head>
 <body>
-    <float-image 
-    id="test-float-image"
-    src="https://picsum.photos/200" 
-    alt="示例图片" 
-    width="80" 
-    height="80">
-  </float-image>
+    <pcm-chat-modal 
+      id="test-pcm-chat-modal"
+      modal-title="在线客服"
+      src="https://picsum.photos/200" 
+      alt="示例图片" 
+      width="80" 
+      height="80">
+    </pcm-chat-modal>
 </body>
 </html>
 ```
@@ -59,18 +62,19 @@ top-most-directory/
 
 ```react
 import './App.css';
-import { FloatImage } from 'pcm-agents-react';
+import { PcmChatModal } from 'pcm-agents-react';
 
 function App() {
   return (
     <div className="App">
-      <FloatImage 
-        id="test-float-image"
+      <PcmChatModal 
+        id="test-pcm-chat-modal"
+        modalTitle="在线客服"
         src="https://picsum.photos/200" 
         alt="客服图片" 
         width="80" 
         height="80">
-    </FloatImage>
+      </PcmChatModal>
     </div>
   );
 }
@@ -96,14 +100,14 @@ defineCustomElements();
 app.vue
 
 ```vue
-import { FloatImage } from 'pcm-agents-vue';
-<FloatImage 
-            id="test-float-image"
+import { PcmChatModal } from 'pcm-agents-vue';
+<PcmChatModal 
+            id="test-pcm-chat-modal"
             src="https://picsum.photos/200" 
             alt="客服图片" 
             width="80" 
             height="80">
-</FloatImage>
+</PcmChatModal>
 ```
 
 ### vue2中使用
@@ -115,11 +119,12 @@ index.html
 ```
 
 ```vue
-<float-image 
-    id="test-float-image"
+<pcm-chat-modal 
+    id="test-pcm-chat-modal"
+    modal-title="在线客服"
     src="https://picsum.photos/200" 
     alt="示例图片" 
     width="40" 
     height="40">
-  </float-image>
+</pcm-chat-modal>
 ```

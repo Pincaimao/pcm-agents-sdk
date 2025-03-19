@@ -6,24 +6,6 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
-    interface FloatImage {
-        /**
-          * 图片的替代文本
-         */
-        "alt": string;
-        /**
-          * 图片的高度
-         */
-        "height": string;
-        /**
-          * 图片的URL地址
-         */
-        "src": string;
-        /**
-          * 图片的宽度
-         */
-        "width": string;
-    }
     interface MyComponent {
         /**
           * The first name
@@ -38,63 +20,72 @@ export namespace Components {
          */
         "middle": string;
     }
+    interface PcmChatModal {
+        /**
+          * 应用图标URL
+         */
+        "icon"?: string;
+        /**
+          * 是否展示右上角的关闭按钮
+         */
+        "isNeedClose": boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen": boolean;
+        /**
+          * 是否展示顶部标题栏
+         */
+        "isShowHeader": boolean;
+        /**
+          * 聊天框窗口的布局风格
+         */
+        "layout": 'mobile' | 'pc';
+        /**
+          * 模态框标题
+         */
+        "modalTitle": string;
+        /**
+          * 聊天框的页面层级
+         */
+        "zIndex"?: number;
+    }
 }
-export interface FloatImageCustomEvent<T> extends CustomEvent<T> {
+export interface PcmChatModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLFloatImageElement;
+    target: HTMLPcmChatModalElement;
 }
 declare global {
-    interface HTMLFloatImageElementEventMap {
-        "floatImageClick": void;
-    }
-    interface HTMLFloatImageElement extends Components.FloatImage, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLFloatImageElementEventMap>(type: K, listener: (this: HTMLFloatImageElement, ev: FloatImageCustomEvent<HTMLFloatImageElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
-        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
-        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
-        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLFloatImageElementEventMap>(type: K, listener: (this: HTMLFloatImageElement, ev: FloatImageCustomEvent<HTMLFloatImageElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
-        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
-        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
-    }
-    var HTMLFloatImageElement: {
-        prototype: HTMLFloatImageElement;
-        new (): HTMLFloatImageElement;
-    };
     interface HTMLMyComponentElement extends Components.MyComponent, HTMLStencilElement {
     }
     var HTMLMyComponentElement: {
         prototype: HTMLMyComponentElement;
         new (): HTMLMyComponentElement;
     };
+    interface HTMLPcmChatModalElementEventMap {
+        "messageSent": string;
+        "modalClosed": void;
+    }
+    interface HTMLPcmChatModalElement extends Components.PcmChatModal, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLPcmChatModalElementEventMap>(type: K, listener: (this: HTMLPcmChatModalElement, ev: PcmChatModalCustomEvent<HTMLPcmChatModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLPcmChatModalElementEventMap>(type: K, listener: (this: HTMLPcmChatModalElement, ev: PcmChatModalCustomEvent<HTMLPcmChatModalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLPcmChatModalElement: {
+        prototype: HTMLPcmChatModalElement;
+        new (): HTMLPcmChatModalElement;
+    };
     interface HTMLElementTagNameMap {
-        "float-image": HTMLFloatImageElement;
         "my-component": HTMLMyComponentElement;
+        "pcm-chat-modal": HTMLPcmChatModalElement;
     }
 }
 declare namespace LocalJSX {
-    interface FloatImage {
-        /**
-          * 图片的替代文本
-         */
-        "alt"?: string;
-        /**
-          * 图片的高度
-         */
-        "height"?: string;
-        /**
-          * 点击图片时触发的事件
-         */
-        "onFloatImageClick"?: (event: FloatImageCustomEvent<void>) => void;
-        /**
-          * 图片的URL地址
-         */
-        "src"?: string;
-        /**
-          * 图片的宽度
-         */
-        "width"?: string;
-    }
     interface MyComponent {
         /**
           * The first name
@@ -109,17 +100,55 @@ declare namespace LocalJSX {
          */
         "middle"?: string;
     }
+    interface PcmChatModal {
+        /**
+          * 应用图标URL
+         */
+        "icon"?: string;
+        /**
+          * 是否展示右上角的关闭按钮
+         */
+        "isNeedClose"?: boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen"?: boolean;
+        /**
+          * 是否展示顶部标题栏
+         */
+        "isShowHeader"?: boolean;
+        /**
+          * 聊天框窗口的布局风格
+         */
+        "layout"?: 'mobile' | 'pc';
+        /**
+          * 模态框标题
+         */
+        "modalTitle"?: string;
+        /**
+          * 当发送消息时触发
+         */
+        "onMessageSent"?: (event: PcmChatModalCustomEvent<string>) => void;
+        /**
+          * 当模态框关闭时触发
+         */
+        "onModalClosed"?: (event: PcmChatModalCustomEvent<void>) => void;
+        /**
+          * 聊天框的页面层级
+         */
+        "zIndex"?: number;
+    }
     interface IntrinsicElements {
-        "float-image": FloatImage;
         "my-component": MyComponent;
+        "pcm-chat-modal": PcmChatModal;
     }
 }
 export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
-            "float-image": LocalJSX.FloatImage & JSXBase.HTMLAttributes<HTMLFloatImageElement>;
             "my-component": LocalJSX.MyComponent & JSXBase.HTMLAttributes<HTMLMyComponentElement>;
+            "pcm-chat-modal": LocalJSX.PcmChatModal & JSXBase.HTMLAttributes<HTMLPcmChatModalElement>;
         }
     }
 }
