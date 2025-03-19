@@ -49,11 +49,49 @@
 }
 
 .modal-header {
-  padding: 3px 16px;
-  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 16px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.header-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+}
+
+.header-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.close-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+}
+
+.close-button:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.close-button span {
+  font-size: 24px;
+  line-height: 1;
+  color: #999;
+}
+
+.close-button:hover span {
+  color: #666;
 }
 
 .chat-history {
@@ -80,12 +118,6 @@
 
 .message-input input:focus {
   border-color: #bbb;
-}
-
-.header-icon {
-  width: 24px;
-  height: 24px;
-  object-fit: contain;
 }
 
 /* 消息样式 */
@@ -129,16 +161,6 @@
   color: #999;
   margin-top: 4px;
   display: block;
-}
-
-.close-button {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 20px;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
 }
 
 .send-button {

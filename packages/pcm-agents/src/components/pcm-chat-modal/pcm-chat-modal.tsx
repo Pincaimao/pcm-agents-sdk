@@ -166,10 +166,14 @@ export class ChatModal {
         <div class={containerClass}>
           {this.isShowHeader && (
             <div class="modal-header">
-              {this.icon && <img src={this.icon} class="header-icon" alt="应用图标" />}
-              <h3>{this.modalTitle}</h3>
+              <div class="header-left">
+                {this.icon && <img src={this.icon} class="header-icon" alt="应用图标" />}
+                <h3>{this.modalTitle}</h3>
+              </div>
               {this.isNeedClose && (
-                <button class="close-button" onClick={this.handleClose}>×</button>
+                <button class="close-button" onClick={this.handleClose}>
+                  <span>×</span>
+                </button>
               )}
             </div>
           )}
