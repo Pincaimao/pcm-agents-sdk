@@ -1,6 +1,6 @@
 import { Config } from '@stencil/core';
 import { reactOutputTarget } from '@stencil/react-output-target';
-
+import { vueOutputTarget } from '@stencil/vue-output-target';
 export const config: Config = {
   namespace: 'pcm-agents',
   outputTargets: [
@@ -22,6 +22,10 @@ export const config: Config = {
     },
     reactOutputTarget({
       outDir: '../pcm-agents-react/src/components/stencil-generated',
+    }),
+    vueOutputTarget({
+      componentCorePackage: 'pcm-agents',
+      proxiesFile: '../pcm-agents-vue/lib/components.ts',
     }),
   ],
   testing: {

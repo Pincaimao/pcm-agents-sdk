@@ -1,1 +1,3 @@
 node_modules/
+/packages/pcm-agents-vue/dist
+/packages/pcm-agents-vue/lib

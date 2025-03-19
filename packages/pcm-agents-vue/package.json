@@ -1,0 +1,39 @@
+{
+  "name": "pcm-agents-vue",
+  "version": "0.0.5",
+  "description": "Vue wrapper components for pcm-agents",
+  "main": "dist/components.js",
+  "module": "dist/components.js",
+  "types": "dist/components.d.ts",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "dist/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zzy-life/stenciljs_demo.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1",
+    "build": "npm run tsc",
+    "tsc": "tsc -p . --outDir ./dist"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@stencil/vue-output-target": "^0.10.7",
+    "pcm-agents": "*"
+  },
+  "bugs": {
+    "url": "https://github.com/zzy-life/stenciljs_demo/issues"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "typescript": "^5.8.2",
+    "vue": "3"
+  }
+}
