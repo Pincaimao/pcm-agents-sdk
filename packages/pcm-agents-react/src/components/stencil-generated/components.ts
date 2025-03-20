@@ -9,7 +9,9 @@
 
 import type { EventName, StencilReactComponent } from '@stencil/react-output-target/runtime';
 import { createComponent } from '@stencil/react-output-target/runtime';
+import { type ChatMessage, type PcmChatMessageCustomEvent } from "pcm-agents";
 import { MyComponent as MyComponentElement, defineCustomElement as defineMyComponent } from "pcm-agents/dist/components/my-component.js";
+import { PcmChatMessage as PcmChatMessageElement, defineCustomElement as definePcmChatMessage } from "pcm-agents/dist/components/pcm-chat-message.js";
 import { PcmChatModal as PcmChatModalElement, defineCustomElement as definePcmChatModal } from "pcm-agents/dist/components/pcm-chat-modal.js";
 import React from 'react';
 
@@ -22,6 +24,17 @@ export const MyComponent: StencilReactComponent<MyComponentElement, MyComponentE
     react: React,
     events: {} as MyComponentEvents,
     defineCustomElement: defineMyComponent
+});
+
+type PcmChatMessageEvents = { onMessageChange: EventName<PcmChatMessageCustomEvent<Partial<ChatMessage>>> };
+
+export const PcmChatMessage: StencilReactComponent<PcmChatMessageElement, PcmChatMessageEvents> = /*@__PURE__*/ createComponent<PcmChatMessageElement, PcmChatMessageEvents>({
+    tagName: 'pcm-chat-message',
+    elementClass: PcmChatMessageElement,
+    // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
+    react: React,
+    events: { onMessageChange: 'messageChange' } as PcmChatMessageEvents,
+    defineCustomElement: definePcmChatMessage
 });
 
 type PcmChatModalEvents = {

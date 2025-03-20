@@ -142,7 +142,7 @@
   justify-content: flex-end;
 }
 
-.agent-message{
+.agent-message {
   display: flex;
   justify-content: flex-start;
 }
@@ -187,39 +187,4 @@
   text-align: center;
 }
 
-.agent-message .message-content {
-  /* 添加以下样式来美化 Markdown 渲染效果 */
-}
 
-.agent-message .message-content :global(p) {
-  margin: 0 0 8px 0;
-}
-
-.agent-message .message-content :global(code) {
-  background-color: #f3f3f3;
-  padding: 2px 4px;
-  border-radius: 3px;
-  font-family: monospace;
-}
-
-.agent-message .message-content :global(pre) {
-  background-color: #f3f3f3;
-  padding: 8px;
-  border-radius: 4px;
-  overflow-x: auto;
-}
-
-.agent-message .message-content :global(ul),
-.agent-message .message-content :global(ol) {
-  padding-left: 20px;
-  margin: 8px 0;
-}
-
-.agent-message .message-content :global(a) {
-  color: #0066cc;
-  text-decoration: none;
-}
-
-.agent-message .message-content :global(a:hover) {
-  text-decoration: underline;
-} 

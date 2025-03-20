@@ -5,6 +5,8 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
+import { ChatMessage } from "./interfaces/chat";
+export { ChatMessage } from "./interfaces/chat";
 export namespace Components {
     interface MyComponent {
         /**
@@ -20,7 +22,25 @@ export namespace Components {
          */
         "middle": string;
     }
+    interface PcmChatMessage {
+        /**
+          * 消息数据
+         */
+        "message": ChatMessage;
+    }
     interface PcmChatModal {
+        /**
+          * 请求URL前缀
+         */
+        "apiBaseUrl": string;
+        /**
+          * 机器人ID
+         */
+        "botId": string;
+        /**
+          * 会话ID
+         */
+        "conversationId"?: string;
         /**
           * 应用图标URL
          */
@@ -42,6 +62,10 @@ export namespace Components {
          */
         "layout": 'mobile' | 'pc';
         /**
+          * 消息事件类型
+         */
+        "messageEvent": string;
+        /**
           * 模态框标题
          */
         "modalTitle": string;
@@ -50,6 +74,10 @@ export namespace Components {
          */
         "zIndex"?: number;
     }
+}
+export interface PcmChatMessageCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLPcmChatMessageElement;
 }
 export interface PcmChatModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -61,6 +89,23 @@ declare global {
     var HTMLMyComponentElement: {
         prototype: HTMLMyComponentElement;
         new (): HTMLMyComponentElement;
+    };
+    interface HTMLPcmChatMessageElementEventMap {
+        "messageChange": Partial<ChatMessage>;
+    }
+    interface HTMLPcmChatMessageElement extends Components.PcmChatMessage, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLPcmChatMessageElementEventMap>(type: K, listener: (this: HTMLPcmChatMessageElement, ev: PcmChatMessageCustomEvent<HTMLPcmChatMessageElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLPcmChatMessageElementEventMap>(type: K, listener: (this: HTMLPcmChatMessageElement, ev: PcmChatMessageCustomEvent<HTMLPcmChatMessageElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLPcmChatMessageElement: {
+        prototype: HTMLPcmChatMessageElement;
+        new (): HTMLPcmChatMessageElement;
     };
     interface HTMLPcmChatModalElementEventMap {
         "messageSent": string;
@@ -82,6 +127,7 @@ declare global {
     };
     interface HTMLElementTagNameMap {
         "my-component": HTMLMyComponentElement;
+        "pcm-chat-message": HTMLPcmChatMessageElement;
         "pcm-chat-modal": HTMLPcmChatModalElement;
     }
 }
@@ -100,7 +146,29 @@ declare namespace LocalJSX {
          */
         "middle"?: string;
     }
+    interface PcmChatMessage {
+        /**
+          * 消息数据
+         */
+        "message"?: ChatMessage;
+        /**
+          * 消息变更事件
+         */
+        "onMessageChange"?: (event: PcmChatMessageCustomEvent<Partial<ChatMessage>>) => void;
+    }
     interface PcmChatModal {
+        /**
+          * 请求URL前缀
+         */
+        "apiBaseUrl"?: string;
+        /**
+          * 机器人ID
+         */
+        "botId"?: string;
+        /**
+          * 会话ID
+         */
+        "conversationId"?: string;
         /**
           * 应用图标URL
          */
@@ -122,6 +190,10 @@ declare namespace LocalJSX {
          */
         "layout"?: 'mobile' | 'pc';
         /**
+          * 消息事件类型
+         */
+        "messageEvent"?: string;
+        /**
           * 模态框标题
          */
         "modalTitle"?: string;
@@ -140,6 +212,7 @@ declare namespace LocalJSX {
     }
     interface IntrinsicElements {
         "my-component": MyComponent;
+        "pcm-chat-message": PcmChatMessage;
         "pcm-chat-modal": PcmChatModal;
     }
 }
@@ -148,6 +221,7 @@ declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
             "my-component": LocalJSX.MyComponent & JSXBase.HTMLAttributes<HTMLMyComponentElement>;
+            "pcm-chat-message": LocalJSX.PcmChatMessage & JSXBase.HTMLAttributes<HTMLPcmChatMessageElement>;
             "pcm-chat-modal": LocalJSX.PcmChatModal & JSXBase.HTMLAttributes<HTMLPcmChatModalElement>;
         }
     }
