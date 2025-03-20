@@ -30,10 +30,6 @@ export namespace Components {
     }
     interface PcmChatModal {
         /**
-          * 请求URL前缀
-         */
-        "apiBaseUrl": string;
-        /**
           * 机器人ID
          */
         "botId": string;
@@ -61,10 +57,6 @@ export namespace Components {
           * 聊天框窗口的布局风格
          */
         "layout": 'mobile' | 'pc';
-        /**
-          * 消息事件类型
-         */
-        "messageEvent": string;
         /**
           * 模态框标题
          */
@@ -110,6 +102,12 @@ declare global {
     interface HTMLPcmChatModalElementEventMap {
         "messageSent": string;
         "modalClosed": void;
+        "streamComplete": {
+    conversation_id: string;
+    event: string;
+    message_id: string;
+    id: string;
+  };
     }
     interface HTMLPcmChatModalElement extends Components.PcmChatModal, HTMLStencilElement {
         addEventListener<K extends keyof HTMLPcmChatModalElementEventMap>(type: K, listener: (this: HTMLPcmChatModalElement, ev: PcmChatModalCustomEvent<HTMLPcmChatModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -158,10 +156,6 @@ declare namespace LocalJSX {
     }
     interface PcmChatModal {
         /**
-          * 请求URL前缀
-         */
-        "apiBaseUrl"?: string;
-        /**
           * 机器人ID
          */
         "botId"?: string;
@@ -190,10 +184,6 @@ declare namespace LocalJSX {
          */
         "layout"?: 'mobile' | 'pc';
         /**
-          * 消息事件类型
-         */
-        "messageEvent"?: string;
-        /**
           * 模态框标题
          */
         "modalTitle"?: string;
@@ -205,6 +195,12 @@ declare namespace LocalJSX {
           * 当模态框关闭时触发
          */
         "onModalClosed"?: (event: PcmChatModalCustomEvent<void>) => void;
+        "onStreamComplete"?: (event: PcmChatModalCustomEvent<{
+    conversation_id: string;
+    event: string;
+    message_id: string;
+    id: string;
+  }>) => void;
         /**
           * 聊天框的页面层级
          */

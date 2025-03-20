@@ -73,15 +73,6 @@ export class ChatModal {
    */
   @Prop({ mutable: true }) conversationId?: string;
 
-  /**
-   * 消息事件类型
-   */
-  @Prop() messageEvent: string = 'message';
-
-  /**
-   * 请求URL前缀
-   */
-  @Prop() apiBaseUrl: string = '';
 
   /**
    * 当前助手回复的消息
@@ -102,8 +93,18 @@ export class ChatModal {
   @State() shouldAutoScroll: boolean = true;
   private readonly SCROLL_THRESHOLD = 100;
 
+  @State() isLoadingHistory: boolean = false;
+
   // 使用 @Element 装饰器获取组件的 host 元素
   @Element() hostElement: HTMLElement;
+
+  // 添加新的 Event
+  @Event() streamComplete: EventEmitter<{
+    conversation_id: string;
+    event: string;
+    message_id: string;
+    id: string;
+  }>;
 
   private handleClose = () => {
     this.isOpen = false;
@@ -119,7 +120,6 @@ export class ChatModal {
     console.log('开始发送消息:', message);
     this.isLoading = true;
     let answer = '';
-    let tempConversationId = this.conversationId;
 
     const now = new Date();
     const time = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
@@ -149,11 +149,12 @@ export class ChatModal {
     // 设置当前流式消息
     this.currentStreamingMessage = newMessage;
 
+    this.shouldAutoScroll = true;
     // 滚动到底部
     this.scrollToBottom();
 
     await sendSSERequest({
-      url: `http://192.168.17.194:8000/share/chat-messages`,
+      url: `https://pcm_api.ylzhaopin.com/share/chat-messages`,
       method: 'POST',
       data: {
         bot_id: this.botId,
@@ -165,15 +166,14 @@ export class ChatModal {
       onMessage: (data) => {
         console.log('收到Stream数据:', data);
 
-        if (data.conversation_id && !tempConversationId) {
-          tempConversationId = data.conversation_id;
+        if (data.conversation_id && !this.conversationId) {
           this.conversationId = data.conversation_id;
           this.updateUrlWithConversationId(data.conversation_id);
         }
 
-        if (data.event === this.messageEvent) {
+        if (data.event === 'message') {
           const inputMessage: UserInputMessageType = { message: message };
-          convertWorkflowStreamNodeToMessageRound(this.messageEvent, inputMessage, data);
+          convertWorkflowStreamNodeToMessageRound('message', inputMessage, data);
 
           if (data.event === 'agent_message' || data.event === 'message') {
             if (data.answer) {
@@ -184,23 +184,17 @@ export class ChatModal {
                 isStreaming: true
               };
               this.currentStreamingMessage = updatedMessage;
-              this.scrollToBottom(); // 每次更新消息时滚动
+              this.scrollToBottom();
             }
           }
-          if (data.event === 'workflow_finished') {
-            console.log('工作流完成，最终答案:', answer);
-            // 完成时将消息添加到消息列表
-            if (this.currentStreamingMessage) {
-              const finalMessage = {
-                ...this.currentStreamingMessage,
-                answer,
-                isStreaming: false
-              };
-              this.messages = [...this.messages, finalMessage];
-              this.currentStreamingMessage = null;
-              this.scrollToBottom(); // 消息完成时滚动
-            }
-          }
+        }
+        if (data.event === "message_end") {
+          this.streamComplete.emit({
+            conversation_id: data.conversation_id || '',
+            event: data.event,
+            message_id: data.message_id,
+            id: data.id,
+          });
         }
       },
       onError: (error) => {
@@ -236,29 +230,28 @@ export class ChatModal {
   private scrollToBottom() {
     if (!this.shouldAutoScroll) return;
     const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
+    console.log('chatHistory', chatHistory);
     if (chatHistory && this.isOpen) {
       // 强制浏览器重新计算布局
       chatHistory.scrollTop = chatHistory.scrollHeight;
     }
   }
 
-  // 添加 componentDidRender 生命周期方法
+  // 添加 componentDidRender 生命周期方法，用于在组件渲染后滚动到底部
   componentDidRender() {
-    if (this.shouldAutoScroll && this.isOpen) {
-        requestAnimationFrame(() => {
-            const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
-            if (chatHistory) {
-                chatHistory.scrollTop = chatHistory.scrollHeight;
-            }
-        });
+    if (this.isLoadingHistory || (this.shouldAutoScroll && this.isOpen)) {
+      const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
+      if (chatHistory) {
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+      }
     }
   }
 
   private updateUrlWithConversationId(conversationId: string) {
     const urlParams = new URLSearchParams(window.location.search);
-    if (!urlParams.get('task_id')) {
+    if (!urlParams.get('conversation_id')) {
       const newUrl = new URL(window.location.href);
-      newUrl.searchParams.set('task_id', conversationId);
+      newUrl.searchParams.set('conversation_id', conversationId);
       window.history.replaceState({}, '', newUrl);
     }
   }
@@ -290,10 +283,12 @@ export class ChatModal {
   // 修改 loadHistoryMessages 方法
   private async loadHistoryMessages() {
     if (!this.conversationId) return;
-
+    
+    this.isLoadingHistory = true;
+    
     try {
       const response = await sendHttpRequest({
-        url: `${this.apiBaseUrl || 'http://192.168.17.194:8000'}/share/messages`,
+        url: `https://pcm_api.ylzhaopin.com/share/messages`,
         params: {
           conversation_id: this.conversationId,
           bot_id: this.botId,
@@ -306,7 +301,12 @@ export class ChatModal {
         throw new Error('加载历史消息失败');
       }
 
-      const historyData = response.data;
+      // 适配新的接口返回格式
+      const historyData = response.data.data || [];
+
+      // 清空现有消息，确保不会重复
+      this.currentStreamingMessage = null;
+      this.messages = [];
 
       const formattedMessages: ChatMessage[] = historyData.map(msg => {
         const time = new Date(msg.created_at * 1000);
@@ -323,72 +323,17 @@ export class ChatModal {
 
       this.messages = formattedMessages;
       
-      // 等待DOM更新后滚动到底部
+      // 使用 requestAnimationFrame 确保在下一帧渲染后滚动
       requestAnimationFrame(() => {
         this.shouldAutoScroll = true;
         this.scrollToBottom();
       });
+
     } catch (error) {
       console.error('加载历史消息失败:', error);
+    } finally {
+      this.isLoadingHistory = false;
     }
-  }
-
-  // 修改 addTestMessages 方法
-  private addTestMessages() {
-    const now = new Date();
-    const time = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
-
-    // 模拟API返回的数据结构
-    const testData = [
-      {
-        id: "013eed0e-6100-46c1-98cf-ab3b9ee72ae2",
-        conversation_id: "f2f00afe-82f8-460e-9603-6327ea777fc4",
-        parent_message_id: "00000000-0000-0000-0000-000000000000",
-        query: "你好，请问有什么可以帮助你的吗？",
-        answer: "您好！我是您的智能助手，很高兴为您服务。我可以回答您的问题、提供信息或帮助您解决问题。请问您有什么需要我帮助的吗？",
-        created_at: Math.floor(Date.now() / 1000) - 120,
-        inputs: {
-          answer: "您好！我是您的智能助手，很高兴为您服务。我可以回答您的问题、提供信息或帮助您解决问题。请问您有什么需要我帮助的吗？"
-        },
-        message_files: [],
-        feedback: null,
-        retriever_resources: [],
-        agent_thoughts: [],
-        status: "normal",
-        error: null
-      },
-      {
-        id: "425c43e5-0b85-43b7-b5d6-854e1e2df48c",
-        conversation_id: "f2f00afe-82f8-460e-9603-6327ea777fc4",
-        parent_message_id: "013eed0e-6100-46c1-98cf-ab3b9ee72ae2",
-        query: "我想了解一下你的功能",
-        answer: "作为一个智能助手，我有以下功能：\n\n1. **回答问题**：我可以回答各种常见问题\n2. **提供信息**：我可以提供各类知识和信息\n3. **文本处理**：我可以帮助撰写、编辑和优化文本\n4. **创意支持**：我可以提供创意建议和灵感\n5. **问题解决**：我可以帮助分析和解决各种问题\n\n您有什么特定的需求吗？我很乐意为您提供帮助！",
-        created_at: Math.floor(Date.now() / 1000) - 60,
-        inputs: {
-          answer: "作为一个智能助手，我有以下功能：\n\n1. **回答问题**：我可以回答各种常见问题\n2. **提供信息**：我可以提供各类知识和信息\n3. **文本处理**：我可以帮助撰写、编辑和优化文本\n4. **创意支持**：我可以提供创意建议和灵感\n5. **问题解决**：我可以帮助分析和解决各种问题\n\n您有什么特定的需求吗？我很乐意为您提供帮助！"
-        },
-        message_files: [],
-        feedback: null,
-        retriever_resources: [],
-        agent_thoughts: [],
-        status: "normal",
-        error: null
-      }
-    ];
-
-    // 添加时间和bot_id属性
-    this.messages = testData.map(msg => ({
-      ...msg,
-      time,
-      bot_id: this.botId,
-      status: msg.status === 'error' ? 'error' : 'normal' as const
-    }));
-
-    // 等待 DOM 更新
-    requestAnimationFrame(() => {
-      this.shouldAutoScroll = true;
-      this.scrollToBottom();
-    });
   }
 
 
@@ -398,9 +343,7 @@ export class ChatModal {
     if (newValue) {
       if (this.conversationId) {
         await this.loadHistoryMessages();
-      } else {
-        this.addTestMessages();
-      }
+      } 
     }
   }
 
@@ -435,30 +378,39 @@ export class ChatModal {
           )}
 
           <div class="chat-history" onScroll={this.handleScroll}>
-            {this.messages.map((message) => (
-              <div id={`message_${message.id}`} key={message.id}>
-                <pcm-chat-message
-                  message={message}
-                  onMessageChange={(event) => {
-                    const updatedMessages = this.messages.map(msg =>
-                      msg.id === message.id ? { ...msg, ...event.detail } : msg
-                    );
-                    this.messages = updatedMessages;
-                  }}
-                ></pcm-chat-message>
+            {this.isLoadingHistory ? (
+              <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <p>加载历史消息中...</p>
               </div>
-            ))}
-            {this.currentStreamingMessage && (
-              <div id={`message_${this.currentStreamingMessage.id}`}>
-                <pcm-chat-message
-                  message={this.currentStreamingMessage}
-                ></pcm-chat-message>
-              </div>
-            )}
-            {this.messages.length === 0 && !this.currentStreamingMessage && (
-              <div class="empty-state">
-                <p>请输入消息</p>
-              </div>
+            ) : (
+              <>
+                {this.messages.map((message) => (
+                  <div id={`message_${message.id}`} key={message.id}>
+                    <pcm-chat-message
+                      message={message}
+                      onMessageChange={(event) => {
+                        const updatedMessages = this.messages.map(msg =>
+                          msg.id === message.id ? { ...msg, ...event.detail } : msg
+                        );
+                        this.messages = updatedMessages;
+                      }}
+                    ></pcm-chat-message>
+                  </div>
+                ))}
+                {this.currentStreamingMessage && (
+                  <div id={`message_${this.currentStreamingMessage.id}`}>
+                    <pcm-chat-message
+                      message={this.currentStreamingMessage}
+                    ></pcm-chat-message>
+                  </div>
+                )}
+                {this.messages.length === 0 && !this.currentStreamingMessage && (
+                  <div class="empty-state">
+                    <p>请输入消息</p>
+                  </div>
+                )}
+              </>
             )}
           </div>
 

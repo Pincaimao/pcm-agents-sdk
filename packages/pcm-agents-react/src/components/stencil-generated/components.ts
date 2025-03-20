@@ -39,7 +39,13 @@ export const PcmChatMessage: StencilReactComponent<PcmChatMessageElement, PcmCha
 
 type PcmChatModalEvents = {
     onMessageSent: EventName<CustomEvent<string>>,
-    onModalClosed: EventName<CustomEvent<void>>
+    onModalClosed: EventName<CustomEvent<void>>,
+    onStreamComplete: EventName<CustomEvent<{
+        conversation_id: string;
+        event: string;
+        message_id: string;
+        id: string;
+    }>>
 };
 
 export const PcmChatModal: StencilReactComponent<PcmChatModalElement, PcmChatModalEvents> = /*@__PURE__*/ createComponent<PcmChatModalElement, PcmChatModalEvents>({
@@ -49,7 +55,8 @@ export const PcmChatModal: StencilReactComponent<PcmChatModalElement, PcmChatMod
     react: React,
     events: {
         onMessageSent: 'messageSent',
-        onModalClosed: 'modalClosed'
+        onModalClosed: 'modalClosed',
+        onStreamComplete: 'streamComplete'
     } as PcmChatModalEvents,
     defineCustomElement: definePcmChatModal
 });
