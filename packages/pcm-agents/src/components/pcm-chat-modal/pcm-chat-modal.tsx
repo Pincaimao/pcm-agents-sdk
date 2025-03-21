@@ -106,6 +106,12 @@ export class ChatModal {
     id: string;
   }>;
 
+  @State() suggestedQuestions: string[] = [];
+  @State() suggestedQuestionsLoading: boolean = false;
+  private stopSuggestedQuestionsRef: { current: boolean } = { current: false };
+
+  @State() selectedFile: File | null = null;
+
   private handleClose = () => {
     this.isOpen = false;
     this.modalClosed.emit();
@@ -116,7 +122,57 @@ export class ChatModal {
     this.currentMessage = input.value;
   };
 
+  private async getSuggestedQuestions(messageId: string) {
+    this.stopSuggestedQuestionsRef.current = false;
+    this.suggestedQuestionsLoading = true;
+
+    try {
+      const response = await sendHttpRequest({
+        url: `https://pcm_api.ylzhaopin.com/share/messages/${messageId}/suggested`,
+        params: {
+          bot_id: this.botId
+        }
+      });
+
+      if (this.stopSuggestedQuestionsRef.current) return;
+
+      if (response.isOk && response.data?.result === 'success') {
+        this.suggestedQuestions = response.data?.data || [];
+      }
+    } catch (error) {
+      console.error('获取问题建议失败:', error);
+    } finally {
+      this.suggestedQuestionsLoading = false;
+    }
+  }
+
+  private handleStopSuggestedQuestions = () => {
+    this.suggestedQuestions = [];
+    this.stopSuggestedQuestionsRef.current = true;
+  };
+
+  private handleFileChange = (event: Event) => {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+    }
+  };
+
+  private handleUploadClick = () => {
+    const fileInput = this.hostElement.shadowRoot?.querySelector('.file-input') as HTMLInputElement;
+    fileInput?.click();
+  };
+
+  private clearSelectedFile = () => {
+    this.selectedFile = null;
+    const fileInput = this.hostElement.shadowRoot?.querySelector('.file-input') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  };
+
   private async sendMessageToAPI(message: string) {
+    this.handleStopSuggestedQuestions();
     console.log('开始发送消息:', message);
     this.isLoading = true;
     let answer = '';
@@ -212,6 +268,12 @@ export class ChatModal {
         console.log('请求完成');
         this.isLoading = false;
         this.messages = [...this.messages, this.currentStreamingMessage];
+
+        // 在消息完成后获取问题建议
+        if (this.currentStreamingMessage) {
+          this.getSuggestedQuestions(this.currentStreamingMessage.conversation_id);
+        }
+
         this.currentStreamingMessage = null;
       }
     });
@@ -284,9 +346,9 @@ export class ChatModal {
   // 修改 loadHistoryMessages 方法
   private async loadHistoryMessages() {
     if (!this.conversationId) return;
-    
+
     this.isLoadingHistory = true;
-    
+
     try {
       const response = await sendHttpRequest({
         url: `https://pcm_api.ylzhaopin.com/share/messages`,
@@ -323,7 +385,7 @@ export class ChatModal {
       });
 
       this.messages = formattedMessages;
-      
+
       // 使用 requestAnimationFrame 确保在下一帧渲染后滚动
       requestAnimationFrame(() => {
         this.shouldAutoScroll = true;
@@ -344,7 +406,7 @@ export class ChatModal {
     if (newValue) {
       if (this.conversationId) {
         await this.loadHistoryMessages();
-      } 
+      }
     }
   }
 
@@ -413,21 +475,83 @@ export class ChatModal {
                 )}
               </>
             )}
+
+            {this.suggestedQuestionsLoading ? (
+              <div class="loading-suggestions">
+                <div class="loading-spinner-small"></div>
+              </div>
+            ) : (
+              this.suggestedQuestions.length > 0 && (
+                <div class="suggested-questions">
+                  {this.suggestedQuestions.map((question, index) => (
+                    <div
+                      key={index}
+                      class="suggested-question"
+                      onClick={() => {
+                        this.currentMessage = question;
+                        this.handleSendMessage();
+                      }}
+                    >
+                      {question}
+                      <span class="arrow-right">→</span>
+                    </div>
+                  ))}
+                </div>
+              )
+            )}
           </div>
+
+          {/* 添加文件预览区域 */}
+          {this.selectedFile && (
+            <div class="file-preview">
+              <div class="file-info">
+                <span class="file-name" title={this.selectedFile.name}>
+                  {this.selectedFile.name}
+                </span>
+                <button class="remove-file" onClick={this.clearSelectedFile}>
+                  ×
+                </button>
+              </div>
+            </div>
+          )}
 
           <div class="message-input">
             <input
-              type="text"
-              placeholder="请输入消息..."
-              value={this.currentMessage}
-              onInput={this.handleInputChange}
-              onKeyDown={this.handleKeyDown}
-              disabled={this.isLoading}
+              type="file"
+              class="file-input"
+              onChange={this.handleFileChange}
+              accept="image/*,.pdf,.doc,.docx,.txt"
             />
             <button
+              class="upload-button"
+              onClick={this.handleUploadClick}
+              title="上传文件"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m0-16l-4 4m4-4l4 4"
+                />
+              </svg>
+            </button>
+
+            <div class="input-wrapper">
+              <input
+                type="text"
+                placeholder="请输入消息..."
+                value={this.currentMessage}
+                onInput={this.handleInputChange}
+                onKeyDown={this.handleKeyDown}
+                disabled={this.isLoading}
+              />
+            </div>
+
+            <button
               class="send-button"
-              onClick={this.handleSendMessage}
-              disabled={!this.currentMessage.trim() || this.isLoading}
+              onClick={() => this.handleSendMessage()}
+              disabled={(!this.currentMessage.trim() && !this.selectedFile) || this.isLoading}
             >
               {this.isLoading ? '发送中...' : '发送'}
             </button>

@@ -107,6 +107,7 @@
   border-top: 1px solid #eee;
   display: flex;
   gap: 8px;
+  align-items: center;
 }
 
 .message-input input {
@@ -240,6 +241,153 @@
 /* 当有很多消息时，取消固定在底部 */
 .messages-wrapper.has-overflow {
   justify-content: flex-start;
+}
+
+.suggested-questions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+}
+
+.suggested-question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background-color: #f3f4f6;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #374151;
+  transition: background-color 0.2s;
+}
+
+.suggested-question:hover {
+  background-color: #e5e7eb;
+}
+
+.arrow-right {
+  margin-left: 8px;
+}
+
+.loading-suggestions {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+}
+
+.loading-spinner-small {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #6b7280;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* 添加上传按钮样式 */
+.upload-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.upload-button:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.upload-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* 隐藏原生文件输入框 */
+.file-input {
+  display: none;
+}
+
+/* 添加文件名显示区域样式 */
+.selected-file {
+  font-size: 12px;
+  color: #666;
+  margin-left: 8px;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.input-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0 4px;
+  background: white;
+}
+
+.input-wrapper input {
+  border: none;
+  flex: 1;
+  padding: 8px;
+  outline: none;
+}
+
+.input-wrapper:focus-within {
+  border-color: #bbb;
+}
+
+/* 文件预览区域样式 */
+.file-preview {
+  padding: 8px 16px;
+  border-top: 1px solid #eee;
+  background-color: #f9f9f9;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  background: white;
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+}
+
+.file-name {
+  font-size: 13px;
+  color: #333;
+  margin-right: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: calc(100% - 30px);
+}
+
+.remove-file {
+  background: transparent;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 16px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.remove-file:hover {
+  background-color: #f0f0f0;
+  color: #666;
 }
 
 
