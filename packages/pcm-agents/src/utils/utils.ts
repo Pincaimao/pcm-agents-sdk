@@ -1,3 +1,5 @@
+import COS from 'cos-js-sdk-v5';
+
 export function format(first?: string, middle?: string, last?: string): string {
   return (first || '') + (middle ? ` ${middle}` : '') + (last ? ` ${last}` : '');
 }
@@ -196,4 +198,236 @@ export const sendHttpRequest = async <T = any>(config: HttpRequestConfig): Promi
       error
     };
   }
+};
+
+/**
+ * COS上传配置接口
+ */
+export interface COSUploadConfig {
+  SecretId: string;
+  SecretKey: string;
+  SecurityToken?: string;
+  StartTime?: number;
+  ExpiredTime?: number;
+  Bucket: string;
+  Region: string;
+  Key: string;
+  file: File;
+  onProgress?: (progress: number) => void;
+  onSuccess?: (result: COSUploadResult) => void;
+  onError?: (error: any) => void;
+}
+
+/**
+ * COS上传结果接口
+ */
+export interface COSUploadResult {
+  Location: string;
+  Bucket: string;
+  Key: string;
+  ETag: string;
+  FileSize: number;
+  RequestId: string;
+}
+
+/**
+ * COS文件上传工具函数
+ * @param config 上传配置
+ * @returns Promise<COSUploadResult>
+ */
+export const uploadToCOS = (config: COSUploadConfig): Promise<COSUploadResult> => {
+  const cos = new COS({
+    SecretId: config.SecretId,
+    SecretKey: config.SecretKey,
+    SecurityToken: config.SecurityToken,
+    StartTime: config.StartTime,
+    ExpiredTime: config.ExpiredTime,
+  });
+
+  return new Promise((resolve, reject) => {
+    cos.uploadFile({
+      Bucket: config.Bucket,
+      Region: config.Region,
+      Key: config.Key,
+      Body: config.file,
+      SliceSize: 1024 * 1024 * 5, // 分片上传，每片5MB
+      onProgress: (progressData) => {
+        const percent = Math.floor((progressData.loaded / progressData.total) * 100);
+        config.onProgress?.(percent);
+      },
+    }, (err, data) => {
+      if (err) {
+        config.onError?.(err);
+        reject(err);
+      } else {
+        const result = {
+          Location: data.Location,
+          Bucket: config.Bucket,
+          Key: config.Key,
+          ETag: data.ETag,
+          FileSize: config.file.size,
+          RequestId: data.RequestId,
+        };
+        config.onSuccess?.(result);
+        resolve(result);
+      }
+    });
+  });
+};
+
+/**
+ * 简单的文件类型检查工具
+ * @param file 文件对象
+ * @param allowedTypes 允许的文件类型数组
+ * @returns boolean
+ */
+export const checkFileType = (file: File, allowedTypes: string[]): boolean => {
+  const fileType = file.type.toLowerCase();
+  return allowedTypes.some(type => fileType.includes(type));
+};
+
+/**
+ * 文件大小检查工具
+ * @param file 文件对象
+ * @param maxSize 最大文件大小（单位：MB）
+ * @returns boolean
+ */
+export const checkFileSize = (file: File, maxSize: number): boolean => {
+  const fileSize = file.size / 1024 / 1024; // 转换为MB
+  return fileSize <= maxSize;
+};
+
+/**
+ * COS认证信息接口
+ */
+export interface COSAuthInfo {
+  filename?: string;
+  filetype?: string;
+  filesize?: number;
+  cos?: {
+    region?: string;
+    bucket?: string;
+    cos_key?: string;
+  };
+  auth?: {
+    expiredTime?: number;
+    expiration?: string;
+    requestId?: string;
+    startTime?: number;
+    credentials?: {
+      sessionToken?: string;
+      tmpSecretId?: string;
+      tmpSecretKey?: string;
+    };
+  };
+}
+
+/**
+ * 获取COS上传认证信息
+ * @param file 文件对象
+ * @param tags 可选的标签数组
+ * @returns Promise<COSAuthInfo>
+ */
+export const getCosAuthInfo = async (file: File, tags?: string[]): Promise<COSAuthInfo> => {
+  const data = {
+    filename: file.name,
+    filesize: file.size,
+    filetype: file.type,
+    tags,
+  };
+
+  const res = await sendHttpRequest<COSAuthInfo>({
+    url: '/resource/get-cos-authkey',
+    method: 'POST',
+    data,
+  });
+
+  return res?.data ?? {};
+};
+
+/**
+ * 文件上传回调
+ * @param cos_key COS对象键值
+ */
+export const uploadCallback = async (cos_key: string): Promise<void> => {
+  await sendHttpRequest({
+    url: '/resource/mark-as-upload',
+    method: 'POST',
+    data: { cos_key },
+  });
+};
+
+/**
+ * 知识库文档上传回调
+ * @param cos_key COS对象键值
+ */
+export const knowledgeUploadCallback = async (cos_key: string): Promise<void> => {
+  await sendHttpRequest({
+    url: '/knowledge_documents/mark-as-upload',
+    method: 'POST',
+    data: { cos_key },
+  });
+};
+
+/**
+ * 统一的文件上传方法
+ */
+export const upload = async ({
+  file,
+  id,
+  tags,
+}: {
+  file: File;
+  id?: string;
+  tags?: string[];
+}): Promise<{
+  file_name: string;
+  file_size: number;
+  file_type: string;
+  cos_key: string;
+  id?: string;
+}> => {
+  const cosAuthInfo = await getCosAuthInfo(file, tags);
+  
+  if (!cosAuthInfo.auth) {
+    throw new Error('获取上传秘钥失败');
+  }
+
+  return new Promise((resolve, reject) => {
+    const cos = new COS({
+      SecretId: cosAuthInfo.auth?.credentials?.tmpSecretId,
+      SecretKey: cosAuthInfo.auth?.credentials?.tmpSecretKey,
+      SecurityToken: cosAuthInfo.auth?.credentials?.sessionToken,
+      StartTime: cosAuthInfo.auth?.startTime,
+      ExpiredTime: cosAuthInfo.auth?.expiredTime,
+    });
+
+    cos.uploadFile({
+      Bucket: cosAuthInfo.cos?.bucket,
+      Region: cosAuthInfo.cos?.region,
+      Key: cosAuthInfo.cos?.cos_key,
+      Body: file,
+      SliceSize: 1024 * 1024 * 1024,
+    }, async (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        try {
+         
+          await uploadCallback(cosAuthInfo.cos?.cos_key ?? '');
+          
+          resolve({
+            ...data,
+            cos_key: cosAuthInfo.cos?.cos_key ?? '',
+            file_name: file.name,
+            file_size: file.size,
+            file_type: file.type,
+            id,
+          });
+        } catch (error) {
+          reject(error);
+        }
+      }
+    });
+  });
 };
