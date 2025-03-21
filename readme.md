@@ -39,13 +39,45 @@ top-most-directory/
 </head>
 <body>
     <pcm-chat-modal 
-      id="test-pcm-chat-modal"
-      modal-title="在线客服"
-      src="https://picsum.photos/200" 
-      alt="示例图片" 
-      width="80" 
-      height="80">
-    </pcm-chat-modal>
+      bot-id="3022316191018873"
+      id="pcm-chat-modal" 
+      modal-title="在线客服" 
+      icon="https://www.ylzhaopin.com/Public/Newhome/images/sidebar/tochat.png"
+      conversation-id=""
+    ></pcm-chat-modal>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM 已加载，正在设置事件监听器...');
+        
+        // 聊天模态框事件监听
+        const chatModal = document.getElementById('pcm-chat-modal');
+        if (chatModal) {
+          chatModal.addEventListener('messageSent', function(event) {
+            console.log('发送消息:', event.detail);
+          });
+          
+          chatModal.addEventListener('modalClosed', function() {
+            console.log('聊天窗口已关闭');
+          });
+
+          // 添加 streamComplete 事件监听
+          chatModal.addEventListener('streamComplete', function(event) {
+            console.log('流式响应完成:', event.detail);
+            // 更新 conversation_id
+            chatModal.setAttribute('conversation-id', event.detail.conversation_id);
+          });
+        }
+
+        // 打开聊天按钮事件监听
+        const openChatButton = document.getElementById('open-chat');
+        if (openChatButton && chatModal) {
+          openChatButton.addEventListener('click', function() {
+            chatModal.isOpen = true;
+          });
+        }
+      });
+    </script>
 </body>
 </html>
 ```
