@@ -211,7 +211,8 @@ export class ChatModal {
       onComplete: () => {
         console.log('请求完成');
         this.isLoading = false;
-
+        this.messages = [...this.messages, this.currentStreamingMessage];
+        this.currentStreamingMessage = null;
       }
     });
   }
