@@ -1,11 +1,5 @@
 # `pcm-agents-vue`
 
-> TODO: description
+组件文档地址
 
-## Usage
-
-```
-const pcmAgentsVue = require('pcm-agents-vue');
-
-// TODO: DEMONSTRATE API
-```
+packages\pcm-agents\docs\components
