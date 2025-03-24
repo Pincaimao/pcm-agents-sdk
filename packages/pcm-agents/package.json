@@ -55,7 +55,6 @@
     "@stencil/react-output-target": "^0.8.2",
     "@stencil/vue-output-target": "^0.10.7",
     "@types/marked": "^5.0.2",
-    "cos-js-sdk-v5": "^1.8.7",
     "marked": "^9.1.5"
   }
 }

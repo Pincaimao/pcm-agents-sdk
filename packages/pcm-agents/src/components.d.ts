@@ -38,6 +38,10 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
+          * 默认查询文本
+         */
+        "defaultQuery": string;
+        /**
           * 应用图标URL
          */
         "icon"?: string;
@@ -163,6 +167,10 @@ declare namespace LocalJSX {
           * 会话ID
          */
         "conversationId"?: string;
+        /**
+          * 默认查询文本
+         */
+        "defaultQuery"?: string;
         /**
           * 应用图标URL
          */

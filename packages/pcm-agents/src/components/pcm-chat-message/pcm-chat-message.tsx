@@ -28,6 +28,20 @@ export class ChatMessageComponent {
         });
     }
 
+    // 复制消息内容到剪贴板
+    private copyMessageContent() {
+        if (this.message.answer) {
+            navigator.clipboard.writeText(this.message.answer)
+                .then(() => {
+                    // 可以添加复制成功的提示
+                    console.log('内容已复制到剪贴板');
+                })
+                .catch(err => {
+                    console.error('复制失败:', err);
+                });
+        }
+    }
+
     // 渲染用户消息部分
     private renderUserMessage() {
         if (!this.message?.query?.trim()) return null;
@@ -38,7 +52,6 @@ export class ChatMessageComponent {
                     <p>{this.message.query}</p>
                     {this.renderInputs()}
                 </div>
-                <span class="message-time">{this.message.time}</span>
             </div>
         );
     }
@@ -66,7 +79,16 @@ export class ChatMessageComponent {
                         }
                     ></div>
                 </div>
-                <span class="message-time">{this.message.time}</span>
+                {!showLoading && this.message.answer && (
+                        <div class="message-actions">
+                            <button class="copy-button" onClick={() => this.copyMessageContent()} title="复制内容">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    )}
             </div>
         );
     }
@@ -106,7 +128,7 @@ export class ChatMessageComponent {
                                 </div>
                             );
                         } else {
-                            return <div key={index} class="text-sm text-gray-500">{key}: {`${value}`}</div>;
+                            return <div key={index} class="input-metadata">{key}: {`${value}`}</div>;
                         }
                     }
                     return null;

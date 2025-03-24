@@ -111,6 +111,13 @@ export class ChatModal {
   private stopSuggestedQuestionsRef: { current: boolean } = { current: false };
 
   @State() selectedFile: File | null = null;
+  @State() isUploading: boolean = false;
+  @State() uploadedFileInfo: { cos_key: string, filename: string, ext: string, presigned_url: string }[] = [];
+
+  /**
+   * 默认查询文本
+   */
+  @Prop() defaultQuery: string = '';
 
   private handleClose = () => {
     this.isOpen = false;
@@ -151,12 +158,49 @@ export class ChatModal {
     this.stopSuggestedQuestionsRef.current = true;
   };
 
-  private handleFileChange = (event: Event) => {
+  private handleFileChange = async (event: Event) => {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       this.selectedFile = input.files[0];
+      
+      // 文件选择后立即上传
+      await this.uploadFile();
     }
   };
+
+  private async uploadFile() {
+    if (!this.selectedFile) return;
+    
+    this.isUploading = true;
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', this.selectedFile);
+      
+      const response = await fetch('https://pcm_api.ylzhaopin.com/external/v1/files/upload', {
+        method: 'POST',
+        body: formData
+      });
+      
+      
+      const result = await response.json();
+      console.log('result', result);
+      if (result) {
+        this.uploadedFileInfo.push({
+          cos_key: result.cos_key,
+          filename: result.filename,
+          ext: result.ext,
+          presigned_url: result.presigned_url
+        });
+      } 
+    } catch (error) {
+      console.error('文件上传错误:', error);
+      this.clearSelectedFile();
+      alert('文件上传失败，请重试');
+    } finally {
+      this.isUploading = false;
+    }
+  }
 
   private handleUploadClick = () => {
     const fileInput = this.hostElement.shadowRoot?.querySelector('.file-input') as HTMLInputElement;
@@ -165,11 +209,13 @@ export class ChatModal {
 
   private clearSelectedFile = () => {
     this.selectedFile = null;
+    this.uploadedFileInfo = [];
     const fileInput = this.hostElement.shadowRoot?.querySelector('.file-input') as HTMLInputElement;
     if (fileInput) {
       fileInput.value = '';
     }
   };
+
 
   private async sendMessageToAPI(message: string) {
     this.handleStopSuggestedQuestions();
@@ -180,11 +226,14 @@ export class ChatModal {
     const now = new Date();
     const time = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
 
+    // 如果消息为空但有文件，使用默认文本
+    const queryText = message.trim() || (this.uploadedFileInfo.length > 0 ? '请分析这个文件' : '');
+
     // 创建新的消息对象时确保必填字段都有值
     const newMessage: ChatMessage = {
       id: `temp-${Date.now()}`,  // id 必填
       time: time,                // time 必填
-      query: message,
+      query: queryText,
       answer: '',
       bot_id: this.botId,
       isStreaming: true,
@@ -201,7 +250,6 @@ export class ChatModal {
       error: null
     };
 
-
     // 设置当前流式消息
     this.currentStreamingMessage = newMessage;
 
@@ -209,16 +257,28 @@ export class ChatModal {
     // 滚动到底部
     this.scrollToBottom();
 
+    // 准备请求数据
+    const requestData: any = {
+      bot_id: this.botId,
+      response_mode: 'streaming',
+      conversation_id: this.conversationId,
+      query: queryText,
+      user: '1234567890'
+    };
+    // 如果有上传的文件，添加到inputs参数
+    if (this.uploadedFileInfo.length > 0) {
+      const fileUrls = this.uploadedFileInfo.map(fileInfo => fileInfo.cos_key).join(';');
+
+      requestData.inputs = {
+        ...requestData.inputs,
+        input: fileUrls
+      };
+    }
+
     await sendSSERequest({
       url: `https://pcm_api.ylzhaopin.com/share/chat-messages`,
       method: 'POST',
-      data: {
-        bot_id: this.botId,
-        response_mode: 'streaming',
-        conversation_id: this.conversationId,
-        query: message,
-        user: '1234567890'
-      },
+      data: requestData,
       onMessage: (data) => {
         console.log('收到Stream数据:', data);
 
@@ -320,7 +380,7 @@ export class ChatModal {
   }
 
   private handleSendMessage = () => {
-    if (!this.currentMessage.trim() || this.isLoading) return;
+    if ((!this.currentMessage.trim() && this.uploadedFileInfo.length === 0) || this.isLoading) return;
 
     // 触发消息发送事件
     this.messageSent.emit(this.currentMessage);
@@ -330,6 +390,9 @@ export class ChatModal {
 
     // 清空输入框
     this.currentMessage = '';
+    
+    // 清除已选择的文件
+    this.clearSelectedFile();
 
     // 保持输入框焦点
     const inputElement = this.hostElement.shadowRoot?.querySelector('input');
@@ -407,6 +470,20 @@ export class ChatModal {
       if (this.conversationId) {
         await this.loadHistoryMessages();
       }
+    }
+  }
+
+  @Watch('defaultQuery')
+  handleDefaultQueryChange(newValue: string) {
+    if (newValue && !this.currentMessage) {
+      this.currentMessage = newValue;
+    }
+  }
+
+  componentWillLoad() {
+    // 组件加载时设置默认查询
+    if (this.defaultQuery) {
+      this.currentMessage = this.defaultQuery;
     }
   }
 
@@ -507,6 +584,8 @@ export class ChatModal {
               <div class="file-info">
                 <span class="file-name" title={this.selectedFile.name}>
                   {this.selectedFile.name}
+                  {this.isUploading && <span class="uploading-indicator"> (上传中...)</span>}
+                  {this.uploadedFileInfo.length > 0 && <span class="upload-success"> (已上传)</span>}
                 </span>
                 <button class="remove-file" onClick={this.clearSelectedFile}>
                   ×
@@ -526,6 +605,7 @@ export class ChatModal {
               class="upload-button"
               onClick={this.handleUploadClick}
               title="上传文件"
+              disabled={this.isUploading}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path
@@ -551,7 +631,7 @@ export class ChatModal {
             <button
               class="send-button"
               onClick={() => this.handleSendMessage()}
-              disabled={(!this.currentMessage.trim() && !this.selectedFile) || this.isLoading}
+              disabled={(!this.currentMessage.trim() && this.uploadedFileInfo.length === 0) || this.isLoading || this.isUploading}
             >
               {this.isLoading ? '发送中...' : '发送'}
             </button>

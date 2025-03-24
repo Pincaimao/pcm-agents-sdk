@@ -28,6 +28,7 @@
   border-radius: 18px;
   max-width: 80%;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
 /* 用户消息气泡样式 */
@@ -42,7 +43,6 @@
   background-color: #f0f0f0;
   border-top-left-radius: 4px;
 }
-
 
 .message-time {
   font-size: 12px;
@@ -119,8 +119,12 @@
 .input-value {
   padding: 8px;
   font-size: 14px;
-} 
+}
 
+.input-metadata {
+  font-size: 0.875rem;
+  margin-top: 4px;
+}
 
 .markdown-body {
     --base-size-4: 0.25rem;
@@ -1348,6 +1352,40 @@
   
   .markdown-body .highlight pre:has(+.zeroclipboard-container) {
     min-height: 52px;
+  }
+  
+  .message-actions {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  
+  .assistant-message:hover .message-actions {
+    opacity: 1;
+  }
+  
+  .copy-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    color: #6e6e80;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .copy-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #000;
+  }
+  
+  .copy-button svg {
+    width: 16px;
+    height: 16px;
   }
   
   

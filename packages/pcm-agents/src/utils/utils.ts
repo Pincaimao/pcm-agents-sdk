@@ -431,3 +431,39 @@ export const upload = async ({
     });
   });
 };
+
+/**
+ * 通过后端API上传文件
+ * @param file 要上传的文件
+ * @returns Promise 包含上传结果
+ */
+export const uploadFileToBackend = async (file: File): Promise<{id: string, name: string, size: number, type: string}> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  try {
+    const response = await fetch('https://pcm_api.ylzhaopin.com/external/v1/files/upload', {
+      method: 'POST',
+      body: formData
+    });
+    
+    if (!response.ok) {
+      throw new Error(`上传失败: ${response.status} ${response.statusText}`);
+    }
+    
+    const result = await response.json();
+    if (result.code !== 0 || !result.data) {
+      throw new Error(result.message || '文件上传失败');
+    }
+    
+    return {
+      id: result.data.id,
+      name: result.data.name || file.name,
+      size: result.data.size || file.size,
+      type: result.data.type || file.type
+    };
+  } catch (error) {
+    console.error('文件上传错误:', error);
+    throw error;
+  }
+};
