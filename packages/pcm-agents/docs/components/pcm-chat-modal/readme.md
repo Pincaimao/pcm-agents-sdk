@@ -8,6 +8,7 @@
 | ---------------- | ----------------- | ------------ | ------------------ | ----------- |
 | `botId`          | `bot-id`          | 机器人ID        | `string`           | `undefined` |
 | `conversationId` | `conversation-id` | 会话ID         | `string`           | `undefined` |
+| `defaultQuery`   | `default-query`   | 默认查询文本       | `string`           | `''`        |
 | `icon`           | `icon`            | 应用图标URL      | `string`           | `undefined` |
 | `isNeedClose`    | `is-need-close`   | 是否展示右上角的关闭按钮 | `boolean`          | `true`      |
 | `isOpen`         | `is-open`         | 是否显示聊天模态框    | `boolean`          | `false`     |

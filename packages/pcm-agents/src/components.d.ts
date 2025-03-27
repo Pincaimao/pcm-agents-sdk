@@ -70,6 +70,48 @@ export namespace Components {
          */
         "zIndex"?: number;
     }
+    interface PcmHrChatModal {
+        /**
+          * 机器人ID
+         */
+        "botId": string;
+        /**
+          * 会话ID
+         */
+        "conversationId"?: string;
+        /**
+          * 默认查询文本
+         */
+        "defaultQuery": string;
+        /**
+          * 应用图标URL
+         */
+        "icon"?: string;
+        /**
+          * 是否展示右上角的关闭按钮
+         */
+        "isNeedClose": boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen": boolean;
+        /**
+          * 是否展示顶部标题栏
+         */
+        "isShowHeader": boolean;
+        /**
+          * 聊天框窗口的布局风格
+         */
+        "layout": 'mobile' | 'pc';
+        /**
+          * 模态框标题
+         */
+        "modalTitle": string;
+        /**
+          * 聊天框的页面层级
+         */
+        "zIndex"?: number;
+    }
 }
 export interface PcmChatMessageCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -78,6 +120,10 @@ export interface PcmChatMessageCustomEvent<T> extends CustomEvent<T> {
 export interface PcmChatModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmChatModalElement;
+}
+export interface PcmHrChatModalCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLPcmHrChatModalElement;
 }
 declare global {
     interface HTMLMyComponentElement extends Components.MyComponent, HTMLStencilElement {
@@ -127,10 +173,35 @@ declare global {
         prototype: HTMLPcmChatModalElement;
         new (): HTMLPcmChatModalElement;
     };
+    interface HTMLPcmHrChatModalElementEventMap {
+        "messageSent": string;
+        "modalClosed": void;
+        "streamComplete": {
+    conversation_id: string;
+    event: string;
+    message_id: string;
+    id: string;
+  };
+    }
+    interface HTMLPcmHrChatModalElement extends Components.PcmHrChatModal, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLPcmHrChatModalElementEventMap>(type: K, listener: (this: HTMLPcmHrChatModalElement, ev: PcmHrChatModalCustomEvent<HTMLPcmHrChatModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLPcmHrChatModalElementEventMap>(type: K, listener: (this: HTMLPcmHrChatModalElement, ev: PcmHrChatModalCustomEvent<HTMLPcmHrChatModalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLPcmHrChatModalElement: {
+        prototype: HTMLPcmHrChatModalElement;
+        new (): HTMLPcmHrChatModalElement;
+    };
     interface HTMLElementTagNameMap {
         "my-component": HTMLMyComponentElement;
         "pcm-chat-message": HTMLPcmChatMessageElement;
         "pcm-chat-modal": HTMLPcmChatModalElement;
+        "pcm-hr-chat-modal": HTMLPcmHrChatModalElement;
     }
 }
 declare namespace LocalJSX {
@@ -214,10 +285,67 @@ declare namespace LocalJSX {
          */
         "zIndex"?: number;
     }
+    interface PcmHrChatModal {
+        /**
+          * 机器人ID
+         */
+        "botId"?: string;
+        /**
+          * 会话ID
+         */
+        "conversationId"?: string;
+        /**
+          * 默认查询文本
+         */
+        "defaultQuery"?: string;
+        /**
+          * 应用图标URL
+         */
+        "icon"?: string;
+        /**
+          * 是否展示右上角的关闭按钮
+         */
+        "isNeedClose"?: boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen"?: boolean;
+        /**
+          * 是否展示顶部标题栏
+         */
+        "isShowHeader"?: boolean;
+        /**
+          * 聊天框窗口的布局风格
+         */
+        "layout"?: 'mobile' | 'pc';
+        /**
+          * 模态框标题
+         */
+        "modalTitle"?: string;
+        /**
+          * 当发送消息时触发
+         */
+        "onMessageSent"?: (event: PcmHrChatModalCustomEvent<string>) => void;
+        /**
+          * 当模态框关闭时触发
+         */
+        "onModalClosed"?: (event: PcmHrChatModalCustomEvent<void>) => void;
+        "onStreamComplete"?: (event: PcmHrChatModalCustomEvent<{
+    conversation_id: string;
+    event: string;
+    message_id: string;
+    id: string;
+  }>) => void;
+        /**
+          * 聊天框的页面层级
+         */
+        "zIndex"?: number;
+    }
     interface IntrinsicElements {
         "my-component": MyComponent;
         "pcm-chat-message": PcmChatMessage;
         "pcm-chat-modal": PcmChatModal;
+        "pcm-hr-chat-modal": PcmHrChatModal;
     }
 }
 export { LocalJSX as JSX };
@@ -227,6 +355,7 @@ declare module "@stencil/core" {
             "my-component": LocalJSX.MyComponent & JSXBase.HTMLAttributes<HTMLMyComponentElement>;
             "pcm-chat-message": LocalJSX.PcmChatMessage & JSXBase.HTMLAttributes<HTMLPcmChatMessageElement>;
             "pcm-chat-modal": LocalJSX.PcmChatModal & JSXBase.HTMLAttributes<HTMLPcmChatModalElement>;
+            "pcm-hr-chat-modal": LocalJSX.PcmHrChatModal & JSXBase.HTMLAttributes<HTMLPcmHrChatModalElement>;
         }
     }
 }

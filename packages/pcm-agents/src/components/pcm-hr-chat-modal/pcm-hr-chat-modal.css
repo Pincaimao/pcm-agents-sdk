@@ -1,0 +1,529 @@
+:host {
+  display: block;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+/* PC端布局 */
+.pc-layout {
+  width: 80%;
+  max-width: 800px;
+  /* height: 80vh; */
+  /* max-height: 700px; */
+  min-width: 320px;
+  min-height: 400px;
+}
+
+/* 移动端布局 */
+.mobile-layout {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+}
+
+/* 响应式布局 */
+@media screen and (max-width: 768px) {
+  .pc-layout {
+    width: 95%;
+    /* height: 90vh; */
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 16px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.close-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+}
+
+.close-button:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.close-button span {
+  font-size: 24px;
+  line-height: 1;
+  color: #999;
+}
+
+.close-button:hover span {
+  color: #666;
+}
+
+.chat-history {
+  position: relative;
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  scroll-behavior: smooth;
+  max-height: 460px;
+  height: 50vh;
+}
+
+.message-input {
+  padding: 16px;
+  border-top: 1px solid #eee;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.message-input input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.message-input input:focus {
+  border-color: #bbb;
+}
+
+/* 消息样式 */
+.message {
+  margin-bottom: 16px;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.message-content {
+  max-width: 70%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  word-break: break-word;
+}
+
+.message-content p {
+  margin: 0;
+  word-break: break-word;
+}
+
+.user-message {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.agent-message {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.user-message .message-content {
+  background-color: #007bff;
+  color: white;
+}
+
+.agent-message .message-content {
+  background-color: #f1f1f1;
+}
+
+.message-time {
+  font-size: 12px;
+  color: #999;
+  margin-top: 4px;
+  display: block;
+}
+
+.send-button {
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.send-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #999;
+  text-align: center;
+}
+
+.loading-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.98);
+  z-index: 1;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.loading-container p {
+  margin-top: 16px;
+  color: #666;
+  font-size: 14px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #1890ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 修改 messages-wrapper 的样式 */
+.messages-wrapper {
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  /* 当内容少时，将内容放在底部 */
+  justify-content: flex-end;
+}
+
+/* 当有很多消息时，取消固定在底部 */
+.messages-wrapper.has-overflow {
+  justify-content: flex-start;
+}
+
+.suggested-questions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+}
+
+.suggested-question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background-color: #f3f4f6;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #374151;
+  transition: background-color 0.2s;
+}
+
+.suggested-question:hover {
+  background-color: #e5e7eb;
+}
+
+.arrow-right {
+  margin-left: 8px;
+}
+
+.loading-suggestions {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+}
+
+.loading-spinner-small {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #6b7280;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* 添加上传按钮样式 */
+.upload-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.upload-button:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.upload-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* 隐藏原生文件输入框 */
+.file-input {
+  display: none;
+}
+
+/* 添加文件名显示区域样式 */
+.selected-file {
+  font-size: 12px;
+  color: #666;
+  margin-left: 8px;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.input-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0 4px;
+  background: white;
+}
+
+.input-wrapper input {
+  border: none;
+  flex: 1;
+  padding: 8px;
+  outline: none;
+}
+
+.input-wrapper:focus-within {
+  border-color: #bbb;
+}
+
+/* 文件预览区域样式 */
+.file-preview {
+  padding: 8px 16px;
+  border-top: 1px solid #eee;
+  background-color: #f9f9f9;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  background: white;
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+}
+
+.file-name {
+  font-size: 13px;
+  color: #333;
+  margin-right: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: calc(100% - 30px);
+}
+
+.remove-file {
+  background: transparent;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 16px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.remove-file:hover {
+  background-color: #f0f0f0;
+  color: #666;
+}
+
+.initial-upload {
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.upload-section {
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+}
+
+.upload-area {
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  padding: 2rem;
+  margin: 1rem 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.upload-area:hover {
+  border-color: #1890ff;
+  background-color: rgba(24, 144, 255, 0.05);
+}
+
+.upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #666;
+}
+
+.upload-hint {
+  font-size: 0.8rem;
+  color: #999;
+  margin-top: 0.5rem;
+}
+
+.function-select {
+  margin-top: 2rem;
+}
+
+.function-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.function-button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.function-button:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+.function-button.selected {
+  background: #1890ff;
+  color: white;
+  border-color: #1890ff;
+}
+
+.submit-button {
+  margin-top: 2rem;
+  padding: 0.8rem 2rem;
+  background: #1890ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submit-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.submit-button:hover:not(:disabled) {
+  background: #40a9ff;
+}
+
+.category-select,
+.dimension-select {
+  margin: 20px 0;
+}
+
+.category-options,
+.dimension-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.category-button,
+.dimension-button {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.category-button:hover,
+.dimension-button:hover {
+  background: #f5f5f5;
+}
+
+.category-button.selected {
+  background: #1890ff;
+  color: white;
+  border-color: #1890ff;
+}
+
+.dimension-button.selected {
+  background: #52c41a;
+  color: white;
+  border-color: #52c41a;
+}
+
+

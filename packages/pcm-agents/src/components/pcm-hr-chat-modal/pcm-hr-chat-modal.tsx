@@ -3,11 +3,11 @@ import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSER
 import { ChatMessage } from '../../interfaces/chat';
 
 @Component({
-  tag: 'pcm-chat-modal',
-  styleUrl: 'pcm-chat-modal.css',
+  tag: 'pcm-hr-chat-modal',
+  styleUrl: 'pcm-hr-chat-modal.css',
   shadow: true,
 })
-export class ChatModal {
+export class ChatHRModal {
   /**
    * 模态框标题
    */
@@ -119,6 +119,28 @@ export class ChatModal {
    */
   @Prop() defaultQuery: string = '';
 
+  // 添加新的状态
+  @State() showInitialUpload: boolean = true;
+  @State() selectedJobCategory: string = '';
+  @State() jobCategories: string[] = [
+    '人力资源学生(实习)',
+    '人力资源专员',
+    '人力资源主管',
+    '人力资源经理',
+    '人力资源总监'
+  ];
+
+  @State() dimensions: string[] = [
+    '人力资源规划',
+    '招聘与配置',
+    '员工关系',
+    '培训与开发',
+    '薪酬与绩效',
+    '组织与人才发展'
+  ];
+
+  @State() selectedDimensions: string[] = [];
+
   private handleClose = () => {
     this.isOpen = false;
     this.modalClosed.emit();
@@ -129,29 +151,6 @@ export class ChatModal {
     this.currentMessage = input.value;
   };
 
-  private async getSuggestedQuestions(messageId: string) {
-    this.stopSuggestedQuestionsRef.current = false;
-    this.suggestedQuestionsLoading = true;
-
-    try {
-      const response = await sendHttpRequest({
-        url: `https://pcm_api.ylzhaopin.com/share/messages/${messageId}/suggested`,
-        params: {
-          bot_id: this.botId
-        }
-      });
-
-      if (this.stopSuggestedQuestionsRef.current) return;
-
-      if (response.isOk && response.data?.result === 'success') {
-        this.suggestedQuestions = response.data?.data || [];
-      }
-    } catch (error) {
-      console.error('获取问题建议失败:', error);
-    } finally {
-      this.suggestedQuestionsLoading = false;
-    }
-  }
 
   private handleStopSuggestedQuestions = () => {
     this.suggestedQuestions = [];
@@ -162,14 +161,11 @@ export class ChatModal {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       this.selectedFile = input.files[0];
-      
-      // 文件选择后立即上传
-      await this.uploadFile();
     }
   };
 
   private async uploadFile() {
-    if (!this.selectedFile) return;
+    if (!this.selectedFile || this.uploadedFileInfo.length > 0) return;
     
     this.isUploading = true;
     
@@ -182,16 +178,15 @@ export class ChatModal {
         body: formData
       });
       
-      
       const result = await response.json();
       console.log('result', result);
       if (result) {
-        this.uploadedFileInfo.push({
+        this.uploadedFileInfo = [{
           cos_key: result.cos_key,
           filename: result.filename,
           ext: result.ext,
           presigned_url: result.presigned_url
-        });
+        }];
       } 
     } catch (error) {
       console.error('文件上传错误:', error);
@@ -270,8 +265,9 @@ export class ChatModal {
       const fileUrls = this.uploadedFileInfo.map(fileInfo => fileInfo.cos_key).join(',');
 
       requestData.inputs = {
-        ...requestData.inputs,
-        input: fileUrls
+        file_urls: fileUrls,
+        job_info: this.selectedJobCategory,
+        dimensional_info: this.selectedDimensions.join(','),
       };
     }
 
@@ -331,7 +327,7 @@ export class ChatModal {
 
         // 在消息完成后获取问题建议
         if (this.currentStreamingMessage) {
-          this.getSuggestedQuestions(this.currentStreamingMessage.conversation_id);
+          // this.getSuggestedQuestions(this.currentStreamingMessage.conversation_id);
         }
 
         this.currentStreamingMessage = null;
@@ -487,6 +483,32 @@ export class ChatModal {
     }
   }
 
+  private handleJobCategorySelect = (category: string) => {
+    this.selectedJobCategory = category;
+  };
+
+  private handleDimensionSelect = (dimension: string) => {
+    if (this.selectedDimensions.includes(dimension)) {
+      this.selectedDimensions = this.selectedDimensions.filter(d => d !== dimension);
+    } else {
+      this.selectedDimensions = [...this.selectedDimensions, dimension];
+    }
+  };
+
+  private handleInitialSubmit = async () => {
+    if (!this.selectedFile || !this.selectedJobCategory) {
+      alert('请上传简历并选择职能类别');
+      return;
+    }
+
+    await this.uploadFile();
+    if (this.uploadedFileInfo.length > 0) {
+      this.showInitialUpload = false;
+      const message = `我是一名${this.selectedJobCategory}，这是我的简历`;
+      this.sendMessageToAPI(message);
+    }
+  };
+
   render() {
     if (!this.isOpen) return null;
 
@@ -517,125 +539,202 @@ export class ChatModal {
             </div>
           )}
 
-          <div class="chat-history" onScroll={this.handleScroll}>
-            {this.isLoadingHistory ? (
-              <div class="loading-container">
-                <div class="loading-spinner"></div>
-                <p>加载历史消息中...</p>
-              </div>
-            ) : (
-              <>
-                {this.messages.map((message) => (
-                  <div id={`message_${message.id}`} key={message.id}>
-                    <pcm-chat-message
-                      message={message}
-                      onMessageChange={(event) => {
-                        const updatedMessages = this.messages.map(msg =>
-                          msg.id === message.id ? { ...msg, ...event.detail } : msg
-                        );
-                        this.messages = updatedMessages;
-                      }}
-                    ></pcm-chat-message>
-                  </div>
-                ))}
-                {this.currentStreamingMessage && (
-                  <div id={`message_${this.currentStreamingMessage.id}`}>
-                    <pcm-chat-message
-                      message={this.currentStreamingMessage}
-                    ></pcm-chat-message>
-                  </div>
-                )}
-                {this.messages.length === 0 && !this.currentStreamingMessage && (
-                  <div class="empty-state">
-                    <p>请输入消息</p>
-                  </div>
-                )}
-              </>
-            )}
-
-            {this.suggestedQuestionsLoading ? (
-              <div class="loading-suggestions">
-                <div class="loading-spinner-small"></div>
-              </div>
-            ) : (
-              this.suggestedQuestions.length > 0 && (
-                <div class="suggested-questions">
-                  {this.suggestedQuestions.map((question, index) => (
-                    <div
-                      key={index}
-                      class="suggested-question"
-                      onClick={() => {
-                        this.currentMessage = question;
-                        this.handleSendMessage();
-                      }}
-                    >
-                      {question}
-                      <span class="arrow-right">→</span>
+          {this.showInitialUpload ? (
+            <div class="initial-upload">
+              <div class="upload-section">
+                <h3>开始前，请上传您的简历</h3>
+                <div class="upload-area" onClick={this.handleUploadClick}>
+                  {this.selectedFile ? (
+                    <div class="file-info">
+                      <span>{this.selectedFile.name}</span>
+                      <button class="remove-file" onClick={(e) => {
+                        e.stopPropagation();
+                        this.clearSelectedFile();
+                      }}>×</button>
                     </div>
-                  ))}
+                  ) : (
+                    <div class="upload-placeholder">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="48" height="48">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m0-16l-4 4m4-4l4 4"/>
+                      </svg>
+                      <p>点击上传简历</p>
+                      <p class="upload-hint">支持 txt、 markdown、 pdf、 docx、  md 格式</p>
+                    </div>
+                  )}
                 </div>
-              )
-            )}
-          </div>
+                
+                <div class="category-select">
+                  <h3>请选择您的职能类别（单选）</h3>
+                  <div class="category-options">
+                    {this.jobCategories.map(category => (
+                      <button 
+                        class={{
+                          'category-button': true,
+                          'selected': this.selectedJobCategory === category
+                        }}
+                        onClick={() => this.handleJobCategorySelect(category)}
+                      >
+                        {category}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-          {/* 添加文件预览区域 */}
-          {this.selectedFile && (
-            <div class="file-preview">
-              <div class="file-info">
-                <span class="file-name" title={this.selectedFile.name}>
-                  {this.selectedFile.name}
-                  {this.isUploading && <span class="uploading-indicator"> (上传中...)</span>}
-                  {this.uploadedFileInfo.length > 0 && <span class="upload-success"> (已上传)</span>}
-                </span>
-                <button class="remove-file" onClick={this.clearSelectedFile}>
-                  ×
+                <div class="dimension-select">
+                  <h3>请选择关注的模块（可多选）</h3>
+                  <div class="dimension-options">
+                    {this.dimensions.map(dimension => (
+                      <button 
+                        class={{
+                          'dimension-button': true,
+                          'selected': this.selectedDimensions.includes(dimension)
+                        }}
+                        onClick={() => this.handleDimensionSelect(dimension)}
+                      >
+                        {dimension}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <button 
+                  class="submit-button"
+                  disabled={!this.selectedFile || !this.selectedJobCategory || this.isUploading}
+                  onClick={this.handleInitialSubmit}
+                >
+                  {this.isUploading ? '上传中...' : '开始分析'}
                 </button>
               </div>
-            </div>
-          )}
-
-          <div class="message-input">
-            <input
-              type="file"
-              class="file-input"
-              onChange={this.handleFileChange}
-              accept="image/*,.pdf,.doc,.docx,.txt"
-            />
-            <button
-              class="upload-button"
-              onClick={this.handleUploadClick}
-              title="上传文件"
-              disabled={this.isUploading}
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 4v16m0-16l-4 4m4-4l4 4"
-                />
-              </svg>
-            </button>
-
-            <div class="input-wrapper">
               <input
-                type="text"
-                placeholder="请输入消息..."
-                value={this.currentMessage}
-                onInput={this.handleInputChange}
-                onKeyDown={this.handleKeyDown}
-                disabled={this.isLoading}
+                type="file"
+                class="file-input"
+                onChange={this.handleFileChange}
+                accept=".pdf,.doc,.docx,.txt"
               />
             </div>
+          ) : (
+            <>
+              <div class="chat-history" onScroll={this.handleScroll}>
+                {this.isLoadingHistory ? (
+                  <div class="loading-container">
+                    <div class="loading-spinner"></div>
+                    <p>加载历史消息中...</p>
+                  </div>
+                ) : (
+                  <>
+                    {this.messages.map((message) => (
+                      <div id={`message_${message.id}`} key={message.id}>
+                        <pcm-chat-message
+                          message={message}
+                          onMessageChange={(event) => {
+                            const updatedMessages = this.messages.map(msg =>
+                              msg.id === message.id ? { ...msg, ...event.detail } : msg
+                            );
+                            this.messages = updatedMessages;
+                          }}
+                        ></pcm-chat-message>
+                      </div>
+                    ))}
+                    {this.currentStreamingMessage && (
+                      <div id={`message_${this.currentStreamingMessage.id}`}>
+                        <pcm-chat-message
+                          message={this.currentStreamingMessage}
+                        ></pcm-chat-message>
+                      </div>
+                    )}
+                    {this.messages.length === 0 && !this.currentStreamingMessage && (
+                      <div class="empty-state">
+                        <p>请输入消息</p>
+                      </div>
+                    )}
+                  </>
+                )}
 
-            <button
-              class="send-button"
-              onClick={() => this.handleSendMessage()}
-              disabled={(!this.currentMessage.trim() && this.uploadedFileInfo.length === 0) || this.isLoading || this.isUploading}
-            >
-              {this.isLoading ? '发送中...' : '发送'}
-            </button>
-          </div>
+                {this.suggestedQuestionsLoading ? (
+                  <div class="loading-suggestions">
+                    <div class="loading-spinner-small"></div>
+                  </div>
+                ) : (
+                  this.suggestedQuestions.length > 0 && (
+                    <div class="suggested-questions">
+                      {this.suggestedQuestions.map((question, index) => (
+                        <div
+                          key={index}
+                          class="suggested-question"
+                          onClick={() => {
+                            this.currentMessage = question;
+                            this.handleSendMessage();
+                          }}
+                        >
+                          {question}
+                          <span class="arrow-right">→</span>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                )}
+              </div>
+
+              {/* 添加文件预览区域 */}
+              {this.selectedFile && (
+                <div class="file-preview">
+                  <div class="file-info">
+                    <span class="file-name" title={this.selectedFile.name}>
+                      {this.selectedFile.name}
+                      {this.isUploading && <span class="uploading-indicator"> (上传中...)</span>}
+                      {this.uploadedFileInfo.length > 0 && <span class="upload-success"> (已上传)</span>}
+                    </span>
+                    <button class="remove-file" onClick={this.clearSelectedFile}>
+                      ×
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div class="message-input">
+                <input
+                  type="file"
+                  class="file-input"
+                  onChange={this.handleFileChange}
+                  accept="image/*,.pdf,.doc,.docx,.txt"
+                />
+                <button
+                  class="upload-button"
+                  onClick={this.handleUploadClick}
+                  title="上传文件"
+                  disabled={this.isUploading}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4v16m0-16l-4 4m4-4l4 4"
+                    />
+                  </svg>
+                </button>
+
+                <div class="input-wrapper">
+                  <input
+                    type="text"
+                    placeholder="请输入消息..."
+                    value={this.currentMessage}
+                    onInput={this.handleInputChange}
+                    onKeyDown={this.handleKeyDown}
+                    disabled={this.isLoading}
+                  />
+                </div>
+
+                <button
+                  class="send-button"
+                  onClick={() => this.handleSendMessage()}
+                  disabled={(!this.currentMessage.trim() && this.uploadedFileInfo.length === 0) || this.isLoading || this.isUploading}
+                >
+                  {this.isLoading ? '发送中...' : '发送'}
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     );

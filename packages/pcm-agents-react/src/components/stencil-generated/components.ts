@@ -13,6 +13,7 @@ import { type ChatMessage, type PcmChatMessageCustomEvent } from "pcm-agents";
 import { MyComponent as MyComponentElement, defineCustomElement as defineMyComponent } from "pcm-agents/dist/components/my-component.js";
 import { PcmChatMessage as PcmChatMessageElement, defineCustomElement as definePcmChatMessage } from "pcm-agents/dist/components/pcm-chat-message.js";
 import { PcmChatModal as PcmChatModalElement, defineCustomElement as definePcmChatModal } from "pcm-agents/dist/components/pcm-chat-modal.js";
+import { PcmHrChatModal as PcmHrChatModalElement, defineCustomElement as definePcmHrChatModal } from "pcm-agents/dist/components/pcm-hr-chat-modal.js";
 import React from 'react';
 
 type MyComponentEvents = NonNullable<unknown>;
@@ -59,4 +60,28 @@ export const PcmChatModal: StencilReactComponent<PcmChatModalElement, PcmChatMod
         onStreamComplete: 'streamComplete'
     } as PcmChatModalEvents,
     defineCustomElement: definePcmChatModal
+});
+
+type PcmHrChatModalEvents = {
+    onMessageSent: EventName<CustomEvent<string>>,
+    onModalClosed: EventName<CustomEvent<void>>,
+    onStreamComplete: EventName<CustomEvent<{
+        conversation_id: string;
+        event: string;
+        message_id: string;
+        id: string;
+    }>>
+};
+
+export const PcmHrChatModal: StencilReactComponent<PcmHrChatModalElement, PcmHrChatModalEvents> = /*@__PURE__*/ createComponent<PcmHrChatModalElement, PcmHrChatModalEvents>({
+    tagName: 'pcm-hr-chat-modal',
+    elementClass: PcmHrChatModalElement,
+    // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
+    react: React,
+    events: {
+        onMessageSent: 'messageSent',
+        onModalClosed: 'modalClosed',
+        onStreamComplete: 'streamComplete'
+    } as PcmHrChatModalEvents,
+    defineCustomElement: definePcmHrChatModal
 });
