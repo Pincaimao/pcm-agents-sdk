@@ -72,6 +72,10 @@ export namespace Components {
     }
     interface PcmHrChatModal {
         /**
+          * API鉴权密钥
+         */
+        "apiKey": string;
+        /**
           * 机器人ID
          */
         "botId": string;
@@ -286,6 +290,10 @@ declare namespace LocalJSX {
         "zIndex"?: number;
     }
     interface PcmHrChatModal {
+        /**
+          * API鉴权密钥
+         */
+        "apiKey"?: string;
         /**
           * 机器人ID
          */

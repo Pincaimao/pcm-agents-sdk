@@ -1,7 +1,7 @@
 import { Config } from '@stencil/core';
 import { reactOutputTarget } from '@stencil/react-output-target';
 import { vueOutputTarget } from '@stencil/vue-output-target';
-
+import { readFileSync } from 'fs';
 export const config: Config = {
   namespace: 'pcm-agents',
   outputTargets: [
@@ -32,5 +32,13 @@ export const config: Config = {
   ],
   testing: {
     browserHeadless: "shell",
+  },
+  devServer: {
+    reloadStrategy: 'pageReload',
+    port: 4444,
+    https: {
+      cert: readFileSync('C:/Users/Administrator/Downloads/webarcx_com.pem', 'utf8'),
+      key: readFileSync('C:/Users/Administrator/Downloads/webarcx_com.key', 'utf8'),
+    },
   },
 };

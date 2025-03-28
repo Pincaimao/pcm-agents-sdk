@@ -26,12 +26,48 @@
         cursor: pointer;
         margin-right: 10px;
       }
+      button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+      }
+      .status {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 4px;
+      }
+      .success {
+        background-color: #f6ffed;
+        border: 1px solid #b7eb8f;
+        color: #52c41a;
+      }
+      .error {
+        background-color: #fff2f0;
+        border: 1px solid #ffccc7;
+        color: #ff4d4f;
+      }
+      .device-check {
+        margin-bottom: 15px;
+      }
+      .permission-info {
+        margin-top: 10px;
+        font-size: 14px;
+        color: #666;
+      }
     </style>
   </head>
   <body>
     <div class="demo-controls">
       <h2>组件演示</h2>
-      <button id="open-chat">打开聊天</button>
+      
+      <div class="device-check">
+        <button id="check-devices">检查设备权限</button>
+        <div id="status-message" class="status" style="display: none;"></div>
+        <div class="permission-info">
+          需要检查您的摄像头和麦克风权限，以便在聊天过程中进行视频通话。
+        </div>
+      </div>
+      
+      <button id="open-chat" >打开聊天</button>
     </div>
 
     <my-component first="Stencil" middle="'Don't call me a framework'" last="JS"></my-component>
@@ -41,6 +77,7 @@
     <pcm-hr-chat-modal 
       bot-id="3022316191018880"
       id="pcm-chat-modal" 
+      api-key="app-YXtEFC4fdga5QCCsANCbESGD"
       modal-title="金牌大赛" 
       icon="https://www.ylzhaopin.com/Public/Newhome/images/sidebar/tochat.png"
       conversation-id=""
@@ -52,6 +89,74 @@
         
         // 聊天模态框事件监听
         const chatModal = document.getElementById('pcm-chat-modal');
+        const openChatButton = document.getElementById('open-chat');
+        const checkDevicesButton = document.getElementById('check-devices');
+        const statusMessage = document.getElementById('status-message');
+        
+        // 检查设备和权限
+        let stream = null;
+        
+        checkDevicesButton.addEventListener('click', async function() {
+          try {
+            statusMessage.style.display = 'block';
+            
+            // 检查浏览器支持
+            if (!navigator.mediaDevices) {
+              showError('您的浏览器不支持媒体设备API，请使用现代浏览器如Chrome、Firefox等');
+              return;
+            }
+            
+            // 列出可用的媒体设备
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const hasCamera = devices.some(device => device.kind === 'videoinput');
+            const hasMicrophone = devices.some(device => device.kind === 'audioinput');
+            
+            if (!hasCamera) {
+              showError('未检测到摄像头设备');
+              return;
+            }
+            
+            if (!hasMicrophone) {
+              showError('未检测到麦克风设备');
+              return;
+            }
+            
+            // 尝试获取媒体流
+            stream = await navigator.mediaDevices.getUserMedia({
+              video: true,
+              audio: true
+            });
+            
+            // 更新UI状态
+            showSuccess('设备和权限检查通过，可以开始聊天');
+            openChatButton.disabled = false;
+            
+          } catch (error) {
+            console.error('获取媒体设备失败:', error);
+            
+            if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+              showError('权限被拒绝。请在浏览器设置中允许访问摄像头和麦克风。');
+            } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+              showError('找不到摄像头或麦克风设备。');
+            } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+              showError('无法访问摄像头或麦克风，可能被其他应用程序占用。');
+            } else {
+              showError(`发生错误: ${error.message}`);
+            }
+          }
+        });
+        
+        // 辅助函数
+        function showError(message) {
+          statusMessage.textContent = message;
+          statusMessage.className = 'status error';
+        }
+        
+        function showSuccess(message) {
+          statusMessage.textContent = message;
+          statusMessage.className = 'status success';
+        }
+        
         if (chatModal) {
           chatModal.addEventListener('messageSent', function(event) {
             console.log('发送消息:', event.detail);
@@ -70,12 +175,24 @@
         }
 
         // 打开聊天按钮事件监听
-        const openChatButton = document.getElementById('open-chat');
         if (openChatButton && chatModal) {
           openChatButton.addEventListener('click', function() {
             chatModal.isOpen = true;
+            
+            // 停止媒体流，因为已经不需要了
+            if (stream) {
+              stream.getTracks().forEach(track => track.stop());
+              stream = null;
+            }
           });
         }
+        
+        // 页面关闭时停止所有媒体流
+        window.addEventListener('beforeunload', () => {
+          if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+          }
+        });
       });
     </script>
   </body>
