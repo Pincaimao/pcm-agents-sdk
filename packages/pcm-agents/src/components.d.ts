@@ -42,6 +42,10 @@ export namespace Components {
          */
         "defaultQuery": string;
         /**
+          * 是否以全屏模式打开
+         */
+        "fullscreen": boolean;
+        /**
           * 应用图标URL
          */
         "icon"?: string;
@@ -57,10 +61,6 @@ export namespace Components {
           * 是否展示顶部标题栏
          */
         "isShowHeader": boolean;
-        /**
-          * 聊天框窗口的布局风格
-         */
-        "layout": 'mobile' | 'pc';
         /**
           * 模态框标题
          */
@@ -266,6 +266,10 @@ declare namespace LocalJSX {
          */
         "defaultQuery"?: string;
         /**
+          * 是否以全屏模式打开
+         */
+        "fullscreen"?: boolean;
+        /**
           * 应用图标URL
          */
         "icon"?: string;
@@ -281,10 +285,6 @@ declare namespace LocalJSX {
           * 是否展示顶部标题栏
          */
         "isShowHeader"?: boolean;
-        /**
-          * 聊天框窗口的布局风格
-         */
-        "layout"?: 'mobile' | 'pc';
         /**
           * 模态框标题
          */

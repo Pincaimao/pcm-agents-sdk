@@ -44,11 +44,6 @@ export class ChatModal {
   @Prop() icon?: string;
 
   /**
-   * 聊天框窗口的布局风格
-   */
-  @Prop() layout: 'mobile' | 'pc' = 'pc';
-
-  /**
    * 聊天框的页面层级
    */
   @Prop() zIndex?: number = 1000;
@@ -91,7 +86,7 @@ export class ChatModal {
 
   // 添加新的状态控制
   @State() shouldAutoScroll: boolean = true;
-  private readonly SCROLL_THRESHOLD = 100;
+  private readonly SCROLL_THRESHOLD = 30;
 
   @State() isLoadingHistory: boolean = false;
 
@@ -118,6 +113,11 @@ export class ChatModal {
    * 默认查询文本
    */
   @Prop() defaultQuery: string = '';
+
+  /**
+   * 是否以全屏模式打开
+   */
+  @Prop() fullscreen: boolean = false;
 
   private handleClose = () => {
     this.isOpen = false;
@@ -466,10 +466,8 @@ export class ChatModal {
   // 添加 isOpen 的 watch 方法
   @Watch('isOpen')
   async handleIsOpenChange(newValue: boolean) {
-    if (newValue) {
-      if (this.conversationId) {
-        await this.loadHistoryMessages();
-      }
+    if (newValue && this.conversationId) {
+      await this.loadHistoryMessages();
     }
   }
 
@@ -496,12 +494,16 @@ export class ChatModal {
 
     const containerClass = {
       'modal-container': true,
-      'mobile-layout': this.layout === 'mobile',
-      'pc-layout': this.layout === 'pc'
+      'fullscreen': this.fullscreen
+    };
+
+    const overlayClass = {
+      'modal-overlay': true,
+      'fullscreen-overlay': this.fullscreen
     };
 
     return (
-      <div class="modal-overlay" style={modalStyle}>
+      <div class={overlayClass} style={modalStyle}>
         <div class={containerClass}>
           {this.isShowHeader && (
             <div class="modal-header">
