@@ -96,7 +96,6 @@ export class ChatHRModal {
 
   // 添加新的状态控制
   @State() shouldAutoScroll: boolean = true;
-  private readonly SCROLL_THRESHOLD = 30;
 
   @State() isLoadingHistory: boolean = false;
 
@@ -162,6 +161,49 @@ export class ChatHRModal {
 
   // 添加一个新的私有属性来存储视频元素的引用
   private videoRef: HTMLVideoElement | null = null;
+
+  /**
+   * 总题目数量
+   */
+  @Prop() totalQuestions: number = 5;
+
+  /**
+   * 当前题目序号
+   */
+  @State() currentQuestionNumber: number = 0;
+
+  /**
+   * 面试是否已完成
+   */
+  @State() isInterviewComplete: boolean = false;
+
+  /**
+   * 当面试完成时触发
+   */
+  @Event() interviewComplete: EventEmitter<{
+    conversation_id: string;
+    total_questions: number;
+  }>;
+
+  private readonly SCROLL_THRESHOLD = 30;
+
+  /**
+   * 视频录制最大时长（秒）
+   */
+  @Prop() maxRecordingTime: number = 120;
+
+  /**
+   * 录制倒计时提醒时间（秒）
+   * 当剩余时间小于此值时，显示倒计时警告
+   */
+  @Prop() countdownWarningTime: number = 30;
+
+  @State() showCountdownWarning: boolean = false;
+
+  /**
+   * 用户邮箱
+   */
+  @Prop() email: string = '';
 
   private handleClose = () => {
     this.isOpen = false;
@@ -296,6 +338,7 @@ export class ChatHRModal {
       query: queryText,
       user: '1234567890'
     };
+
     // 如果有上传的文件，添加到inputs参数
     if (this.uploadedFileInfo.length > 0) {
       const fileUrls = this.uploadedFileInfo.map(fileInfo => fileInfo.cos_key).join(',');
@@ -304,6 +347,7 @@ export class ChatHRModal {
         file_urls: fileUrls,
         job_info: this.selectedJobCategory,
         dimensional_info: this.selectedDimensions.join(','),
+        email: this.email,
       };
     }
 
@@ -359,21 +403,38 @@ export class ChatHRModal {
         this.currentStreamingMessage = null;
         this.isLoading = false;
       },
-      onComplete: () => {
+      onComplete: async () => {
         console.log('请求完成');
         this.isLoading = false;
         this.messages = [...this.messages, this.currentStreamingMessage];
         this.currentStreamingMessage = null;
 
-        // 修改这里的逻辑：如果不是"下一题"消息，则开始等待录制
-        // 如果是"下一题"消息，则等待AI回复后再开始录制
+        // 如果是初始消息或"下一题"消息，增加题目计数
+        if (message === "下一题" || this.currentQuestionNumber === 0) {
+          this.currentQuestionNumber++;
+        }
+
+        // 检查是否完成所有题目
+        if (this.currentQuestionNumber >= this.totalQuestions) {
+          this.isInterviewComplete = true;
+          // 发送面试完成请求
+          await this.completeInterview();
+          // 触发完成事件
+          this.interviewComplete.emit({
+            conversation_id: this.conversationId,
+            total_questions: this.totalQuestions
+          });
+          return;
+        }
+
+        // 如果不是"下一题"消息，则开始等待录制
         if (message !== "下一题") {
           this.startWaitingToRecord();
         } else {
           // 当AI回复"下一题"的消息完成后，开始新一轮等待录制
           setTimeout(() => {
             this.startWaitingToRecord();
-          }, 1000); // 给一个短暂延迟，确保消息已经完全显示
+          }, 1000);
         }
       }
     });
@@ -594,6 +655,7 @@ export class ChatHRModal {
 
       this.recordingStream = stream;
       this.showRecordingUI = true;
+      this.showCountdownWarning = false;
 
       // 重置视频引用
       this.videoRef = null;
@@ -621,13 +683,19 @@ export class ChatHRModal {
       mediaRecorder.start();
       this.isRecording = true;
       this.recordingStartTime = Date.now();
-      this.recordingTimeLeft = this.recordingMaxTime;
+      this.recordingTimeLeft = this.maxRecordingTime;
 
       // 设置录制计时器
       this.recordingTimer = setInterval(() => {
         const elapsedTime = Math.floor((Date.now() - this.recordingStartTime) / 1000);
-        this.recordingTimeLeft = Math.max(0, this.recordingMaxTime - elapsedTime);
+        this.recordingTimeLeft = Math.max(0, this.maxRecordingTime - elapsedTime);
 
+        // 检查是否需要显示倒计时警告
+        if (this.recordingTimeLeft <= this.countdownWarningTime && !this.showCountdownWarning) {
+          this.showCountdownWarning = true;
+        }
+
+        // 时间到自动停止录制
         if (this.recordingTimeLeft <= 0) {
           this.stopRecording();
         }
@@ -739,6 +807,48 @@ export class ChatHRModal {
     this.sendMessageToAPI("下一题");
   }
 
+  /**
+   * 发送面试完成请求
+   */
+  private async completeInterview() {
+    if (!this.conversationId) return;
+
+    try {
+      await sendHttpRequest({
+        url: 'https://pcm_api.ylzhaopin.com/agents/hr_competition/complete',
+        method: 'POST',
+        headers: {
+          'authorization': 'Bearer ' + this.apiKey
+        },
+        data: {
+          conversation_id: this.conversationId,
+          user: '1234567890'
+        }
+      });
+      
+      // 显示完成消息
+      this.messages = [...this.messages, {
+        id: `system-${Date.now()}`,
+        time: new Date().toLocaleTimeString(),
+        query: '',
+        answer: '面试已完成，感谢您的参与！',
+        bot_id: this.botId,
+        isStreaming: false,
+        conversation_id: this.conversationId,
+        parent_message_id: "00000000-0000-0000-0000-000000000000",
+        inputs: {},
+        message_files: [],
+        feedback: null,
+        retriever_resources: [],
+        agent_thoughts: [],
+        status: "normal",
+        error: null
+      }];
+    } catch (error) {
+      console.error('发送面试完成请求失败:', error);
+    }
+  }
+
   render() {
     if (!this.isOpen) return null;
 
@@ -751,6 +861,32 @@ export class ChatHRModal {
       'mobile-layout': this.layout === 'mobile',
       'pc-layout': this.layout === 'pc'
     };
+
+    const renderVideoPreview = () => (
+      <div class="video-preview">
+        <video
+          autoPlay
+          muted
+          playsInline
+          ref={(el) => {
+            if (el && this.recordingStream && !this.videoRef) {
+              this.videoRef = el;
+              el.srcObject = this.recordingStream;
+            }
+          }}
+        ></video>
+        <div class={{
+          'recording-status': true,
+          'warning': this.showCountdownWarning
+        }}>
+          <span class="recording-dot"></span>
+          <span>
+            录制中 {Math.floor(this.recordingTimeLeft / 60)}:{(this.recordingTimeLeft % 60).toString().padStart(2, '0')}
+            {this.showCountdownWarning && ` (即将自动完成)`}
+          </span>
+        </div>
+      </div>
+    );
 
     return (
       <div class="modal-overlay" style={modalStyle}>
@@ -888,23 +1024,7 @@ export class ChatHRModal {
                 <div class="recording-container">
                   <div class="video-area">
                     {this.showRecordingUI ? (
-                      <div class="video-preview">
-                        <video
-                          autoPlay
-                          muted
-                          playsInline
-                          ref={(el) => {
-                            if (el && this.recordingStream && !this.videoRef) {
-                              this.videoRef = el;
-                              el.srcObject = this.recordingStream;
-                            }
-                          }}
-                        ></video>
-                        <div class="recording-status">
-                          <span class="recording-dot"></span>
-                          <span>录制中 {Math.floor(this.recordingTimeLeft / 60)}:{(this.recordingTimeLeft % 60).toString().padStart(2, '0')}</span>
-                        </div>
-                      </div>
+                      renderVideoPreview()
                     ) : (
                       <div class="video-preview placeholder">
                         {this.isLoading || this.currentStreamingMessage ? (

@@ -70,6 +70,10 @@ type PcmHrChatModalEvents = {
         event: string;
         message_id: string;
         id: string;
+    }>>,
+    onInterviewComplete: EventName<CustomEvent<{
+        conversation_id: string;
+        total_questions: number;
     }>>
 };
 
@@ -81,7 +85,8 @@ export const PcmHrChatModal: StencilReactComponent<PcmHrChatModalElement, PcmHrC
     events: {
         onMessageSent: 'messageSent',
         onModalClosed: 'modalClosed',
-        onStreamComplete: 'streamComplete'
+        onStreamComplete: 'streamComplete',
+        onInterviewComplete: 'interviewComplete'
     } as PcmHrChatModalEvents,
     defineCustomElement: definePcmHrChatModal
 });

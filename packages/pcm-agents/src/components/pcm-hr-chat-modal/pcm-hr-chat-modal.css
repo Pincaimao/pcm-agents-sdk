@@ -549,9 +549,9 @@
 
   .chat-history {
     /* 保持固定高度 */
-    height: 25vh;
-    max-height: 25vh;
-    min-height: 25vh;
+    height: 34vh;
+    max-height: 34vh;
+    min-height: 34vh;
     flex: 0 0 auto; /* 防止 chat-history 被拉伸 */
   }
 
@@ -576,12 +576,11 @@
 
   .video-area {
     width: 100%;
-    margin-bottom: 20px;
   }
 
   .video-preview {
     width: 100%;
-    height: 240px;
+    height: 200px;
     position: relative;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -644,7 +643,7 @@
 
 .recording-section .video-preview {
   width: 320px;
-  height: 240px;
+  height: 200px;
   position: relative;
   margin-bottom: 10px;
   border: 1px solid #ddd;
@@ -658,7 +657,8 @@
   object-fit: cover;
 }
 
-.recording-section .recording-indicator {
+/* 修改 recording-status 样式 */
+.recording-status {
   position: absolute;
   bottom: 10px;
   left: 10px;
@@ -670,15 +670,28 @@
   align-items: center;
   gap: 5px;
   font-size: 0.8rem;
+  z-index: 2;
 }
 
-.recording-section .recording-dot {
+.recording-status .recording-dot {
   display: inline-block;
   width: 10px;
   height: 10px;
   background-color: red;
   border-radius: 50%;
+  margin-right: 5px;
   animation: blink 1s infinite;
+}
+
+.recording-status.warning {
+  color: #ff4d4f;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
 }
 
 .recording-section .stop-recording-button {
@@ -693,12 +706,6 @@
 
 .recording-section .stop-recording-button:hover {
   background-color: #d32f2f;
-}
-
-@keyframes blink {
-  0% { opacity: 1; }
-  50% { opacity: 0.4; }
-  100% { opacity: 1; }
 }
 
 

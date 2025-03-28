@@ -84,9 +84,17 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
+          * 录制倒计时提醒时间（秒） 当剩余时间小于此值时，显示倒计时警告
+         */
+        "countdownWarningTime": number;
+        /**
           * 默认查询文本
          */
         "defaultQuery": string;
+        /**
+          * 用户邮箱
+         */
+        "email": string;
         /**
           * 应用图标URL
          */
@@ -108,9 +116,17 @@ export namespace Components {
          */
         "layout": 'mobile' | 'pc';
         /**
+          * 视频录制最大时长（秒）
+         */
+        "maxRecordingTime": number;
+        /**
           * 模态框标题
          */
         "modalTitle": string;
+        /**
+          * 总题目数量
+         */
+        "totalQuestions": number;
         /**
           * 聊天框的页面层级
          */
@@ -185,6 +201,10 @@ declare global {
     event: string;
     message_id: string;
     id: string;
+  };
+        "interviewComplete": {
+    conversation_id: string;
+    total_questions: number;
   };
     }
     interface HTMLPcmHrChatModalElement extends Components.PcmHrChatModal, HTMLStencilElement {
@@ -303,9 +323,17 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
+          * 录制倒计时提醒时间（秒） 当剩余时间小于此值时，显示倒计时警告
+         */
+        "countdownWarningTime"?: number;
+        /**
           * 默认查询文本
          */
         "defaultQuery"?: string;
+        /**
+          * 用户邮箱
+         */
+        "email"?: string;
         /**
           * 应用图标URL
          */
@@ -327,9 +355,20 @@ declare namespace LocalJSX {
          */
         "layout"?: 'mobile' | 'pc';
         /**
+          * 视频录制最大时长（秒）
+         */
+        "maxRecordingTime"?: number;
+        /**
           * 模态框标题
          */
         "modalTitle"?: string;
+        /**
+          * 当面试完成时触发
+         */
+        "onInterviewComplete"?: (event: PcmHrChatModalCustomEvent<{
+    conversation_id: string;
+    total_questions: number;
+  }>) => void;
         /**
           * 当发送消息时触发
          */
@@ -344,6 +383,10 @@ declare namespace LocalJSX {
     message_id: string;
     id: string;
   }>) => void;
+        /**
+          * 总题目数量
+         */
+        "totalQuestions"?: number;
         /**
           * 聊天框的页面层级
          */
