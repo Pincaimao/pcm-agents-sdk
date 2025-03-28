@@ -96,6 +96,10 @@ export namespace Components {
          */
         "email": string;
         /**
+          * 是否以全屏模式打开
+         */
+        "fullscreen": boolean;
+        /**
           * 应用图标URL
          */
         "icon"?: string;
@@ -111,10 +115,6 @@ export namespace Components {
           * 是否展示顶部标题栏
          */
         "isShowHeader": boolean;
-        /**
-          * 聊天框窗口的布局风格
-         */
-        "layout": 'mobile' | 'pc';
         /**
           * 视频录制最大时长（秒）
          */
@@ -194,7 +194,6 @@ declare global {
         new (): HTMLPcmChatModalElement;
     };
     interface HTMLPcmHrChatModalElementEventMap {
-        "messageSent": string;
         "modalClosed": void;
         "streamComplete": {
     conversation_id: string;
@@ -335,6 +334,10 @@ declare namespace LocalJSX {
          */
         "email"?: string;
         /**
+          * 是否以全屏模式打开
+         */
+        "fullscreen"?: boolean;
+        /**
           * 应用图标URL
          */
         "icon"?: string;
@@ -351,10 +354,6 @@ declare namespace LocalJSX {
          */
         "isShowHeader"?: boolean;
         /**
-          * 聊天框窗口的布局风格
-         */
-        "layout"?: 'mobile' | 'pc';
-        /**
           * 视频录制最大时长（秒）
          */
         "maxRecordingTime"?: number;
@@ -369,10 +368,6 @@ declare namespace LocalJSX {
     conversation_id: string;
     total_questions: number;
   }>) => void;
-        /**
-          * 当发送消息时触发
-         */
-        "onMessageSent"?: (event: PcmHrChatModalCustomEvent<string>) => void;
         /**
           * 当模态框关闭时触发
          */

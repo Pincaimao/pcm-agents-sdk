@@ -63,7 +63,6 @@ export const PcmChatModal: StencilReactComponent<PcmChatModalElement, PcmChatMod
 });
 
 type PcmHrChatModalEvents = {
-    onMessageSent: EventName<CustomEvent<string>>,
     onModalClosed: EventName<CustomEvent<void>>,
     onStreamComplete: EventName<CustomEvent<{
         conversation_id: string;
@@ -83,7 +82,6 @@ export const PcmHrChatModal: StencilReactComponent<PcmHrChatModalElement, PcmHrC
     // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
     react: React,
     events: {
-        onMessageSent: 'messageSent',
         onModalClosed: 'modalClosed',
         onStreamComplete: 'streamComplete',
         onInterviewComplete: 'interviewComplete'

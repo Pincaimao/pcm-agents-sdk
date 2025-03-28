@@ -1,0 +1,50 @@
+
+<!-- Auto Generated Below -->
+
+
+## Properties
+
+| Property               | Attribute                | Description                     | Type      | Default     |
+| ---------------------- | ------------------------ | ------------------------------- | --------- | ----------- |
+| `apiKey`               | `api-key`                | API鉴权密钥                         | `string`  | `''`        |
+| `botId`                | `bot-id`                 | 机器人ID                           | `string`  | `undefined` |
+| `conversationId`       | `conversation-id`        | 会话ID                            | `string`  | `undefined` |
+| `countdownWarningTime` | `countdown-warning-time` | 录制倒计时提醒时间（秒） 当剩余时间小于此值时，显示倒计时警告 | `number`  | `30`        |
+| `defaultQuery`         | `default-query`          | 默认查询文本                          | `string`  | `''`        |
+| `email`                | `email`                  | 用户邮箱                            | `string`  | `''`        |
+| `fullscreen`           | `fullscreen`             | 是否以全屏模式打开                       | `boolean` | `false`     |
+| `icon`                 | `icon`                   | 应用图标URL                         | `string`  | `undefined` |
+| `isNeedClose`          | `is-need-close`          | 是否展示右上角的关闭按钮                    | `boolean` | `true`      |
+| `isOpen`               | `is-open`                | 是否显示聊天模态框                       | `boolean` | `false`     |
+| `isShowHeader`         | `is-show-header`         | 是否展示顶部标题栏                       | `boolean` | `true`      |
+| `maxRecordingTime`     | `max-recording-time`     | 视频录制最大时长（秒）                     | `number`  | `120`       |
+| `modalTitle`           | `modal-title`            | 模态框标题                           | `string`  | `'在线客服'`    |
+| `totalQuestions`       | `total-questions`        | 总题目数量                           | `number`  | `2`         |
+| `zIndex`               | `z-index`                | 聊天框的页面层级                        | `number`  | `1000`      |
+
+
+## Events
+
+| Event               | Description | Type                                                                                       |
+| ------------------- | ----------- | ------------------------------------------------------------------------------------------ |
+| `interviewComplete` | 当面试完成时触发    | `CustomEvent<{ conversation_id: string; total_questions: number; }>`                       |
+| `modalClosed`       | 当模态框关闭时触发   | `CustomEvent<void>`                                                                        |
+| `streamComplete`    |             | `CustomEvent<{ conversation_id: string; event: string; message_id: string; id: string; }>` |
+
+
+## Dependencies
+
+### Depends on
+
+- [pcm-chat-message](../pcm-chat-message)
+
+### Graph
+```mermaid
+graph TD;
+  pcm-hr-chat-modal --> pcm-chat-message
+  style pcm-hr-chat-modal fill:#f9f,stroke:#333,stroke-width:4px
+```
+
+----------------------------------------------
+
+*Built with [StencilJS](https://stenciljs.com/)*

@@ -1,13 +1,25 @@
-<!DOCTYPE html>
-<html dir="ltr" lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0" />
-    <title>Stencil Component Starter</title>
-
-    <script type="module" src="/build/pcm-agents.esm.js"></script>
-    <script nomodule src="/build/pcm-agents.js"></script>
-    <style>
+<extend name="Base:base" />
+<block name="title">
+  <title>三甲进修+医美培训-医聘猫</title>
+</block>
+<block name="keywords">
+  <meta name="keywords" content="三甲进修+医美培训-医聘猫" />
+</block>
+<block name="description">
+  <meta name="description" content="三甲进修+医美培训-医聘猫" />
+</block>
+<block name="viewport">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</block>
+<block name="other_script_top">
+  <link
+    rel="stylesheet"
+    type="text/css"
+    href="/Public/Newhome/css/tailwindcss.css"
+  />
+  <script type="module" src="https://unpkg.com/pcm-agents"></script>
+  <!-- 其他需要引入的脚本文件 -->
+  <style>
       body {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
       }
@@ -54,10 +66,24 @@
         color: #666;
       }
     </style>
-  </head>
-  <body>
-    <div class="demo-controls">
+</block>
+<block name="header"> </block>
+
+<block name="maincontent">
+  <div id="tailwindcss" style="display: flex; justify-content: center">
+   <div class="demo-controls">
       <h2>组件演示</h2>
+      
+      <div class="email-input-section" style="margin-bottom: 20px;">
+        <label for="user-email" style="display: block; margin-bottom: 8px;">请输入您的邮箱：</label>
+        <input 
+          type="email" 
+          id="user-email" 
+          placeholder="请输入邮箱地址"
+          style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 8px;"
+        >
+        <div id="email-error" style="color: #ff4d4f; font-size: 12px; display: none;">请输入有效的邮箱地址</div>
+      </div>
       
       <div class="device-check">
         <button id="check-devices">检查设备权限</button>
@@ -70,30 +96,54 @@
       <button id="open-chat" disabled>打开聊天</button>
     </div>
 
-    <!-- <my-component first="Stencil" middle="'Don't call me a framework'" last="JS"></my-component> -->
-    
-
-    <!-- 添加聊天模态框组件 -->
-    <pcm-hr-chat-modal 
-      bot-id="3022316191018880"
+      <pcm-hr-chat-modal 
+      bot-id="3022316191018882"
       id="pcm-chat-modal" 
       api-key="app-YXtEFC4fdga5QCCsANCbESGD"
-      modal-title="金牌大赛" 
+      modal-title="劳动合同卫士" 
       icon="https://www.ylzhaopin.com/Public/Newhome/images/sidebar/tochat.png"
       conversation-id=""
       email="790002517@qq.com"
       fullscreen="true"
     ></pcm-hr-chat-modal>
 
-    <script>
+  </div>
+</block>
+<block name="other_script_down">
+  <script>
       document.addEventListener('DOMContentLoaded', function() {
         console.log('DOM 已加载，正在设置事件监听器...');
         
-        // 聊天模态框事件监听
+        // 获取元素引用
         const chatModal = document.getElementById('pcm-chat-modal');
         const openChatButton = document.getElementById('open-chat');
         const checkDevicesButton = document.getElementById('check-devices');
         const statusMessage = document.getElementById('status-message');
+        const emailInput = document.getElementById('user-email');
+        const emailError = document.getElementById('email-error');
+        
+        // 邮箱验证函数
+        function validateEmail(email) {
+          const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          return re.test(email);
+        }
+        
+        // 邮箱输入事件处理
+        emailInput.addEventListener('input', function() {
+          const email = this.value.trim();
+          if (validateEmail(email)) {
+            emailError.style.display = 'none';
+            chatModal.setAttribute('email', email);
+            checkDevicesButton.disabled = false;
+          } else {
+            emailError.style.display = 'block';
+            checkDevicesButton.disabled = true;
+            openChatButton.disabled = true;
+          }
+        });
+
+        // 初始状态设置
+        checkDevicesButton.disabled = true;
         
         // 检查设备和权限
         let stream = null;
@@ -174,18 +224,20 @@
             // 更新 conversation_id
             chatModal.setAttribute('conversation-id', event.detail.conversation_id);
           });
+
+          // 添加 interviewComplete 事件监听
           chatModal.addEventListener('interviewComplete', function(event) {
             console.log('面试完成:', event.detail);
             chatModal.isOpen = false;
             alert('面试已完成，感谢您的参与！');
-          })
+          });
         }
 
         // 打开聊天按钮事件监听
         if (openChatButton && chatModal) {
           openChatButton.addEventListener('click', function() {
             chatModal.isOpen = true;
-            
+             console.log('打开聊天');
             // 停止媒体流，因为已经不需要了
             if (stream) {
               stream.getTracks().forEach(track => track.stop());
@@ -202,5 +254,5 @@
         });
       });
     </script>
-  </body>
-</html>
+</block>
+<block name="footer"></block>

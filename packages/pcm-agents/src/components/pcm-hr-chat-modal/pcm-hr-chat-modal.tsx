@@ -28,15 +28,6 @@ export class ChatHRModal {
    */
   @State() messages: ChatMessage[] = [];
 
-  /**
-   * 当前输入的消息
-   */
-  @State() currentMessage: string = '';
-
-  /**
-   * 当发送消息时触发
-   */
-  @Event() messageSent: EventEmitter<string>;
 
   /**
    * 当模态框关闭时触发
@@ -47,11 +38,6 @@ export class ChatHRModal {
    * 应用图标URL
    */
   @Prop() icon?: string;
-
-  /**
-   * 聊天框窗口的布局风格
-   */
-  @Prop() layout: 'mobile' | 'pc' = 'pc';
 
   /**
    * 聊天框的页面层级
@@ -77,7 +63,6 @@ export class ChatHRModal {
    * 会话ID
    */
   @Prop({ mutable: true }) conversationId?: string;
-
 
   /**
    * 当前助手回复的消息
@@ -109,10 +94,6 @@ export class ChatHRModal {
     message_id: string;
     id: string;
   }>;
-
-  @State() suggestedQuestions: string[] = [];
-  @State() suggestedQuestionsLoading: boolean = false;
-  private stopSuggestedQuestionsRef: { current: boolean } = { current: false };
 
   @State() selectedFile: File | null = null;
   @State() isUploading: boolean = false;
@@ -165,7 +146,7 @@ export class ChatHRModal {
   /**
    * 总题目数量
    */
-  @Prop() totalQuestions: number = 5;
+  @Prop() totalQuestions: number = 2;
 
   /**
    * 当前题目序号
@@ -205,15 +186,17 @@ export class ChatHRModal {
    */
   @Prop() email: string = '';
 
+  /**
+   * 是否以全屏模式打开
+   */
+  @Prop() fullscreen: boolean = false;
+
+  // 添加新的状态来跟踪视频上传
+  @State() isUploadingVideo: boolean = false;
+
   private handleClose = () => {
     this.isOpen = false;
     this.modalClosed.emit();
-  };
-
-
-  private handleStopSuggestedQuestions = () => {
-    this.suggestedQuestions = [];
-    this.stopSuggestedQuestionsRef.current = true;
   };
 
   private handleFileChange = async (event: Event) => {
@@ -241,7 +224,6 @@ export class ChatHRModal {
       });
 
       const result = await response.json();
-      console.log('result', result);
       if (result) {
         this.uploadedFileInfo = [{
           cos_key: result.cos_key,
@@ -273,10 +255,7 @@ export class ChatHRModal {
     }
   };
 
-
   private async sendMessageToAPI(message: string) {
-    this.handleStopSuggestedQuestions();
-    console.log('开始发送消息:', message);
     this.isLoading = true;
     let answer = '';
 
@@ -291,9 +270,6 @@ export class ChatHRModal {
 
     // 保存AI提问和用户回答
     if (lastAIMessage && this.conversationId && message !== "下一题") {
-      console.log('保存上一轮对话');
-      console.log('AI提问:', lastAIMessage.answer);
-      console.log('用户回答:', queryText);
       this.saveAnswer(
         this.conversationId,
         '1234567890',
@@ -302,12 +278,15 @@ export class ChatHRModal {
       );
     }
 
-    // 创建新的消息对象时确保必填字段都有值
+    // 检查是否是最后一题的"下一题"请求
+    const isLastQuestion = (this.currentQuestionNumber >= this.totalQuestions) && message === "下一题";
+
+    // 创建新的消息对象
     const newMessage: ChatMessage = {
       id: `temp-${Date.now()}`,  // id 必填
       time: time,                // time 必填
       query: queryText,
-      answer: '',
+      answer: isLastQuestion ? '面试已完成，感谢您的参与！' : '',
       bot_id: this.botId,
       isStreaming: true,
       conversation_id: this.conversationId,
@@ -329,6 +308,20 @@ export class ChatHRModal {
     this.shouldAutoScroll = true;
     // 滚动到底部
     this.scrollToBottom();
+
+    // 如果是最后一题，直接显示结束消息并完成面试
+    if (isLastQuestion) {
+      this.messages = [...this.messages, newMessage];
+      this.currentStreamingMessage = null;
+      this.isLoading = false;
+      this.isInterviewComplete = true;
+      await this.completeInterview();
+      this.interviewComplete.emit({
+        conversation_id: this.conversationId,
+        total_questions: this.totalQuestions
+      });
+      return;
+    }
 
     // 准备请求数据
     const requestData: any = {
@@ -413,19 +406,8 @@ export class ChatHRModal {
         if (message === "下一题" || this.currentQuestionNumber === 0) {
           this.currentQuestionNumber++;
         }
-
-        // 检查是否完成所有题目
-        if (this.currentQuestionNumber >= this.totalQuestions) {
-          this.isInterviewComplete = true;
-          // 发送面试完成请求
-          await this.completeInterview();
-          // 触发完成事件
-          this.interviewComplete.emit({
-            conversation_id: this.conversationId,
-            total_questions: this.totalQuestions
-          });
-          return;
-        }
+        console.log(this.currentQuestionNumber);
+        console.log(message);
 
         // 如果不是"下一题"消息，则开始等待录制
         if (message !== "下一题") {
@@ -483,7 +465,6 @@ export class ChatHRModal {
   private scrollToBottom() {
     if (!this.shouldAutoScroll) return;
     const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
-    console.log('chatHistory', chatHistory);
     if (chatHistory && this.isOpen) {
       // 强制浏览器重新计算布局
       chatHistory.scrollTop = chatHistory.scrollHeight;
@@ -508,7 +489,6 @@ export class ChatHRModal {
       window.history.replaceState({}, '', newUrl);
     }
   }
-
 
   // 修改 loadHistoryMessages 方法
   private async loadHistoryMessages() {
@@ -566,7 +546,6 @@ export class ChatHRModal {
     }
   }
 
-
   // 添加 isOpen 的 watch 方法
   @Watch('isOpen')
   async handleIsOpenChange(newValue: boolean) {
@@ -577,19 +556,6 @@ export class ChatHRModal {
     }
   }
 
-  @Watch('defaultQuery')
-  handleDefaultQueryChange(newValue: string) {
-    if (newValue && !this.currentMessage) {
-      this.currentMessage = newValue;
-    }
-  }
-
-  componentWillLoad() {
-    // 组件加载时设置默认查询
-    if (this.defaultQuery) {
-      this.currentMessage = this.defaultQuery;
-    }
-  }
 
   private handleJobCategorySelect = (category: string) => {
     this.selectedJobCategory = category;
@@ -604,8 +570,18 @@ export class ChatHRModal {
   };
 
   private handleInitialSubmit = async () => {
-    if (!this.selectedFile || !this.selectedJobCategory) {
-      alert('请上传简历并选择职能类别');
+    if (!this.selectedFile) {
+      alert('请上传简历');
+      return;
+    }
+
+    if (!this.selectedJobCategory) {
+      alert('请选择职能类别');
+      return;
+    }
+
+    if (this.selectedDimensions.length === 0) {
+      alert('请至少选择一个关注模块');
       return;
     }
 
@@ -736,6 +712,9 @@ export class ChatHRModal {
     if (!this.recordedBlob) return;
 
     try {
+      this.isUploadingVideo = true; // 开始上传时设置状态
+      this.showRecordingUI = false; // 隐藏视频预览
+
       const formData = new FormData();
       formData.append('file', this.recordedBlob, 'answer.webm');
 
@@ -763,6 +742,7 @@ export class ChatHRModal {
       console.error('视频上传错误:', error);
       alert('视频上传失败，请重试');
     } finally {
+      this.isUploadingVideo = false; // 上传完成后重置状态
       this.showRecordingUI = false;
       this.recordedBlob = null;
     }
@@ -815,35 +795,13 @@ export class ChatHRModal {
 
     try {
       await sendHttpRequest({
-        url: 'https://pcm_api.ylzhaopin.com/agents/hr_competition/complete',
+        url: `https://pcm_api.ylzhaopin.com/agents/hr_competition/${this.conversationId}/end`,
         method: 'POST',
         headers: {
           'authorization': 'Bearer ' + this.apiKey
         },
-        data: {
-          conversation_id: this.conversationId,
-          user: '1234567890'
-        }
       });
-      
-      // 显示完成消息
-      this.messages = [...this.messages, {
-        id: `system-${Date.now()}`,
-        time: new Date().toLocaleTimeString(),
-        query: '',
-        answer: '面试已完成，感谢您的参与！',
-        bot_id: this.botId,
-        isStreaming: false,
-        conversation_id: this.conversationId,
-        parent_message_id: "00000000-0000-0000-0000-000000000000",
-        inputs: {},
-        message_files: [],
-        feedback: null,
-        retriever_resources: [],
-        agent_thoughts: [],
-        status: "normal",
-        error: null
-      }];
+     
     } catch (error) {
       console.error('发送面试完成请求失败:', error);
     }
@@ -858,8 +816,12 @@ export class ChatHRModal {
 
     const containerClass = {
       'modal-container': true,
-      'mobile-layout': this.layout === 'mobile',
-      'pc-layout': this.layout === 'pc'
+      'fullscreen': this.fullscreen
+    };
+
+    const overlayClass = {
+      'modal-overlay': true,
+      'fullscreen-overlay': this.fullscreen
     };
 
     const renderVideoPreview = () => (
@@ -867,6 +829,7 @@ export class ChatHRModal {
         <video
           autoPlay
           muted
+          style={{ transform: 'scaleX(-1)' }}
           playsInline
           ref={(el) => {
             if (el && this.recordingStream && !this.videoRef) {
@@ -889,7 +852,7 @@ export class ChatHRModal {
     );
 
     return (
-      <div class="modal-overlay" style={modalStyle}>
+      <div class={overlayClass} style={modalStyle}>
         <div class={containerClass}>
           {this.isShowHeader && (
             <div class="modal-header">
@@ -965,7 +928,10 @@ export class ChatHRModal {
 
                 <button
                   class="submit-button"
-                  disabled={!this.selectedFile || !this.selectedJobCategory || this.isUploading}
+                  disabled={!this.selectedFile ||
+                    !this.selectedJobCategory ||
+                    this.selectedDimensions.length === 0 ||
+                    this.isUploading}
                   onClick={this.handleInitialSubmit}
                 >
                   {this.isUploading ? '上传中...' : '开始分析'}
@@ -1015,10 +981,7 @@ export class ChatHRModal {
                     )}
                   </>
                 )}
-
-
               </div>
-
 
               <div class="recording-section">
                 <div class="recording-container">
@@ -1027,28 +990,41 @@ export class ChatHRModal {
                       renderVideoPreview()
                     ) : (
                       <div class="video-preview placeholder">
-                        {this.isLoading || this.currentStreamingMessage ? (
-                          <div class="waiting-message loading">
-                            <p>请等待题目...</p>
-                          </div>
-                        ) : (
-                          this.waitingToRecord && (
-                            <div class="waiting-message">
-                              <p>请准备好，{this.waitingTimeLeft}秒后将开始录制您的回答...</p>
-                            </div>
-                          )
-                        )}
                       </div>
                     )}
                   </div>
-                  {this.showRecordingUI && (
-                    <button
-                      class="stop-recording-button"
-                      onClick={() => this.stopRecording()}
-                    >
-                      完成回答
-                    </button>
-                  )}
+                  <div class="recording-controls">
+                    {this.showRecordingUI ? (
+                      <button
+                        class="stop-recording-button"
+                        onClick={() => this.stopRecording()}
+                      >
+                        完成回答
+                      </button>
+                    ) : (
+                      <div class="waiting-message">
+                        {(() => {
+                          // 正在上传视频
+                          if (this.isUploadingVideo) {
+                            return <p>正在上传视频，请稍候...</p>;
+                          }
+                          
+                          // 正在加载或等待AI回复
+                          if (this.isLoading || this.currentStreamingMessage) {
+                            return <p>请等待题目...</p>;
+                          }
+                          
+                          // 等待开始录制
+                          if (this.waitingToRecord) {
+                            return <p>请准备好，{this.waitingTimeLeft}秒后将开始录制您的回答...</p>;
+                          }
+                          
+                          // 默认状态
+                          return <p>准备中...</p>;
+                        })()}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </>

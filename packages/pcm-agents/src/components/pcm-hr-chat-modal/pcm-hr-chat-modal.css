@@ -17,6 +17,11 @@
   z-index: 1000;
 }
 
+/* 全屏模式下取消 padding */
+.fullscreen-overlay {
+  padding: 0;
+}
+
 .modal-container {
   background: white;
   border-radius: 8px;
@@ -26,6 +31,15 @@
   flex-direction: column;
   position: relative;
   margin: auto;
+}
+
+/* 全屏模式样式 */
+.modal-container.fullscreen {
+  width: 100vw;
+  max-width: none;
+  height: 100vh;
+  border-radius: 0;
+  margin: 0;
 }
 
 /* PC端布局 */
@@ -50,6 +64,118 @@
   .pc-layout {
     width: 95%;
     /* height: 90vh; */
+  }
+
+  .modal-overlay {
+    padding: 0;
+  }
+
+  .modal-container.fullscreen {
+    /* 支持 iOS Safari */
+    height: -webkit-fill-available;
+    max-height: -webkit-fill-available;
+    /* 确保内容不会被顶部状态栏和底部工具栏遮挡 */
+    padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  }
+
+  .modal-container.fullscreen .modal-header {
+    /* 确保头部不被状态栏遮挡 */
+    padding-top: max(20px, env(safe-area-inset-top));
+  }
+
+  .modal-container.mobile-layout {
+    width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    min-height: 100vh;
+    border-radius: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chat-history {
+    /* 保持固定高度 */
+    height: 34vh;
+    max-height: 34vh;
+    min-height: 34vh;
+    flex: 0 0 auto; /* 防止 chat-history 被拉伸 */
+  }
+
+  .recording-section {
+    flex: 1 1 auto;
+    height: auto;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #f5f5f5;
+  }
+
+  .recording-container {
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .video-area {
+    width: 100%;
+  }
+
+  .video-preview {
+    width: 100%;
+    height: 200px;
+    position: relative;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .video-preview.placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f8f8f8;
+  }
+
+  .waiting-message {
+    background: #1890ff;
+    padding: 12px 20px;
+    border-radius: 24px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    white-space: nowrap;
+  }
+
+  /* 添加加载状态的样式 */
+  .waiting-message.loading {
+    background: #faad14;
+  }
+
+  .waiting-message p {
+    margin: 0;
+    font-size: 16px;
+    color: white;
+    font-weight: 500;
+  }
+
+  .stop-recording-button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 4px;
+    background: #f44336;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+
+  .stop-recording-button:hover {
+    background: #d32f2f;
   }
 }
 
@@ -414,8 +540,7 @@
 .upload-area {
   border: 2px dashed #ddd;
   border-radius: 8px;
-  padding: 2rem;
-  margin: 1rem 0;
+  padding: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -471,7 +596,7 @@
 }
 
 .submit-button {
-  margin-top: 2rem;
+  margin-bottom: 1rem;
   padding: 0.8rem 2rem;
   background: #1890ff;
   color: white;
@@ -529,107 +654,6 @@
   background: #52c41a;
   color: white;
   border-color: #52c41a;
-}
-
-/* 修改移动端布局样式 */
-@media screen and (max-width: 768px) {
-  .modal-overlay {
-    padding: 0;
-  }
-
-  .modal-container.mobile-layout {
-    width: 100%;
-    height: 100vh;
-    max-height: 100vh;
-    border-radius: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .chat-history {
-    /* 保持固定高度 */
-    height: 34vh;
-    max-height: 34vh;
-    min-height: 34vh;
-    flex: 0 0 auto; /* 防止 chat-history 被拉伸 */
-  }
-
-  .recording-section {
-    flex: 1 1 auto;
-    height: auto;
-    margin: 0;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-color: #f5f5f5;
-  }
-
-  .recording-container {
-    width: 320px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .video-area {
-    width: 100%;
-  }
-
-  .video-preview {
-    width: 100%;
-    height: 200px;
-    position: relative;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    overflow: hidden;
-    background: #fff;
-  }
-
-  .video-preview.placeholder {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #f8f8f8;
-  }
-
-  .waiting-message {
-    background: #1890ff;
-    padding: 12px 20px;
-    border-radius: 24px;
-    text-align: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    white-space: nowrap;
-  }
-
-  /* 添加加载状态的样式 */
-  .waiting-message.loading {
-    background: #faad14;
-  }
-
-  .waiting-message p {
-    margin: 0;
-    font-size: 16px;
-    color: white;
-    font-weight: 500;
-  }
-
-  .stop-recording-button {
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    border-radius: 4px;
-    background: #f44336;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-
-  .stop-recording-button:hover {
-    background: #d32f2f;
-  }
 }
 
 .recording-section {
@@ -706,6 +730,58 @@
 
 .recording-section .stop-recording-button:hover {
   background-color: #d32f2f;
+}
+
+.fullscreen {
+  width: 100vw;
+  border-radius: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.recording-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+  min-height: 40px; /* 确保高度一致 */
+}
+
+.recording-controls .waiting-message {
+  text-align: center;
+  color: white;
+  font-size: 1rem;
+  background: #1890ff;
+  padding: 12px 20px;
+  border-radius: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.recording-controls .waiting-message.loading {
+  background: #faad14;
+}
+
+.recording-controls .waiting-message p {
+  margin: 0;
+  font-size: 16px;
+  color: white;
+  font-weight: 500;
+}
+
+.recording-controls .stop-recording-button {
+  padding: 8px 20px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.recording-controls .stop-recording-button:hover {
+  background-color: #c82333;
 }
 
 

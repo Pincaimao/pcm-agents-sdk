@@ -21,11 +21,13 @@
 ### Used by
 
  - [pcm-chat-modal](../pcm-chat-modal)
+ - [pcm-hr-chat-modal](../pcm-hr-chat-modal)
 
 ### Graph
 ```mermaid
 graph TD;
   pcm-chat-modal --> pcm-chat-message
+  pcm-hr-chat-modal --> pcm-chat-message
   style pcm-chat-message fill:#f9f,stroke:#333,stroke-width:4px
 ```
 
