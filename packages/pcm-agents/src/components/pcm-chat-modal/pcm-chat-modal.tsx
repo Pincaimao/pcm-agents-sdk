@@ -231,23 +231,16 @@ export class ChatModal {
 
     // 创建新的消息对象时确保必填字段都有值
     const newMessage: ChatMessage = {
-      id: `temp-${Date.now()}`,  // id 必填
-      time: time,                // time 必填
-      query: queryText,
-      answer: '',
-      bot_id: this.botId,
-      isStreaming: true,
-      conversation_id: this.conversationId,
-      parent_message_id: this.messages.length > 0
-        ? this.messages[this.messages.length - 1].id
-        : "00000000-0000-0000-0000-000000000000",
-      inputs: {},
-      message_files: [],
-      feedback: null,
-      retriever_resources: [],
-      agent_thoughts: [],
-      status: "normal",
-      error: null
+      id: `temp-${Date.now()}`,  // 消息唯一标识
+      time: time,                // 消息时间
+      query: queryText,          // 用户输入的消息内容
+      answer: '',                // AI助手的回复内容
+      bot_id: this.botId,       // 机器人ID
+      isStreaming: true,        // 是否正在流式输出
+      conversation_id: this.conversationId,  // 会话ID
+      inputs: {},               // 输入参数
+      status: "normal",         // 消息状态
+      error: null              // 错误信息
     };
 
     // 设置当前流式消息

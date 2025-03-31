@@ -162,7 +162,7 @@ export interface HttpResponse<T = any> {
  * @returns Promise<HttpResponse>
  */
 export const sendHttpRequest = async <T = any>(config: HttpRequestConfig): Promise<HttpResponse<T>> => {
-  const { url, method = 'GET', headers = {}, params = {}, data } = config;
+  const { url, method = 'GET', headers = {}, params = {}, data, onMessage } = config;
   
   try {
     // 构建URL和查询参数
@@ -208,16 +208,28 @@ export const sendHttpRequest = async <T = any>(config: HttpRequestConfig): Promi
 
     const responseData = await response.json();
     
+    // 调用 onMessage 回调
+    if (onMessage) {
+      onMessage(responseData);
+    }
+    
     return {
       isOk: true,
       data: responseData
     };
   } catch (error) {
     console.error('HTTP请求错误:', error);
+    if (config.onError) {
+      config.onError(error);
+    }
     return {
       isOk: false,
       error
     };
+  } finally {
+    if (config.onComplete) {
+      config.onComplete();
+    }
   }
 };
 

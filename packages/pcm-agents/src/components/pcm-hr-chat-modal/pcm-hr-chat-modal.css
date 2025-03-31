@@ -79,8 +79,9 @@
   }
 
   .modal-container.fullscreen .modal-header {
+    padding: 0px 16px;
     /* 确保头部不被状态栏遮挡 */
-    padding-top: max(20px, env(safe-area-inset-top));
+    padding-top: max(30px, env(safe-area-inset-top));
   }
 
   .modal-container.mobile-layout {
@@ -184,6 +185,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 4px 16px;
+  height: 50px;
   border-bottom: 1px solid #e8e8e8;
 }
 

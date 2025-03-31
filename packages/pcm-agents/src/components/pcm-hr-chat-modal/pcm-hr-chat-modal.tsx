@@ -292,23 +292,16 @@ export class ChatHRModal {
 
     // 创建新的消息对象
     const newMessage: ChatMessage = {
-      id: `temp-${Date.now()}`,  // id 必填
-      time: time,                // time 必填
-      query: queryText,
+      id: `temp-${Date.now()}`,  // 消息唯一标识
+      time: time,                // 消息时间
+      query: queryText,          // 用户输入的消息内容
       answer: isLastQuestion ? '非常感谢您的参与，湖南省人力资源协会将会在2024年4月30日公布评选结果，如想获取您在本次金牌大赛中的评选报告，请联系0731-88878888，我们将报告发送到您指定邮箱中。' : '',
-      bot_id: this.botId,
-      isStreaming: true,
-      conversation_id: this.conversationId,
-      parent_message_id: this.messages.length > 0
-        ? this.messages[this.messages.length - 1].id
-        : "00000000-0000-0000-0000-000000000000",
-      inputs: {},
-      message_files: [],
-      feedback: null,
-      retriever_resources: [],
-      agent_thoughts: [],
-      status: "normal",
-      error: null
+      bot_id: this.botId,       // 机器人ID
+      isStreaming: true,        // 是否正在流式输出
+      conversation_id: this.conversationId,  // 会话ID
+      inputs: {},               // 输入参数
+      status: "normal",         // 消息状态
+      error: null              // 错误信息
     };
 
     // 设置当前流式消息
@@ -340,18 +333,17 @@ export class ChatHRModal {
       query: queryText,
       user: '1234567890'
     };
-
+    requestData.inputs = {
+      job_info: this.selectedJobCategory,
+      dimensional_info: this.selectedDimensions.join(','),
+      email: this.email,
+    };
     // 如果有上传的文件，添加到inputs参数
     if (this.uploadedFileInfo.length > 0) {
       const fileUrls = this.uploadedFileInfo.map(fileInfo => fileInfo.cos_key).join(',');
-
-      requestData.inputs = {
-        file_urls: fileUrls,
-        job_info: this.selectedJobCategory,
-        dimensional_info: this.selectedDimensions.join(','),
-        email: this.email,
-      };
+      requestData.inputs.file_urls = fileUrls;
     }
+    
 
     await sendSSERequest({
       url: `https://pcm_api.ylzhaopin.com/external/v1/chat-messages`,
@@ -515,13 +507,18 @@ export class ChatHRModal {
         },
         onMessage: (data) => {
           if (data.data) {
-            const historyData = data.data.data || [];
+            const historyData = data.data || [];
             const formattedMessages: ChatMessage[] = historyData.map(msg => {
               const time = new Date(msg.created_at * 1000);
-              const timeStr = `${time.getHours()}:${time.getMinutes().toString().padStart(2, '0')}`;
+              const hours = time.getHours().toString().padStart(2, '0');
+              const minutes = time.getMinutes().toString().padStart(2, '0');
+              const timeStr = `${hours}:${minutes}`;
 
+              // 创建新的消息对象，不包含 inputs 字段
+              const { inputs, ...msgWithoutInputs } = msg;
+              
               return {
-                ...msg,
+                ...msgWithoutInputs,
                 time: timeStr,
                 bot_id: this.botId,
                 isStreaming: false,
@@ -530,16 +527,20 @@ export class ChatHRModal {
             });
 
             this.messages = formattedMessages;
+            this.isLoadingHistory = false;
 
             requestAnimationFrame(() => {
               this.shouldAutoScroll = true;
               this.scrollToBottom();
             });
+          } else {
+            this.isLoadingHistory = false;
           }
         },
         onError: (error) => {
           console.error('加载历史消息失败:', error);
           window.alert(error instanceof Error ? error.message : '加载历史消息失败，请刷新重试');
+          this.isLoadingHistory = false;
         },
         onComplete: () => {
           this.isLoadingHistory = false;
@@ -871,7 +872,7 @@ export class ChatHRModal {
             <div class="modal-header">
               <div class="header-left">
                 {this.icon && <img src={this.icon} class="header-icon" alt="应用图标" />}
-                <h3>{this.modalTitle}</h3>
+                <div>{this.modalTitle}</div>
               </div>
               {this.isNeedClose && (
                 <button class="close-button" onClick={this.handleClose}>
