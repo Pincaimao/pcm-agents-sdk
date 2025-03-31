@@ -199,6 +199,11 @@ export class ChatHRModal {
    */
   @Prop() requireResume: boolean = false;
 
+  // 添加新的状态和属性
+  @State() isPlayingAudio: boolean = false;
+  @State() audioUrl: string | null = null;
+  private audioElement: HTMLAudioElement | null = null;
+
   private handleClose = () => {
     this.isOpen = false;
     this.stopRecording();
@@ -245,7 +250,7 @@ export class ChatHRModal {
     } catch (error) {
       console.error('文件上传错误:', error);
       this.clearSelectedFile();
-      window.alert(error instanceof Error ? error.message : '文件上传失败，请重试');
+      alert(error instanceof Error ? error.message : '文件上传失败，请重试');
     } finally {
       this.isUploading = false;
     }
@@ -296,7 +301,7 @@ export class ChatHRModal {
       id: `temp-${Date.now()}`,  // 消息唯一标识
       time: time,                // 消息时间
       query: queryText,          // 用户输入的消息内容
-      answer: isLastQuestion ? '非常感谢您的参与，湖南省人力资源协会将会在2024年4月30日公布评选结果，如想获取您在本次金牌大赛中的评选报告，请联系0731-88878888，我们将报告发送到您指定邮箱中。' : '',
+      answer: '',
       bot_id: this.botId,       // 机器人ID
       isStreaming: true,        // 是否正在流式输出
       conversation_id: this.conversationId,  // 会话ID
@@ -344,7 +349,7 @@ export class ChatHRModal {
       const fileUrls = this.uploadedFileInfo.map(fileInfo => fileInfo.cos_key).join(',');
       requestData.inputs.file_urls = fileUrls;
     }
-    
+
 
     await sendSSERequest({
       url: `https://pcm_api.ylzhaopin.com/external/v1/chat-messages`,
@@ -389,7 +394,7 @@ export class ChatHRModal {
       },
       onError: (error) => {
         console.error('发生错误:', error);
-        window.alert(error instanceof Error ? error.message : '消息发送失败，请稍后再试');
+        alert(error instanceof Error ? error.message : '消息发送失败，请稍后再试');
         this.messages = [...this.messages, {
           ...newMessage,
           answer: '抱歉，发生了错误，请稍后再试。',
@@ -402,6 +407,11 @@ export class ChatHRModal {
       onComplete: async () => {
         console.log('请求完成');
         this.isLoading = false;
+
+        // 获取最新的AI回复内容
+        const latestAIMessage = this.currentStreamingMessage;
+
+        // 更新消息列表
         this.messages = [...this.messages, this.currentStreamingMessage];
         this.currentStreamingMessage = null;
 
@@ -412,14 +422,13 @@ export class ChatHRModal {
         console.log(this.currentQuestionNumber);
         console.log(message);
 
-        // 如果不是"下一题"消息，则开始等待录制
-        if (message !== "下一题") {
+        if (latestAIMessage && latestAIMessage.answer) {
+          // 合成语音
+          const audioUrl = await this.synthesizeAudio(latestAIMessage.answer);
+          // 播放语音
+          await this.playAudio(audioUrl);
+
           this.startWaitingToRecord();
-        } else {
-          // 当AI回复"下一题"的消息完成后，开始新一轮等待录制
-          setTimeout(() => {
-            this.startWaitingToRecord();
-          }, 1000);
         }
       }
     });
@@ -492,7 +501,7 @@ export class ChatHRModal {
 
     this.isLoadingHistory = true;
     console.log('加载历史消息...');
-    
+
     try {
       await sendHttpRequest({
         url: `https://pcm_api.ylzhaopin.com/external/v1/messages`,
@@ -502,7 +511,7 @@ export class ChatHRModal {
         },
         data: {
           conversation_id: this.conversationId,
-          bot_id: this.botId, 
+          bot_id: this.botId,
           user: '1234567890',
           limit: 20
         },
@@ -517,7 +526,7 @@ export class ChatHRModal {
 
               // 创建新的消息对象，不包含 inputs 字段
               const { inputs, ...msgWithoutInputs } = msg;
-              
+
               return {
                 ...msgWithoutInputs,
                 time: timeStr,
@@ -540,7 +549,7 @@ export class ChatHRModal {
         },
         onError: (error) => {
           console.error('加载历史消息失败:', error);
-          window.alert(error instanceof Error ? error.message : '加载历史消息失败，请刷新重试');
+          alert(error instanceof Error ? error.message : '加载历史消息失败，请刷新重试');
           this.isLoadingHistory = false;
         },
         onComplete: () => {
@@ -549,7 +558,7 @@ export class ChatHRModal {
       });
     } catch (error) {
       console.error('加载历史消息失败:', error);
-      window.alert(error instanceof Error ? error.message : '加载历史消息失败，请刷新重试');
+      alert(error instanceof Error ? error.message : '加载历史消息失败，请刷新重试');
       this.isLoadingHistory = false;
     }
   }
@@ -816,10 +825,99 @@ export class ChatHRModal {
           'authorization': 'Bearer ' + this.apiKey
         },
       });
-     
+
     } catch (error) {
       console.error('发送面试完成请求失败:', error);
     }
+  }
+
+  // 添加TTS合成音频的方法
+  private async synthesizeAudio(text: string): Promise<string> {
+    try {
+      const response = await fetch('https://pcm_api.ylzhaopin.com/external/v1/tts/synthesize_audio', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'authorization': 'Bearer ' + this.apiKey
+        },
+        body: JSON.stringify({ text })
+      });
+
+      if (!response.ok) {
+        throw new Error('语音合成失败');
+      }
+
+      // 获取音频数据并创建Blob URL
+      const audioBlob = await response.blob();
+      return URL.createObjectURL(audioBlob);
+    } catch (error) {
+      console.error('语音合成错误:', error);
+      throw error;
+    }
+  }
+
+  // 播放音频的方法
+  private playAudio(audioUrl: string): Promise<void> {
+    return new Promise((resolve) => {
+      this.isPlayingAudio = true;
+      this.audioUrl = audioUrl;
+
+      // 创建音频元素
+      if (!this.audioElement) {
+        this.audioElement = new Audio();
+      }
+
+      this.audioElement.src = audioUrl;
+      this.audioElement.onended = () => {
+        this.isPlayingAudio = false;
+        this.audioUrl = null;
+        resolve();
+      };
+
+      this.audioElement.onerror = () => {
+        console.error('音频播放错误');
+        this.isPlayingAudio = false;
+        this.audioUrl = null;
+        resolve();
+      };
+
+      this.audioElement.play().catch(error => {
+        console.error('音频播放失败:', error);
+        this.isPlayingAudio = false;
+        this.audioUrl = null;
+        resolve();
+      });
+    });
+  }
+
+  // 修改 componentDidLoad 生命周期方法，确保组件卸载时释放资源
+  disconnectedCallback() {
+    // 释放音频资源
+    if (this.audioElement) {
+      this.audioElement.pause();
+      this.audioElement.src = '';
+      this.audioElement = null;
+    }
+
+    // 释放 Blob URL
+    if (this.audioUrl) {
+      URL.revokeObjectURL(this.audioUrl);
+      this.audioUrl = null;
+    }
+
+    // 清理其他计时器
+    if (this.waitingTimer) {
+      clearInterval(this.waitingTimer);
+      this.waitingTimer = null;
+    }
+
+    if (this.recordingTimer) {
+      clearInterval(this.recordingTimer);
+      this.recordingTimer = null;
+    }
+
+    // 停止录制
+    this.stopRecording();
   }
 
   render() {
@@ -1028,21 +1126,26 @@ export class ChatHRModal {
                     ) : (
                       <div class="waiting-message">
                         {(() => {
+                          // 正在播放音频
+                          if (this.isPlayingAudio) {
+                            return <p>正在播放问题，请听完后准备回答...</p>;
+                          }
+
                           // 正在上传视频
                           if (this.isUploadingVideo) {
                             return <p>正在上传视频，请稍候...</p>;
                           }
-                          
+
                           // 正在加载或等待AI回复
                           if (this.isLoading || this.currentStreamingMessage) {
                             return <p>请等待题目...</p>;
                           }
-                          
+
                           // 等待开始录制
                           if (this.waitingToRecord) {
                             return <p>请准备好，{this.waitingTimeLeft}秒后将开始录制您的回答...</p>;
                           }
-                          
+
                           // 默认状态
                           return <p>准备中...</p>;
                         })()}
