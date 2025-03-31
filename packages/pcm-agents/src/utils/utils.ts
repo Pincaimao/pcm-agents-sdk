@@ -142,6 +142,9 @@ export interface HttpRequestConfig {
   headers?: Record<string, string>;
   params?: Record<string, any>;
   data?: any;
+  onMessage?: (data: any) => void;
+  onError?: (error: any) => void;
+  onComplete?: () => void;
 }
 
 /**
@@ -170,16 +173,34 @@ export const sendHttpRequest = async <T = any>(config: HttpRequestConfig): Promi
       }
     });
     
-    const requestUrl = `${url}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    let requestUrl = `${url}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
     
-    const response = await fetch(requestUrl, {
+    // 创建请求配置对象
+    const requestConfig: RequestInit = {
       method,
       headers: {
         'Content-Type': 'application/json',
         ...headers
-      },
-      body: data ? JSON.stringify(data) : undefined
-    });
+      }
+    };
+
+    // 只有在非 GET/HEAD 请求时才添加 body
+    if (method !== 'GET' && method !== 'HEAD' && data) {
+      requestConfig.body = JSON.stringify(data);
+    }
+
+    // 如果是 GET 方法且有 data，将其作为查询参数添加到 URL
+    if (method === 'GET' && data) {
+      const dataParams = new URLSearchParams();
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          dataParams.append(key, String(value));
+        }
+      });
+      requestUrl += (queryParams.toString() ? '&' : '?') + dataParams.toString();
+    }
+
+    const response = await fetch(requestUrl, requestConfig);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);

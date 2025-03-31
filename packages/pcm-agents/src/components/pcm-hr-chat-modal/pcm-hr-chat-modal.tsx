@@ -194,6 +194,11 @@ export class ChatHRModal {
   // 添加新的状态来跟踪视频上传
   @State() isUploadingVideo: boolean = false;
 
+  /**
+   * 是否需要上传简历
+   */
+  @Prop() requireResume: boolean = false;
+
   private handleClose = () => {
     this.isOpen = false;
     this.modalClosed.emit();
@@ -224,6 +229,10 @@ export class ChatHRModal {
       });
 
       const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.message || '文件上传失败');
+      }
+
       if (result) {
         this.uploadedFileInfo = [{
           cos_key: result.cos_key,
@@ -235,7 +244,7 @@ export class ChatHRModal {
     } catch (error) {
       console.error('文件上传错误:', error);
       this.clearSelectedFile();
-      alert('文件上传失败，请重试');
+      window.alert(error instanceof Error ? error.message : '文件上传失败，请重试');
     } finally {
       this.isUploading = false;
     }
@@ -286,7 +295,7 @@ export class ChatHRModal {
       id: `temp-${Date.now()}`,  // id 必填
       time: time,                // time 必填
       query: queryText,
-      answer: isLastQuestion ? '面试已完成，感谢您的参与！' : '',
+      answer: isLastQuestion ? '非常感谢您的参与，湖南省人力资源协会将会在2024年4月30日公布评选结果，如想获取您在本次金牌大赛中的评选报告，请联系0731-88878888，我们将报告发送到您指定邮箱中。' : '',
       bot_id: this.botId,
       isStreaming: true,
       conversation_id: this.conversationId,
@@ -387,6 +396,7 @@ export class ChatHRModal {
       },
       onError: (error) => {
         console.error('发生错误:', error);
+        window.alert(error instanceof Error ? error.message : '消息发送失败，请稍后再试');
         this.messages = [...this.messages, {
           ...newMessage,
           answer: '抱歉，发生了错误，请稍后再试。',
@@ -425,7 +435,7 @@ export class ChatHRModal {
   // 添加保存答案的方法
   private async saveAnswer(conversationId: string, user: string, question: string, answer: string) {
     try {
-      await sendSSERequest({
+      await sendHttpRequest({
         url: 'https://pcm_api.ylzhaopin.com/agents/hr_competition/answer',
         method: 'POST',
         headers: {
@@ -437,13 +447,6 @@ export class ChatHRModal {
           question: question,
           answer: answer
         },
-        onMessage: () => { },
-        onError: (error) => {
-          console.error('保存答案失败:', error);
-        },
-        onComplete: () => {
-          console.log('保存答案完成');
-        }
       });
     } catch (error) {
       console.error('保存答案失败:', error);
@@ -495,9 +498,10 @@ export class ChatHRModal {
     if (!this.conversationId) return;
 
     this.isLoadingHistory = true;
-
+    console.log('加载历史消息...');
+    
     try {
-      await sendSSERequest({
+      await sendHttpRequest({
         url: `https://pcm_api.ylzhaopin.com/external/v1/messages`,
         method: 'GET',
         headers: {
@@ -505,7 +509,7 @@ export class ChatHRModal {
         },
         data: {
           conversation_id: this.conversationId,
-          bot_id: this.botId,
+          bot_id: this.botId, 
           user: '1234567890',
           limit: 20
         },
@@ -535,6 +539,7 @@ export class ChatHRModal {
         },
         onError: (error) => {
           console.error('加载历史消息失败:', error);
+          window.alert(error instanceof Error ? error.message : '加载历史消息失败，请刷新重试');
         },
         onComplete: () => {
           this.isLoadingHistory = false;
@@ -542,6 +547,7 @@ export class ChatHRModal {
       });
     } catch (error) {
       console.error('加载历史消息失败:', error);
+      window.alert(error instanceof Error ? error.message : '加载历史消息失败，请刷新重试');
       this.isLoadingHistory = false;
     }
   }
@@ -570,7 +576,8 @@ export class ChatHRModal {
   };
 
   private handleInitialSubmit = async () => {
-    if (!this.selectedFile) {
+    // 修改验证逻辑
+    if (this.requireResume && !this.selectedFile) {
       alert('请上传简历');
       return;
     }
@@ -585,12 +592,25 @@ export class ChatHRModal {
       return;
     }
 
-    await this.uploadFile();
-    if (this.uploadedFileInfo.length > 0) {
-      this.showInitialUpload = false;
-      const message = `我是一名${this.selectedJobCategory}，这是我的简历`;
-      this.sendMessageToAPI(message);
+    const confirmed = confirm(
+      '欢迎您参加湖南省人力资源协会组织的金牌HR大赛，接下来我们将采用数字人方式对您做交流，本次大赛预计需要10-30分钟，请在安静的环境下参与此次大赛，如果您已做好准备请点击"确定"开始面试。'
+    );
+
+    if (!confirmed) {
+      return;
     }
+
+    // 修改文件上传逻辑
+    if (this.requireResume) {
+      await this.uploadFile();
+      if (this.uploadedFileInfo.length === 0) {
+        return;
+      }
+    }
+
+    this.showInitialUpload = false;
+    const message = `我是一名${this.selectedJobCategory}，请您开始提问`;
+    this.sendMessageToAPI(message);
   };
 
   // 开始等待录制
@@ -757,7 +777,7 @@ export class ChatHRModal {
 
       if (!lastAIMessage) return;
 
-      await sendSSERequest({
+      await sendHttpRequest({
         url: 'https://pcm_api.ylzhaopin.com/agents/hr_competition/answer',
         method: 'POST',
         headers: {
@@ -769,13 +789,6 @@ export class ChatHRModal {
           question: lastAIMessage.answer,
           file_url: cosKey
         },
-        onMessage: () => { },
-        onError: (error) => {
-          console.error('保存视频答案失败:', error);
-        },
-        onComplete: () => {
-          console.log('保存视频答案完成');
-        }
       });
     } catch (error) {
       console.error('保存视频答案失败:', error);
@@ -871,26 +884,31 @@ export class ChatHRModal {
           {this.showInitialUpload ? (
             <div class="initial-upload">
               <div class="upload-section">
-                <h3>开始前，请上传您的简历</h3>
-                <div class="upload-area" onClick={this.handleUploadClick}>
-                  {this.selectedFile ? (
-                    <div class="file-info">
-                      <span>{this.selectedFile.name}</span>
-                      <button class="remove-file" onClick={(e) => {
-                        e.stopPropagation();
-                        this.clearSelectedFile();
-                      }}>×</button>
+                {/* 根据 requireResume 条件渲染简历上传部分 */}
+                {this.requireResume && (
+                  <>
+                    <h3>开始前，请上传您的简历</h3>
+                    <div class="upload-area" onClick={this.handleUploadClick}>
+                      {this.selectedFile ? (
+                        <div class="file-info">
+                          <span>{this.selectedFile.name}</span>
+                          <button class="remove-file" onClick={(e) => {
+                            e.stopPropagation();
+                            this.clearSelectedFile();
+                          }}>×</button>
+                        </div>
+                      ) : (
+                        <div class="upload-placeholder">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="48" height="48">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m0-16l-4 4m4-4l4 4" />
+                          </svg>
+                          <p>点击上传简历</p>
+                          <p class="upload-hint">支持 txt、 markdown、 pdf、 docx、  md 格式</p>
+                        </div>
+                      )}
                     </div>
-                  ) : (
-                    <div class="upload-placeholder">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="48" height="48">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m0-16l-4 4m4-4l4 4" />
-                      </svg>
-                      <p>点击上传简历</p>
-                      <p class="upload-hint">支持 txt、 markdown、 pdf、 docx、  md 格式</p>
-                    </div>
-                  )}
-                </div>
+                  </>
+                )}
 
                 <div class="category-select">
                   <h3>请选择您的职能类别（单选）</h3>
@@ -928,21 +946,25 @@ export class ChatHRModal {
 
                 <button
                   class="submit-button"
-                  disabled={!this.selectedFile ||
+                  disabled={
+                    (this.requireResume && !this.selectedFile) ||
                     !this.selectedJobCategory ||
                     this.selectedDimensions.length === 0 ||
-                    this.isUploading}
+                    (this.requireResume && this.isUploading)
+                  }
                   onClick={this.handleInitialSubmit}
                 >
-                  {this.isUploading ? '上传中...' : '开始分析'}
+                  {this.requireResume && this.isUploading ? '上传中...' : '开始面试'}
                 </button>
               </div>
-              <input
-                type="file"
-                class="file-input"
-                onChange={this.handleFileChange}
-                accept=".pdf,.doc,.docx,.txt"
-              />
+              {this.requireResume && (
+                <input
+                  type="file"
+                  class="file-input"
+                  onChange={this.handleFileChange}
+                  accept=".pdf,.doc,.docx,.txt"
+                />
+              )}
             </div>
           ) : (
             <>

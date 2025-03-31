@@ -124,6 +124,10 @@ export namespace Components {
          */
         "modalTitle": string;
         /**
+          * 是否需要上传简历
+         */
+        "requireResume": boolean;
+        /**
           * 总题目数量
          */
         "totalQuestions": number;
@@ -378,6 +382,10 @@ declare namespace LocalJSX {
     message_id: string;
     id: string;
   }>) => void;
+        /**
+          * 是否需要上传简历
+         */
+        "requireResume"?: boolean;
         /**
           * 总题目数量
          */
