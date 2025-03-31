@@ -19,6 +19,7 @@
 | `isShowHeader`         | `is-show-header`         | 是否展示顶部标题栏                       | `boolean` | `true`      |
 | `maxRecordingTime`     | `max-recording-time`     | 视频录制最大时长（秒）                     | `number`  | `120`       |
 | `modalTitle`           | `modal-title`            | 模态框标题                           | `string`  | `'在线客服'`    |
+| `requireResume`        | `require-resume`         | 是否需要上传简历                        | `boolean` | `false`     |
 | `totalQuestions`       | `total-questions`        | 总题目数量                           | `number`  | `2`         |
 | `zIndex`               | `z-index`                | 聊天框的页面层级                        | `number`  | `1000`      |
 

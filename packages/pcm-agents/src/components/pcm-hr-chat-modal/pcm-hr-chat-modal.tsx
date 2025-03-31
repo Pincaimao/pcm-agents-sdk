@@ -201,6 +201,7 @@ export class ChatHRModal {
 
   private handleClose = () => {
     this.isOpen = false;
+    this.stopRecording();
     this.modalClosed.emit();
   };
 

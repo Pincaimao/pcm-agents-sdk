@@ -11,9 +11,9 @@
 
 ## Events
 
-| Event           | Description | Type                                                                                                                                                                                                                                                                                                                                                                    |
-| --------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `messageChange` | 消息变更事件      | `CustomEvent<{ id?: string; query?: string; answer?: string; time?: string; conversation_id?: string; created_at?: number; isStreaming?: boolean; bot_id?: string; parent_message_id?: string; inputs?: Record<string, any>; message_files?: any[]; feedback?: any; retriever_resources?: any[]; agent_thoughts?: any[]; status?: "error" \| "normal"; error?: any; }>` |
+| Event           | Description | Type                                                                                                                                                                                                                       |
+| --------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `messageChange` | 消息变更事件      | `CustomEvent<{ id?: string; query?: string; answer?: string; time?: string; conversation_id?: string; isStreaming?: boolean; bot_id?: string; inputs?: Record<string, any>; status?: "error" \| "normal"; error?: any; }>` |
 
 
 ## Dependencies
