@@ -569,6 +569,9 @@ export class ChatHRModal {
     if (newValue) {
       if (this.conversationId) {
         await this.loadHistoryMessages();
+      } else {
+        // 如果是新会话，显示欢迎提示
+        alert('欢迎您参加湖南省人力资源协会组织的金牌HR大赛，接下来我们将采用数字人方式对您做交流，本次大赛预计需要10-30分钟，请在安静的环境下参与此次大赛。');
       }
     }
   }
@@ -603,9 +606,9 @@ export class ChatHRModal {
       return;
     }
 
-    const confirmed = confirm(
-      '欢迎您参加湖南省人力资源协会组织的金牌HR大赛，接下来我们将采用数字人方式对您做交流，本次大赛预计需要10-30分钟，请在安静的环境下参与此次大赛，如果您已做好准备请点击"确定"开始面试。'
-    );
+    // 不再显示欢迎确认对话框，因为已经在组件打开时显示了
+    // 直接询问用户是否准备好开始面试
+    const confirmed = confirm('如果您已做好准备请点击"确定"开始面试。');
 
     if (!confirmed) {
       return;
