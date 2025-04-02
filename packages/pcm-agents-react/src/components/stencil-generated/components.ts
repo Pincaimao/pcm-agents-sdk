@@ -73,6 +73,15 @@ type PcmHrChatModalEvents = {
     onInterviewComplete: EventName<CustomEvent<{
         conversation_id: string;
         total_questions: number;
+    }>>,
+    onRecordingError: EventName<CustomEvent<{
+        type: string;
+        message: string;
+        details?: any;
+    }>>,
+    onRecordingStatusChange: EventName<CustomEvent<{
+        status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
+        details?: any;
     }>>
 };
 
@@ -84,7 +93,9 @@ export const PcmHrChatModal: StencilReactComponent<PcmHrChatModalElement, PcmHrC
     events: {
         onModalClosed: 'modalClosed',
         onStreamComplete: 'streamComplete',
-        onInterviewComplete: 'interviewComplete'
+        onInterviewComplete: 'interviewComplete',
+        onRecordingError: 'recordingError',
+        onRecordingStatusChange: 'recordingStatusChange'
     } as PcmHrChatModalEvents,
     defineCustomElement: definePcmHrChatModal
 });

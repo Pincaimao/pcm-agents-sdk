@@ -209,6 +209,28 @@ export class ChatHRModal {
    */
   @Prop() welcomeMessage?: string;
 
+  /**
+   * 录制错误事件
+   */
+  @Event() recordingError: EventEmitter<{
+    type: string;
+    message: string;
+    details?: any;
+  }>;
+
+  /**
+   * 录制状态变化事件
+   */
+  @Event() recordingStatusChange: EventEmitter<{
+    status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
+    details?: any;
+  }>;
+
+  /**
+   * 是否播放语音问题
+   */
+  @Prop() enableVoice: boolean = true;
+
   private handleClose = () => {
     this.isOpen = false;
     this.stopRecording();
@@ -430,10 +452,17 @@ export class ChatHRModal {
         if (latestAIMessage && latestAIMessage.answer) {
           // 合成语音
           const audioUrl = await this.synthesizeAudio(latestAIMessage.answer);
-          // 播放语音
-          await this.playAudio(audioUrl);
 
-          this.startWaitingToRecord();
+          if (this.enableVoice) {
+            // 自动播放语音
+            await this.playAudio(audioUrl);
+            // 自动播放模式下，播放完成后立即开始等待录制
+            this.startWaitingToRecord();
+          } else {
+            // 只保存音频URL，不自动播放
+            this.audioUrl = audioUrl;
+            // 非自动播放模式下，不立即开始等待录制
+          }
         }
       }
     });
@@ -675,9 +704,35 @@ export class ChatHRModal {
       // 重置视频引用
       this.videoRef = null;
 
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'video/webm;codecs=vp8,opus'
-      });
+      // 确保视频元素获取到流
+      this.setupVideoPreview(stream);
+
+      // 检测浏览器支持的MIME类型
+      const mimeType = this.getSupportedMimeType();
+
+      // 创建MediaRecorder实例
+      let mediaRecorder;
+      try {
+        mediaRecorder = new MediaRecorder(stream, {
+          mimeType: mimeType
+        });
+      } catch (e) {
+        // 如果指定MIME类型失败，尝试使用默认设置
+        console.warn('指定的MIME类型不受支持，使用默认设置:', e);
+        try {
+          mediaRecorder = new MediaRecorder(stream);
+        } catch (recorderError) {
+          // 通知父组件录制器创建失败
+          this.recordingError.emit({
+            type: 'recorder_creation_failed',
+            message: '无法创建媒体录制器，您的浏览器可能不支持此功能',
+            details: recorderError
+          });
+          this.showRecordingUI = false;
+          return;
+        }
+      }
+
       this.mediaRecorder = mediaRecorder;
 
       const chunks: BlobPart[] = [];
@@ -688,17 +743,81 @@ export class ChatHRModal {
         }
       };
 
+      mediaRecorder.onerror = (event) => {
+        // 通知父组件录制过程中发生错误
+        this.recordingError.emit({
+          type: 'recording_error',
+          message: '录制过程中发生错误',
+          details: event
+        });
+        this.stopRecording();
+      };
+
       mediaRecorder.onstop = () => {
-        const blob = new Blob(chunks, { type: 'video/webm' });
-        this.recordedBlob = blob;
-        this.uploadRecordedVideo();
+        try {
+          // 根据实际使用的MIME类型创建Blob
+          const blobType = mimeType || 'video/mp4';
+          const blob = new Blob(chunks, { type: blobType });
+
+          if (blob.size === 0) {
+            // 通知父组件录制的视频为空
+            this.recordingError.emit({
+              type: 'empty_recording',
+              message: '录制的视频为空'
+            });
+            this.showRecordingUI = false;
+            return;
+          }
+
+          this.recordedBlob = blob;
+
+          // 通知父组件录制已完成
+          this.recordingStatusChange.emit({
+            status: 'stopped',
+            details: {
+              duration: Math.floor((Date.now() - this.recordingStartTime) / 1000),
+              size: blob.size,
+              type: blob.type
+            }
+          });
+
+          this.uploadRecordedVideo();
+        } catch (error) {
+          // 通知父组件处理录制视频时出错
+          this.recordingError.emit({
+            type: 'processing_error',
+            message: '处理录制视频时出错',
+            details: error
+          });
+          this.showRecordingUI = false;
+        }
       };
 
       // 开始录制
-      mediaRecorder.start();
-      this.isRecording = true;
-      this.recordingStartTime = Date.now();
-      this.recordingTimeLeft = this.maxRecordingTime;
+      try {
+        mediaRecorder.start();
+        this.isRecording = true;
+        this.recordingStartTime = Date.now();
+        this.recordingTimeLeft = this.maxRecordingTime;
+
+        // 通知父组件录制已开始
+        this.recordingStatusChange.emit({
+          status: 'started',
+          details: {
+            maxDuration: this.maxRecordingTime,
+            mimeType: mediaRecorder.mimeType
+          }
+        });
+      } catch (startError) {
+        // 通知父组件开始录制失败
+        this.recordingError.emit({
+          type: 'start_failed',
+          message: '开始录制失败，请检查您的设备权限',
+          details: startError
+        });
+        this.showRecordingUI = false;
+        return;
+      }
 
       // 设置录制计时器
       this.recordingTimer = setInterval(() => {
@@ -718,9 +837,86 @@ export class ChatHRModal {
 
     } catch (error) {
       console.error('无法访问摄像头或麦克风:', error);
-      alert('无法访问摄像头或麦克风，请确保已授予权限并重试。');
+      // 通知父组件无法访问媒体设备
+      this.recordingError.emit({
+        type: 'media_access_failed',
+        message: '无法访问摄像头或麦克风，请确保已授予权限',
+        details: error
+      });
       this.showRecordingUI = false;
     }
+  }
+
+  // 添加新方法来设置视频预览
+  private setupVideoPreview(stream: MediaStream) {
+    // 延迟执行以确保DOM已更新
+    setTimeout(() => {
+      const videoElement = this.hostElement.shadowRoot?.querySelector('video') as HTMLVideoElement;
+      if (videoElement && stream) {
+        // 先尝试使用标准方法
+        try {
+          videoElement.srcObject = stream;
+          videoElement.play().catch(err => {
+            console.error('视频播放失败:', err);
+          });
+        } catch (e) {
+          console.warn('设置srcObject失败，尝试替代方法:', e);
+
+          // 对于不支持srcObject的旧浏览器，使用URL.createObjectURL
+          try {
+            // 使用类型断言解决TypeScript错误
+            const objectUrl = URL.createObjectURL(stream as unknown as MediaSource);
+            videoElement.src = objectUrl;
+
+            // 确保在视频元素不再使用时释放URL
+            videoElement.onended = () => {
+              URL.revokeObjectURL(objectUrl);
+            };
+          } catch (urlError) {
+            console.error('创建对象URL失败:', urlError);
+          }
+        }
+      } else {
+        console.warn('未找到视频元素或媒体流无效');
+      }
+    }, 100);
+  }
+
+  // 添加一个新方法来检测浏览器支持的MIME类型
+  private getSupportedMimeType(): string {
+    // 按优先级排列的MIME类型列表
+    const mimeTypes = [
+      'video/webm;codecs=vp8,opus',
+      'video/webm;codecs=vp9,opus',
+      'video/webm',
+      'video/mp4',
+      'video/mp4;codecs=h264,aac',
+      ''  // 空字符串表示使用浏览器默认值
+    ];
+
+    // 检查MediaRecorder是否可用
+    if (!window.MediaRecorder) {
+      console.warn('MediaRecorder API不可用');
+      return '';
+    }
+
+    // 检查每种MIME类型是否受支持
+    for (const type of mimeTypes) {
+      if (!type) return ''; // 如果是空字符串，直接返回
+
+      try {
+        if (MediaRecorder.isTypeSupported(type)) {
+          console.log('使用支持的MIME类型:', type);
+          return type;
+        }
+      } catch (e) {
+        console.warn(`检查MIME类型支持时出错 ${type}:`, e);
+      }
+    }
+
+    // 如果没有找到支持的类型，返回空字符串
+    console.warn('没有找到支持的MIME类型，将使用浏览器默认值');
+    return '';
   }
 
   // 停止录制
@@ -754,8 +950,12 @@ export class ChatHRModal {
       this.isUploadingVideo = true; // 开始上传时设置状态
       this.showRecordingUI = false; // 隐藏视频预览
 
+      // 根据Blob类型确定文件扩展名
+      const fileExtension = this.recordedBlob.type.includes('webm') ? 'webm' : 'mp4';
+      const fileName = `answer.${fileExtension}`;
+
       const formData = new FormData();
-      formData.append('file', this.recordedBlob, 'answer.webm');
+      formData.append('file', this.recordedBlob, fileName);
 
       const response = await fetch('https://pcm_api.ylzhaopin.com/external/v1/files/upload', {
         method: 'POST',
@@ -779,7 +979,12 @@ export class ChatHRModal {
       }
     } catch (error) {
       console.error('视频上传错误:', error);
-      alert('视频上传失败，请重试');
+      // 通知父组件视频上传失败
+      this.recordingError.emit({
+        type: 'upload_failed',
+        message: '视频上传失败',
+        details: error
+      });
     } finally {
       this.isUploadingVideo = false; // 上传完成后重置状态
       this.showRecordingUI = false;
@@ -928,6 +1133,15 @@ export class ChatHRModal {
     this.stopRecording();
   }
 
+  // 修改手动播放音频的方法
+  private handlePlayAudio = async () => {
+    if (this.audioUrl) {
+      await this.playAudio(this.audioUrl);
+      // 手动播放完成后开始等待录制
+      this.startWaitingToRecord();
+    }
+  };
+
   render() {
     if (!this.isOpen) return null;
 
@@ -949,13 +1163,13 @@ export class ChatHRModal {
       <div class="video-preview">
         <video
           autoPlay
+          playsInline
           muted
           style={{ transform: 'scaleX(-1)' }}
-          playsInline
           ref={(el) => {
             if (el && this.recordingStream && !this.videoRef) {
               this.videoRef = el;
-              el.srcObject = this.recordingStream;
+              // 不在这里设置srcObject，而是使用setupVideoPreview方法
             }
           }}
         ></video>
@@ -1152,6 +1366,20 @@ export class ChatHRModal {
                           // 等待开始录制
                           if (this.waitingToRecord) {
                             return <p>请准备好，{this.waitingTimeLeft}秒后将开始录制您的回答...</p>;
+                          }
+
+                          // 显示播放按钮（当不自动播放且有音频URL时）
+                          if (!this.enableVoice && this.audioUrl && !this.isPlayingAudio) {
+                            return (
+                              <div class="play-audio-container" onClick={this.handlePlayAudio}>
+                                <p>
+                                  <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" style={{ verticalAlign: 'middle', marginRight: '8px' }}>
+                                    <path d="M8 5v14l11-7z" />
+                                  </svg>
+                                  <span style={{ verticalAlign: 'middle' }}>播放题目</span>
+                                </p>
+                              </div>
+                            );
                           }
 
                           // 默认状态

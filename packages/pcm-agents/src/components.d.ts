@@ -96,6 +96,10 @@ export namespace Components {
          */
         "email": string;
         /**
+          * 是否播放语音问题
+         */
+        "enableVoice": boolean;
+        /**
           * 是否以全屏模式打开
          */
         "fullscreen": boolean;
@@ -212,6 +216,15 @@ declare global {
         "interviewComplete": {
     conversation_id: string;
     total_questions: number;
+  };
+        "recordingError": {
+    type: string;
+    message: string;
+    details?: any;
+  };
+        "recordingStatusChange": {
+    status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
+    details?: any;
   };
     }
     interface HTMLPcmHrChatModalElement extends Components.PcmHrChatModal, HTMLStencilElement {
@@ -342,6 +355,10 @@ declare namespace LocalJSX {
          */
         "email"?: string;
         /**
+          * 是否播放语音问题
+         */
+        "enableVoice"?: boolean;
+        /**
           * 是否以全屏模式打开
          */
         "fullscreen"?: boolean;
@@ -380,6 +397,21 @@ declare namespace LocalJSX {
           * 当模态框关闭时触发
          */
         "onModalClosed"?: (event: PcmHrChatModalCustomEvent<void>) => void;
+        /**
+          * 录制错误事件
+         */
+        "onRecordingError"?: (event: PcmHrChatModalCustomEvent<{
+    type: string;
+    message: string;
+    details?: any;
+  }>) => void;
+        /**
+          * 录制状态变化事件
+         */
+        "onRecordingStatusChange"?: (event: PcmHrChatModalCustomEvent<{
+    status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
+    details?: any;
+  }>) => void;
         "onStreamComplete"?: (event: PcmHrChatModalCustomEvent<{
     conversation_id: string;
     event: string;

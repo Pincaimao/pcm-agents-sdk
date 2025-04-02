@@ -12,6 +12,7 @@
 | `countdownWarningTime` | `countdown-warning-time` | 录制倒计时提醒时间（秒） 当剩余时间小于此值时，显示倒计时警告 | `number`  | `30`        |
 | `defaultQuery`         | `default-query`          | 默认查询文本                          | `string`  | `''`        |
 | `email`                | `email`                  | 用户邮箱                            | `string`  | `''`        |
+| `enableVoice`          | `enable-voice`           | 是否播放语音问题                        | `boolean` | `true`      |
 | `fullscreen`           | `fullscreen`             | 是否以全屏模式打开                       | `boolean` | `false`     |
 | `icon`                 | `icon`                   | 应用图标URL                         | `string`  | `undefined` |
 | `isNeedClose`          | `is-need-close`          | 是否展示右上角的关闭按钮                    | `boolean` | `true`      |
@@ -27,11 +28,13 @@
 
 ## Events
 
-| Event               | Description | Type                                                                                       |
-| ------------------- | ----------- | ------------------------------------------------------------------------------------------ |
-| `interviewComplete` | 当面试完成时触发    | `CustomEvent<{ conversation_id: string; total_questions: number; }>`                       |
-| `modalClosed`       | 当模态框关闭时触发   | `CustomEvent<void>`                                                                        |
-| `streamComplete`    |             | `CustomEvent<{ conversation_id: string; event: string; message_id: string; id: string; }>` |
+| Event                   | Description | Type                                                                                                   |
+| ----------------------- | ----------- | ------------------------------------------------------------------------------------------------------ |
+| `interviewComplete`     | 当面试完成时触发    | `CustomEvent<{ conversation_id: string; total_questions: number; }>`                                   |
+| `modalClosed`           | 当模态框关闭时触发   | `CustomEvent<void>`                                                                                    |
+| `recordingError`        | 录制错误事件      | `CustomEvent<{ type: string; message: string; details?: any; }>`                                       |
+| `recordingStatusChange` | 录制状态变化事件    | `CustomEvent<{ status: "started" \| "stopped" \| "paused" \| "resumed" \| "failed"; details?: any; }>` |
+| `streamComplete`        |             | `CustomEvent<{ conversation_id: string; event: string; message_id: string; id: string; }>`             |
 
 
 ## Dependencies
