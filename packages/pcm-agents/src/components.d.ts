@@ -132,6 +132,10 @@ export namespace Components {
          */
         "totalQuestions": number;
         /**
+          * 欢迎提示语，如果不提供则不显示提示
+         */
+        "welcomeMessage"?: string;
+        /**
           * 聊天框的页面层级
          */
         "zIndex"?: number;
@@ -390,6 +394,10 @@ declare namespace LocalJSX {
           * 总题目数量
          */
         "totalQuestions"?: number;
+        /**
+          * 欢迎提示语，如果不提供则不显示提示
+         */
+        "welcomeMessage"?: string;
         /**
           * 聊天框的页面层级
          */

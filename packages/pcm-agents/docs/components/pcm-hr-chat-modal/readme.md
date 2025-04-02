@@ -21,6 +21,7 @@
 | `modalTitle`           | `modal-title`            | 模态框标题                           | `string`  | `'在线客服'`    |
 | `requireResume`        | `require-resume`         | 是否需要上传简历                        | `boolean` | `false`     |
 | `totalQuestions`       | `total-questions`        | 总题目数量                           | `number`  | `2`         |
+| `welcomeMessage`       | `welcome-message`        | 欢迎提示语，如果不提供则不显示提示               | `string`  | `undefined` |
 | `zIndex`               | `z-index`                | 聊天框的页面层级                        | `number`  | `1000`      |
 
 

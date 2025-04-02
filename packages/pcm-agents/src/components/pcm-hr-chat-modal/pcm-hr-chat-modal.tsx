@@ -204,6 +204,11 @@ export class ChatHRModal {
   @State() audioUrl: string | null = null;
   private audioElement: HTMLAudioElement | null = null;
 
+  /**
+   * 欢迎提示语，如果不提供则不显示提示
+   */
+  @Prop() welcomeMessage?: string;
+
   private handleClose = () => {
     this.isOpen = false;
     this.stopRecording();
@@ -563,15 +568,15 @@ export class ChatHRModal {
     }
   }
 
-  // 添加 isOpen 的 watch 方法
+  // 修改 isOpen 的 watch 方法
   @Watch('isOpen')
   async handleIsOpenChange(newValue: boolean) {
     if (newValue) {
       if (this.conversationId) {
         await this.loadHistoryMessages();
-      } else {
-        // 如果是新会话，显示欢迎提示
-        alert('欢迎您参加湖南省人力资源协会组织的金牌HR大赛，接下来我们将采用数字人方式对您做交流，本次大赛预计需要10-30分钟，请在安静的环境下参与此次大赛。');
+      } else if (this.welcomeMessage) {
+        // 如果是新会话且提供了欢迎提示语，则显示
+        alert(this.welcomeMessage);
       }
     }
   }
