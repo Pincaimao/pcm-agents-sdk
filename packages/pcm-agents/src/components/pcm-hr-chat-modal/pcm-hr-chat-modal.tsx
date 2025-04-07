@@ -1396,6 +1396,20 @@ export class ChatHRModal {
                       </div>
                     )}
                   </div>
+                  {/* 添加进度条和数字进度 */}
+                  <div class="progress-container">
+                    <div class="progress-bar-container">
+                      <div 
+                        class="progress-bar" 
+                        style={{ 
+                          width: `${Math.max(0, this.currentQuestionNumber - 1) / this.totalQuestions * 100}%` 
+                        }}
+                      ></div>
+                    </div>
+                    <div class="progress-text">
+                      已完成{Math.max(0, this.currentQuestionNumber - 1)}/{this.totalQuestions}
+                    </div>
+                  </div>
                   <div class="recording-controls">
                     {this.showRecordingUI ? (
                       <button
@@ -1431,6 +1445,8 @@ export class ChatHRModal {
                       </div>
                     )}
                   </div>
+                  
+                  
                 </div>
               </div>
             </div>
