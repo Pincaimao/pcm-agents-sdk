@@ -300,6 +300,7 @@ export class ChatHRModal {
   private async sendMessageToAPI(message: string) {
     this.isLoading = true;
     let answer = '';
+    let llmText = ''; // 添加变量存储 LLMText
 
     const now = new Date();
     const time = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
@@ -393,6 +394,12 @@ export class ChatHRModal {
           this.updateUrlWithConversationId(data.conversation_id);
         }
 
+        // 检查是否有 node_finished 事件和 LLMText
+        if (data.event === 'node_finished' && data.data.inputs && data.data.inputs.LLMText) {
+          llmText = data.data.inputs.LLMText;
+          console.log('获取到 LLMText:', llmText);
+        }
+
         if (data.event === 'message') {
           const inputMessage: UserInputMessageType = { message: message };
           convertWorkflowStreamNodeToMessageRound('message', inputMessage, data);
@@ -450,18 +457,23 @@ export class ChatHRModal {
         console.log(message);
 
         if (latestAIMessage && latestAIMessage.answer) {
-          // 合成语音
-          const audioUrl = await this.synthesizeAudio(latestAIMessage.answer);
+          // 优先使用 LLMText，如果没有则使用 answer
+          const textForSynthesis = llmText || latestAIMessage.answer;
+          
+          if (textForSynthesis) {
+            // 合成语音
+            const audioUrl = await this.synthesizeAudio(textForSynthesis);
 
-          if (this.enableVoice) {
-            // 自动播放语音
-            await this.playAudio(audioUrl);
-            // 自动播放模式下，播放完成后立即开始等待录制
-            this.startWaitingToRecord();
-          } else {
-            // 只保存音频URL，不自动播放
-            this.audioUrl = audioUrl;
-            // 非自动播放模式下，不立即开始等待录制
+            if (this.enableVoice) {
+              // 自动播放语音
+              await this.playAudio(audioUrl);
+              // 自动播放模式下，播放完成后立即开始等待录制
+              this.startWaitingToRecord();
+            } else {
+              // 只保存音频URL，不自动播放
+              this.audioUrl = audioUrl;
+              // 非自动播放模式下，不立即开始等待录制
+            }
           }
         }
       }
@@ -1289,7 +1301,7 @@ export class ChatHRModal {
               )}
             </div>
           ) : (
-            <>
+            <div style={{ height: '100%' }}>
               <div class="chat-history" onScroll={this.handleScroll}>
                 {this.isLoadingHistory ? (
                   <div class="loading-container">
@@ -1390,7 +1402,7 @@ export class ChatHRModal {
                   </div>
                 </div>
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>

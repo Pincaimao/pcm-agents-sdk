@@ -70,11 +70,7 @@ export class ChatMessageComponent {
                     <div
                         class="markdown-content markdown-body"
                         innerHTML={showLoading ? 
-                            `<div class="loading-dots">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                            </div>` : 
+                            `请稍等...` : 
                             htmlContent
                         }
                     ></div>
