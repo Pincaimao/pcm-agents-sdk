@@ -40,7 +40,19 @@
   height: 100%;
   border-radius: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-height: 100vh;
+}
 
+/* 确保内容区域也使用 flex 布局并占满剩余空间 */
+.modal-container.fullscreen > div:not(.modal-header):not(.initial-upload) {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden; /* 防止内容溢出 */
+  height: 100%;
 }
 
 /* PC端布局 */
@@ -91,84 +103,62 @@
     flex-direction: column;
   }
 
-  .chat-history {
-    /* 保持固定高度 */
-    height: 34vh;
-    min-height: 34vh;
-    flex: 0 0 auto;
-    /* 防止 chat-history 被拉伸 */
-    background: url(https://pcm-resource-1312611446.cos.ap-guangzhou.myqcloud.com/web/sdk/chat_bg.png);
-    background-size: 100%;
-  }
+}
+.video-preview.placeholder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #EAEAEA;
+}
 
-  .recording-section {
-    flex: 1 1 auto;
-    height: auto;
-    margin: 0;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background: #FFFFFF;
-    border-radius: 14px 14px 0 0;
-  }
+.placeholder-status {
+  color: #00000066;
+}
 
-  .recording-container {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+.waiting-message p {
+  margin: 0;
+  font-size: 16px;
+  color: white;
+  font-weight: 500;
+}
 
-  .video-area {
-    width: 100%;
-  }
-
-  .video-preview {
-    width: 100%;
-    height: 200px;
-    position: relative;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    overflow: hidden;
-    background: #fff;
-  }
-
-  .video-preview.placeholder {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #EAEAEA;
-  }
+.recording-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
 
-  /* 添加加载状态的样式 */
-  .waiting-message.loading {
-    background: #faad14;
-  }
 
-  .waiting-message p {
-    margin: 0;
-    font-size: 16px;
-    color: white;
-    font-weight: 500;
-  }
+.video-area {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-  .stop-recording-button {
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    border-radius: 4px;
-    background: #f44336;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
+.stop-recording-button {
+  width: 100%;
+  height: 100%;
+  font-size: 16px;
+  background: #f44336;
+  border-radius: 6px;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
 
-  .stop-recording-button:hover {
-    background: #d32f2f;
-  }
+.stop-recording-button:hover {
+  background: #d32f2f;
+}
+
+.play-audio-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .modal-header {
@@ -178,6 +168,7 @@
   padding: 4px 16px;
   height: 50px;
   border-bottom: 1px solid #e8e8e8;
+  flex-shrink: 0; /* 防止头部被压缩 */
 }
 
 .header-left {
@@ -224,10 +215,17 @@
   overflow-y: auto;
   padding: 20px;
   scroll-behavior: smooth;
-  height: calc(100% - 360px);
   min-height: 200px;
-  max-height: none;
+  background: url(https://pcm-resource-1312611446.cos.ap-guangzhou.myqcloud.com/web/sdk/chat_bg.png);
+  background-size: 100%;
 }
+
+/* 添加全屏模式下的样式 */
+.fullscreen .chat-history {
+  height: auto;
+  flex: 1 1 auto;
+}
+
 
 .message-input {
   padding: 16px;
@@ -659,11 +657,15 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 20px;
+  border-radius: 14px 14px 0 0;
+  flex: 0 0 auto;
 }
 
 .recording-section .video-preview {
   width: 100%;
   height: 200px;
+  max-width: 400px;
   position: relative;
   margin-bottom: 10px;
   border: 1px solid #ddd;
@@ -680,7 +682,7 @@
 /* 修改 recording-status 样式 */
 .recording-status {
   position: absolute;
-  bottom: 10px;
+  top: 10px;
   left: 10px;
   background-color: rgba(0, 0, 0, 0.6);
   color: white;
@@ -723,11 +725,9 @@
 }
 
 .recording-section .stop-recording-button {
-  padding: 8px 16px;
   background-color: #f44336;
   color: white;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
   font-weight: bold;
 }
@@ -749,6 +749,7 @@
   margin-top: 10px;
   height: 53px;
   width: 100%;
+  max-width: 400px;
   display: flex;
   justify-content: center;
 }
@@ -758,10 +759,13 @@
   color: white;
   font-size: 1rem;
   background-image: linear-gradient(100deg, #4A9FFF 0%, #1058FF 100%);
-  padding: 14px 0px;
   border-radius: 6px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   width: 95%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
 }
 
 .recording-controls .waiting-message.loading {
@@ -776,15 +780,23 @@
 }
 
 .recording-controls .stop-recording-button {
-  padding: 8px 20px;
   background-color: #dc3545;
   color: white;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
   font-size: 1rem;
 }
 
 .recording-controls .stop-recording-button:hover {
   background-color: #c82333;
+}
+
+/* 添加禁用状态的样式 */
+.recording-controls .stop-recording-button.disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.recording-controls .stop-recording-button.disabled:hover {
+  background: #ccc;
 }

@@ -1198,6 +1198,52 @@ export class ChatHRModal {
       </div>
     );
 
+    // 渲染占位符状态信息
+    const renderPlaceholderStatus = () => {
+      // 正在播放音频
+      if (this.isPlayingAudio) {
+        return (
+          <div class="placeholder-status">
+            <p>正在播放问题，请听完后准备回答...</p>
+          </div>
+        );
+      }
+
+      // 正在上传视频
+      if (this.isUploadingVideo) {
+        return (
+          <div class="placeholder-status">
+            <p>正在上传视频，请稍候...</p>
+          </div>
+        );
+      }
+
+      // 正在加载或等待AI回复
+      if (this.isLoading || this.currentStreamingMessage) {
+        return (
+          <div class="placeholder-status">
+            <p>请等待题目...</p>
+          </div>
+        );
+      }
+
+      // 等待开始录制
+      if (this.waitingToRecord) {
+        return (
+          <div class="placeholder-status">
+            <p>请准备好，{this.waitingTimeLeft}秒后将开始录制您的回答...</p>
+          </div>
+        );
+      }
+      
+      // 添加默认状态
+      return (
+        <div class="placeholder-status default-status">
+          <p>准备中...</p>
+        </div>
+      );
+    };
+
     return (
       <div class={overlayClass} style={modalStyle}>
         <div class={containerClass}>
@@ -1309,7 +1355,7 @@ export class ChatHRModal {
                     <p>加载历史消息中...</p>
                   </div>
                 ) : (
-                  <>
+                  <div>
                     {this.messages.map((message) => (
                       <div id={`message_${message.id}`} key={message.id}>
                         <pcm-chat-message
@@ -1335,7 +1381,7 @@ export class ChatHRModal {
                         <p>请上传简历开始面试</p>
                       </div>
                     )}
-                  </>
+                  </div>
                 )}
               </div>
 
@@ -1346,6 +1392,7 @@ export class ChatHRModal {
                       renderVideoPreview()
                     ) : (
                       <div class="video-preview placeholder">
+                        {renderPlaceholderStatus()}
                       </div>
                     )}
                   </div>
@@ -1355,31 +1402,11 @@ export class ChatHRModal {
                         class="stop-recording-button"
                         onClick={() => this.stopRecording()}
                       >
-                        完成回答
+                        完成本题回答
                       </button>
                     ) : (
                       <div class="waiting-message">
                         {(() => {
-                          // 正在播放音频
-                          if (this.isPlayingAudio) {
-                            return <p>正在播放问题，请听完后准备回答...</p>;
-                          }
-
-                          // 正在上传视频
-                          if (this.isUploadingVideo) {
-                            return <p>正在上传视频，请稍候...</p>;
-                          }
-
-                          // 正在加载或等待AI回复
-                          if (this.isLoading || this.currentStreamingMessage) {
-                            return <p>请等待题目...</p>;
-                          }
-
-                          // 等待开始录制
-                          if (this.waitingToRecord) {
-                            return <p>请准备好，{this.waitingTimeLeft}秒后将开始录制您的回答...</p>;
-                          }
-
                           // 显示播放按钮（当不自动播放且有音频URL时）
                           if (!this.enableVoice && this.audioUrl && !this.isPlayingAudio) {
                             return (
@@ -1393,9 +1420,13 @@ export class ChatHRModal {
                               </div>
                             );
                           }
-
-                          // 默认状态
-                          return <p>准备中...</p>;
+                          
+                          // 其他状态下显示禁用的"完成回答"按钮
+                          return (
+                            <button class="stop-recording-button disabled" disabled>
+                              完成回答
+                            </button>
+                          );
                         })()}
                       </div>
                     )}

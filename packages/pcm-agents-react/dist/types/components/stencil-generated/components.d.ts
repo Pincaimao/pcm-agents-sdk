@@ -3,6 +3,7 @@ import { type ChatMessage, type PcmChatMessageCustomEvent } from "pcm-agents";
 import { MyComponent as MyComponentElement } from "pcm-agents/dist/components/my-component.js";
 import { PcmChatMessage as PcmChatMessageElement } from "pcm-agents/dist/components/pcm-chat-message.js";
 import { PcmChatModal as PcmChatModalElement } from "pcm-agents/dist/components/pcm-chat-modal.js";
+import { PcmHrChatModal as PcmHrChatModalElement } from "pcm-agents/dist/components/pcm-hr-chat-modal.js";
 type MyComponentEvents = NonNullable<unknown>;
 export declare const MyComponent: StencilReactComponent<MyComponentElement, MyComponentEvents>;
 type PcmChatMessageEvents = {
@@ -20,4 +21,27 @@ type PcmChatModalEvents = {
     }>>;
 };
 export declare const PcmChatModal: StencilReactComponent<PcmChatModalElement, PcmChatModalEvents>;
+type PcmHrChatModalEvents = {
+    onModalClosed: EventName<CustomEvent<void>>;
+    onStreamComplete: EventName<CustomEvent<{
+        conversation_id: string;
+        event: string;
+        message_id: string;
+        id: string;
+    }>>;
+    onInterviewComplete: EventName<CustomEvent<{
+        conversation_id: string;
+        total_questions: number;
+    }>>;
+    onRecordingError: EventName<CustomEvent<{
+        type: string;
+        message: string;
+        details?: any;
+    }>>;
+    onRecordingStatusChange: EventName<CustomEvent<{
+        status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
+        details?: any;
+    }>>;
+};
+export declare const PcmHrChatModal: StencilReactComponent<PcmHrChatModalElement, PcmHrChatModalEvents>;
 export {};

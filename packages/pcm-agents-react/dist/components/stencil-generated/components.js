@@ -3,6 +3,7 @@ import { createComponent } from '@stencil/react-output-target/runtime';
 import { MyComponent as MyComponentElement, defineCustomElement as defineMyComponent } from "pcm-agents/dist/components/my-component.js";
 import { PcmChatMessage as PcmChatMessageElement, defineCustomElement as definePcmChatMessage } from "pcm-agents/dist/components/pcm-chat-message.js";
 import { PcmChatModal as PcmChatModalElement, defineCustomElement as definePcmChatModal } from "pcm-agents/dist/components/pcm-chat-modal.js";
+import { PcmHrChatModal as PcmHrChatModalElement, defineCustomElement as definePcmHrChatModal } from "pcm-agents/dist/components/pcm-hr-chat-modal.js";
 import React from 'react';
 export const MyComponent = createComponent({
     tagName: 'my-component',
@@ -28,5 +29,18 @@ export const PcmChatModal = createComponent({
         onStreamComplete: 'streamComplete'
     },
     defineCustomElement: definePcmChatModal
+});
+export const PcmHrChatModal = createComponent({
+    tagName: 'pcm-hr-chat-modal',
+    elementClass: PcmHrChatModalElement,
+    react: React,
+    events: {
+        onModalClosed: 'modalClosed',
+        onStreamComplete: 'streamComplete',
+        onInterviewComplete: 'interviewComplete',
+        onRecordingError: 'recordingError',
+        onRecordingStatusChange: 'recordingStatusChange'
+    },
+    defineCustomElement: definePcmHrChatModal
 });
 //# sourceMappingURL=components.js.map
