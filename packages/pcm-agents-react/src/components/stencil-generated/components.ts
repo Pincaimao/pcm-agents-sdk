@@ -14,6 +14,7 @@ import { MyComponent as MyComponentElement, defineCustomElement as defineMyCompo
 import { PcmChatMessage as PcmChatMessageElement, defineCustomElement as definePcmChatMessage } from "pcm-agents/dist/components/pcm-chat-message.js";
 import { PcmChatModal as PcmChatModalElement, defineCustomElement as definePcmChatModal } from "pcm-agents/dist/components/pcm-chat-modal.js";
 import { PcmHrChatModal as PcmHrChatModalElement, defineCustomElement as definePcmHrChatModal } from "pcm-agents/dist/components/pcm-hr-chat-modal.js";
+import { PcmVideoChatModal as PcmVideoChatModalElement, defineCustomElement as definePcmVideoChatModal } from "pcm-agents/dist/components/pcm-video-chat-modal.js";
 import React from 'react';
 
 type MyComponentEvents = NonNullable<unknown>;
@@ -98,4 +99,42 @@ export const PcmHrChatModal: StencilReactComponent<PcmHrChatModalElement, PcmHrC
         onRecordingStatusChange: 'recordingStatusChange'
     } as PcmHrChatModalEvents,
     defineCustomElement: definePcmHrChatModal
+});
+
+type PcmVideoChatModalEvents = {
+    onModalClosed: EventName<CustomEvent<void>>,
+    onStreamComplete: EventName<CustomEvent<{
+        conversation_id: string;
+        event: string;
+        message_id: string;
+        id: string;
+    }>>,
+    onInterviewComplete: EventName<CustomEvent<{
+        conversation_id: string;
+        total_questions: number;
+    }>>,
+    onRecordingError: EventName<CustomEvent<{
+        type: string;
+        message: string;
+        details?: any;
+    }>>,
+    onRecordingStatusChange: EventName<CustomEvent<{
+        status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
+        details?: any;
+    }>>
+};
+
+export const PcmVideoChatModal: StencilReactComponent<PcmVideoChatModalElement, PcmVideoChatModalEvents> = /*@__PURE__*/ createComponent<PcmVideoChatModalElement, PcmVideoChatModalEvents>({
+    tagName: 'pcm-video-chat-modal',
+    elementClass: PcmVideoChatModalElement,
+    // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
+    react: React,
+    events: {
+        onModalClosed: 'modalClosed',
+        onStreamComplete: 'streamComplete',
+        onInterviewComplete: 'interviewComplete',
+        onRecordingError: 'recordingError',
+        onRecordingStatusChange: 'recordingStatusChange'
+    } as PcmVideoChatModalEvents,
+    defineCustomElement: definePcmVideoChatModal
 });

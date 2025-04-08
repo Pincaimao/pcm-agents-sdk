@@ -3,11 +3,11 @@ import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSER
 import { ChatMessage } from '../../interfaces/chat';
 
 @Component({
-  tag: 'pcm-hr-chat-modal',
-  styleUrl: 'pcm-hr-chat-modal.css',
+  tag: 'pcm-video-chat-modal',
+  styleUrl: 'pcm-video-chat-modal.css',
   shadow: true,
 })
-export class ChatHRModal {
+export class VideoChatModal {
   /**
    * 模态框标题
    */
@@ -91,10 +91,6 @@ export class ChatHRModal {
     id: string;
   }>;
 
-  @State() selectedFile: File | null = null;
-  @State() isUploading: boolean = false;
-  @State() uploadedFileInfo: { cos_key: string, filename: string, ext: string, presigned_url: string }[] = [];
-
   /**
    * 默认查询文本
    */
@@ -102,25 +98,6 @@ export class ChatHRModal {
 
   // 添加新的状态
   @State() showInitialUpload: boolean = true;
-  @State() selectedJobCategory: string = '';
-  @State() jobCategories: string[] = [
-    '人力资源学生(实习)',
-    '人力资源专员',
-    '人力资源主管',
-    '人力资源经理',
-    '人力资源总监'
-  ];
-
-  @State() dimensions: string[] = [
-    '人力资源规划',
-    '招聘与配置',
-    '员工关系',
-    '培训与开发',
-    '薪酬与绩效',
-    '组织与人才发展'
-  ];
-
-  @State() selectedDimensions: string[] = [];
 
   // 添加视频录制相关状态
   @State() isRecording: boolean = false;
@@ -177,10 +154,6 @@ export class ChatHRModal {
 
   @State() showCountdownWarning: boolean = false;
 
-  /**
-   * 接收报告的邮箱地址
-   */
-  @Prop() toEmail: string = '';
 
   /**
    * 是否以全屏模式打开
@@ -189,11 +162,6 @@ export class ChatHRModal {
 
   // 添加新的状态来跟踪视频上传
   @State() isUploadingVideo: boolean = false;
-
-  /**
-   * 是否需要上传简历
-   */
-  @Prop() requireResume: boolean = false;
 
   // 添加新的状态和属性
   @State() isPlayingAudio: boolean = false;
@@ -218,7 +186,7 @@ export class ChatHRModal {
   }>;
 
   /**
-   * 是否播放语音问题
+   * 是否自动播放语音问题
    */
   @Prop() enableVoice: boolean = true;
 
@@ -229,10 +197,11 @@ export class ChatHRModal {
    */
   @Prop() displayContentStatus: string = "1";
 
+
   /**
-   * 用户ID
+   * 父组件传入的 简历id
    */
-  @Prop() userId: string = '';
+  @Prop() resumeId?: string;
 
   private handleClose = () => {
     this.isOpen = false;
@@ -240,103 +209,31 @@ export class ChatHRModal {
     this.modalClosed.emit();
   };
 
-  private handleFileChange = async (event: Event) => {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.selectedFile = input.files[0];
-    }
-  };
-
-  private async uploadFile() {
-    if (!this.selectedFile || this.uploadedFileInfo.length > 0) return;
-
-    this.isUploading = true;
-
-    try {
-      const formData = new FormData();
-      formData.append('file', this.selectedFile);
-
-      const response = await fetch('https://pcm_api.ylzhaopin.com/external/v1/files/upload', {
-        method: 'POST',
-        headers: {
-          'authorization': 'Bearer ' + this.apiKey
-        },
-        body: formData
-      });
-
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result.message || '文件上传失败');
-      }
-
-      if (result) {
-        this.uploadedFileInfo = [{
-          cos_key: result.cos_key,
-          filename: result.filename,
-          ext: result.ext,
-          presigned_url: result.presigned_url
-        }];
-      }
-    } catch (error) {
-      console.error('文件上传错误:', error);
-      this.clearSelectedFile();
-      alert(error instanceof Error ? error.message : '文件上传失败，请重试');
-    } finally {
-      this.isUploading = false;
-    }
-  }
-
-  private handleUploadClick = () => {
-    const fileInput = this.hostElement.shadowRoot?.querySelector('.file-input') as HTMLInputElement;
-    fileInput?.click();
-  };
-
-  private clearSelectedFile = () => {
-    this.selectedFile = null;
-    this.uploadedFileInfo = [];
-    const fileInput = this.hostElement.shadowRoot?.querySelector('.file-input') as HTMLInputElement;
-    if (fileInput) {
-      fileInput.value = '';
-    }
-  };
-
-  private async sendMessageToAPI(message: string) {
+  private async sendMessageToAPI(message: string, videoUrl?: string) {
     this.isLoading = true;
     let answer = '';
-    let llmText = ''; // 添加变量存储 LLMText
+    let llmText = '';
 
     const now = new Date();
     const time = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
 
     // 如果消息为空但有文件，使用默认文本
-    const queryText = message.trim() || (this.uploadedFileInfo.length > 0 ? '请分析这个文件' : '');
-
-    // 获取上一条AI消息的回答内容
-    const lastAIMessage = this.messages.length > 0 ? this.messages[this.messages.length - 1] : null;
-
-    // 保存AI提问和用户回答
-    if (lastAIMessage && this.conversationId && message !== "下一题") {
-      this.saveAnswer(
-        this.conversationId,
-        lastAIMessage.answer, // AI的提问作为question
-        queryText // 用户的输入作为answer
-      );
-    }
+    const queryText = message.trim();
 
     // 检查是否是最后一题的"下一题"请求
-    const isLastQuestion = (this.currentQuestionNumber >= this.totalQuestions) && message === "下一题";
+    const isLastQuestion = this.currentQuestionNumber >= this.totalQuestions;
 
     // 创建新的消息对象
     const newMessage: ChatMessage = {
-      id: `temp-${Date.now()}`,  // 消息唯一标识
-      time: time,                // 消息时间
-      query: queryText,          // 用户输入的消息内容
+      id: `temp-${Date.now()}`,
+      time: time,
+      query: queryText,
       answer: '',
-      isStreaming: true,        // 是否正在流式输出
-      conversation_id: this.conversationId,  // 会话ID
-      inputs: {},               // 输入参数
-      status: "normal",         // 消息状态
-      error: null              // 错误信息
+      isStreaming: true,
+      conversation_id: this.conversationId,
+      inputs: {},
+      status: "normal",
+      error: null
     };
 
     // 设置当前流式消息
@@ -352,11 +249,12 @@ export class ChatHRModal {
       this.currentStreamingMessage = null;
       this.isLoading = false;
       this.isInterviewComplete = true;
-      await this.completeInterview();
+      await this.completeInterview(queryText, videoUrl);
       this.interviewComplete.emit({
         conversation_id: this.conversationId,
         total_questions: this.totalQuestions
       });
+      this.currentQuestionNumber++;
       return;
     }
 
@@ -365,20 +263,15 @@ export class ChatHRModal {
       response_mode: 'streaming',
       conversation_id: this.conversationId,
       query: queryText,
-      user: this.userId // 使用传入的 userId
+      inputs: {
+        id: this.resumeId
+      }
     };
-    requestData.inputs = {
-      job_info: this.selectedJobCategory,
-      dimensional_info: this.selectedDimensions.join(','),
-      email: this.toEmail,
-      display_content_status: this.displayContentStatus
-    };
-    // 如果有上传的文件，添加到inputs参数
-    if (this.uploadedFileInfo.length > 0) {
-      const fileUrls = this.uploadedFileInfo.map(fileInfo => fileInfo.cos_key).join(',');
-      requestData.inputs.file_urls = fileUrls;
-    }
 
+    // 如果有视频URL，添加到inputs中
+    if (videoUrl) {
+      requestData.inputs.video_url = videoUrl;
+    }
 
     await sendSSERequest({
       url: `https://pcm_api.ylzhaopin.com/external/v1/chat-messages`,
@@ -450,17 +343,13 @@ export class ChatHRModal {
         this.messages = [...this.messages, this.currentStreamingMessage];
         this.currentStreamingMessage = null;
 
-        // 如果是初始消息或"下一题"消息，增加题目计数
-        if (message === "下一题" || this.currentQuestionNumber === 0) {
-          this.currentQuestionNumber++;
-        }
-        console.log(this.currentQuestionNumber);
-        console.log(message);
+        // 增加题目计数
+        this.currentQuestionNumber++;
 
         if (latestAIMessage && latestAIMessage.answer) {
           // 优先使用 LLMText，如果没有则使用 answer
           const textForSynthesis = llmText || latestAIMessage.answer;
-          
+
           if (textForSynthesis) {
             // 合成语音
             const audioUrl = await this.synthesizeAudio(textForSynthesis);
@@ -479,27 +368,6 @@ export class ChatHRModal {
         }
       }
     });
-  }
-
-  // 添加保存答案的方法
-  private async saveAnswer(conversationId: string, question: string, answer: string) {
-    try {
-      await sendHttpRequest({
-        url: 'https://pcm_api.ylzhaopin.com/agents/hr_competition/answer',
-        method: 'POST',
-        headers: {
-          'authorization': 'Bearer ' + this.apiKey
-        },
-        data: {
-          conversation_id: conversationId,
-          user: this.userId, // 使用传入的 userId
-          question: question,
-          answer: answer
-        },
-      });
-    } catch (error) {
-      console.error('保存答案失败:', error);
-    }
   }
 
   // 监听滚动事件，用于控制聊天历史记录的自动滚动行为。
@@ -613,60 +481,12 @@ export class ChatHRModal {
     if (newValue) {
       if (this.conversationId) {
         await this.loadHistoryMessages();
-      } 
-    }
-  }
-
-
-  private handleJobCategorySelect = (category: string) => {
-    this.selectedJobCategory = category;
-  };
-
-  private handleDimensionSelect = (dimension: string) => {
-    if (this.selectedDimensions.includes(dimension)) {
-      this.selectedDimensions = this.selectedDimensions.filter(d => d !== dimension);
-    } else {
-      this.selectedDimensions = [...this.selectedDimensions, dimension];
-    }
-  };
-
-  private handleInitialSubmit = async () => {
-    // 修改验证逻辑
-    if (this.requireResume && !this.selectedFile) {
-      alert('请上传简历');
-      return;
-    }
-
-    if (!this.selectedJobCategory) {
-      alert('请选择职能类别');
-      return;
-    }
-
-    if (this.selectedDimensions.length === 0) {
-      alert('请至少选择一个关注模块');
-      return;
-    }
-
-    // 不再显示欢迎确认对话框，因为已经在组件打开时显示了
-    // 直接询问用户是否准备好开始面试
-    const confirmed = confirm('如果您已做好准备请点击"确定"开始面试。');
-
-    if (!confirmed) {
-      return;
-    }
-
-    // 修改文件上传逻辑
-    if (this.requireResume) {
-      await this.uploadFile();
-      if (this.uploadedFileInfo.length === 0) {
-        return;
+      } else {
+        // 直接开始对话
+        this.sendMessageToAPI('请您开始提问');
       }
     }
-
-    this.showInitialUpload = false;
-    const message = `我是一名${this.selectedJobCategory}，请您开始提问`;
-    this.sendMessageToAPI(message);
-  };
+  }
 
   // 开始等待录制
   private startWaitingToRecord() {
@@ -976,20 +796,19 @@ export class ChatHRModal {
       console.log('视频上传结果:', result);
 
       if (result && result.cos_key) {
-        // 保存视频答案
-        await this.saveVideoAnswer(result.cos_key);
-
-        // 发送"下一题"请求
-        this.sendNextQuestion();
+        // 调用音频转文字API
+        const transcriptionText = await this.convertAudioToText(result.cos_key);
+        
+        // 发送转换后的文本和视频URL到下一个请求
+        await this.sendMessageToAPI(transcriptionText || "下一题", result.cos_key);
       } else {
         throw new Error('视频上传失败');
       }
     } catch (error) {
-      console.error('视频上传错误:', error);
-      // 通知父组件视频上传失败
+      console.error('视频上传或处理错误:', error);
       this.recordingError.emit({
         type: 'upload_failed',
-        message: '视频上传失败',
+        message: '视频上传或处理失败',
         details: error
       });
     } finally {
@@ -999,56 +818,74 @@ export class ChatHRModal {
     }
   }
 
-  // 保存视频答案
-  private async saveVideoAnswer(cosKey: string) {
-    if (!this.conversationId) return;
-
+  // 修改音频转文字方法
+  private async convertAudioToText(cosKey: string): Promise<string | null> {
     try {
-      const lastAIMessage = this.messages.length > 0 ? this.messages[this.messages.length - 1] : null;
-
-      if (!lastAIMessage) return;
-
-      await sendHttpRequest({
-        url: 'https://pcm_api.ylzhaopin.com/agents/hr_competition/answer',
-        method: 'POST',
-        headers: {
-          'authorization': 'Bearer ' + this.apiKey
-        },
-        data: {
-          conversation_id: this.conversationId,
-          user: this.userId, // 使用传入的 userId
-          question: lastAIMessage.answer,
-          file_url: cosKey
-        },
+      // 创建一个Promise来处理响应
+      return new Promise((resolve, reject) => {
+        sendHttpRequest({
+          url: `https://pcm_api.ylzhaopin.com/external/v1/tts/audio_to_text`,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'authorization': 'Bearer ' + this.apiKey
+          },
+          data: {
+            cos_key: cosKey
+          },
+          onMessage: (data) => {
+            
+            // 检查返回结果中是否包含转换后的文本
+            if (data && data.text) {
+              console.log('转换后的文本:', data.text);
+              resolve(data.text);
+            } else {
+              console.warn('音频转文字返回结果格式不正确');
+              resolve(null);
+            }
+          },
+          onError: (error) => {
+            console.error('音频转文字请求失败:', error);
+            reject(error);
+          }
+        });
       });
     } catch (error) {
-      console.error('保存视频答案失败:', error);
+      console.error('音频转文字错误:', error);
+      return null;
     }
-  }
-
-  // 发送"下一题"请求
-  private sendNextQuestion() {
-    this.sendMessageToAPI("下一题");
   }
 
   /**
    * 发送面试完成请求
    */
-  private async completeInterview() {
+  private async completeInterview(queryText: string, videoUrl: string) {
     if (!this.conversationId) return;
+    const requestData: any = {
+      response_mode: 'streaming',
+      conversation_id: this.conversationId,
+      query: queryText,
+      inputs: {
+        id: this.resumeId
+      }
+    };
 
-    try {
-      await sendHttpRequest({
-        url: `https://pcm_api.ylzhaopin.com/agents/hr_competition/${this.conversationId}/end`,
-        method: 'POST',
-        headers: {
-          'authorization': 'Bearer ' + this.apiKey
-        },
-      });
-
-    } catch (error) {
-      console.error('发送面试完成请求失败:', error);
+    // 如果有视频URL，添加到inputs中
+    if (videoUrl) {
+      requestData.inputs.video_url = videoUrl;
     }
+
+    // 不使用 await，直接发送请求
+    sendSSERequest({
+      url: `https://pcm_api.ylzhaopin.com/external/v1/chat-messages`,
+      method: 'POST',
+      headers: {
+        'authorization': 'Bearer ' + this.apiKey
+      },
+      data: requestData,
+    }).catch(error => {
+      console.error('发送面试完成请求失败:', error);
+    });
   }
 
   // 添加TTS合成音频的方法
@@ -1230,7 +1067,7 @@ export class ChatHRModal {
           </div>
         );
       }
-      
+
       // 添加默认状态
       return (
         <div class="placeholder-status default-status">
@@ -1256,196 +1093,109 @@ export class ChatHRModal {
             </div>
           )}
 
-          {this.showInitialUpload ? (
-            <div class="initial-upload">
-              <div class="upload-section">
-                {/* 根据 requireResume 条件渲染简历上传部分 */}
-                {this.requireResume && (
-                  <>
-                    <h3>开始前，请上传您的简历</h3>
-                    <div class="upload-area" onClick={this.handleUploadClick}>
-                      {this.selectedFile ? (
-                        <div class="file-info">
-                          <span>{this.selectedFile.name}</span>
-                          <button class="remove-file" onClick={(e) => {
-                            e.stopPropagation();
-                            this.clearSelectedFile();
-                          }}>×</button>
-                        </div>
-                      ) : (
-                        <div class="upload-placeholder">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="48" height="48">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m0-16l-4 4m4-4l4 4" />
-                          </svg>
-                          <p>点击上传简历</p>
-                          <p class="upload-hint">支持 txt、 markdown、 pdf、 docx、  md 格式</p>
-                        </div>
-                      )}
+          <div style={{ height: '100%' }}>
+            <div class="chat-history" onScroll={this.handleScroll}>
+              {this.isLoadingHistory ? (
+                <div class="loading-container">
+                  <div class="loading-spinner"></div>
+                  <p>加载历史消息中...</p>
+                </div>
+              ) : (
+                <div>
+                  {this.messages.map((message) => (
+                    <div id={`message_${message.id}`} key={message.id}>
+                      <pcm-chat-message
+                        message={message}
+                        onMessageChange={(event) => {
+                          const updatedMessages = this.messages.map(msg =>
+                            msg.id === message.id ? { ...msg, ...event.detail } : msg
+                          );
+                          this.messages = updatedMessages;
+                        }}
+                      ></pcm-chat-message>
                     </div>
-                  </>
-                )}
-
-                <div class="category-select">
-                  <h3>请选择您的职能类别（单选）</h3>
-                  <div class="category-options">
-                    {this.jobCategories.map(category => (
-                      <button
-                        class={{
-                          'category-button': true,
-                          'selected': this.selectedJobCategory === category
-                        }}
-                        onClick={() => this.handleJobCategorySelect(category)}
-                      >
-                        {category}
-                      </button>
-                    ))}
-                  </div>
+                  ))}
+                  {this.currentStreamingMessage && (
+                    <div id={`message_${this.currentStreamingMessage.id}`}>
+                      <pcm-chat-message
+                        message={this.currentStreamingMessage}
+                      ></pcm-chat-message>
+                    </div>
+                  )}
+                  {this.messages.length === 0 && !this.currentStreamingMessage && (
+                    <div class="empty-state">
+                      <p>请上传简历开始面试</p>
+                    </div>
+                  )}
                 </div>
-
-                <div class="dimension-select">
-                  <h3>请选择关注的模块（可多选）</h3>
-                  <div class="dimension-options">
-                    {this.dimensions.map(dimension => (
-                      <button
-                        class={{
-                          'dimension-button': true,
-                          'selected': this.selectedDimensions.includes(dimension)
-                        }}
-                        onClick={() => this.handleDimensionSelect(dimension)}
-                      >
-                        {dimension}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <button
-                  class="submit-button"
-                  disabled={
-                    (this.requireResume && !this.selectedFile) ||
-                    !this.selectedJobCategory ||
-                    this.selectedDimensions.length === 0 ||
-                    (this.requireResume && this.isUploading)
-                  }
-                  onClick={this.handleInitialSubmit}
-                >
-                  {this.requireResume && this.isUploading ? '上传中...' : '开始面试'}
-                </button>
-              </div>
-              {this.requireResume && (
-                <input
-                  type="file"
-                  class="file-input"
-                  onChange={this.handleFileChange}
-                  accept=".pdf,.doc,.docx,.txt"
-                />
               )}
             </div>
-          ) : (
-            <div style={{ height: '100%' }}>
-              <div class="chat-history" onScroll={this.handleScroll}>
-                {this.isLoadingHistory ? (
-                  <div class="loading-container">
-                    <div class="loading-spinner"></div>
-                    <p>加载历史消息中...</p>
-                  </div>
-                ) : (
-                  <div>
-                    {this.messages.map((message) => (
-                      <div id={`message_${message.id}`} key={message.id}>
-                        <pcm-chat-message
-                          message={message}
-                          onMessageChange={(event) => {
-                            const updatedMessages = this.messages.map(msg =>
-                              msg.id === message.id ? { ...msg, ...event.detail } : msg
-                            );
-                            this.messages = updatedMessages;
-                          }}
-                        ></pcm-chat-message>
-                      </div>
-                    ))}
-                    {this.currentStreamingMessage && (
-                      <div id={`message_${this.currentStreamingMessage.id}`}>
-                        <pcm-chat-message
-                          message={this.currentStreamingMessage}
-                        ></pcm-chat-message>
-                      </div>
-                    )}
-                    {this.messages.length === 0 && !this.currentStreamingMessage && (
-                      <div class="empty-state">
-                        <p>请上传简历开始面试</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
 
-              <div class="recording-section">
-                <div class="recording-container">
-                  <div class="video-area">
-                    {this.showRecordingUI ? (
-                      renderVideoPreview()
-                    ) : (
-                      <div class="video-preview placeholder">
-                        {renderPlaceholderStatus()}
-                      </div>
-                    )}
-                  </div>
-                  {/* 添加进度条和数字进度 */}
-                  <div class="progress-container">
-                    <div class="progress-bar-container">
-                      <div 
-                        class="progress-bar" 
-                        style={{ 
-                          width: `${Math.max(0, this.currentQuestionNumber - 1) / this.totalQuestions * 100}%` 
-                        }}
-                      ></div>
+            <div class="recording-section">
+              <div class="recording-container">
+                <div class="video-area">
+                  {this.showRecordingUI ? (
+                    renderVideoPreview()
+                  ) : (
+                    <div class="video-preview placeholder">
+                      {renderPlaceholderStatus()}
                     </div>
-                    <div class="progress-text">
-                      已完成{Math.max(0, this.currentQuestionNumber - 1)}/{this.totalQuestions}
-                    </div>
-                  </div>
-                  <div class="recording-controls">
-                    {this.showRecordingUI ? (
-                      <button
-                        class="stop-recording-button"
-                        onClick={() => this.stopRecording()}
-                      >
-                        完成本题回答
-                      </button>
-                    ) : (
-                      <div class="waiting-message">
-                        {(() => {
-                          // 显示播放按钮（当不自动播放且有音频URL时）
-                          if (!this.enableVoice && this.audioUrl && !this.isPlayingAudio) {
-                            return (
-                              <div class="play-audio-container" onClick={this.handlePlayAudio}>
-                                <p>
-                                  <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" style={{ verticalAlign: 'middle', marginRight: '8px' }}>
-                                    <path d="M8 5v14l11-7z" />
-                                  </svg>
-                                  <span style={{ verticalAlign: 'middle' }}>播放题目</span>
-                                </p>
-                              </div>
-                            );
-                          }
-                          
-                          // 其他状态下显示禁用的"完成回答"按钮
-                          return (
-                            <button class="stop-recording-button disabled" disabled>
-                              完成回答
-                            </button>
-                          );
-                        })()}
-                      </div>
-                    )}
-                  </div>
-                  
-                  
+                  )}
                 </div>
+                {/* 添加进度条和数字进度 */}
+                <div class="progress-container">
+                  <div class="progress-bar-container">
+                    <div
+                      class="progress-bar"
+                      style={{
+                        width: `${Math.max(0, this.currentQuestionNumber - 1) / this.totalQuestions * 100}%`
+                      }}
+                    ></div>
+                  </div>
+                  <div class="progress-text">
+                    已完成{Math.max(0, this.currentQuestionNumber - 1)}/{this.totalQuestions}
+                  </div>
+                </div>
+                <div class="recording-controls">
+                  {this.showRecordingUI ? (
+                    <button
+                      class="stop-recording-button"
+                      onClick={() => this.stopRecording()}
+                    >
+                      完成本题回答
+                    </button>
+                  ) : (
+                    <div class="waiting-message">
+                      {(() => {
+                        // 显示播放按钮（当不自动播放且有音频URL时）
+                        if (!this.enableVoice && this.audioUrl && !this.isPlayingAudio) {
+                          return (
+                            <div class="play-audio-container" onClick={this.handlePlayAudio}>
+                              <p>
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" style={{ verticalAlign: 'middle', marginRight: '8px' }}>
+                                  <path d="M8 5v14l11-7z" />
+                                </svg>
+                                <span style={{ verticalAlign: 'middle' }}>播放题目</span>
+                              </p>
+                            </div>
+                          );
+                        }
+
+                        // 其他状态下显示禁用的"完成回答"按钮
+                        return (
+                          <button class="stop-recording-button disabled" disabled>
+                            完成回答
+                          </button>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </div>
+
+
               </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
     );
