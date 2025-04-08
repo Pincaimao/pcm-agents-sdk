@@ -1,0 +1,456 @@
+# 金牌HR大赛组件使用文档
+
+## 概述
+
+`pcm-hr-chat-modal` 是一个用于进行 AI 视频面试的 Web 组件，支持AI 问答、视频录制等功能。该组件可以轻松嵌入到现有网页中，实现在线面试评测功能。
+
+## 安装与引入
+
+### 通过 CDN 引入
+
+```html
+<script type="module" src="https://s4.zstatic.net/npm/pcm-agents@0.2.2/dist/pcm-agents/pcm-agents.esm.js"></script>
+```
+
+```html
+<pcm-hr-chat-modal 
+  bot-id="YOUR_BOT_ID"
+  api-key="YOUR_API_KEY"
+  modal-title="AI 面试助手" 
+  icon="https://example.com/icon.jpg"
+  conversation-id=""
+  to-email="user@example.com"
+  user-id="1234567890"
+  fullscreen="true"
+  require-resume="false"
+  total-questions="10"
+  enable-voice="true"
+></pcm-hr-chat-modal>
+```
+
+
+
+### react中使用
+
+下载并导入`pcm-agents`和`pcm-agents-react`
+
+```react
+import './App.css';
+import { PcmHrChatModal  } from 'pcm-agents-react';
+
+function App() {
+  return (
+    <div className="App">
+      <PcmHrChatModal 
+        id="test-pcm-chat-modal"
+      </PcmHrChatModal>
+    </div>
+  );
+}
+
+export default App;
+
+```
+
+
+
+### vue中使用
+
+下载并导入`pcm-agents`和`pcm-agents-vue`
+
+main.ts
+```js
+import { defineCustomElements } from 'pcm-agents/loader';
+defineCustomElements();
+```
+
+
+
+app.vue
+
+```vue
+import { PcmHrChatModal } from 'pcm-agents-vue';
+<PcmHrChatModal 
+ id="test-pcm-chat-modal"    
+</PcmHrChatModal>
+```
+
+
+
+### vue2中使用
+
+
+index.html
+```html
+<script type="module" src="https://s4.zstatic.net/npm/pcm-agents@0.2.2/dist/pcm-agents/pcm-agents.esm.js"></script>
+```
+
+```vue
+<PcmHrChatModal 
+    id="test-pcm-chat-modal"
+</PcmHrChatModal>
+```
+
+
+
+
+
+## 属性说明
+
+| 属性名 | 类型 | 默认值 | 说明 |
+|--------|------|--------|------|
+| `bot-id` | string | - | 机器人 ID（必填） |
+| `api-key` | string | - | API 鉴权密钥（必填） |
+| `modal-title` | string | "在线客服" | 模态框标题 |
+| `icon` | string | - | 应用图标 URL |
+| `z-index` | number | 1000 | 聊天框的页面层级 |
+| `is-show-header` | boolean | true | 是否展示顶部标题栏 |
+| `is-need-close` | boolean | true | 是否展示右上角的关闭按钮 |
+| `conversation-id` | string | - | 会话 ID，用于继续之前的对话 |
+| `to-email` | string | - | 接收报告的邮箱 |
+| `user-id` | string | - | **业务侧UID，依此区分面试者** |
+| `fullscreen` | boolean | false | 是否以全屏模式打开 |
+| `total-questions` | number | 2 | 面试题目总数量 |
+| `enable-voice` | boolean | true | 自动播放语音或手动触发播放（微信环境无法自动播放） |
+| `max-recording-time` | number | 120 | 视频录制最大时长（秒） |
+| `countdown-warning-time` | number | 30 | 录制倒计时提醒时间（秒） |
+
+## 事件
+
+| 事件名 | 说明 | 回调参数 |
+|--------|------|----------|
+| `modalClosed` | 模态框关闭时触发 | 无 |
+| `streamComplete` | 流式响应完成时触发 | `{ conversation_id, event, message_id, id }` |
+| `interviewComplete` | 面试完成时触发 | `{ conversation_id, total_questions }` |
+| `recordingError` | 录制错误时触发 | `{ type, message, details }` |
+| `recordingStatusChange` | 录制状态变化时触发 | `{ status, details }` |
+
+## 集成流程
+
+### 1.  引入组件脚本 
+
+```html
+<script type="module" src="https://s4.zstatic.net/npm/pcm-agents@0.2.2/dist/pcm-agents/pcm-agents.esm.js"></script>
+```
+
+
+
+### 2. 在您的页面中使用组件 
+
+```html
+<pcm-hr-chat-modal 
+  bot-id="3022316191018880"
+  id="pcm-chat-modal" 
+  api-key="app-YXtEFC4fdga5QCCsANCbESGD"
+  modal-title="金牌HR大赛" 
+  icon="https://example.com/icon.jpg"
+  conversation-id=""
+  to-email="user@example.com"
+  user-id="1234567890"
+  fullscreen="true"
+  require-resume="false"
+  total-questions="10"
+  enable-voice="true"
+></pcm-hr-chat-modal>
+```
+
+
+
+###  3. 添加用户验证和设备检查流程 
+
+ 在页面中添加用户验证和设备检查的逻辑，确保用户有权限参赛并且设备支持视频录制： 
+
+```html
+<div class="controls">
+  <div class="device-check">
+    <button id="check-devices">检查设备权限</button>
+    <div id="status-message" style="display: none;"></div>
+  </div>
+  
+  <button id="open-chat" disabled>开始AI面试</button>
+</div>
+```
+
+
+
+### 4.  添加交互逻辑 
+
+```javascript
+document.addEventListener('DOMContentLoaded', function() {
+  // 获取元素引用
+  const chatModal = document.getElementById('pcm-chat-modal');
+  const openChatButton = document.getElementById('open-chat');
+  const checkDevicesButton = document.getElementById('check-devices');
+  const statusMessage = document.getElementById('status-message');
+  
+  // 检查设备和权限
+  checkDevicesButton.addEventListener('click', async function() {
+    try {
+      statusMessage.style.display = 'block';
+      
+      // 获取媒体流（摄像头和麦克风权限）
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true
+      });
+      
+      // 权限检查通过
+      statusMessage.textContent = '设备和权限检查通过，可以开始聊天';
+      statusMessage.className = 'status success';
+      openChatButton.disabled = false;
+      
+      // 释放媒体流
+      stream.getTracks().forEach(track => track.stop());
+    } catch (error) {
+      // 显示错误信息
+      statusMessage.textContent = `权限被拒绝：${error.message}`;
+      statusMessage.className = 'status error';
+    }
+  });
+  
+  // 打开聊天窗口
+  openChatButton.addEventListener('click', function() {
+    chatModal.isOpen = true;
+  });
+  
+  // 注册事件监听
+  chatModal.addEventListener('modalClosed', function() {
+    console.log('聊天窗口已关闭');
+  });
+  
+  chatModal.addEventListener('streamComplete', function(event) {
+    console.log('流式响应完成:', event.detail);
+    chatModal.setAttribute('conversation-id', event.detail.conversation_id);
+  });
+  
+  chatModal.addEventListener('interviewComplete', function(event) {
+    console.log('面试完成:', event.detail);
+    chatModal.isOpen = false;
+    alert('非常感谢您的参与，评选结果将在稍后公布。');
+  });
+  
+  chatModal.addEventListener('recordingError', function(event) {
+    console.error('录制错误:', event.detail);
+    alert('录制视频时发生错误，请刷新页面重试。');
+  });
+});
+```
+
+
+
+
+
+## 完整示例
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>金牌HR大赛</title>
+  <script type="module" src="https://s4.zstatic.net/npm/pcm-agents@0.2.2/dist/pcm-agents/pcm-agents.esm.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .demo-controls {
+      margin: 20px;
+      padding: 20px;
+      border: 1px solid #eee;
+      border-radius: 8px;
+    }
+    button {
+      padding: 8px 16px;
+      background-color: #1890ff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    .status {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .success {
+      background-color: #f6ffed;
+      border: 1px solid #b7eb8f;
+      color: #52c41a;
+    }
+    .error {
+      background-color: #fff2f0;
+      border: 1px solid #ffccc7;
+      color: #ff4d4f;
+    }
+  </style>
+</head>
+<body>
+  <div style="display: flex; justify-content: center">
+    <div class="demo-controls">
+      <h2>金牌HR大赛</h2>
+      
+      <div class="device-check">
+        <button id="check-devices">检查设备权限</button>
+        <div id="status-message" class="status" style="display: none;"></div>
+        <div class="permission-info">
+          需要检查您的摄像头和麦克风权限，以便在聊天过程中进行视频通话。
+        </div>
+      </div>
+      
+      <button id="open-chat" disabled>开始AI面试</button>
+    </div>
+
+    <pcm-hr-chat-modal 
+      bot-id="3022316191018880"
+      id="pcm-chat-modal" 
+      api-key="app-YXtEFC4fdga5QCCsANCbESGD"
+      modal-title="金牌HR大赛" 
+      welcome-message="欢迎您参加人力资源和社会保障局组织的金牌HR大赛，接下来我们将采用数字人方式对您做交流，本次大赛预计需要10-30分钟，请在安静的环境下参与此次大赛。"
+      icon="https://example.com/icon.jpg"
+      conversation-id=""
+      to-email="user@example.com"
+      user-id="1234567890"
+      fullscreen="true"
+      require-resume="false"
+      total-questions="10"
+      enable-voice="true"
+    ></pcm-hr-chat-modal>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM 已加载，正在设置事件监听器...');
+      
+      // 获取元素引用
+      const chatModal = document.getElementById('pcm-chat-modal');
+      const openChatButton = document.getElementById('open-chat');
+      const checkDevicesButton = document.getElementById('check-devices');
+      const statusMessage = document.getElementById('status-message');
+      
+      // 检查设备和权限
+      let stream = null;
+      
+      checkDevicesButton.addEventListener('click', async function() {
+        try {
+          statusMessage.style.display = 'block';
+          
+          // 检查浏览器支持
+          if (!navigator.mediaDevices) {
+            showError('您的浏览器不支持媒体设备API，请使用现代浏览器如Chrome、Firefox等');
+            return;
+          }
+          
+          // 列出可用的媒体设备
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          const hasCamera = devices.some(device => device.kind === 'videoinput');
+          const hasMicrophone = devices.some(device => device.kind === 'audioinput');
+          
+          if (!hasCamera) {
+            showError('未检测到摄像头设备');
+            return;
+          }
+          
+          if (!hasMicrophone) {
+            showError('未检测到麦克风设备');
+            return;
+          }
+          
+          // 尝试获取媒体流
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true
+          });
+          
+          // 更新UI状态
+          showSuccess('设备和权限检查通过，可以开始聊天');
+          openChatButton.disabled = false;
+          
+        } catch (error) {
+          console.error('获取媒体设备失败:', error);
+          
+          if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+            showError('权限被拒绝。请在浏览器设置中允许访问摄像头和麦克风。');
+          } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+            showError('找不到摄像头或麦克风设备。');
+          } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+            showError('无法访问摄像头或麦克风，可能被其他应用程序占用。');
+          } else {
+            showError(`发生错误: ${error.message}`);
+          }
+        }
+      });
+      
+      // 辅助函数
+      function showError(message) {
+        statusMessage.textContent = message;
+        statusMessage.className = 'status error';
+      }
+      
+      function showSuccess(message) {
+        statusMessage.textContent = message;
+        statusMessage.className = 'status success';
+      }
+      
+      if (chatModal) {
+        chatModal.addEventListener('messageSent', function(event) {
+          console.log('发送消息:', event.detail);
+        });
+        
+        chatModal.addEventListener('modalClosed', function() {
+          console.log('聊天窗口已关闭');
+        });
+
+        // 添加 streamComplete 事件监听
+        chatModal.addEventListener('streamComplete', function(event) {
+          console.log('流式响应完成:', event.detail);
+          // 更新 conversation_id
+          chatModal.setAttribute('conversation-id', event.detail.conversation_id);
+        });
+
+        // 添加 interviewComplete 事件监听
+        chatModal.addEventListener('interviewComplete', function(event) {
+          console.log('面试完成:', event.detail);
+          chatModal.isOpen = false;
+          alert('非常感谢您的参与，人力资源和社会保障局将会在后续公布评选结果，如想获取您在本次金牌HR大赛中的评选报告，请联系相关负责人。');
+        });
+        
+        // 添加录制错误事件监听
+        chatModal.addEventListener('recordingError', function(event) {
+          console.error('录制错误:', event.detail);
+          alert('录制视频时发生错误，请刷新页面重试。');
+        });
+      }
+
+      // 打开聊天按钮事件监听
+      if (openChatButton && chatModal) {
+        openChatButton.addEventListener('click', function() {
+          chatModal.isOpen = true;
+          console.log('打开聊天');
+          // 停止媒体流，因为已经不需要了
+          if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+          }
+        });
+      }
+      
+      // 页面关闭时停止所有媒体流
+      window.addEventListener('beforeunload', () => {
+        if (stream) {
+          stream.getTracks().forEach(track => track.stop());
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+```
+
+
+

@@ -92,9 +92,9 @@ export namespace Components {
          */
         "defaultQuery": string;
         /**
-          * 用户邮箱
+          * 是否显示题干内容 1: 显示题干内容 0: 不显示题干内容
          */
-        "email": string;
+        "displayContentStatus": string;
         /**
           * 是否播放语音问题
          */
@@ -132,13 +132,17 @@ export namespace Components {
          */
         "requireResume": boolean;
         /**
+          * 接收报告的邮箱地址
+         */
+        "toEmail": string;
+        /**
           * 总题目数量
          */
         "totalQuestions": number;
         /**
-          * 欢迎提示语，如果不提供则不显示提示
+          * 用户ID
          */
-        "welcomeMessage"?: string;
+        "userId": string;
         /**
           * 聊天框的页面层级
          */
@@ -351,9 +355,9 @@ declare namespace LocalJSX {
          */
         "defaultQuery"?: string;
         /**
-          * 用户邮箱
+          * 是否显示题干内容 1: 显示题干内容 0: 不显示题干内容
          */
-        "email"?: string;
+        "displayContentStatus"?: string;
         /**
           * 是否播放语音问题
          */
@@ -423,13 +427,17 @@ declare namespace LocalJSX {
          */
         "requireResume"?: boolean;
         /**
+          * 接收报告的邮箱地址
+         */
+        "toEmail"?: string;
+        /**
           * 总题目数量
          */
         "totalQuestions"?: number;
         /**
-          * 欢迎提示语，如果不提供则不显示提示
+          * 用户ID
          */
-        "welcomeMessage"?: string;
+        "userId"?: string;
         /**
           * 聊天框的页面层级
          */

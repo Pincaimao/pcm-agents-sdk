@@ -11,7 +11,7 @@
 | `conversationId`       | `conversation-id`        | 会话ID                            | `string`  | `undefined` |
 | `countdownWarningTime` | `countdown-warning-time` | 录制倒计时提醒时间（秒） 当剩余时间小于此值时，显示倒计时警告 | `number`  | `30`        |
 | `defaultQuery`         | `default-query`          | 默认查询文本                          | `string`  | `''`        |
-| `email`                | `email`                  | 用户邮箱                            | `string`  | `''`        |
+| `displayContentStatus` | `display-content-status` | 是否显示题干内容 1: 显示题干内容 0: 不显示题干内容   | `string`  | `"1"`       |
 | `enableVoice`          | `enable-voice`           | 是否播放语音问题                        | `boolean` | `true`      |
 | `fullscreen`           | `fullscreen`             | 是否以全屏模式打开                       | `boolean` | `false`     |
 | `icon`                 | `icon`                   | 应用图标URL                         | `string`  | `undefined` |
@@ -21,8 +21,9 @@
 | `maxRecordingTime`     | `max-recording-time`     | 视频录制最大时长（秒）                     | `number`  | `120`       |
 | `modalTitle`           | `modal-title`            | 模态框标题                           | `string`  | `'在线客服'`    |
 | `requireResume`        | `require-resume`         | 是否需要上传简历                        | `boolean` | `false`     |
+| `toEmail`              | `to-email`               | 接收报告的邮箱地址                       | `string`  | `''`        |
 | `totalQuestions`       | `total-questions`        | 总题目数量                           | `number`  | `2`         |
-| `welcomeMessage`       | `welcome-message`        | 欢迎提示语，如果不提供则不显示提示               | `string`  | `undefined` |
+| `userId`               | `user-id`                | 用户ID                            | `string`  | `''`        |
 | `zIndex`               | `z-index`                | 聊天框的页面层级                        | `number`  | `1000`      |
 
 

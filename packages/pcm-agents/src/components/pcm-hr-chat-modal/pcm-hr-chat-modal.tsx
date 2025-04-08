@@ -182,9 +182,9 @@ export class ChatHRModal {
   @State() showCountdownWarning: boolean = false;
 
   /**
-   * 用户邮箱
+   * 接收报告的邮箱地址
    */
-  @Prop() email: string = '';
+  @Prop() toEmail: string = '';
 
   /**
    * 是否以全屏模式打开
@@ -203,11 +203,6 @@ export class ChatHRModal {
   @State() isPlayingAudio: boolean = false;
   @State() audioUrl: string | null = null;
   private audioElement: HTMLAudioElement | null = null;
-
-  /**
-   * 欢迎提示语，如果不提供则不显示提示
-   */
-  @Prop() welcomeMessage?: string;
 
   /**
    * 录制错误事件
@@ -230,6 +225,18 @@ export class ChatHRModal {
    * 是否播放语音问题
    */
   @Prop() enableVoice: boolean = true;
+
+  /**
+   * 是否显示题干内容
+   * 1: 显示题干内容
+   * 0: 不显示题干内容
+   */
+  @Prop() displayContentStatus: string = "1";
+
+  /**
+   * 用户ID
+   */
+  @Prop() userId: string = '';
 
   private handleClose = () => {
     this.isOpen = false;
@@ -315,7 +322,6 @@ export class ChatHRModal {
     if (lastAIMessage && this.conversationId && message !== "下一题") {
       this.saveAnswer(
         this.conversationId,
-        '1234567890',
         lastAIMessage.answer, // AI的提问作为question
         queryText // 用户的输入作为answer
       );
@@ -365,12 +371,13 @@ export class ChatHRModal {
       response_mode: 'streaming',
       conversation_id: this.conversationId,
       query: queryText,
-      user: '1234567890'
+      user: this.userId // 使用传入的 userId
     };
     requestData.inputs = {
       job_info: this.selectedJobCategory,
       dimensional_info: this.selectedDimensions.join(','),
-      email: this.email,
+      email: this.toEmail,
+      display_content_status: this.displayContentStatus
     };
     // 如果有上传的文件，添加到inputs参数
     if (this.uploadedFileInfo.length > 0) {
@@ -481,7 +488,7 @@ export class ChatHRModal {
   }
 
   // 添加保存答案的方法
-  private async saveAnswer(conversationId: string, user: string, question: string, answer: string) {
+  private async saveAnswer(conversationId: string, question: string, answer: string) {
     try {
       await sendHttpRequest({
         url: 'https://pcm_api.ylzhaopin.com/agents/hr_competition/answer',
@@ -491,7 +498,7 @@ export class ChatHRModal {
         },
         data: {
           conversation_id: conversationId,
-          user: user,
+          user: this.userId, // 使用传入的 userId
           question: question,
           answer: answer
         },
@@ -558,7 +565,6 @@ export class ChatHRModal {
         data: {
           conversation_id: this.conversationId,
           bot_id: this.botId,
-          user: '1234567890',
           limit: 20
         },
         onMessage: (data) => {
@@ -615,10 +621,7 @@ export class ChatHRModal {
     if (newValue) {
       if (this.conversationId) {
         await this.loadHistoryMessages();
-      } else if (this.welcomeMessage) {
-        // 如果是新会话且提供了欢迎提示语，则显示
-        alert(this.welcomeMessage);
-      }
+      } 
     }
   }
 
@@ -1021,7 +1024,7 @@ export class ChatHRModal {
         },
         data: {
           conversation_id: this.conversationId,
-          user: '1234567890',
+          user: this.userId, // 使用传入的 userId
           question: lastAIMessage.answer,
           file_url: cosKey
         },
