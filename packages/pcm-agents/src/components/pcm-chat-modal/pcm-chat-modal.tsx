@@ -34,7 +34,7 @@ export class ChatModal {
   @Event() messageSent: EventEmitter<string>;
 
   /**
-   * 当模态框关闭时触发
+   * 点击模态框关闭时触发
    */
   @Event() modalClosed: EventEmitter<void>;
 
@@ -120,7 +120,6 @@ export class ChatModal {
   @Prop() fullscreen: boolean = false;
 
   private handleClose = () => {
-    this.isOpen = false;
     this.modalClosed.emit();
   };
 

@@ -95,8 +95,8 @@
       api-key="app-YXtEFC4fdga5QCCsANCbiGza"
       modal-title="视频面试" 
       icon="https://www.ylzhaopin.com/Public/Newhome/images/sidebar/tochat.png"
-      conversation-id=""
-      resume-id="35085138287132673"
+      conversation-id="88a3e944-60d0-49fa-acbc-39a154fcdd32"
+      resume-id="35677279421992960"
       fullscreen="true"
       require-resume="false"
       enable-voice="false"
@@ -184,6 +184,7 @@
           
           chatModal.addEventListener('modalClosed', function() {
             console.log('聊天窗口已关闭');
+            chatModal.isOpen = false;
           });
 
           // 添加 streamComplete 事件监听

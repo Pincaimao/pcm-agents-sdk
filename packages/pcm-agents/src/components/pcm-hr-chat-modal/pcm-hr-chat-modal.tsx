@@ -30,7 +30,7 @@ export class ChatHRModal {
 
 
   /**
-   * 当模态框关闭时触发
+   * 当点击模态框关闭时触发
    */
   @Event() modalClosed: EventEmitter<void>;
 
@@ -235,7 +235,6 @@ export class ChatHRModal {
   @Prop() userId: string = '';
 
   private handleClose = () => {
-    this.isOpen = false;
     this.stopRecording();
     this.modalClosed.emit();
   };

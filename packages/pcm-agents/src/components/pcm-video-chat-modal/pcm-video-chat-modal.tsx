@@ -30,7 +30,7 @@ export class VideoChatModal {
 
 
   /**
-   * 当模态框关闭时触发
+   * 当点击模态框关闭时触发
    */
   @Event() modalClosed: EventEmitter<void>;
 
@@ -204,7 +204,6 @@ export class VideoChatModal {
   @Prop() resumeId?: string;
 
   private handleClose = () => {
-    this.isOpen = false;
     this.stopRecording();
     this.modalClosed.emit();
   };
@@ -1120,11 +1119,6 @@ export class VideoChatModal {
                       <pcm-chat-message
                         message={this.currentStreamingMessage}
                       ></pcm-chat-message>
-                    </div>
-                  )}
-                  {this.messages.length === 0 && !this.currentStreamingMessage && (
-                    <div class="empty-state">
-                      <p>请上传简历开始面试</p>
                     </div>
                   )}
                 </div>

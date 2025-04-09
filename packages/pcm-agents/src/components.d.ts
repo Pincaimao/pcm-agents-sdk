@@ -422,7 +422,7 @@ declare namespace LocalJSX {
          */
         "onMessageSent"?: (event: PcmChatModalCustomEvent<string>) => void;
         /**
-          * 当模态框关闭时触发
+          * 点击模态框关闭时触发
          */
         "onModalClosed"?: (event: PcmChatModalCustomEvent<void>) => void;
         "onStreamComplete"?: (event: PcmChatModalCustomEvent<{
@@ -497,7 +497,7 @@ declare namespace LocalJSX {
     total_questions: number;
   }>) => void;
         /**
-          * 当模态框关闭时触发
+          * 当点击模态框关闭时触发
          */
         "onModalClosed"?: (event: PcmHrChatModalCustomEvent<void>) => void;
         /**
@@ -603,7 +603,7 @@ declare namespace LocalJSX {
     total_questions: number;
   }>) => void;
         /**
-          * 当模态框关闭时触发
+          * 当点击模态框关闭时触发
          */
         "onModalClosed"?: (event: PcmVideoChatModalCustomEvent<void>) => void;
         /**

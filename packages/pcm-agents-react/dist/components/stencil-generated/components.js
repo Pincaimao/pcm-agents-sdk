@@ -4,6 +4,7 @@ import { MyComponent as MyComponentElement, defineCustomElement as defineMyCompo
 import { PcmChatMessage as PcmChatMessageElement, defineCustomElement as definePcmChatMessage } from "pcm-agents/dist/components/pcm-chat-message.js";
 import { PcmChatModal as PcmChatModalElement, defineCustomElement as definePcmChatModal } from "pcm-agents/dist/components/pcm-chat-modal.js";
 import { PcmHrChatModal as PcmHrChatModalElement, defineCustomElement as definePcmHrChatModal } from "pcm-agents/dist/components/pcm-hr-chat-modal.js";
+import { PcmVideoChatModal as PcmVideoChatModalElement, defineCustomElement as definePcmVideoChatModal } from "pcm-agents/dist/components/pcm-video-chat-modal.js";
 import React from 'react';
 export const MyComponent = createComponent({
     tagName: 'my-component',
@@ -42,5 +43,18 @@ export const PcmHrChatModal = createComponent({
         onRecordingStatusChange: 'recordingStatusChange'
     },
     defineCustomElement: definePcmHrChatModal
+});
+export const PcmVideoChatModal = createComponent({
+    tagName: 'pcm-video-chat-modal',
+    elementClass: PcmVideoChatModalElement,
+    react: React,
+    events: {
+        onModalClosed: 'modalClosed',
+        onStreamComplete: 'streamComplete',
+        onInterviewComplete: 'interviewComplete',
+        onRecordingError: 'recordingError',
+        onRecordingStatusChange: 'recordingStatusChange'
+    },
+    defineCustomElement: definePcmVideoChatModal
 });
 //# sourceMappingURL=components.js.map
