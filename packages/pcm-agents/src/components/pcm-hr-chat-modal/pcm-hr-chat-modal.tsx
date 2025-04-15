@@ -380,7 +380,7 @@ export class ChatHRModal {
 
 
     await sendSSERequest({
-      url: `https://pcm_api.ylzhaopin.com/external/v1/chat-messages`,
+      url: `https://pcm_api.ylzhaopin.com/external/v1/chat/chat-messages`,
       method: 'POST',
       headers: {
         'authorization': 'Bearer ' + this.apiKey
@@ -550,7 +550,7 @@ export class ChatHRModal {
 
     try {
       await sendHttpRequest({
-        url: `https://pcm_api.ylzhaopin.com/external/v1/messages`,
+        url: `https://pcm_api.ylzhaopin.com/external/v1/chat/messages`,
         method: 'GET',
         headers: {
           'authorization': 'Bearer ' + this.apiKey
