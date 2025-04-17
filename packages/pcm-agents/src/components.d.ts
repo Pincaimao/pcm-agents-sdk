@@ -36,7 +36,7 @@ export namespace Components {
          */
         "countdownWarningTime": number;
         /**
-          * 自定义输入参数，将与默认参数合并 可用于传递额外的请求参数
+          * 自定义智能体inputs输入参数
          */
         "customInputs": Record<string, any>;
         /**
@@ -48,7 +48,7 @@ export namespace Components {
          */
         "displayContentStatus": string;
         /**
-          * 是否播放语音问题
+          * 是否自动播放语音问题
          */
         "enableVoice": boolean;
         /**
@@ -84,15 +84,7 @@ export namespace Components {
          */
         "modalTitle": string;
         /**
-          * 是否需要上传简历
-         */
-        "requireResume": boolean;
-        /**
-          * 接收报告的邮箱地址
-         */
-        "toEmail": string;
-        /**
-          * 总题目数量
+          * 控制对话轮数
          */
         "totalQuestions": number;
         /**
@@ -382,6 +374,12 @@ declare global {
     message_id: string;
     id: string;
   };
+        "conversationStart": {
+    conversation_id: string;
+    event: string;
+    message_id: string;
+    id: string;
+  };
         "interviewComplete": {
     conversation_id: string;
     total_questions: number;
@@ -490,17 +488,36 @@ declare global {
     interface HTMLPcmMnmsModalElementEventMap {
         "modalClosed": void;
         "uploadSuccess": {
-    cos_key: string;
-    filename: string;
-    ext: string;
-    presigned_url: string;
-  };
+        cos_key: string;
+        filename: string;
+        ext: string;
+        presigned_url: string;
+    };
         "streamComplete": {
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  };
+        conversation_id: string;
+        event: string;
+        message_id: string;
+        id: string;
+    };
+        "conversationStart": {
+        conversation_id: string;
+        event: string;
+        message_id: string;
+        id: string;
+    };
+        "interviewComplete": {
+        conversation_id: string;
+        total_questions: number;
+    };
+        "recordingError": {
+        type: string;
+        message: string;
+        details?: any;
+    };
+        "recordingStatusChange": {
+        status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
+        details?: any;
+    };
     }
     interface HTMLPcmMnmsModalElement extends Components.PcmMnmsModal, HTMLStencilElement {
         addEventListener<K extends keyof HTMLPcmMnmsModalElementEventMap>(type: K, listener: (this: HTMLPcmMnmsModalElement, ev: PcmMnmsModalCustomEvent<HTMLPcmMnmsModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -591,7 +608,7 @@ declare namespace LocalJSX {
          */
         "countdownWarningTime"?: number;
         /**
-          * 自定义输入参数，将与默认参数合并 可用于传递额外的请求参数
+          * 自定义智能体inputs输入参数
          */
         "customInputs"?: Record<string, any>;
         /**
@@ -603,7 +620,7 @@ declare namespace LocalJSX {
          */
         "displayContentStatus"?: string;
         /**
-          * 是否播放语音问题
+          * 是否自动播放语音问题
          */
         "enableVoice"?: boolean;
         /**
@@ -639,7 +656,16 @@ declare namespace LocalJSX {
          */
         "modalTitle"?: string;
         /**
-          * 当面试完成时触发
+          * 新会话开始的回调，只会在一轮对话开始时触发一次
+         */
+        "onConversationStart"?: (event: PcmAppChatModalCustomEvent<{
+    conversation_id: string;
+    event: string;
+    message_id: string;
+    id: string;
+  }>) => void;
+        /**
+          * 当聊天完成时触发
          */
         "onInterviewComplete"?: (event: PcmAppChatModalCustomEvent<{
     conversation_id: string;
@@ -664,6 +690,9 @@ declare namespace LocalJSX {
     status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
     details?: any;
   }>) => void;
+        /**
+          * 一轮对话结束时的回调
+         */
         "onStreamComplete"?: (event: PcmAppChatModalCustomEvent<{
     conversation_id: string;
     event: string;
@@ -671,15 +700,7 @@ declare namespace LocalJSX {
     id: string;
   }>) => void;
         /**
-          * 是否需要上传简历
-         */
-        "requireResume"?: boolean;
-        /**
-          * 接收报告的邮箱地址
-         */
-        "toEmail"?: string;
-        /**
-          * 总题目数量
+          * 控制对话轮数
          */
         "totalQuestions"?: number;
         /**
@@ -909,27 +930,58 @@ declare namespace LocalJSX {
          */
         "modalTitle"?: string;
         /**
+          * 新会话开始的回调，只会在一轮对话开始时触发一次
+         */
+        "onConversationStart"?: (event: PcmMnmsModalCustomEvent<{
+        conversation_id: string;
+        event: string;
+        message_id: string;
+        id: string;
+    }>) => void;
+        /**
+          * 当聊天完成时触发
+         */
+        "onInterviewComplete"?: (event: PcmMnmsModalCustomEvent<{
+        conversation_id: string;
+        total_questions: number;
+    }>) => void;
+        /**
           * 当点击模态框关闭时触发
          */
         "onModalClosed"?: (event: PcmMnmsModalCustomEvent<void>) => void;
         /**
+          * 录制错误事件
+         */
+        "onRecordingError"?: (event: PcmMnmsModalCustomEvent<{
+        type: string;
+        message: string;
+        details?: any;
+    }>) => void;
+        /**
+          * 录制状态变化事件
+         */
+        "onRecordingStatusChange"?: (event: PcmMnmsModalCustomEvent<{
+        status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
+        details?: any;
+    }>) => void;
+        /**
           * 流式输出完成事件
          */
         "onStreamComplete"?: (event: PcmMnmsModalCustomEvent<{
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  }>) => void;
+        conversation_id: string;
+        event: string;
+        message_id: string;
+        id: string;
+    }>) => void;
         /**
           * 上传成功事件
          */
         "onUploadSuccess"?: (event: PcmMnmsModalCustomEvent<{
-    cos_key: string;
-    filename: string;
-    ext: string;
-    presigned_url: string;
-  }>) => void;
+        cos_key: string;
+        filename: string;
+        ext: string;
+        presigned_url: string;
+    }>) => void;
         /**
           * 聊天框的页面层级
          */

@@ -38,6 +38,12 @@ type PcmAppChatModalEvents = {
         message_id: string;
         id: string;
     }>>,
+    onConversationStart: EventName<CustomEvent<{
+        conversation_id: string;
+        event: string;
+        message_id: string;
+        id: string;
+    }>>,
     onInterviewComplete: EventName<CustomEvent<{
         conversation_id: string;
         total_questions: number;
@@ -61,6 +67,7 @@ export const PcmAppChatModal: StencilReactComponent<PcmAppChatModalElement, PcmA
     events: {
         onModalClosed: 'modalClosed',
         onStreamComplete: 'streamComplete',
+        onConversationStart: 'conversationStart',
         onInterviewComplete: 'interviewComplete',
         onRecordingError: 'recordingError',
         onRecordingStatusChange: 'recordingStatusChange'
@@ -154,6 +161,25 @@ type PcmMnmsModalEvents = {
         event: string;
         message_id: string;
         id: string;
+    }>>,
+    onConversationStart: EventName<CustomEvent<{
+        conversation_id: string;
+        event: string;
+        message_id: string;
+        id: string;
+    }>>,
+    onInterviewComplete: EventName<CustomEvent<{
+        conversation_id: string;
+        total_questions: number;
+    }>>,
+    onRecordingError: EventName<CustomEvent<{
+        type: string;
+        message: string;
+        details?: any;
+    }>>,
+    onRecordingStatusChange: EventName<CustomEvent<{
+        status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
+        details?: any;
     }>>
 };
 
@@ -165,7 +191,11 @@ export const PcmMnmsModal: StencilReactComponent<PcmMnmsModalElement, PcmMnmsMod
     events: {
         onModalClosed: 'modalClosed',
         onUploadSuccess: 'uploadSuccess',
-        onStreamComplete: 'streamComplete'
+        onStreamComplete: 'streamComplete',
+        onConversationStart: 'conversationStart',
+        onInterviewComplete: 'interviewComplete',
+        onRecordingError: 'recordingError',
+        onRecordingStatusChange: 'recordingStatusChange'
     } as PcmMnmsModalEvents,
     defineCustomElement: definePcmMnmsModal
 });

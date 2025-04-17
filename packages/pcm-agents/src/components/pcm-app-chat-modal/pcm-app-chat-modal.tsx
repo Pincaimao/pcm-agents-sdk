@@ -1,4 +1,4 @@
-import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
+import { Component, Prop, h, State, Event, EventEmitter, Element } from '@stencil/core';
 import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
 
@@ -83,8 +83,20 @@ export class ChatAPPModal {
   // 使用 @Element 装饰器获取组件的 host 元素
   @Element() hostElement: HTMLElement;
 
-  // 添加新的 Event
+  /**
+   * 一轮对话结束时的回调
+   */
   @Event() streamComplete: EventEmitter<{
+    conversation_id: string;
+    event: string;
+    message_id: string;
+    id: string;
+  }>;
+
+  /**
+   * 新会话开始的回调，只会在一轮对话开始时触发一次
+   */
+  @Event() conversationStart: EventEmitter<{
     conversation_id: string;
     event: string;
     message_id: string;
@@ -122,22 +134,18 @@ export class ChatAPPModal {
   private videoRef: HTMLVideoElement | null = null;
 
   /**
-   * 总题目数量
+   * 控制对话轮数
    */
   @Prop() totalQuestions: number = 2;
 
   /**
-   * 当前题目序号
+   * 当前轮数
    */
   @State() currentQuestionNumber: number = 0;
 
-  /**
-   * 面试是否已完成
-   */
-  @State() isInterviewComplete: boolean = false;
 
   /**
-   * 当面试完成时触发
+   * 当聊天完成时触发
    */
   @Event() interviewComplete: EventEmitter<{
     conversation_id: string;
@@ -160,22 +168,12 @@ export class ChatAPPModal {
   @State() showCountdownWarning: boolean = false;
 
   /**
-   * 接收报告的邮箱地址
-   */
-  @Prop() toEmail: string = '';
-
-  /**
    * 是否以全屏模式打开
    */
   @Prop() fullscreen: boolean = false;
 
   // 添加新的状态来跟踪视频上传
   @State() isUploadingVideo: boolean = false;
-
-  /**
-   * 是否需要上传简历
-   */
-  @Prop() requireResume: boolean = false;
 
   // 添加新的状态和属性
   @State() isPlayingAudio: boolean = false;
@@ -200,7 +198,7 @@ export class ChatAPPModal {
   }>;
 
   /**
-   * 是否播放语音问题
+   * 是否自动播放语音问题
    */
   @Prop() enableVoice: boolean = true;
 
@@ -228,8 +226,7 @@ export class ChatAPPModal {
   @State() isSubmittingText: boolean = false;
 
   /**
-   * 自定义输入参数，将与默认参数合并
-   * 可用于传递额外的请求参数
+   * 自定义智能体inputs输入参数
    */
   @Prop() customInputs: Record<string, any> = {};
 
@@ -238,7 +235,6 @@ export class ChatAPPModal {
     this.stopRecording();
     this.modalClosed.emit();
   };
-
 
 
   private async sendMessageToAPI(message: string, videoUrl?: string) {
@@ -250,22 +246,10 @@ export class ChatAPPModal {
     const time = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
 
     // 修改消息处理逻辑，移除文件上传相关代码
-    const queryText = message.trim() || '请您开始提问';
+    const queryText = message.trim() || '请开始';
 
-    // 获取上一条AI消息的回答内容
-    const lastAIMessage = this.messages.length > 0 ? this.messages[this.messages.length - 1] : null;
-
-    // 保存AI提问和用户回答
-    if (lastAIMessage && this.conversationId && message !== "下一题") {
-      this.saveAnswer(
-        this.conversationId,
-        lastAIMessage.answer, // AI的提问作为question
-        queryText // 用户的输入作为answer
-      );
-    }
-
-    // 检查是否是最后一题的"下一题"请求
-    const isLastQuestion = (this.currentQuestionNumber >= this.totalQuestions) && message === "下一题";
+    // 检查是否是最后一题
+    const isLastQuestion = this.currentQuestionNumber >= this.totalQuestions;
 
     // 创建新的消息对象
     const newMessage: ChatMessage = {
@@ -292,7 +276,6 @@ export class ChatAPPModal {
       this.messages = [...this.messages, newMessage];
       this.currentStreamingMessage = null;
       this.isLoading = false;
-      this.isInterviewComplete = true;
       await this.completeInterview();
       this.interviewComplete.emit({
         conversation_id: this.conversationId,
@@ -308,15 +291,13 @@ export class ChatAPPModal {
       query: queryText,
       user: this.userId // 使用传入的 userId
     };
-    
+
     // 合并基本输入参数和自定义输入参数
     requestData.inputs = {
-      email: this.toEmail,
-      display_content_status: this.displayContentStatus,
       // 合并自定义输入参数
       ...this.customInputs
     };
-    
+
     // 如果有视频URL，添加到inputs中
     if (videoUrl) {
       requestData.inputs.video_url = videoUrl;
@@ -334,7 +315,12 @@ export class ChatAPPModal {
 
         if (data.conversation_id && !this.conversationId) {
           this.conversationId = data.conversation_id;
-          this.updateUrlWithConversationId(data.conversation_id);
+          this.conversationStart.emit({
+            conversation_id: data.conversation_id,
+            event: data.event,
+            message_id: data.message_id,
+            id: data.id,
+          });
         }
 
         // 检查是否有 node_finished 事件和 LLMText
@@ -423,26 +409,6 @@ export class ChatAPPModal {
     });
   }
 
-  // 添加保存答案的方法
-  private async saveAnswer(conversationId: string, question: string, answer: string) {
-    try {
-      await sendHttpRequest({
-        url: 'https://pcm_api.ylzhaopin.com/agents/hr_competition/answer',
-        method: 'POST',
-        headers: {
-          'authorization': 'Bearer ' + this.apiKey
-        },
-        data: {
-          conversation_id: conversationId,
-          user: this.userId, // 使用传入的 userId
-          question: question,
-          answer: answer
-        },
-      });
-    } catch (error) {
-      console.error('保存答案失败:', error);
-    }
-  }
 
   // 监听滚动事件，用于控制聊天历史记录的自动滚动行为。
   private handleScroll = () => {
@@ -475,14 +441,6 @@ export class ChatAPPModal {
     }
   }
 
-  private updateUrlWithConversationId(conversationId: string) {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (!urlParams.get('conversation_id')) {
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.set('conversation_id', conversationId);
-      window.history.replaceState({}, '', newUrl);
-    }
-  }
 
   // 修改 loadHistoryMessages 方法
   private async loadHistoryMessages() {
@@ -549,41 +507,35 @@ export class ChatAPPModal {
     }
   }
 
-  // 添加 componentDidLoad 生命周期方法
+  // 修改 componentDidLoad 生命周期方法
   componentDidLoad() {
     console.log('组件已加载，isOpen:', this.isOpen);
-    
+
+    // 添加滚动事件监听器
+    const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
+    if (chatHistory) {
+      chatHistory.addEventListener('scroll', this.handleScroll);
+    }
+  }
+
+  // 添加 componentWillLoad 生命周期方法
+  componentWillLoad() {
+    console.log('组件将加载，isOpen:', this.isOpen);
+
     // 如果组件加载时已经是打开状态，则直接开始对话
     if (this.isOpen) {
       if (this.conversationId) {
-        this.loadHistoryMessages();
+        // 在下一个事件循环中加载历史消息，避免在componentWillLoad中进行异步操作
+        setTimeout(() => this.loadHistoryMessages(), 0);
       } else {
-        console.log('组件加载时已打开，自动开始对话');
-        this.sendMessageToAPI('请您开始提问');
+        console.log('组件加载时已打开，将自动开始对话');
+        // 在下一个事件循环中发送初始消息，避免在componentWillLoad中进行异步操作
+        console.log(this.defaultQuery);
+
+        setTimeout(() => this.sendMessageToAPI(this.defaultQuery), 0);
       }
     }
   }
-
-  // 保留现有的 Watch 方法
-  @Watch('isOpen')
-  async handleIsOpenChange(newValue: boolean, oldValue: boolean) {
-    console.log(`isOpen 从 ${oldValue} 变为 ${newValue}`);
-    
-    if (newValue && !oldValue) {
-      console.log('isOpen 变为 true，准备开始对话');
-      console.log('customInputs:', this.customInputs);
-      
-      if (this.conversationId) {
-        await this.loadHistoryMessages();
-      } else {
-        console.log('开始对话');
-        
-        // 直接开始对话，不再检查初始上传界面
-        this.sendMessageToAPI('请您开始提问');
-      }
-    }
-  }
-
 
   // 开始等待录制
   private startWaitingToRecord() {
@@ -882,7 +834,7 @@ export class ChatAPPModal {
             cos_key: cosKey
           },
           onMessage: (data) => {
-            
+
             // 检查返回结果中是否包含转换后的文本
             if (data && data.text) {
               console.log('转换后的文本:', data.text);
@@ -933,10 +885,10 @@ export class ChatAPPModal {
       if (result && result.cos_key) {
         // 调用音频转文字API
         const transcriptionText = await this.convertAudioToText(result.cos_key);
-        
+
         // 保存视频答案
         await this.saveVideoAnswer(result.cos_key);
-        
+
         // 发送"下一题"请求，可以附带转录文本
         this.sendMessageToAPI(transcriptionText || "下一题");
       } else {
@@ -997,8 +949,6 @@ export class ChatAPPModal {
         query: "面试完成",
         user: this.userId,
         inputs: {
-          email: this.toEmail,
-          display_content_status: this.displayContentStatus,
           // 合并自定义输入参数
           ...this.customInputs
         }
@@ -1082,6 +1032,12 @@ export class ChatAPPModal {
 
   // 修改 componentDidLoad 生命周期方法，确保组件卸载时释放资源
   disconnectedCallback() {
+    // 移除滚动事件监听器
+    const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
+    if (chatHistory) {
+      chatHistory.removeEventListener('scroll', this.handleScroll);
+    }
+
     // 释放音频资源
     if (this.audioElement) {
       this.audioElement.pause();
@@ -1125,6 +1081,25 @@ export class ChatAPPModal {
     this.textAnswer = input.value;
   };
 
+  // 添加处理键盘事件的方法
+  private handleKeyDown = (event: KeyboardEvent) => {
+    // 如果按下的是回车键
+    if (event.key === 'Enter') {
+      // 如果同时按下了Ctrl键，允许换行
+      if (event.ctrlKey) {
+        return; // 不阻止默认行为，允许插入换行符
+      } else {
+        // 阻止默认的换行行为
+        event.preventDefault();
+        // 如果文本框不为空且不处于禁用状态，则发送消息
+        if (this.textAnswer.trim() && !this.isSubmittingText && !this.isLoading &&
+          !this.currentStreamingMessage && !this.waitingToRecord && !this.isPlayingAudio) {
+          this.submitTextAnswer();
+        }
+      }
+    }
+  };
+
   // 修改提交文本回答的方法
   private submitTextAnswer = async () => {
     if (!this.textAnswer.trim() || this.isSubmittingText) {
@@ -1134,21 +1109,10 @@ export class ChatAPPModal {
     this.isSubmittingText = true;
 
     try {
-      // 获取上一条AI消息的回答内容
-      const lastAIMessage = this.messages.length > 0 ? this.messages[this.messages.length - 1] : null;
-
-      // 保存AI提问和用户回答
-      if (lastAIMessage && this.conversationId) {
-        await this.saveAnswer(
-          this.conversationId,
-          lastAIMessage.answer, // AI的提问作为question
-          this.textAnswer // 用户的输入作为answer
-        );
-      }
 
       // 发送用户输入的文本作为查询
       await this.sendMessageToAPI(this.textAnswer);
-      
+
       // 清空文本输入
       this.textAnswer = '';
     } catch (error) {
@@ -1254,9 +1218,10 @@ export class ChatAPPModal {
       <div class="text-input-area">
         <textarea
           class="text-answer-input"
-          placeholder="请输入您的回答..."
+          placeholder="请输入您的回答...(按回车发送，Ctrl+回车换行)"
           value={this.textAnswer}
           onInput={this.handleTextInputChange}
+          onKeyDown={this.handleKeyDown}
           disabled={this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.waitingToRecord || this.isPlayingAudio}
         ></textarea>
         <div class="input-toolbar">
@@ -1349,7 +1314,7 @@ export class ChatAPPModal {
                   )
                 }
                 {this.interviewMode === 'video' && (
-                  <div style={{width: '100%',display: 'flex',flexWrap: 'wrap',justifyContent: 'center'}}>
+                  <div style={{ width: '100%', display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
                     <div class="video-area">
                       {this.showRecordingUI ? (
                         renderVideoPreview()
