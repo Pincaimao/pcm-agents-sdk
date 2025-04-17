@@ -36,6 +36,10 @@ export namespace Components {
          */
         "countdownWarningTime": number;
         /**
+          * 自定义输入参数，将与默认参数合并 可用于传递额外的请求参数
+         */
+        "customInputs": Record<string, any>;
+        /**
           * 默认查询文本
          */
         "defaultQuery": string;
@@ -502,6 +506,10 @@ declare namespace LocalJSX {
           * 录制倒计时提醒时间（秒） 当剩余时间小于此值时，显示倒计时警告
          */
         "countdownWarningTime"?: number;
+        /**
+          * 自定义输入参数，将与默认参数合并 可用于传递额外的请求参数
+         */
+        "customInputs"?: Record<string, any>;
         /**
           * 默认查询文本
          */

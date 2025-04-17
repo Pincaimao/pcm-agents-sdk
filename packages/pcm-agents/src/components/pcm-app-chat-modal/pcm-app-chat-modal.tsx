@@ -227,6 +227,12 @@ export class ChatAPPModal {
   @State() textAnswer: string = '';
   @State() isSubmittingText: boolean = false;
 
+  /**
+   * 自定义输入参数，将与默认参数合并
+   * 可用于传递额外的请求参数
+   */
+  @Prop() customInputs: Record<string, any> = {};
+
   private handleClose = () => {
     this.stopRecording();
     this.modalClosed.emit();
@@ -292,7 +298,7 @@ export class ChatAPPModal {
     }
   };
 
-  private async sendMessageToAPI(message: string) {
+  private async sendMessageToAPI(message: string, videoUrl?: string) {
     this.isLoading = true;
     let answer = '';
     let llmText = ''; // 添加变量存储 LLMText
@@ -359,17 +365,24 @@ export class ChatAPPModal {
       query: queryText,
       user: this.userId // 使用传入的 userId
     };
+    // 合并基本输入参数
     requestData.inputs = {
       email: this.toEmail,
-      display_content_status: this.displayContentStatus
+      display_content_status: this.displayContentStatus,
+      // 合并自定义输入参数
+      ...this.customInputs
     };
+    
     // 如果有上传的文件，添加到inputs参数
     if (this.uploadedFileInfo.length > 0) {
       const fileUrls = this.uploadedFileInfo.map(fileInfo => fileInfo.cos_key).join(',');
       requestData.inputs.file_url = fileUrls;
-      requestData.inputs.job_info = '对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广';
     }
 
+    // 如果有视频URL，添加到inputs中
+    if (videoUrl) {
+      requestData.inputs.video_url = videoUrl;
+    }
 
     await sendSSERequest({
       url: `https://pcm_api.ylzhaopin.com/external/v1/chat/chat-messages`,
@@ -604,6 +617,9 @@ export class ChatAPPModal {
     if (newValue) {
       if (this.conversationId) {
         await this.loadHistoryMessages();
+      } else if (!this.showInitialUpload) {
+        // 如果不显示初始上传界面，直接开始对话
+        this.sendMessageToAPI('请您开始提问');
       }
     }
   }
@@ -918,6 +934,44 @@ export class ChatAPPModal {
     }
   }
 
+  // 修改音频转文字方法
+  private async convertAudioToText(cosKey: string): Promise<string | null> {
+    try {
+      // 创建一个Promise来处理响应
+      return new Promise((resolve, reject) => {
+        sendHttpRequest({
+          url: `https://pcm_api.ylzhaopin.com/external/v1/tts/audio_to_text`,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'authorization': 'Bearer ' + this.apiKey
+          },
+          data: {
+            cos_key: cosKey
+          },
+          onMessage: (data) => {
+            
+            // 检查返回结果中是否包含转换后的文本
+            if (data && data.text) {
+              console.log('转换后的文本:', data.text);
+              resolve(data.text);
+            } else {
+              console.warn('音频转文字返回结果格式不正确');
+              resolve(null);
+            }
+          },
+          onError: (error) => {
+            console.error('音频转文字请求失败:', error);
+            reject(error);
+          }
+        });
+      });
+    } catch (error) {
+      console.error('音频转文字错误:', error);
+      return null;
+    }
+  }
+
   // 上传录制的视频
   private async uploadRecordedVideo() {
     if (!this.recordedBlob) return;
@@ -945,20 +999,23 @@ export class ChatAPPModal {
       console.log('视频上传结果:', result);
 
       if (result && result.cos_key) {
+        // 调用音频转文字API
+        const transcriptionText = await this.convertAudioToText(result.cos_key);
+        
         // 保存视频答案
         await this.saveVideoAnswer(result.cos_key);
-
-        // 发送"下一题"请求
-        this.sendNextQuestion();
+        
+        // 发送"下一题"请求，可以附带转录文本
+        this.sendMessageToAPI(transcriptionText || "下一题");
       } else {
         throw new Error('视频上传失败');
       }
     } catch (error) {
-      console.error('视频上传错误:', error);
+      console.error('视频上传或处理错误:', error);
       // 通知父组件视频上传失败
       this.recordingError.emit({
         type: 'upload_failed',
-        message: '视频上传失败',
+        message: '视频上传或处理失败',
         details: error
       });
     } finally {
@@ -995,11 +1052,6 @@ export class ChatAPPModal {
     }
   }
 
-  // 发送"下一题"请求
-  private sendNextQuestion() {
-    this.sendMessageToAPI("下一题");
-  }
-
   /**
    * 发送面试完成请求
    */
@@ -1007,12 +1059,29 @@ export class ChatAPPModal {
     if (!this.conversationId) return;
 
     try {
-      await sendHttpRequest({
-        url: `https://pcm_api.ylzhaopin.com/agents/hr_competition/${this.conversationId}/end`,
+      const requestData: any = {
+        response_mode: 'streaming',
+        conversation_id: this.conversationId,
+        query: "面试完成",
+        user: this.userId,
+        inputs: {
+          email: this.toEmail,
+          display_content_status: this.displayContentStatus,
+          // 合并自定义输入参数
+          ...this.customInputs
+        }
+      };
+
+      // 不使用 await，直接发送请求
+      sendSSERequest({
+        url: `https://pcm_api.ylzhaopin.com/external/v1/chat/chat-messages`,
         method: 'POST',
         headers: {
           'authorization': 'Bearer ' + this.apiKey
         },
+        data: requestData,
+      }).catch(error => {
+        console.error('发送面试完成请求失败:', error);
       });
 
     } catch (error) {
@@ -1133,7 +1202,19 @@ export class ChatAPPModal {
     this.isSubmittingText = true;
 
     try {
-      // 直接发送用户输入的文本作为查询
+      // 获取上一条AI消息的回答内容
+      const lastAIMessage = this.messages.length > 0 ? this.messages[this.messages.length - 1] : null;
+
+      // 保存AI提问和用户回答
+      if (lastAIMessage && this.conversationId) {
+        await this.saveAnswer(
+          this.conversationId,
+          lastAIMessage.answer, // AI的提问作为question
+          this.textAnswer // 用户的输入作为answer
+        );
+      }
+
+      // 发送用户输入的文本作为查询
       await this.sendMessageToAPI(this.textAnswer);
       
       // 清空文本输入
