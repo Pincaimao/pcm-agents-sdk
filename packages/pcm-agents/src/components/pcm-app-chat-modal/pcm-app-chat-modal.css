@@ -26,7 +26,7 @@
   background: white;
   border-radius: 8px;
   width: 100%;
-  max-width: 800px;
+  max-width: 900px;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -103,6 +103,9 @@
     flex-direction: column;
   }
 
+  .chat-history {
+    min-height: 200px;
+  }
 }
 .video-preview.placeholder {
   display: flex;
@@ -215,7 +218,7 @@
   overflow-y: auto;
   padding: 20px;
   scroll-behavior: smooth;
-  min-height: 200px;
+  min-height: 400px;
   background: url(https://pcm-resource-1312611446.cos.ap-guangzhou.myqcloud.com/web/sdk/chat_bg.png);
   background-size: 100%;
 }
@@ -474,144 +477,6 @@
 
 .input-wrapper:focus-within {
   border-color: #bbb;
-}
-
-/* 文件预览区域样式 */
-.file-preview {
-  padding: 8px 16px;
-  border-top: 1px solid #eee;
-  background-color: #f9f9f9;
-}
-
-.file-info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px;
-  background: white;
-  border: 1px solid #e8e8e8;
-  border-radius: 4px;
-}
-
-.file-name {
-  font-size: 13px;
-  color: #333;
-  margin-right: 8px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: calc(100% - 30px);
-}
-
-.remove-file {
-  background: transparent;
-  border: none;
-  color: #999;
-  cursor: pointer;
-  padding: 4px 8px;
-  font-size: 16px;
-  line-height: 1;
-  border-radius: 4px;
-  transition: all 0.2s;
-}
-
-.remove-file:hover {
-  background-color: #f0f0f0;
-  color: #666;
-}
-
-.initial-upload {
-  padding: 1rem 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 100%;
-}
-
-.upload-section {
-  max-width: 600px;
-  width: 100%;
-  text-align: center;
-}
-
-.upload-area {
-  border: 2px dashed #ddd;
-  border-radius: 8px;
-  padding: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.upload-area:hover {
-  border-color: #1890ff;
-  background-color: rgba(24, 144, 255, 0.05);
-}
-
-.upload-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: #666;
-}
-
-.upload-hint {
-  font-size: 0.8rem;
-  color: #999;
-  margin-top: 0.5rem;
-}
-
-.function-select {
-  margin-top: 2rem;
-}
-
-.function-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: center;
-  margin-top: 1rem;
-}
-
-.function-button {
-  padding: 0.5rem 1rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: white;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.function-button:hover {
-  border-color: #1890ff;
-  color: #1890ff;
-}
-
-.function-button.selected {
-  background: #1890ff;
-  color: white;
-  border-color: #1890ff;
-}
-
-.submit-button {
-  margin-top: 1rem;
-  padding: 0.8rem 2rem;
-  background: #1890ff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: 95%;
-}
-
-.submit-button:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-
-.submit-button:hover:not(:disabled) {
-  background: #40a9ff;
 }
 
 

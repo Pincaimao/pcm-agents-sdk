@@ -131,6 +131,10 @@ export class MnmsModal {
     @State() uploadedFileInfo: { cos_key: string, filename: string, ext: string, presigned_url: string } | null = null;
     @State() showChatModal: boolean = false;
 
+    // 添加新的状态来控制过渡动画
+    @State() isTransitioning: boolean = false;
+    @State() transitionTimer: any = null;
+
     // 使用 @Element 装饰器获取组件的 host 元素
     @Element() hostElement: HTMLElement;
 
@@ -221,9 +225,8 @@ export class MnmsModal {
             file_url: this.uploadedFileInfo.cos_key
         });
 
-        // 先设置聊天模态框为显示状态
+        // 直接显示聊天模态框，不使用过渡动画
         this.showChatModal = true;
-
     };
 
     @Watch('isOpen')
@@ -232,6 +235,12 @@ export class MnmsModal {
             // 重置状态
             this.clearSelectedFile();
             this.showChatModal = false;
+            
+            // 清除可能存在的计时器
+            if (this.transitionTimer) {
+                clearTimeout(this.transitionTimer);
+                this.transitionTimer = null;
+            }
         }
     }
 
@@ -261,42 +270,13 @@ export class MnmsModal {
 
         console.log('showChatModal:', this.showChatModal);
 
-        // 如果显示聊天模态框，则渲染 pcm-app-chat-modal
-        if ((this.showChatModal && this.uploadedFileInfo) || this.conversationId) {
-            // 根据是否有 conversationId 决定传递的 customInputs
-            const inputsToPass = this.conversationId ? 
-                { ...this.customInputs } : 
-                { ...this.customInputs, file_url: this.uploadedFileInfo?.cos_key };
-
-            return (
-                <pcm-app-chat-modal
-                    isOpen={true}
-                    modalTitle={this.modalTitle}
-                    icon={this.icon}
-                    apiKey={this.apiKey}
-                    isShowHeader={this.isShowHeader}
-                    isNeedClose={this.isNeedClose}
-                    zIndex={this.zIndex}
-                    fullscreen={this.fullscreen}
-                    conversationId={this.conversationId}
-                    defaultQuery={this.defaultQuery}
-                    enableVoice={false}
-                    customInputs={inputsToPass}
-                    interviewMode="text"
-                    onModalClosed={this.handleClose}
-                    onStreamComplete={this.handleStreamComplete}
-                    onConversationStart={this.handleConversationStart}
-                    onInterviewComplete={this.handleInterviewComplete}
-                ></pcm-app-chat-modal>
-            );
-        }
-
         const containerClass = {
             'modal-container': true,
             'fullscreen': this.fullscreen,
             'pc-layout': !this.isMobile,
             'mobile-layout': this.isMobile
         };
+        
         const overlayClass = {
             'modal-overlay': true,
             'fullscreen-overlay': this.fullscreen
@@ -319,43 +299,74 @@ export class MnmsModal {
                         </div>
                     )}
 
-                    <div class="upload-container">
-                        <h3>开始前，请上传您的简历</h3>
-                        <div class="upload-area" onClick={this.handleUploadClick}>
-                            {this.selectedFile ? (
-                                <div class="file-info">
-                                    <span>{this.selectedFile.name}</span>
-                                    <button class="remove-file" onClick={(e) => {
-                                        e.stopPropagation();
-                                        this.clearSelectedFile();
-                                    }}>×</button>
-                                </div>
-                            ) : (
-                                <div class="upload-placeholder">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="48" height="48">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m0-16l-4 4m4-4l4 4" />
-                                    </svg>
-                                    <p>点击上传简历</p>
-                                    <p class="upload-hint">支持 txt、 markdown、 pdf、 docx、 md 格式</p>
-                                </div>
-                            )}
+                    {/* 上传界面 - 仅在不显示聊天模态框时显示 */}
+                    {!this.showChatModal && (
+                        <div class="upload-container">
+                            <h3>开始前，请上传您的简历</h3>
+                            <div class="upload-area" onClick={this.handleUploadClick}>
+                                {this.selectedFile ? (
+                                    <div class="file-info">
+                                        <span>{this.selectedFile.name}</span>
+                                        <button class="remove-file" onClick={(e) => {
+                                            e.stopPropagation();
+                                            this.clearSelectedFile();
+                                        }}>×</button>
+                                    </div>
+                                ) : (
+                                    <div class="upload-placeholder">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="48" height="48">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m0-16l-4 4m4-4l4 4" />
+                                        </svg>
+                                        <p>点击上传简历</p>
+                                        <p class="upload-hint">支持 txt、 markdown、 pdf、 docx、 md 格式</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            <button
+                                class="submit-button"
+                                disabled={!this.selectedFile || this.isUploading}
+                                onClick={this.handleStartInterview}
+                            >
+                                {this.isUploading ? '上传中...' : '开始面试'}
+                            </button>
+
+                            <input
+                                type="file"
+                                class="file-input"
+                                onChange={this.handleFileChange}
+                                accept=".pdf,.doc,.docx,.txt,.md"
+                            />
                         </div>
+                    )}
 
-                        <button
-                            class="submit-button"
-                            disabled={!this.selectedFile || this.isUploading}
-                            onClick={this.handleStartInterview}
-                        >
-                            {this.isUploading ? '上传中...' : '开始面试'}
-                        </button>
-
-                        <input
-                            type="file"
-                            class="file-input"
-                            onChange={this.handleFileChange}
-                            accept=".pdf,.doc,.docx,.txt,.md"
-                        />
-                    </div>
+                    {/* 聊天界面 - 仅在显示聊天模态框时显示 */}
+                    {this.showChatModal && this.uploadedFileInfo && (
+                        <div class="chat-modal-container">
+                            <pcm-app-chat-modal
+                                isOpen={true}
+                                modalTitle={this.modalTitle}
+                                icon={this.icon}
+                                apiKey={this.apiKey}
+                                isShowHeader={this.isShowHeader} // 不显示内部的标题栏，因为外部已有
+                                isNeedClose={this.isShowHeader} // 不显示内部的关闭按钮，因为外部已有
+                                zIndex={this.zIndex}
+                                fullscreen={this.fullscreen}
+                                conversationId={this.conversationId}
+                                defaultQuery={this.defaultQuery}
+                                enableVoice={false}
+                                customInputs={{
+                                    ...this.customInputs,
+                                    file_url: this.uploadedFileInfo?.cos_key
+                                }}
+                                interviewMode="text"
+                                onModalClosed={this.handleClose}
+                                onStreamComplete={this.handleStreamComplete}
+                                onConversationStart={this.handleConversationStart}
+                                onInterviewComplete={this.handleInterviewComplete}
+                            ></pcm-app-chat-modal>
+                        </div>
+                    )}
                 </div>
             </div>
         );

@@ -32,6 +32,7 @@
   position: relative;
   margin: auto;
   transition: all 0.3s ease-out;
+  overflow: hidden;
 }
 
 /* 全屏模式样式 */
@@ -159,7 +160,6 @@
 .upload-area {
   border: 2px dashed #ddd;
   border-radius: 8px;
-  padding: 20px;
   width: 100%;
   max-width: 400px;
   cursor: pointer;
@@ -274,4 +274,28 @@
   height: 100%;
   background-color: #4285f4;
   transition: width 0.3s ease-out;
+}
+
+/* 淡出动画 */
+.upload-container.fade-out {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* 淡入动画 */
+.chat-modal-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 确保容器有相对定位，以便绝对定位的子元素能够正确定位 */
+.modal-container {
+  position: relative;
+  overflow: hidden;
 } 
