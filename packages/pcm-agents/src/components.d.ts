@@ -22,6 +22,84 @@ export namespace Components {
          */
         "middle": string;
     }
+    interface PcmAppChatModal {
+        /**
+          * API鉴权密钥
+         */
+        "apiKey": string;
+        /**
+          * 会话ID
+         */
+        "conversationId"?: string;
+        /**
+          * 录制倒计时提醒时间（秒） 当剩余时间小于此值时，显示倒计时警告
+         */
+        "countdownWarningTime": number;
+        /**
+          * 默认查询文本
+         */
+        "defaultQuery": string;
+        /**
+          * 是否显示题干内容 1: 显示题干内容 0: 不显示题干内容
+         */
+        "displayContentStatus": string;
+        /**
+          * 是否播放语音问题
+         */
+        "enableVoice": boolean;
+        /**
+          * 是否以全屏模式打开
+         */
+        "fullscreen": boolean;
+        /**
+          * 应用图标URL
+         */
+        "icon"?: string;
+        /**
+          * 面试模式 video: 视频面试模式 text: 文字面试模式
+         */
+        "interviewMode": 'video' | 'text';
+        /**
+          * 是否展示右上角的关闭按钮
+         */
+        "isNeedClose": boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen": boolean;
+        /**
+          * 是否展示顶部标题栏
+         */
+        "isShowHeader": boolean;
+        /**
+          * 视频录制最大时长（秒）
+         */
+        "maxRecordingTime": number;
+        /**
+          * 模态框标题
+         */
+        "modalTitle": string;
+        /**
+          * 是否需要上传简历
+         */
+        "requireResume": boolean;
+        /**
+          * 接收报告的邮箱地址
+         */
+        "toEmail": string;
+        /**
+          * 总题目数量
+         */
+        "totalQuestions": number;
+        /**
+          * 用户ID
+         */
+        "userId": string;
+        /**
+          * 聊天框的页面层级
+         */
+        "zIndex"?: number;
+    }
     interface PcmChatMessage {
         /**
           * 消息数据
@@ -211,6 +289,10 @@ export namespace Components {
         "zIndex"?: number;
     }
 }
+export interface PcmAppChatModalCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLPcmAppChatModalElement;
+}
 export interface PcmChatMessageCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmChatMessageElement;
@@ -233,6 +315,42 @@ declare global {
     var HTMLMyComponentElement: {
         prototype: HTMLMyComponentElement;
         new (): HTMLMyComponentElement;
+    };
+    interface HTMLPcmAppChatModalElementEventMap {
+        "modalClosed": void;
+        "streamComplete": {
+    conversation_id: string;
+    event: string;
+    message_id: string;
+    id: string;
+  };
+        "interviewComplete": {
+    conversation_id: string;
+    total_questions: number;
+  };
+        "recordingError": {
+    type: string;
+    message: string;
+    details?: any;
+  };
+        "recordingStatusChange": {
+    status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
+    details?: any;
+  };
+    }
+    interface HTMLPcmAppChatModalElement extends Components.PcmAppChatModal, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLPcmAppChatModalElementEventMap>(type: K, listener: (this: HTMLPcmAppChatModalElement, ev: PcmAppChatModalCustomEvent<HTMLPcmAppChatModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLPcmAppChatModalElementEventMap>(type: K, listener: (this: HTMLPcmAppChatModalElement, ev: PcmAppChatModalCustomEvent<HTMLPcmAppChatModalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLPcmAppChatModalElement: {
+        prototype: HTMLPcmAppChatModalElement;
+        new (): HTMLPcmAppChatModalElement;
     };
     interface HTMLPcmChatMessageElementEventMap {
         "messageChange": Partial<ChatMessage>;
@@ -349,6 +467,7 @@ declare global {
     };
     interface HTMLElementTagNameMap {
         "my-component": HTMLMyComponentElement;
+        "pcm-app-chat-modal": HTMLPcmAppChatModalElement;
         "pcm-chat-message": HTMLPcmChatMessageElement;
         "pcm-chat-modal": HTMLPcmChatModalElement;
         "pcm-hr-chat-modal": HTMLPcmHrChatModalElement;
@@ -369,6 +488,116 @@ declare namespace LocalJSX {
           * The middle name
          */
         "middle"?: string;
+    }
+    interface PcmAppChatModal {
+        /**
+          * API鉴权密钥
+         */
+        "apiKey"?: string;
+        /**
+          * 会话ID
+         */
+        "conversationId"?: string;
+        /**
+          * 录制倒计时提醒时间（秒） 当剩余时间小于此值时，显示倒计时警告
+         */
+        "countdownWarningTime"?: number;
+        /**
+          * 默认查询文本
+         */
+        "defaultQuery"?: string;
+        /**
+          * 是否显示题干内容 1: 显示题干内容 0: 不显示题干内容
+         */
+        "displayContentStatus"?: string;
+        /**
+          * 是否播放语音问题
+         */
+        "enableVoice"?: boolean;
+        /**
+          * 是否以全屏模式打开
+         */
+        "fullscreen"?: boolean;
+        /**
+          * 应用图标URL
+         */
+        "icon"?: string;
+        /**
+          * 面试模式 video: 视频面试模式 text: 文字面试模式
+         */
+        "interviewMode"?: 'video' | 'text';
+        /**
+          * 是否展示右上角的关闭按钮
+         */
+        "isNeedClose"?: boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen"?: boolean;
+        /**
+          * 是否展示顶部标题栏
+         */
+        "isShowHeader"?: boolean;
+        /**
+          * 视频录制最大时长（秒）
+         */
+        "maxRecordingTime"?: number;
+        /**
+          * 模态框标题
+         */
+        "modalTitle"?: string;
+        /**
+          * 当面试完成时触发
+         */
+        "onInterviewComplete"?: (event: PcmAppChatModalCustomEvent<{
+    conversation_id: string;
+    total_questions: number;
+  }>) => void;
+        /**
+          * 当点击模态框关闭时触发
+         */
+        "onModalClosed"?: (event: PcmAppChatModalCustomEvent<void>) => void;
+        /**
+          * 录制错误事件
+         */
+        "onRecordingError"?: (event: PcmAppChatModalCustomEvent<{
+    type: string;
+    message: string;
+    details?: any;
+  }>) => void;
+        /**
+          * 录制状态变化事件
+         */
+        "onRecordingStatusChange"?: (event: PcmAppChatModalCustomEvent<{
+    status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
+    details?: any;
+  }>) => void;
+        "onStreamComplete"?: (event: PcmAppChatModalCustomEvent<{
+    conversation_id: string;
+    event: string;
+    message_id: string;
+    id: string;
+  }>) => void;
+        /**
+          * 是否需要上传简历
+         */
+        "requireResume"?: boolean;
+        /**
+          * 接收报告的邮箱地址
+         */
+        "toEmail"?: string;
+        /**
+          * 总题目数量
+         */
+        "totalQuestions"?: number;
+        /**
+          * 用户ID
+         */
+        "userId"?: string;
+        /**
+          * 聊天框的页面层级
+         */
+        "zIndex"?: number;
     }
     interface PcmChatMessage {
         /**
@@ -642,6 +871,7 @@ declare namespace LocalJSX {
     }
     interface IntrinsicElements {
         "my-component": MyComponent;
+        "pcm-app-chat-modal": PcmAppChatModal;
         "pcm-chat-message": PcmChatMessage;
         "pcm-chat-modal": PcmChatModal;
         "pcm-hr-chat-modal": PcmHrChatModal;
@@ -653,6 +883,7 @@ declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
             "my-component": LocalJSX.MyComponent & JSXBase.HTMLAttributes<HTMLMyComponentElement>;
+            "pcm-app-chat-modal": LocalJSX.PcmAppChatModal & JSXBase.HTMLAttributes<HTMLPcmAppChatModalElement>;
             "pcm-chat-message": LocalJSX.PcmChatMessage & JSXBase.HTMLAttributes<HTMLPcmChatMessageElement>;
             "pcm-chat-modal": LocalJSX.PcmChatModal & JSXBase.HTMLAttributes<HTMLPcmChatModalElement>;
             "pcm-hr-chat-modal": LocalJSX.PcmHrChatModal & JSXBase.HTMLAttributes<HTMLPcmHrChatModalElement>;

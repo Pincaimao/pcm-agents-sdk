@@ -11,6 +11,7 @@ import type { EventName, StencilReactComponent } from '@stencil/react-output-tar
 import { createComponent } from '@stencil/react-output-target/runtime';
 import { type ChatMessage, type PcmChatMessageCustomEvent } from "pcm-agents";
 import { MyComponent as MyComponentElement, defineCustomElement as defineMyComponent } from "pcm-agents/dist/components/my-component.js";
+import { PcmAppChatModal as PcmAppChatModalElement, defineCustomElement as definePcmAppChatModal } from "pcm-agents/dist/components/pcm-app-chat-modal.js";
 import { PcmChatMessage as PcmChatMessageElement, defineCustomElement as definePcmChatMessage } from "pcm-agents/dist/components/pcm-chat-message.js";
 import { PcmChatModal as PcmChatModalElement, defineCustomElement as definePcmChatModal } from "pcm-agents/dist/components/pcm-chat-modal.js";
 import { PcmHrChatModal as PcmHrChatModalElement, defineCustomElement as definePcmHrChatModal } from "pcm-agents/dist/components/pcm-hr-chat-modal.js";
@@ -26,6 +27,44 @@ export const MyComponent: StencilReactComponent<MyComponentElement, MyComponentE
     react: React,
     events: {} as MyComponentEvents,
     defineCustomElement: defineMyComponent
+});
+
+type PcmAppChatModalEvents = {
+    onModalClosed: EventName<CustomEvent<void>>,
+    onStreamComplete: EventName<CustomEvent<{
+        conversation_id: string;
+        event: string;
+        message_id: string;
+        id: string;
+    }>>,
+    onInterviewComplete: EventName<CustomEvent<{
+        conversation_id: string;
+        total_questions: number;
+    }>>,
+    onRecordingError: EventName<CustomEvent<{
+        type: string;
+        message: string;
+        details?: any;
+    }>>,
+    onRecordingStatusChange: EventName<CustomEvent<{
+        status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
+        details?: any;
+    }>>
+};
+
+export const PcmAppChatModal: StencilReactComponent<PcmAppChatModalElement, PcmAppChatModalEvents> = /*@__PURE__*/ createComponent<PcmAppChatModalElement, PcmAppChatModalEvents>({
+    tagName: 'pcm-app-chat-modal',
+    elementClass: PcmAppChatModalElement,
+    // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
+    react: React,
+    events: {
+        onModalClosed: 'modalClosed',
+        onStreamComplete: 'streamComplete',
+        onInterviewComplete: 'interviewComplete',
+        onRecordingError: 'recordingError',
+        onRecordingStatusChange: 'recordingStatusChange'
+    } as PcmAppChatModalEvents,
+    defineCustomElement: definePcmAppChatModal
 });
 
 type PcmChatMessageEvents = { onMessageChange: EventName<PcmChatMessageCustomEvent<Partial<ChatMessage>>> };
