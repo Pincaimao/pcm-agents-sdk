@@ -226,6 +226,56 @@ export namespace Components {
          */
         "zIndex"?: number;
     }
+    interface PcmMnmsModal {
+        /**
+          * API鉴权密钥
+         */
+        "apiKey": string;
+        /**
+          * 会话ID
+         */
+        "conversationId"?: string;
+        /**
+          * 自定义输入参数
+         */
+        "customInputs": { [key: string]: any };
+        /**
+          * 默认查询文本
+         */
+        "defaultQuery": string;
+        /**
+          * 是否以全屏模式打开
+         */
+        "fullscreen": boolean;
+        /**
+          * 应用图标URL
+         */
+        "icon"?: string;
+        /**
+          * 是否为移动端布局
+         */
+        "isMobile": boolean;
+        /**
+          * 是否展示右上角的关闭按钮
+         */
+        "isNeedClose": boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen": boolean;
+        /**
+          * 是否展示顶部标题栏
+         */
+        "isShowHeader": boolean;
+        /**
+          * 模态框标题
+         */
+        "modalTitle": string;
+        /**
+          * 聊天框的页面层级
+         */
+        "zIndex"?: number;
+    }
     interface PcmVideoChatModal {
         /**
           * API鉴权密钥
@@ -308,6 +358,10 @@ export interface PcmChatModalCustomEvent<T> extends CustomEvent<T> {
 export interface PcmHrChatModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmHrChatModalElement;
+}
+export interface PcmMnmsModalCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLPcmMnmsModalElement;
 }
 export interface PcmVideoChatModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -433,6 +487,35 @@ declare global {
         prototype: HTMLPcmHrChatModalElement;
         new (): HTMLPcmHrChatModalElement;
     };
+    interface HTMLPcmMnmsModalElementEventMap {
+        "modalClosed": void;
+        "uploadSuccess": {
+    cos_key: string;
+    filename: string;
+    ext: string;
+    presigned_url: string;
+  };
+        "streamComplete": {
+    conversation_id: string;
+    event: string;
+    message_id: string;
+    id: string;
+  };
+    }
+    interface HTMLPcmMnmsModalElement extends Components.PcmMnmsModal, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLPcmMnmsModalElementEventMap>(type: K, listener: (this: HTMLPcmMnmsModalElement, ev: PcmMnmsModalCustomEvent<HTMLPcmMnmsModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLPcmMnmsModalElementEventMap>(type: K, listener: (this: HTMLPcmMnmsModalElement, ev: PcmMnmsModalCustomEvent<HTMLPcmMnmsModalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLPcmMnmsModalElement: {
+        prototype: HTMLPcmMnmsModalElement;
+        new (): HTMLPcmMnmsModalElement;
+    };
     interface HTMLPcmVideoChatModalElementEventMap {
         "modalClosed": void;
         "streamComplete": {
@@ -475,6 +558,7 @@ declare global {
         "pcm-chat-message": HTMLPcmChatMessageElement;
         "pcm-chat-modal": HTMLPcmChatModalElement;
         "pcm-hr-chat-modal": HTMLPcmHrChatModalElement;
+        "pcm-mnms-modal": HTMLPcmMnmsModalElement;
         "pcm-video-chat-modal": HTMLPcmVideoChatModalElement;
     }
 }
@@ -779,6 +863,78 @@ declare namespace LocalJSX {
          */
         "zIndex"?: number;
     }
+    interface PcmMnmsModal {
+        /**
+          * API鉴权密钥
+         */
+        "apiKey"?: string;
+        /**
+          * 会话ID
+         */
+        "conversationId"?: string;
+        /**
+          * 自定义输入参数
+         */
+        "customInputs"?: { [key: string]: any };
+        /**
+          * 默认查询文本
+         */
+        "defaultQuery"?: string;
+        /**
+          * 是否以全屏模式打开
+         */
+        "fullscreen"?: boolean;
+        /**
+          * 应用图标URL
+         */
+        "icon"?: string;
+        /**
+          * 是否为移动端布局
+         */
+        "isMobile"?: boolean;
+        /**
+          * 是否展示右上角的关闭按钮
+         */
+        "isNeedClose"?: boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen"?: boolean;
+        /**
+          * 是否展示顶部标题栏
+         */
+        "isShowHeader"?: boolean;
+        /**
+          * 模态框标题
+         */
+        "modalTitle"?: string;
+        /**
+          * 当点击模态框关闭时触发
+         */
+        "onModalClosed"?: (event: PcmMnmsModalCustomEvent<void>) => void;
+        /**
+          * 流式输出完成事件
+         */
+        "onStreamComplete"?: (event: PcmMnmsModalCustomEvent<{
+    conversation_id: string;
+    event: string;
+    message_id: string;
+    id: string;
+  }>) => void;
+        /**
+          * 上传成功事件
+         */
+        "onUploadSuccess"?: (event: PcmMnmsModalCustomEvent<{
+    cos_key: string;
+    filename: string;
+    ext: string;
+    presigned_url: string;
+  }>) => void;
+        /**
+          * 聊天框的页面层级
+         */
+        "zIndex"?: number;
+    }
     interface PcmVideoChatModal {
         /**
           * API鉴权密钥
@@ -883,6 +1039,7 @@ declare namespace LocalJSX {
         "pcm-chat-message": PcmChatMessage;
         "pcm-chat-modal": PcmChatModal;
         "pcm-hr-chat-modal": PcmHrChatModal;
+        "pcm-mnms-modal": PcmMnmsModal;
         "pcm-video-chat-modal": PcmVideoChatModal;
     }
 }
@@ -895,6 +1052,7 @@ declare module "@stencil/core" {
             "pcm-chat-message": LocalJSX.PcmChatMessage & JSXBase.HTMLAttributes<HTMLPcmChatMessageElement>;
             "pcm-chat-modal": LocalJSX.PcmChatModal & JSXBase.HTMLAttributes<HTMLPcmChatModalElement>;
             "pcm-hr-chat-modal": LocalJSX.PcmHrChatModal & JSXBase.HTMLAttributes<HTMLPcmHrChatModalElement>;
+            "pcm-mnms-modal": LocalJSX.PcmMnmsModal & JSXBase.HTMLAttributes<HTMLPcmMnmsModalElement>;
             "pcm-video-chat-modal": LocalJSX.PcmVideoChatModal & JSXBase.HTMLAttributes<HTMLPcmVideoChatModalElement>;
         }
     }

@@ -101,7 +101,7 @@ export class ChatAPPModal {
   @Prop() defaultQuery: string = '';
 
   // 添加新的状态
-  @State() showInitialUpload: boolean = true;
+  @State() showInitialUpload: boolean = false;
 
 
   // 添加视频录制相关状态
@@ -233,70 +233,13 @@ export class ChatAPPModal {
    */
   @Prop() customInputs: Record<string, any> = {};
 
+
   private handleClose = () => {
     this.stopRecording();
     this.modalClosed.emit();
   };
 
-  private handleFileChange = async (event: Event) => {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.selectedFile = input.files[0];
-    }
-  };
 
-  private async uploadFile() {
-    if (!this.selectedFile || this.uploadedFileInfo.length > 0) return;
-
-    this.isUploading = true;
-
-    try {
-      const formData = new FormData();
-      formData.append('file', this.selectedFile);
-
-      const response = await fetch('https://pcm_api.ylzhaopin.com/external/v1/files/upload', {
-        method: 'POST',
-        headers: {
-          'authorization': 'Bearer ' + this.apiKey
-        },
-        body: formData
-      });
-
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result.message || '文件上传失败');
-      }
-
-      if (result) {
-        this.uploadedFileInfo = [{
-          cos_key: result.cos_key,
-          filename: result.filename,
-          ext: result.ext,
-          presigned_url: result.presigned_url
-        }];
-      }
-    } catch (error) {
-      console.error('文件上传错误:', error);
-      this.clearSelectedFile();
-      alert(error instanceof Error ? error.message : '文件上传失败，请重试');
-    } finally {
-      this.isUploading = false;
-    }
-  }
-
-  private handleUploadClick = () => {
-    const fileInput = this.hostElement.shadowRoot?.querySelector('.file-input') as HTMLInputElement;
-    fileInput?.click();
-  };
-
-  private clearSelectedFile = () => {
-    this.selectedFile = null;
-    this.uploadedFileInfo = [];
-    const fileInput = this.hostElement.shadowRoot?.querySelector('.file-input') as HTMLInputElement;
-    if (fileInput) {
-      fileInput.value = '';
-    }
-  };
 
   private async sendMessageToAPI(message: string, videoUrl?: string) {
     this.isLoading = true;
@@ -306,8 +249,8 @@ export class ChatAPPModal {
     const now = new Date();
     const time = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
 
-    // 如果消息为空但有文件，使用默认文本
-    const queryText = message.trim() || (this.uploadedFileInfo.length > 0 ? '请分析这个文件' : '');
+    // 修改消息处理逻辑，移除文件上传相关代码
+    const queryText = message.trim() || '请您开始提问';
 
     // 获取上一条AI消息的回答内容
     const lastAIMessage = this.messages.length > 0 ? this.messages[this.messages.length - 1] : null;
@@ -365,7 +308,8 @@ export class ChatAPPModal {
       query: queryText,
       user: this.userId // 使用传入的 userId
     };
-    // 合并基本输入参数
+    
+    // 合并基本输入参数和自定义输入参数
     requestData.inputs = {
       email: this.toEmail,
       display_content_status: this.displayContentStatus,
@@ -373,12 +317,6 @@ export class ChatAPPModal {
       ...this.customInputs
     };
     
-    // 如果有上传的文件，添加到inputs参数
-    if (this.uploadedFileInfo.length > 0) {
-      const fileUrls = this.uploadedFileInfo.map(fileInfo => fileInfo.cos_key).join(',');
-      requestData.inputs.file_url = fileUrls;
-    }
-
     // 如果有视频URL，添加到inputs中
     if (videoUrl) {
       requestData.inputs.video_url = videoUrl;
@@ -611,47 +549,41 @@ export class ChatAPPModal {
     }
   }
 
-  // 修改 isOpen 的 watch 方法
-  @Watch('isOpen')
-  async handleIsOpenChange(newValue: boolean) {
-    if (newValue) {
+  // 添加 componentDidLoad 生命周期方法
+  componentDidLoad() {
+    console.log('组件已加载，isOpen:', this.isOpen);
+    
+    // 如果组件加载时已经是打开状态，则直接开始对话
+    if (this.isOpen) {
       if (this.conversationId) {
-        await this.loadHistoryMessages();
-      } else if (!this.showInitialUpload) {
-        // 如果不显示初始上传界面，直接开始对话
+        this.loadHistoryMessages();
+      } else {
+        console.log('组件加载时已打开，自动开始对话');
         this.sendMessageToAPI('请您开始提问');
       }
     }
   }
 
-  private handleInitialSubmit = async () => {
-    // 修改验证逻辑
-    if (this.requireResume && !this.selectedFile) {
-      alert('请上传简历');
-      return;
-    }
-
-    // 不再显示欢迎确认对话框，因为已经在组件打开时显示了
-    // 直接询问用户是否准备好开始面试
-    const confirmed = confirm('如果您已做好准备请点击"确定"开始面试。');
-
-    if (!confirmed) {
-      return;
-    }
-
-    // 修改文件上传逻辑
-    if (this.requireResume) {
-      await this.uploadFile();
-      if (this.uploadedFileInfo.length === 0) {
-        return;
+  // 保留现有的 Watch 方法
+  @Watch('isOpen')
+  async handleIsOpenChange(newValue: boolean, oldValue: boolean) {
+    console.log(`isOpen 从 ${oldValue} 变为 ${newValue}`);
+    
+    if (newValue && !oldValue) {
+      console.log('isOpen 变为 true，准备开始对话');
+      console.log('customInputs:', this.customInputs);
+      
+      if (this.conversationId) {
+        await this.loadHistoryMessages();
+      } else {
+        console.log('开始对话');
+        
+        // 直接开始对话，不再检查初始上传界面
+        this.sendMessageToAPI('请您开始提问');
       }
     }
+  }
 
-    this.showInitialUpload = false;
-    // 修改发送的消息，不再包含职能类别
-    const message = `请您开始提问`;
-    this.sendMessageToAPI(message);
-  };
 
   // 开始等待录制
   private startWaitingToRecord() {
@@ -1371,168 +1303,115 @@ export class ChatAPPModal {
             </div>
           )}
 
-          {this.showInitialUpload ? (
-            <div class="initial-upload">
-              <div class="upload-section">
-                {/* 根据 requireResume 条件渲染简历上传部分 */}
-                {this.requireResume && (
-                  <>
-                    <h3>开始前，请上传您的简历</h3>
-                    <div class="upload-area" onClick={this.handleUploadClick}>
-                      {this.selectedFile ? (
-                        <div class="file-info">
-                          <span>{this.selectedFile.name}</span>
-                          <button class="remove-file" onClick={(e) => {
-                            e.stopPropagation();
-                            this.clearSelectedFile();
-                          }}>×</button>
-                        </div>
+          <div style={{ height: '100%' }}>
+            <div class="chat-history" onScroll={this.handleScroll}>
+              {this.isLoadingHistory ? (
+                <div class="loading-container">
+                  <div class="loading-spinner"></div>
+                  <p>加载历史消息中...</p>
+                </div>
+              ) : (
+                <div>
+                  {this.messages.map((message) => (
+                    <div id={`message_${message.id}`} key={message.id}>
+                      <pcm-chat-message
+                        message={message}
+                        onMessageChange={(event) => {
+                          const updatedMessages = this.messages.map(msg =>
+                            msg.id === message.id ? { ...msg, ...event.detail } : msg
+                          );
+                          this.messages = updatedMessages;
+                        }}
+                      ></pcm-chat-message>
+                    </div>
+                  ))}
+                  {this.currentStreamingMessage && (
+                    <div id={`message_${this.currentStreamingMessage.id}`}>
+                      <pcm-chat-message
+                        message={this.currentStreamingMessage}
+                      ></pcm-chat-message>
+                    </div>
+                  )}
+                  {this.messages.length === 0 && !this.currentStreamingMessage && (
+                    <div class="empty-state">
+                      <p>正在准备面试...</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div class="recording-section">
+              <div class="recording-container">
+                {
+                  this.interviewMode === 'text' && (
+                    renderTextInputArea()
+                  )
+                }
+                {this.interviewMode === 'video' && (
+                  <div style={{width: '100%',display: 'flex',flexWrap: 'wrap',justifyContent: 'center'}}>
+                    <div class="video-area">
+                      {this.showRecordingUI ? (
+                        renderVideoPreview()
                       ) : (
-                        <div class="upload-placeholder">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="48" height="48">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m0-16l-4 4m4-4l4 4" />
-                          </svg>
-                          <p>点击上传简历</p>
-                          <p class="upload-hint">支持 txt、 markdown、 pdf、 docx、  md 格式</p>
+                        <div class="video-preview placeholder">
+                          {renderPlaceholderStatus()}
+                        </div>
+                      )}
+                      <div class="progress-container">
+                        <div class="progress-bar-container">
+                          <div
+                            class="progress-bar"
+                            style={{
+                              width: `${Math.max(0, this.currentQuestionNumber - 1) / this.totalQuestions * 100}%`
+                            }}
+                          ></div>
+                        </div>
+                        <div class="progress-text">
+                          已完成{Math.max(0, this.currentQuestionNumber - 1)}/{this.totalQuestions}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="recording-controls">
+                      {this.showRecordingUI ? (
+                        <button
+                          class="stop-recording-button"
+                          onClick={() => this.stopRecording()}
+                        >
+                          完成本题回答
+                        </button>
+                      ) : (
+                        <div class="waiting-message">
+                          {(() => {
+                            // 显示播放按钮（当不自动播放且有音频URL时）
+                            if (!this.enableVoice && this.audioUrl && !this.isPlayingAudio) {
+                              return (
+                                <div class="play-audio-container" onClick={this.handlePlayAudio}>
+                                  <p>
+                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" style={{ verticalAlign: 'middle', marginRight: '8px' }}>
+                                      <path d="M8 5v14l11-7z" />
+                                    </svg>
+                                    <span style={{ verticalAlign: 'middle' }}>播放题目</span>
+                                  </p>
+                                </div>
+                              );
+                            }
+
+                            // 其他状态下显示禁用的"完成回答"按钮
+                            return (
+                              <button class="stop-recording-button disabled" disabled>
+                                完成回答
+                              </button>
+                            );
+                          })()}
                         </div>
                       )}
                     </div>
-                  </>
-                )}
-
-                <button
-                  class="submit-button"
-                  disabled={
-                    (this.requireResume && !this.selectedFile) ||
-                    (this.requireResume && this.isUploading)
-                  }
-                  onClick={this.handleInitialSubmit}
-                >
-                  {this.requireResume && this.isUploading ? '上传中...' : '开始面试'}
-                </button>
-              </div>
-              {this.requireResume && (
-                <input
-                  type="file"
-                  class="file-input"
-                  onChange={this.handleFileChange}
-                  accept=".pdf,.doc,.docx,.txt"
-                />
-              )}
-            </div>
-          ) : (
-            <div style={{ height: '100%' }}>
-              <div class="chat-history" onScroll={this.handleScroll}>
-                {this.isLoadingHistory ? (
-                  <div class="loading-container">
-                    <div class="loading-spinner"></div>
-                    <p>加载历史消息中...</p>
-                  </div>
-                ) : (
-                  <div>
-                    {this.messages.map((message) => (
-                      <div id={`message_${message.id}`} key={message.id}>
-                        <pcm-chat-message
-                          message={message}
-                          onMessageChange={(event) => {
-                            const updatedMessages = this.messages.map(msg =>
-                              msg.id === message.id ? { ...msg, ...event.detail } : msg
-                            );
-                            this.messages = updatedMessages;
-                          }}
-                        ></pcm-chat-message>
-                      </div>
-                    ))}
-                    {this.currentStreamingMessage && (
-                      <div id={`message_${this.currentStreamingMessage.id}`}>
-                        <pcm-chat-message
-                          message={this.currentStreamingMessage}
-                        ></pcm-chat-message>
-                      </div>
-                    )}
-                    {this.messages.length === 0 && !this.currentStreamingMessage && (
-                      <div class="empty-state">
-                        <p>请上传简历开始面试</p>
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
-
-              <div class="recording-section">
-                <div class="recording-container">
-                  {
-                    this.interviewMode === 'text' && (
-                      renderTextInputArea()
-                    )
-                  }
-                  {this.interviewMode === 'video' && (
-                    <div style={{width: '100%'}}>
-                      <div class="video-area">
-                        {this.showRecordingUI ? (
-                          renderVideoPreview()
-                        ) : (
-                          <div class="video-preview placeholder">
-                            {renderPlaceholderStatus()}
-                          </div>
-                        )}
-                        <div class="progress-container">
-                          <div class="progress-bar-container">
-                            <div
-                              class="progress-bar"
-                              style={{
-                                width: `${Math.max(0, this.currentQuestionNumber - 1) / this.totalQuestions * 100}%`
-                              }}
-                            ></div>
-                          </div>
-                          <div class="progress-text">
-                            已完成{Math.max(0, this.currentQuestionNumber - 1)}/{this.totalQuestions}
-                          </div>
-                        </div>
-                      </div>
-                      <div class="recording-controls">
-                        {this.showRecordingUI ? (
-                          <button
-                            class="stop-recording-button"
-                            onClick={() => this.stopRecording()}
-                          >
-                            完成本题回答
-                          </button>
-                        ) : (
-                          <div class="waiting-message">
-                            {(() => {
-                              // 显示播放按钮（当不自动播放且有音频URL时）
-                              if (!this.enableVoice && this.audioUrl && !this.isPlayingAudio) {
-                                return (
-                                  <div class="play-audio-container" onClick={this.handlePlayAudio}>
-                                    <p>
-                                      <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" style={{ verticalAlign: 'middle', marginRight: '8px' }}>
-                                        <path d="M8 5v14l11-7z" />
-                                      </svg>
-                                      <span style={{ verticalAlign: 'middle' }}>播放题目</span>
-                                    </p>
-                                  </div>
-                                );
-                              }
-
-                              // 其他状态下显示禁用的"完成回答"按钮
-                              return (
-                                <button class="stop-recording-button disabled" disabled>
-                                  完成回答
-                                </button>
-                              );
-                            })()}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-
-                </div>
-              </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
     );

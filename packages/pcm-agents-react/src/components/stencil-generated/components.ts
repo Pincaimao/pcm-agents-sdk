@@ -15,6 +15,7 @@ import { PcmAppChatModal as PcmAppChatModalElement, defineCustomElement as defin
 import { PcmChatMessage as PcmChatMessageElement, defineCustomElement as definePcmChatMessage } from "pcm-agents/dist/components/pcm-chat-message.js";
 import { PcmChatModal as PcmChatModalElement, defineCustomElement as definePcmChatModal } from "pcm-agents/dist/components/pcm-chat-modal.js";
 import { PcmHrChatModal as PcmHrChatModalElement, defineCustomElement as definePcmHrChatModal } from "pcm-agents/dist/components/pcm-hr-chat-modal.js";
+import { PcmMnmsModal as PcmMnmsModalElement, defineCustomElement as definePcmMnmsModal } from "pcm-agents/dist/components/pcm-mnms-modal.js";
 import { PcmVideoChatModal as PcmVideoChatModalElement, defineCustomElement as definePcmVideoChatModal } from "pcm-agents/dist/components/pcm-video-chat-modal.js";
 import React from 'react';
 
@@ -138,6 +139,35 @@ export const PcmHrChatModal: StencilReactComponent<PcmHrChatModalElement, PcmHrC
         onRecordingStatusChange: 'recordingStatusChange'
     } as PcmHrChatModalEvents,
     defineCustomElement: definePcmHrChatModal
+});
+
+type PcmMnmsModalEvents = {
+    onModalClosed: EventName<CustomEvent<void>>,
+    onUploadSuccess: EventName<CustomEvent<{
+        cos_key: string;
+        filename: string;
+        ext: string;
+        presigned_url: string;
+    }>>,
+    onStreamComplete: EventName<CustomEvent<{
+        conversation_id: string;
+        event: string;
+        message_id: string;
+        id: string;
+    }>>
+};
+
+export const PcmMnmsModal: StencilReactComponent<PcmMnmsModalElement, PcmMnmsModalEvents> = /*@__PURE__*/ createComponent<PcmMnmsModalElement, PcmMnmsModalEvents>({
+    tagName: 'pcm-mnms-modal',
+    elementClass: PcmMnmsModalElement,
+    // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
+    react: React,
+    events: {
+        onModalClosed: 'modalClosed',
+        onUploadSuccess: 'uploadSuccess',
+        onStreamComplete: 'streamComplete'
+    } as PcmMnmsModalEvents,
+    defineCustomElement: definePcmMnmsModal
 });
 
 type PcmVideoChatModalEvents = {
