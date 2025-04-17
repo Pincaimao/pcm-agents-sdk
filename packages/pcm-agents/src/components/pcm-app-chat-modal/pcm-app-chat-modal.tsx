@@ -1124,7 +1124,7 @@ export class ChatAPPModal {
     this.textAnswer = input.value;
   };
 
-  // 提交文本回答
+  // 修改提交文本回答的方法
   private submitTextAnswer = async () => {
     if (!this.textAnswer.trim() || this.isSubmittingText) {
       return;
@@ -1133,22 +1133,11 @@ export class ChatAPPModal {
     this.isSubmittingText = true;
 
     try {
-      const lastAIMessage = this.messages.length > 0 ? this.messages[this.messages.length - 1] : null;
-
-      if (lastAIMessage && this.conversationId) {
-        // 保存文本答案
-        await this.saveAnswer(
-          this.conversationId,
-          lastAIMessage.answer,
-          this.textAnswer
-        );
-
-        // 发送下一题请求
-        this.sendMessageToAPI("下一题");
-
-        // 清空文本输入
-        this.textAnswer = '';
-      }
+      // 直接发送用户输入的文本作为查询
+      await this.sendMessageToAPI(this.textAnswer);
+      
+      // 清空文本输入
+      this.textAnswer = '';
     } catch (error) {
       console.error('提交文本回答失败:', error);
       alert('提交回答失败，请重试');
