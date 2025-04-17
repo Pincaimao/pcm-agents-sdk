@@ -109,22 +109,6 @@ export class MnmsModal {
         total_questions: number;
     }>;
 
-    /**
-     * 录制错误事件
-     */
-    @Event() recordingError: EventEmitter<{
-        type: string;
-        message: string;
-        details?: any;
-    }>;
-
-    /**
-     * 录制状态变化事件
-     */
-    @Event() recordingStatusChange: EventEmitter<{
-        status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
-        details?: any;
-    }>;
 
     @State() selectedFile: File | null = null;
     @State() isUploading: boolean = false;
@@ -241,6 +225,9 @@ export class MnmsModal {
                 clearTimeout(this.transitionTimer);
                 this.transitionTimer = null;
             }
+        } else if (this.conversationId) {
+            // 如果有会话ID，直接显示聊天模态框
+            this.showChatModal = true;
         }
     }
 
@@ -282,6 +269,11 @@ export class MnmsModal {
             'fullscreen-overlay': this.fullscreen
         };
 
+        // 检查是否有会话ID，如果有则直接显示聊天模态框
+        if (this.conversationId && !this.showChatModal) {
+            this.showChatModal = true;
+        }
+
         return (
             <div class={overlayClass} style={modalStyle}>
                 <div class={containerClass}>
@@ -299,8 +291,8 @@ export class MnmsModal {
                         </div>
                     )}
 
-                    {/* 上传界面 - 仅在不显示聊天模态框时显示 */}
-                    {!this.showChatModal && (
+                    {/* 上传界面 - 仅在不显示聊天模态框且没有会话ID时显示 */}
+                    {!this.showChatModal && !this.conversationId && (
                         <div class="upload-container">
                             <h3>开始前，请上传您的简历</h3>
                             <div class="upload-area" onClick={this.handleUploadClick}>
@@ -340,8 +332,8 @@ export class MnmsModal {
                         </div>
                     )}
 
-                    {/* 聊天界面 - 仅在显示聊天模态框时显示 */}
-                    {this.showChatModal && this.uploadedFileInfo && (
+                    {/* 聊天界面 - 在显示聊天模态框时显示 */}
+                    {this.showChatModal && (
                         <div class="chat-modal-container">
                             <pcm-app-chat-modal
                                 isOpen={true}
@@ -355,7 +347,7 @@ export class MnmsModal {
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
                                 enableVoice={false}
-                                customInputs={{
+                                customInputs={this.conversationId ? undefined : {
                                     ...this.customInputs,
                                     file_url: this.uploadedFileInfo?.cos_key
                                 }}

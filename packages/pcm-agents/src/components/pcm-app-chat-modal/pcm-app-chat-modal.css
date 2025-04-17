@@ -72,41 +72,7 @@
   border-radius: 0;
 }
 
-/* 响应式布局 */
-@media screen and (max-width: 768px) {
-  .pc-layout {
-    width: 95%;
-    /* height: 90vh; */
-  }
 
-  .modal-overlay {
-    padding: 0;
-  }
-
-  .modal-container.fullscreen {
-    /* 支持 iOS Safari */
-    height: -webkit-fill-available;
-    max-height: -webkit-fill-available;
-    /* 确保内容不会被顶部状态栏和底部工具栏遮挡 */
-    padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
-  }
-
-
-  .modal-container.mobile-layout {
-    width: 100%;
-    height: 100vh;
-    max-height: 100vh;
-    min-height: 100vh;
-    border-radius: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .chat-history {
-    min-height: 200px;
-  }
-}
 .video-preview.placeholder {
   display: flex;
   justify-content: center;
@@ -479,6 +445,23 @@
   border-color: #bbb;
 }
 
+/* 文件预览区域样式 */
+.file-preview {
+  padding: 8px 16px;
+  border-top: 1px solid #eee;
+  background-color: #f9f9f9;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  background: white;
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+}
+
 
 .recording-section {
   border-top: 1px solid #eee;
@@ -749,4 +732,41 @@
 .submit-text-button.disabled {
   background-color: #b3b3b3;
   cursor: not-allowed;
+}
+
+
+/* 响应式布局 */
+@media screen and (max-width: 768px) {
+  .pc-layout {
+    width: 95%;
+    /* height: 90vh; */
+  }
+
+  .modal-overlay {
+    padding: 0;
+  }
+
+  .modal-container.fullscreen {
+    /* 支持 iOS Safari */
+    height: -webkit-fill-available;
+    max-height: -webkit-fill-available;
+    /* 确保内容不会被顶部状态栏和底部工具栏遮挡 */
+    padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  }
+
+
+  .modal-container.mobile-layout {
+    width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    min-height: 100vh;
+    border-radius: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chat-history {
+    min-height: 200px;
+  }
 }

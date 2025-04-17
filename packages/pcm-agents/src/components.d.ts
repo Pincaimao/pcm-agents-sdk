@@ -509,15 +509,6 @@ declare global {
         conversation_id: string;
         total_questions: number;
     };
-        "recordingError": {
-        type: string;
-        message: string;
-        details?: any;
-    };
-        "recordingStatusChange": {
-        status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
-        details?: any;
-    };
     }
     interface HTMLPcmMnmsModalElement extends Components.PcmMnmsModal, HTMLStencilElement {
         addEventListener<K extends keyof HTMLPcmMnmsModalElementEventMap>(type: K, listener: (this: HTMLPcmMnmsModalElement, ev: PcmMnmsModalCustomEvent<HTMLPcmMnmsModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -949,21 +940,6 @@ declare namespace LocalJSX {
           * 当点击模态框关闭时触发
          */
         "onModalClosed"?: (event: PcmMnmsModalCustomEvent<void>) => void;
-        /**
-          * 录制错误事件
-         */
-        "onRecordingError"?: (event: PcmMnmsModalCustomEvent<{
-        type: string;
-        message: string;
-        details?: any;
-    }>) => void;
-        /**
-          * 录制状态变化事件
-         */
-        "onRecordingStatusChange"?: (event: PcmMnmsModalCustomEvent<{
-        status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
-        details?: any;
-    }>) => void;
         /**
           * 流式输出完成事件
          */

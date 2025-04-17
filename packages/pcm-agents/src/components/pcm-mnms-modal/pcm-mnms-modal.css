@@ -78,6 +78,10 @@
     max-height: -webkit-fill-available;
     /* 确保内容不会被顶部状态栏和底部工具栏遮挡 */
     padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+     margin-top: 40px;
+     height: calc(100% - 40px);
+     max-height: calc(100% - 40px);
+     border-radius: 16px 16px 0 0;
   }
 
   .modal-container.mobile-layout {

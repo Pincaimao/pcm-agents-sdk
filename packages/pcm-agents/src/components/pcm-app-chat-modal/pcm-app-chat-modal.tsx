@@ -368,7 +368,6 @@ export class ChatAPPModal {
         this.isLoading = false;
       },
       onComplete: async () => {
-        console.log('请求完成');
         this.isLoading = false;
 
         // 获取最新的AI回复内容
@@ -382,8 +381,6 @@ export class ChatAPPModal {
         if (message === "下一题" || this.currentQuestionNumber === 0) {
           this.currentQuestionNumber++;
         }
-        console.log(this.currentQuestionNumber);
-        console.log(message);
 
         if (latestAIMessage && latestAIMessage.answer) {
           // 优先使用 LLMText，如果没有则使用 answer
@@ -509,7 +506,6 @@ export class ChatAPPModal {
 
   // 修改 componentDidLoad 生命周期方法
   componentDidLoad() {
-    console.log('组件已加载，isOpen:', this.isOpen);
 
     // 添加滚动事件监听器
     const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
@@ -520,7 +516,6 @@ export class ChatAPPModal {
 
   // 添加 componentWillLoad 生命周期方法
   componentWillLoad() {
-    console.log('组件将加载，isOpen:', this.isOpen);
 
     // 如果组件加载时已经是打开状态，则直接开始对话
     if (this.isOpen) {
@@ -528,10 +523,7 @@ export class ChatAPPModal {
         // 在下一个事件循环中加载历史消息，避免在componentWillLoad中进行异步操作
         setTimeout(() => this.loadHistoryMessages(), 0);
       } else {
-        console.log('组件加载时已打开，将自动开始对话');
         // 在下一个事件循环中发送初始消息，避免在componentWillLoad中进行异步操作
-        console.log(this.defaultQuery);
-
         setTimeout(() => this.sendMessageToAPI(this.defaultQuery), 0);
       }
     }
@@ -782,7 +774,6 @@ export class ChatAPPModal {
 
       try {
         if (MediaRecorder.isTypeSupported(type)) {
-          console.log('使用支持的MIME类型:', type);
           return type;
         }
       } catch (e) {
@@ -837,7 +828,6 @@ export class ChatAPPModal {
 
             // 检查返回结果中是否包含转换后的文本
             if (data && data.text) {
-              console.log('转换后的文本:', data.text);
               resolve(data.text);
             } else {
               console.warn('音频转文字返回结果格式不正确');
@@ -880,7 +870,6 @@ export class ChatAPPModal {
       });
 
       const result = await response.json();
-      console.log('视频上传结果:', result);
 
       if (result && result.cos_key) {
         // 调用音频转文字API

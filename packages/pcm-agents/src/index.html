@@ -88,7 +88,7 @@
       icon="https://p3-pc.douyinpic.com/img/aweme-avatar/tos-cn-avt-0015_55cc4ce1aa0059074f4f9def520246dc~c5_300x300.jpeg"
       conversation-id=""
       user-id="1234567890"
-      fullscreen="true"
+      fullscreen="false"
       require-resume="true"
       total-questions="10"
       enable-voice="false"
@@ -239,26 +239,32 @@
         
         
         if (chatModal) {
-          chatModal.addEventListener('messageSent', function(event) {
-            console.log('发送消息:', event.detail);
-          });
           
           chatModal.addEventListener('modalClosed', function() {
             console.log('聊天窗口已关闭');
             chatModal.isOpen = false;
           });
 
-          // 添加 streamComplete 事件监听
           chatModal.addEventListener('streamComplete', function(event) {
             console.log('流式响应完成:', event.detail);
             // 更新 conversation_id
             chatModal.setAttribute('conversation-id', event.detail.conversation_id);
           });
+          
           chatModal.addEventListener('interviewComplete', function(event) {
             console.log('面试完成:', event.detail);
             chatModal.isOpen = false;
-            alert('非常感谢您的参与，湖南省人力资源协会将会在2024年*月**日公布评选结果，如想获取您在本次金牌大赛中的评选报告，请联系*****，我们将报告发送到您指定邮箱中。');
-          })
+          });
+          
+          // 添加新的事件监听器来测试其他回调
+          chatModal.addEventListener('uploadSuccess', function(event) {
+            console.log('文件上传成功:', event.detail);
+          });
+          
+          chatModal.addEventListener('conversationStart', function(event) {
+            console.log('会话开始:', event.detail);
+          });
+
         }
 
         // 打开聊天按钮事件监听

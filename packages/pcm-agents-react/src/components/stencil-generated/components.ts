@@ -171,15 +171,6 @@ type PcmMnmsModalEvents = {
     onInterviewComplete: EventName<CustomEvent<{
         conversation_id: string;
         total_questions: number;
-    }>>,
-    onRecordingError: EventName<CustomEvent<{
-        type: string;
-        message: string;
-        details?: any;
-    }>>,
-    onRecordingStatusChange: EventName<CustomEvent<{
-        status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
-        details?: any;
     }>>
 };
 
@@ -193,9 +184,7 @@ export const PcmMnmsModal: StencilReactComponent<PcmMnmsModalElement, PcmMnmsMod
         onUploadSuccess: 'uploadSuccess',
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
-        onInterviewComplete: 'interviewComplete',
-        onRecordingError: 'recordingError',
-        onRecordingStatusChange: 'recordingStatusChange'
+        onInterviewComplete: 'interviewComplete'
     } as PcmMnmsModalEvents,
     defineCustomElement: definePcmMnmsModal
 });
