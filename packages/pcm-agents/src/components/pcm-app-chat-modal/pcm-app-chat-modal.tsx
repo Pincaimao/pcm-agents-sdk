@@ -1098,12 +1098,14 @@ export class ChatAPPModal {
     this.isSubmittingText = true;
 
     try {
-
-      // 发送用户输入的文本作为查询
-      await this.sendMessageToAPI(this.textAnswer);
-
-      // 清空文本输入
+      // 保存当前输入内容
+      const textToSend = this.textAnswer;
+      
+      // 立即清空文本输入
       this.textAnswer = '';
+      
+      // 发送用户输入的文本作为查询
+      await this.sendMessageToAPI(textToSend);
     } catch (error) {
       console.error('提交文本回答失败:', error);
       alert('提交回答失败，请重试');
