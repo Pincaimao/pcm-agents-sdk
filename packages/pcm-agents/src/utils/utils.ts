@@ -1,4 +1,4 @@
-import COS from 'cos-js-sdk-v5';
+
 
 export function format(first?: string, middle?: string, last?: string): string {
   return (first || '') + (middle ? ` ${middle}` : '') + (last ? ` ${last}` : '');
@@ -233,80 +233,6 @@ export const sendHttpRequest = async <T = any>(config: HttpRequestConfig): Promi
   }
 };
 
-/**
- * COS上传配置接口
- */
-export interface COSUploadConfig {
-  SecretId: string;
-  SecretKey: string;
-  SecurityToken?: string;
-  StartTime?: number;
-  ExpiredTime?: number;
-  Bucket: string;
-  Region: string;
-  Key: string;
-  file: File;
-  onProgress?: (progress: number) => void;
-  onSuccess?: (result: COSUploadResult) => void;
-  onError?: (error: any) => void;
-}
-
-/**
- * COS上传结果接口
- */
-export interface COSUploadResult {
-  Location: string;
-  Bucket: string;
-  Key: string;
-  ETag: string;
-  FileSize: number;
-  RequestId: string;
-}
-
-/**
- * COS文件上传工具函数
- * @param config 上传配置
- * @returns Promise<COSUploadResult>
- */
-export const uploadToCOS = (config: COSUploadConfig): Promise<COSUploadResult> => {
-  const cos = new COS({
-    SecretId: config.SecretId,
-    SecretKey: config.SecretKey,
-    SecurityToken: config.SecurityToken,
-    StartTime: config.StartTime,
-    ExpiredTime: config.ExpiredTime,
-  });
-
-  return new Promise((resolve, reject) => {
-    cos.uploadFile({
-      Bucket: config.Bucket,
-      Region: config.Region,
-      Key: config.Key,
-      Body: config.file,
-      SliceSize: 1024 * 1024 * 5, // 分片上传，每片5MB
-      onProgress: (progressData) => {
-        const percent = Math.floor((progressData.loaded / progressData.total) * 100);
-        config.onProgress?.(percent);
-      },
-    }, (err, data) => {
-      if (err) {
-        config.onError?.(err);
-        reject(err);
-      } else {
-        const result = {
-          Location: data.Location,
-          Bucket: config.Bucket,
-          Key: config.Key,
-          ETag: data.ETag,
-          FileSize: config.file.size,
-          RequestId: data.RequestId,
-        };
-        config.onSuccess?.(result);
-        resolve(result);
-      }
-    });
-  });
-};
 
 /**
  * 简单的文件类型检查工具

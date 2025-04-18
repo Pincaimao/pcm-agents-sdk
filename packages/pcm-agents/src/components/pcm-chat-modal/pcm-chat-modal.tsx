@@ -135,9 +135,6 @@ export class ChatModal {
     try {
       const response = await sendHttpRequest({
         url: `https://pcm_api.ylzhaopin.com/share/messages/${messageId}/suggested`,
-        params: {
-          bot_id: this.botId
-        }
       });
 
       if (this.stopSuggestedQuestionsRef.current) return;
@@ -234,7 +231,6 @@ export class ChatModal {
       time: time,                // 消息时间
       query: queryText,          // 用户输入的消息内容
       answer: '',                // AI助手的回复内容
-      bot_id: this.botId,       // 机器人ID
       isStreaming: true,        // 是否正在流式输出
       conversation_id: this.conversationId,  // 会话ID
       inputs: {},               // 输入参数
@@ -251,7 +247,6 @@ export class ChatModal {
 
     // 准备请求数据
     const requestData: any = {
-      bot_id: this.botId,
       response_mode: 'streaming',
       conversation_id: this.conversationId,
       query: queryText,
@@ -409,7 +404,6 @@ export class ChatModal {
         url: `https://pcm_api.ylzhaopin.com/share/messages`,
         params: {
           conversation_id: this.conversationId,
-          bot_id: this.botId,
           user: '1234567890',
           limit: 20
         }
@@ -433,7 +427,6 @@ export class ChatModal {
         return {
           ...msg,
           time: timeStr,
-          bot_id: this.botId,
           isStreaming: false,
           status: msg.status === 'error' ? 'error' : 'normal' as const
         };

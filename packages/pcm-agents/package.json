@@ -55,6 +55,7 @@
     "@stencil/react-output-target": "^0.8.2",
     "@stencil/vue-output-target": "^0.10.7",
     "@types/marked": "^5.0.2",
-    "marked": "^9.1.5"
+    "marked": "^9.1.5",
+    "marked-extended-tables": "^2.0.1"
   }
 }

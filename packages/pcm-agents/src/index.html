@@ -90,6 +90,11 @@
     <button id="open-jlpx-chat">打开简历剖析</button>
   </div>
 
+  <div class="demo-controls">
+    <h2>职业规划助手演示</h2>
+    <button id="open-zygh-chat">打开职业规划助手</button>
+  </div>
+
   <!-- <my-component first="Stencil" middle="'Don't call me a framework'" last="JS"></my-component> -->
 
 
@@ -103,6 +108,11 @@
     icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
     conversation-id="" user-id="1234567890" fullscreen="false" require-resume="true" total-questions="10"
     enable-voice="false" interview-mode="text" defaultQuery="请您提问"></pcm-jlpx-modal>
+
+  <pcm-zygh-modal id="pcm-zygh-modal" api-key="app-UrI71s6XoxAdfOnXt2JyTAlM" modal-title="职业规划助手"
+    icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
+    conversation-id="" user-id="1234567890" fullscreen="false" require-resume="true" total-questions="10"
+    enable-voice="false" interview-mode="text" defaultQuery="请您提问"></pcm-zygh-modal>
 
 
   <!-- <pcm-video-chat-modal 
@@ -325,6 +335,47 @@
       jlpxModal.customInputs = {
         job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广"
       };
+    });
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // 职业规划助手模态框事件监听
+      const zyghModal = document.getElementById('pcm-zygh-modal');
+      const openZyghButton = document.getElementById('open-zygh-chat');
+
+      if (zyghModal) {
+        zyghModal.addEventListener('modalClosed', function () {
+          console.log('职业规划助手窗口已关闭');
+          zyghModal.isOpen = false;
+        });
+
+        zyghModal.addEventListener('streamComplete', function (event) {
+          console.log('流式响应完成:', event.detail);
+          // 更新 conversation_id
+          zyghModal.setAttribute('conversation-id', event.detail.conversation_id);
+        });
+
+        zyghModal.addEventListener('uploadSuccess', function (event) {
+          console.log('文件上传成功:', event.detail);
+        });
+
+        zyghModal.addEventListener('conversationStart', function (event) {
+          console.log('会话开始:', event.detail);
+        });
+        
+        zyghModal.addEventListener('planningComplete', function (event) {
+          console.log('规划完成:', event.detail);
+        });
+      }
+      
+      // 打开职业规划助手按钮事件监听
+      if (openZyghButton && zyghModal) {
+        openZyghButton.addEventListener('click', function () {
+          zyghModal.isOpen = true;
+        });
+      }
+      
+    
     });
   </script>
 </body>

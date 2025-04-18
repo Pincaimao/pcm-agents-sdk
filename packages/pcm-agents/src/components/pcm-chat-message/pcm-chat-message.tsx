@@ -1,5 +1,6 @@
 import { Component, Prop, h, Element, Event, EventEmitter } from '@stencil/core';
 import { marked } from 'marked';
+import extendedTables from 'marked-extended-tables';
 import { ChatMessage } from '../../interfaces/chat';
 @Component({
     tag: 'pcm-chat-message',
@@ -22,6 +23,7 @@ export class ChatMessageComponent {
 
     constructor() {
         // 配置 marked 选项
+        marked.use(extendedTables);
         marked.setOptions({
             breaks: true,
             gfm: true
@@ -99,7 +101,7 @@ export class ChatMessageComponent {
                     const value = this.message.inputs[key];
                     if (value && !key.startsWith('hide_') && key !== 'answer') {
                         if (key === 'file_url') {
-                            return <div key={index} class="file-view">{value}</div>;
+                            return <div key={index} class="file-view">附件：{value}</div>;
                         } else if (key === 'file_urls' || key === 'fileUrls') {
                             const fileList = value.split(',');
                             return (

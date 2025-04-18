@@ -9,7 +9,7 @@
 
 import type { EventName, StencilReactComponent } from '@stencil/react-output-target/runtime';
 import { createComponent } from '@stencil/react-output-target/runtime';
-import { type ChatMessage, type PcmChatMessageCustomEvent } from "pcm-agents";
+import { type CareerPlanType, type ChatMessage, type PcmChatMessageCustomEvent, type PcmZyghModalCustomEvent } from "pcm-agents";
 import { MyComponent as MyComponentElement, defineCustomElement as defineMyComponent } from "pcm-agents/dist/components/my-component.js";
 import { PcmAppChatModal as PcmAppChatModalElement, defineCustomElement as definePcmAppChatModal } from "pcm-agents/dist/components/pcm-app-chat-modal.js";
 import { PcmChatMessage as PcmChatMessageElement, defineCustomElement as definePcmChatMessage } from "pcm-agents/dist/components/pcm-chat-message.js";
@@ -18,6 +18,7 @@ import { PcmHrChatModal as PcmHrChatModalElement, defineCustomElement as defineP
 import { PcmJlpxModal as PcmJlpxModalElement, defineCustomElement as definePcmJlpxModal } from "pcm-agents/dist/components/pcm-jlpx-modal.js";
 import { PcmMnmsModal as PcmMnmsModalElement, defineCustomElement as definePcmMnmsModal } from "pcm-agents/dist/components/pcm-mnms-modal.js";
 import { PcmVideoChatModal as PcmVideoChatModalElement, defineCustomElement as definePcmVideoChatModal } from "pcm-agents/dist/components/pcm-video-chat-modal.js";
+import { PcmZyghModal as PcmZyghModalElement, defineCustomElement as definePcmZyghModal } from "pcm-agents/dist/components/pcm-zygh-modal.js";
 import React from 'react';
 
 type MyComponentEvents = NonNullable<unknown>;
@@ -267,4 +268,45 @@ export const PcmVideoChatModal: StencilReactComponent<PcmVideoChatModalElement, 
         onRecordingStatusChange: 'recordingStatusChange'
     } as PcmVideoChatModalEvents,
     defineCustomElement: definePcmVideoChatModal
+});
+
+type PcmZyghModalEvents = {
+    onModalClosed: EventName<CustomEvent<void>>,
+    onUploadSuccess: EventName<CustomEvent<{
+        cos_key: string;
+        filename: string;
+        ext: string;
+        presigned_url: string;
+    }>>,
+    onStreamComplete: EventName<CustomEvent<{
+        conversation_id: string;
+        event: string;
+        message_id: string;
+        id: string;
+    }>>,
+    onConversationStart: EventName<CustomEvent<{
+        conversation_id: string;
+        event: string;
+        message_id: string;
+        id: string;
+    }>>,
+    onPlanningComplete: EventName<PcmZyghModalCustomEvent<{
+        conversation_id: string;
+        plan_type: CareerPlanType;
+    }>>
+};
+
+export const PcmZyghModal: StencilReactComponent<PcmZyghModalElement, PcmZyghModalEvents> = /*@__PURE__*/ createComponent<PcmZyghModalElement, PcmZyghModalEvents>({
+    tagName: 'pcm-zygh-modal',
+    elementClass: PcmZyghModalElement,
+    // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
+    react: React,
+    events: {
+        onModalClosed: 'modalClosed',
+        onUploadSuccess: 'uploadSuccess',
+        onStreamComplete: 'streamComplete',
+        onConversationStart: 'conversationStart',
+        onPlanningComplete: 'planningComplete'
+    } as PcmZyghModalEvents,
+    defineCustomElement: definePcmZyghModal
 });

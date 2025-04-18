@@ -30,11 +30,6 @@ export interface ChatMessage {
   isStreaming?: boolean;
   
   /**
-   * 机器人ID
-   */
-  bot_id?: string;
-  
-  /**
    * 输入参数
    */
   inputs?: Record<string, any>;

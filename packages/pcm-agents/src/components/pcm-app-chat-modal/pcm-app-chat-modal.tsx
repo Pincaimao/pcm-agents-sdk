@@ -259,7 +259,7 @@ export class ChatAPPModal {
       answer: '',
       isStreaming: true,        // 是否正在流式输出
       conversation_id: this.conversationId,  // 会话ID
-      inputs: {},               // 输入参数
+      inputs: this.customInputs,               // 输入参数
       status: "normal",         // 消息状态
       error: null              // 错误信息
     };
