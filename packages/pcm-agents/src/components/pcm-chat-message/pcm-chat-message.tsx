@@ -51,8 +51,8 @@ export class ChatMessageComponent {
         return (
             <div class="user-message-container">
                 <div class="message-bubble user-message">
-                    <p>{this.message.query}</p>
                     {this.renderInputs()}
+                    <p>{this.message.query}</p>
                 </div>
             </div>
         );
@@ -71,27 +71,79 @@ export class ChatMessageComponent {
                 <div class="message-bubble assistant-message">
                     <div
                         class="markdown-content markdown-body"
-                        innerHTML={showLoading ? 
-                            `请稍等...` : 
+                        innerHTML={showLoading ?
+                            `请稍等...` :
                             htmlContent
                         }
                     ></div>
                 </div>
                 {!showLoading && this.message.answer && (
-                        <div class="message-actions">
-                            <button class="copy-button" onClick={() => this.copyMessageContent()} title="复制内容">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    )}
+                    <div class="message-actions">
+                        <button class="copy-button" onClick={() => this.copyMessageContent()} title="复制内容">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                        </button>
+                    </div>
+                )}
             </div>
         );
     }
 
-    // 渲染输入数据
+    private getFileIcon(fileName: string): { icon: string, color: string } {
+        const extension = fileName.split('.').pop()?.toLowerCase();
+
+        switch (extension) {
+            case 'pdf':
+                return {
+                    icon: `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 3H9C7.89543 3 7 3.89543 7 5V27C7 28.1046 7.89543 29 9 29H23C24.1046 29 25 28.1046 25 27V9L19 3Z" stroke="#1677FF" stroke-width="2"/>
+                        <path d="M19 3V9H25" stroke="#1677FF" stroke-width="2"/>
+                        <text x="11" y="20" fill="#1677FF" font-size="8">PDF</text>
+                    </svg>`,
+                    color: '#1677FF'
+                };
+            case 'doc':
+            case 'docx':
+                return {
+                    icon: `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 3H9C7.89543 3 7 3.89543 7 5V27C7 28.1046 7.89543 29 9 29H23C24.1046 29 25 28.1046 25 27V9L19 3Z" stroke="#1677FF" stroke-width="2"/>
+                        <path d="M19 3V9H25" stroke="#1677FF" stroke-width="2"/>
+                        <text x="11" y="20" fill="#1677FF" font-size="6">DOC</text>
+                    </svg>`,
+                    color: '#1677FF'
+                };
+            case 'jpg':
+            case 'jpeg':
+            case 'png':
+            case 'gif':
+                return {
+                    icon: `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 3H9C7.89543 3 7 3.89543 7 5V27C7 28.1046 7.89543 29 9 29H23C24.1046 29 25 28.1046 25 27V9L19 3Z" stroke="#52C41A" stroke-width="2"/>
+                        <path d="M19 3V9H25" stroke="#52C41A" stroke-width="2"/>
+                        <path d="M12 14C13.1046 14 14 13.1046 14 12C14 10.8954 13.1046 10 12 10C10.8954 10 10 10.8954 10 12C10 13.1046 10.8954 14 12 14Z" fill="#52C41A"/>
+                        <path d="M10 21L13 18L15 20L19 16L22 21H10Z" fill="#52C41A"/>
+                    </svg>`,
+                    color: '#52C41A'
+                };
+            default:
+                return {
+                    icon: `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 3H9C7.89543 3 7 3.89543 7 5V27C7 28.1046 7.89543 29 9 29H23C24.1046 29 25 28.1046 25 27V9L19 3Z" stroke="#666666" stroke-width="2"/>
+                        <path d="M19 3V9H25" stroke="#666666" stroke-width="2"/>
+                    </svg>`,
+                    color: '#666666'
+                };
+        }
+    }
+
+    private getFileName(fileUrl: string): string {
+        const parts = fileUrl.split('/');
+        return parts[parts.length - 1];
+    }
+
+    // 修改渲染输入数据的方法
     private renderInputs() {
         if (!this.message.inputs) return null;
 
@@ -101,27 +153,40 @@ export class ChatMessageComponent {
                     const value = this.message.inputs[key];
                     if (value && !key.startsWith('hide_') && key !== 'answer') {
                         if (key === 'file_url') {
-                            return <div key={index} class="file-view">附件：{value}</div>;
-                        } else if (key === 'file_urls' || key === 'fileUrls') {
-                            const fileList = value.split(',');
-                            return (
-                                <div key={index} class="flex flex-wrap">
-                                    {fileList.map((fileUrl, fileIndex) => (
-                                        <div key={fileIndex} class="file-view">{fileUrl}</div>
-                                    ))}
-                                </div>
-                            );
-                        } else if (key === 'job_info') {
+                            const fileName = this.getFileName(value);
+                            const { icon } = this.getFileIcon(fileName);
                             return (
                                 <div key={index} class="input-view">
-                                    <div class="input-label">职位信息</div>
-                                    <div class="input-value">{value}</div>
+                                    <div class="input-label">附件：</div>
+                                    <div class="file-item">
+                                        <div class="file-icon" innerHTML={icon}></div>
+                                        <div class="file-name">{fileName}</div>
+                                    </div>
                                 </div>
                             );
-                        } else if (key === 'rule') {
+                        } else if (key === 'file_urls') {
+                            const fileList = Array.isArray(value) ? value : value.split(',');
+                            return (
+                                <div key={index} class="file-list">
+                                    {fileList.map((fileUrl, fileIndex) => {
+                                        const fileName = this.getFileName(fileUrl);
+                                        const { icon } = this.getFileIcon(fileName);
+                                        return (
+                                            <div key={fileIndex} class="input-view">
+                                                <div class="input-label">附件：</div>
+                                                <div class="file-item">
+                                                    <div class="file-icon" innerHTML={icon}></div>
+                                                    <div class="file-name">{fileName}</div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            );
+                        } else if (key === 'job_info' || key === 'rule') {
                             return (
                                 <div key={index} class="input-view">
-                                    <div class="input-label">评估规则</div>
+                                    <div class="input-label">{key === 'job_info' ? '职位信息' : '评估规则'}</div>
                                     <div class="input-value">{value}</div>
                                 </div>
                             );
