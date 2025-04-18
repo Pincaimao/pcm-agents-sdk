@@ -1,103 +1,111 @@
 <!DOCTYPE html>
 <html dir="ltr" lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
-    <title>Stencil Component Starter</title>
 
-    <script type="module" src="/build/pcm-agents.esm.js"></script>
-    <script nomodule src="/build/pcm-agents.js"></script>
-    <style>
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      }
-      .demo-controls {
-        margin: 20px;
-        padding: 20px;
-        border: 1px solid #eee;
-        border-radius: 8px;
-      }
-      button {
-        padding: 8px 16px;
-        background-color: #1890ff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        margin-right: 10px;
-      }
-      button:disabled {
-        background-color: #cccccc;
-        cursor: not-allowed;
-      }
-      .status {
-        margin: 10px 0;
-        padding: 10px;
-        border-radius: 4px;
-      }
-      .success {
-        background-color: #f6ffed;
-        border: 1px solid #b7eb8f;
-        color: #52c41a;
-      }
-      .error {
-        background-color: #fff2f0;
-        border: 1px solid #ffccc7;
-        color: #ff4d4f;
-      }
-      .device-check {
-        margin-bottom: 15px;
-      }
-      .permission-info {
-        margin-top: 10px;
-        font-size: 14px;
-        color: #666;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="demo-controls">
-      <h2>组件演示</h2>
-      
-      <div class="device-check">
-        <button id="check-devices">检查设备权限</button>
-        <div id="status-message" class="status" style="display: none;"></div>
-        <div class="permission-info">
-          需要检查您的摄像头和麦克风权限，以便在聊天过程中进行视频通话。
-        </div>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <title>Stencil Component Starter</title>
+
+  <script type="module" src="/build/pcm-agents.esm.js"></script>
+  <script nomodule src="/build/pcm-agents.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+
+    .demo-controls {
+      margin: 20px;
+      padding: 20px;
+      border: 1px solid #eee;
+      border-radius: 8px;
+    }
+
+    button {
+      padding: 8px 16px;
+      background-color: #1890ff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+
+    .status {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 4px;
+    }
+
+    .success {
+      background-color: #f6ffed;
+      border: 1px solid #b7eb8f;
+      color: #52c41a;
+    }
+
+    .error {
+      background-color: #fff2f0;
+      border: 1px solid #ffccc7;
+      color: #ff4d4f;
+    }
+
+    .device-check {
+      margin-bottom: 15px;
+    }
+
+    .permission-info {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="demo-controls">
+    <h2>组件演示</h2>
+
+    <div class="device-check">
+      <button id="check-devices">检查设备权限</button>
+      <div id="status-message" class="status" style="display: none;"></div>
+      <div class="permission-info">
+        需要检查您的摄像头和麦克风权限，以便在聊天过程中进行视频通话。
       </div>
-      
-      <button id="open-chat" >打开聊天</button>
     </div>
 
-    <div class="demo-controls">
-      <h2>app组件演示</h2>
-      
-      
-      <button id="open-app-chat" >打开聊天</button>
-    </div>
+    <button id="open-chat">打开聊天</button>
+  </div>
 
-    <!-- <my-component first="Stencil" middle="'Don't call me a framework'" last="JS"></my-component> -->
-    
+  <div class="demo-controls">
+    <h2>模拟面试组件演示</h2>
+    <button id="open-app-chat">打开聊天</button>
+  </div>
 
-    <!-- 添加聊天模态框组件 -->
-    <pcm-mnms-modal 
-      id="pcm-chat-modal" 
-      api-key="app-fc0r90cHmzmcjK2vwXRKc7pc"
-      modal-title="模拟面试" 
-      icon="https://p3-pc.douyinpic.com/img/aweme-avatar/tos-cn-avt-0015_55cc4ce1aa0059074f4f9def520246dc~c5_300x300.jpeg"
-      conversation-id=""
-      user-id="1234567890"
-      fullscreen="true"
-      require-resume="true"
-      total-questions="10"
-      enable-voice="false"
-      interview-mode="text"
-      defaultQuery="请您提问"
-    ></pcm-mnms-modal>
+  <div class="demo-controls">
+    <h2>简历剖析组件演示</h2>
+    <button id="open-jlpx-chat">打开简历剖析</button>
+  </div>
+
+  <!-- <my-component first="Stencil" middle="'Don't call me a framework'" last="JS"></my-component> -->
 
 
-    <!-- <pcm-video-chat-modal 
+  <!-- 添加聊天模态框组件 -->
+  <pcm-mnms-modal id="pcm-chat-modal" api-key="app-fc0r90cHmzmcjK2vwXRKc7pc" modal-title="模拟面试"
+    icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
+    conversation-id="" user-id="1234567890" fullscreen="true" require-resume="true" total-questions="10"
+    enable-voice="false" interview-mode="text" defaultQuery="请您提问"></pcm-mnms-modal>
+
+  <pcm-jlpx-modal id="pcm-jlpx-modal" api-key="app-grHHjCEZKA8t91f1bdzDz5XG" modal-title="简历剖析助手"
+    icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
+    conversation-id="" user-id="1234567890" fullscreen="false" require-resume="true" total-questions="10"
+    enable-voice="false" interview-mode="text" defaultQuery="请您提问"></pcm-jlpx-modal>
+
+
+  <!-- <pcm-video-chat-modal 
       id="pcm-chat-modal" 
       api-key="app-YXtEFC4fdga5QCCsANCbiGza"
       modal-title="视频面试" 
@@ -110,7 +118,7 @@
       total-questions="2"
     ></pcm-video-chat-modal> -->
 
-    <!-- <script>
+  <!-- <script>
       document.addEventListener('DOMContentLoaded', function() {
         console.log('DOM 已加载，正在设置事件监听器...');
         
@@ -229,56 +237,96 @@
       });
     </script> -->
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM 已加载，正在设置事件监听器...');
-        
-        // 聊天模态框事件监听
-        const chatModal = document.getElementById('pcm-chat-modal');
-        const openChatButton = document.getElementById('open-app-chat');
-        
-        
-        if (chatModal) {
-          
-          chatModal.addEventListener('modalClosed', function() {
-            console.log('聊天窗口已关闭');
-            chatModal.isOpen = false;
-          });
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      console.log('DOM 已加载，正在设置事件监听器...');
 
-          chatModal.addEventListener('streamComplete', function(event) {
-            console.log('流式响应完成:', event.detail);
-            // 更新 conversation_id
-            chatModal.setAttribute('conversation-id', event.detail.conversation_id);
-          });
-          
-          chatModal.addEventListener('interviewComplete', function(event) {
-            console.log('面试完成:', event.detail);
-            chatModal.isOpen = false;
-          });
-          
-          // 添加新的事件监听器来测试其他回调
-          chatModal.addEventListener('uploadSuccess', function(event) {
-            console.log('文件上传成功:', event.detail);
-          });
-          
-          chatModal.addEventListener('conversationStart', function(event) {
-            console.log('会话开始:', event.detail);
-          });
+      // 聊天模态框事件监听
+      const chatModal = document.getElementById('pcm-chat-modal');
+      const openChatButton = document.getElementById('open-app-chat');
 
-        }
 
-        // 打开聊天按钮事件监听
-        if (openChatButton && chatModal) {
-          openChatButton.addEventListener('click', function() {
-            chatModal.isOpen = true;
-          });
-        }
-        
-        // 通过 JavaScript 设置复杂对象属性
-        chatModal.customInputs = {
-          job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广"
-        };
-      });
-    </script>
-  </body>
+      if (chatModal) {
+
+        chatModal.addEventListener('modalClosed', function () {
+          console.log('聊天窗口已关闭');
+          chatModal.isOpen = false;
+        });
+
+        chatModal.addEventListener('streamComplete', function (event) {
+          console.log('流式响应完成:', event.detail);
+          // 更新 conversation_id
+          chatModal.setAttribute('conversation-id', event.detail.conversation_id);
+        });
+
+        chatModal.addEventListener('interviewComplete', function (event) {
+          console.log('面试完成:', event.detail);
+          chatModal.isOpen = false;
+        });
+
+        // 添加新的事件监听器来测试其他回调
+        chatModal.addEventListener('uploadSuccess', function (event) {
+          console.log('文件上传成功:', event.detail);
+        });
+
+        chatModal.addEventListener('conversationStart', function (event) {
+          console.log('会话开始:', event.detail);
+        });
+
+      }
+
+      // 打开聊天按钮事件监听
+      if (openChatButton && chatModal) {
+        openChatButton.addEventListener('click', function () {
+          chatModal.isOpen = true;
+        });
+      }
+
+      // 通过 JavaScript 设置复杂对象属性
+      chatModal.customInputs = {
+        job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广"
+      };
+
+
+    });
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // 简历评析模态框事件监听
+      const jlpxModal = document.getElementById('pcm-jlpx-modal');
+      const openJlpxButton = document.getElementById('open-jlpx-chat');
+
+      if (jlpxModal) {
+        jlpxModal.addEventListener('modalClosed', function () {
+          console.log('简历评析窗口已关闭');
+          jlpxModal.isOpen = false;
+        });
+
+        jlpxModal.addEventListener('streamComplete', function (event) {
+          console.log('流式响应完成:', event.detail);
+          // 更新 conversation_id
+          jlpxModal.setAttribute('conversation-id', event.detail.conversation_id);
+        });
+
+        jlpxModal.addEventListener('uploadSuccess', function (event) {
+          console.log('文件上传成功:', event.detail);
+        });
+
+        jlpxModal.addEventListener('conversationStart', function (event) {
+          console.log('会话开始:', event.detail);
+        });
+      }
+      // 打开简历评析按钮事件监听
+      if (openJlpxButton && jlpxModal) {
+        openJlpxButton.addEventListener('click', function () {
+          jlpxModal.isOpen = true;
+        });
+      }
+      jlpxModal.customInputs = {
+        job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广"
+      };
+    });
+  </script>
+</body>
+
 </html>

@@ -875,9 +875,6 @@ export class ChatAPPModal {
         // 调用音频转文字API
         const transcriptionText = await this.convertAudioToText(result.cos_key);
 
-        // 保存视频答案
-        await this.saveVideoAnswer(result.cos_key);
-
         // 发送"下一题"请求，可以附带转录文本
         this.sendMessageToAPI(transcriptionText || "下一题");
       } else {
@@ -898,32 +895,6 @@ export class ChatAPPModal {
     }
   }
 
-  // 保存视频答案
-  private async saveVideoAnswer(cosKey: string) {
-    if (!this.conversationId) return;
-
-    try {
-      const lastAIMessage = this.messages.length > 0 ? this.messages[this.messages.length - 1] : null;
-
-      if (!lastAIMessage) return;
-
-      await sendHttpRequest({
-        url: 'https://pcm_api.ylzhaopin.com/agents/hr_competition/answer',
-        method: 'POST',
-        headers: {
-          'authorization': 'Bearer ' + this.apiKey
-        },
-        data: {
-          conversation_id: this.conversationId,
-          user: this.userId, // 使用传入的 userId
-          question: lastAIMessage.answer,
-          file_url: cosKey
-        },
-      });
-    } catch (error) {
-      console.error('保存视频答案失败:', error);
-    }
-  }
 
   /**
    * 发送面试完成请求

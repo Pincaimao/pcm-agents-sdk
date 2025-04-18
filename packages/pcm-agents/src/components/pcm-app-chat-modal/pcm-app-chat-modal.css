@@ -184,7 +184,7 @@
   overflow-y: auto;
   padding: 20px;
   scroll-behavior: smooth;
-  min-height: 400px;
+  height: 400px;
   background: url(https://pcm-resource-1312611446.cos.ap-guangzhou.myqcloud.com/web/sdk/chat_bg.png);
   background-size: 100%;
 }
@@ -768,6 +768,7 @@
 
   .chat-history {
     min-height: 200px;
+    max-height: 350px;
   }
 }
 
