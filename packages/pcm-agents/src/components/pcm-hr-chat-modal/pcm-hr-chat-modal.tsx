@@ -56,7 +56,7 @@ export class ChatHRModal {
 
 
   /**
-   * 会话ID
+   * 会话ID，传入继续对话，否则创建新会话
    */
   @Prop({ mutable: true }) conversationId?: string;
 
@@ -183,7 +183,7 @@ export class ChatHRModal {
   @Prop() toEmail: string = '';
 
   /**
-   * 是否以全屏模式打开
+   * 是否以全屏模式打开，移动端建议设置为true
    */
   @Prop() fullscreen: boolean = false;
 

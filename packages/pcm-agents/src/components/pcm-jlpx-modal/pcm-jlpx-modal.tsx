@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
-import { uploadFileToBackend, FileUploadResponse } from '../../utils/utils';
+import { uploadFileToBackend, FileUploadResponse, sendHttpRequest } from '../../utils/utils';
 
 @Component({
     tag: 'pcm-jlpx-modal',
@@ -48,7 +48,7 @@ export class JlpxModal {
     @Prop() isNeedClose: boolean = true;
 
     /**
-     * 会话ID
+     * 会话ID，传入继续对话，否则创建新会话
      */
     @Prop({ mutable: true }) conversationId?: string;
 
@@ -58,14 +58,10 @@ export class JlpxModal {
     @Prop() defaultQuery: string = '';
 
     /**
-     * 是否以全屏模式打开
+     * 是否以全屏模式打开，移动端建议设置为true
      */
     @Prop() fullscreen: boolean = false;
 
-    /**
-     * 是否为移动端布局
-     */
-    @Prop() isMobile: boolean = false;
 
     /**
      * 自定义输入参数，传入job_info时，会隐藏JD输入区域
@@ -104,6 +100,11 @@ export class JlpxModal {
         conversation_id: string;
         total_questions: number;
     }>;
+
+    /**
+     * API密钥验证失败事件
+     */
+    @Event() apiKeyInvalid: EventEmitter<void>;
 
     @State() selectedFile: File | null = null;
     @State() isUploading: boolean = false;
@@ -228,10 +229,44 @@ export class JlpxModal {
                 clearTimeout(this.transitionTimer);
                 this.transitionTimer = null;
             }
-        } else if (this.conversationId) {
-            // 如果有会话ID，直接显示聊天模态框
-            this.showChatModal = true;
+        } else {
+            // 当模态框打开时，验证API密钥
+            this.verifyApiKey();
+            
+            if (this.conversationId) {
+                // 如果有会话ID，直接显示聊天模态框
+                this.showChatModal = true;
+            }
         }
+    }
+
+    /**
+     * 验证API密钥
+     */
+    private async verifyApiKey() {
+        if (!this.apiKey) {
+            this.apiKeyInvalid.emit();
+            return;
+        }
+        try {
+            const response = await sendHttpRequest({
+                url: '/sdk/v1/user',
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${this.apiKey}`
+                }
+            });
+
+            if (!response.success) {
+                throw new Error(response.message || 'API密钥验证失败');
+            }
+            
+            // 验证成功，继续正常流程
+        } catch (error) {
+            console.error('API密钥验证错误:', error);
+            // 通知父组件API密钥无效
+            this.apiKeyInvalid.emit();
+        } 
     }
 
     componentWillLoad() {
@@ -267,8 +302,7 @@ export class JlpxModal {
         const containerClass = {
             'modal-container': true,
             'fullscreen': this.fullscreen,
-            'pc-layout': !this.isMobile,
-            'mobile-layout': this.isMobile
+            'pc-layout': true,
         };
         
         const overlayClass = {

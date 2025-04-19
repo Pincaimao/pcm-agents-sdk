@@ -168,7 +168,8 @@ type PcmJlpxModalEvents = {
     onInterviewComplete: EventName<CustomEvent<{
         conversation_id: string;
         total_questions: number;
-    }>>
+    }>>,
+    onApiKeyInvalid: EventName<CustomEvent<void>>
 };
 
 export const PcmJlpxModal: StencilReactComponent<PcmJlpxModalElement, PcmJlpxModalEvents> = /*@__PURE__*/ createComponent<PcmJlpxModalElement, PcmJlpxModalEvents>({
@@ -181,7 +182,8 @@ export const PcmJlpxModal: StencilReactComponent<PcmJlpxModalElement, PcmJlpxMod
         onUploadSuccess: 'uploadSuccess',
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
-        onInterviewComplete: 'interviewComplete'
+        onInterviewComplete: 'interviewComplete',
+        onApiKeyInvalid: 'apiKeyInvalid'
     } as PcmJlpxModalEvents,
     defineCustomElement: definePcmJlpxModal
 });
@@ -204,7 +206,8 @@ type PcmMnmsModalEvents = {
     onInterviewComplete: EventName<CustomEvent<{
         conversation_id: string;
         total_questions: number;
-    }>>
+    }>>,
+    onApiKeyInvalid: EventName<CustomEvent<void>>
 };
 
 export const PcmMnmsModal: StencilReactComponent<PcmMnmsModalElement, PcmMnmsModalEvents> = /*@__PURE__*/ createComponent<PcmMnmsModalElement, PcmMnmsModalEvents>({
@@ -217,7 +220,8 @@ export const PcmMnmsModal: StencilReactComponent<PcmMnmsModalElement, PcmMnmsMod
         onUploadSuccess: 'uploadSuccess',
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
-        onInterviewComplete: 'interviewComplete'
+        onInterviewComplete: 'interviewComplete',
+        onApiKeyInvalid: 'apiKeyInvalid'
     } as PcmMnmsModalEvents,
     defineCustomElement: definePcmMnmsModal
 });
@@ -278,7 +282,8 @@ type PcmZyghModalEvents = {
     onPlanningComplete: EventName<PcmZyghModalCustomEvent<{
         conversation_id: string;
         plan_type: CareerPlanType;
-    }>>
+    }>>,
+    onApiKeyInvalid: EventName<CustomEvent<void>>
 };
 
 export const PcmZyghModal: StencilReactComponent<PcmZyghModalElement, PcmZyghModalEvents> = /*@__PURE__*/ createComponent<PcmZyghModalElement, PcmZyghModalEvents>({
@@ -291,7 +296,8 @@ export const PcmZyghModal: StencilReactComponent<PcmZyghModalElement, PcmZyghMod
         onUploadSuccess: 'uploadSuccess',
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
-        onPlanningComplete: 'planningComplete'
+        onPlanningComplete: 'planningComplete',
+        onApiKeyInvalid: 'apiKeyInvalid'
     } as PcmZyghModalEvents,
     defineCustomElement: definePcmZyghModal
 });

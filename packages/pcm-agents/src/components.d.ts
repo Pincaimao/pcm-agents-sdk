@@ -36,7 +36,7 @@ export namespace Components {
          */
         "botId"?: string;
         /**
-          * 会话ID
+          * 会话ID，传入继续对话，否则创建新会话
          */
         "conversationId"?: string;
         /**
@@ -64,7 +64,7 @@ export namespace Components {
          */
         "enableVoice": boolean;
         /**
-          * 是否以全屏模式打开
+          * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen": boolean;
         /**
@@ -120,7 +120,7 @@ export namespace Components {
          */
         "botId": string;
         /**
-          * 会话ID
+          * 会话ID，传入继续对话，否则创建新会话
          */
         "conversationId"?: string;
         /**
@@ -128,7 +128,7 @@ export namespace Components {
          */
         "defaultQuery": string;
         /**
-          * 是否以全屏模式打开
+          * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen": boolean;
         /**
@@ -162,7 +162,7 @@ export namespace Components {
          */
         "apiKey": string;
         /**
-          * 会话ID
+          * 会话ID，传入继续对话，否则创建新会话
          */
         "conversationId"?: string;
         /**
@@ -182,7 +182,7 @@ export namespace Components {
          */
         "enableVoice": boolean;
         /**
-          * 是否以全屏模式打开
+          * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen": boolean;
         /**
@@ -236,7 +236,7 @@ export namespace Components {
          */
         "apiKey": string;
         /**
-          * 会话ID
+          * 会话ID，传入继续对话，否则创建新会话
          */
         "conversationId"?: string;
         /**
@@ -248,17 +248,13 @@ export namespace Components {
          */
         "defaultQuery": string;
         /**
-          * 是否以全屏模式打开
+          * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen": boolean;
         /**
           * 应用图标URL
          */
         "icon"?: string;
-        /**
-          * 是否为移动端布局
-         */
-        "isMobile": boolean;
         /**
           * 是否展示右上角的关闭按钮
          */
@@ -286,7 +282,7 @@ export namespace Components {
          */
         "apiKey": string;
         /**
-          * 会话ID
+          * 会话ID，传入继续对话，否则创建新会话
          */
         "conversationId"?: string;
         /**
@@ -298,17 +294,13 @@ export namespace Components {
          */
         "defaultQuery": string;
         /**
-          * 是否以全屏模式打开
+          * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen": boolean;
         /**
           * 应用图标URL
          */
         "icon"?: string;
-        /**
-          * 是否为移动端布局
-         */
-        "isMobile": boolean;
         /**
           * 是否展示右上角的关闭按钮
          */
@@ -336,7 +328,7 @@ export namespace Components {
          */
         "apiKey": string;
         /**
-          * 会话ID
+          * 会话ID，传入继续对话，否则创建新会话
          */
         "conversationId"?: string;
         /**
@@ -356,7 +348,7 @@ export namespace Components {
          */
         "enableVoice": boolean;
         /**
-          * 是否以全屏模式打开
+          * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen": boolean;
         /**
@@ -402,7 +394,7 @@ export namespace Components {
          */
         "apiKey": string;
         /**
-          * 会话ID
+          * 会话ID，传入继续对话，否则创建新会话
          */
         "conversationId"?: string;
         /**
@@ -414,17 +406,13 @@ export namespace Components {
          */
         "defaultQuery": string;
         /**
-          * 是否以全屏模式打开
+          * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen": boolean;
         /**
           * 应用图标URL
          */
         "icon"?: string;
-        /**
-          * 是否为移动端布局
-         */
-        "isMobile": boolean;
         /**
           * 是否展示右上角的关闭按钮
          */
@@ -624,6 +612,7 @@ declare global {
         conversation_id: string;
         total_questions: number;
     };
+        "apiKeyInvalid": void;
     }
     interface HTMLPcmJlpxModalElement extends Components.PcmJlpxModal, HTMLStencilElement {
         addEventListener<K extends keyof HTMLPcmJlpxModalElementEventMap>(type: K, listener: (this: HTMLPcmJlpxModalElement, ev: PcmJlpxModalCustomEvent<HTMLPcmJlpxModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -658,6 +647,7 @@ declare global {
         conversation_id: string;
         total_questions: number;
     };
+        "apiKeyInvalid": void;
     }
     interface HTMLPcmMnmsModalElement extends Components.PcmMnmsModal, HTMLStencilElement {
         addEventListener<K extends keyof HTMLPcmMnmsModalElementEventMap>(type: K, listener: (this: HTMLPcmMnmsModalElement, ev: PcmMnmsModalCustomEvent<HTMLPcmMnmsModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -728,6 +718,7 @@ declare global {
         conversation_id: string;
         plan_type: CareerPlanType;
     };
+        "apiKeyInvalid": void;
     }
     interface HTMLPcmZyghModalElement extends Components.PcmZyghModal, HTMLStencilElement {
         addEventListener<K extends keyof HTMLPcmZyghModalElementEventMap>(type: K, listener: (this: HTMLPcmZyghModalElement, ev: PcmZyghModalCustomEvent<HTMLPcmZyghModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -780,7 +771,7 @@ declare namespace LocalJSX {
          */
         "botId"?: string;
         /**
-          * 会话ID
+          * 会话ID，传入继续对话，否则创建新会话
          */
         "conversationId"?: string;
         /**
@@ -808,7 +799,7 @@ declare namespace LocalJSX {
          */
         "enableVoice"?: boolean;
         /**
-          * 是否以全屏模式打开
+          * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen"?: boolean;
         /**
@@ -912,7 +903,7 @@ declare namespace LocalJSX {
          */
         "botId"?: string;
         /**
-          * 会话ID
+          * 会话ID，传入继续对话，否则创建新会话
          */
         "conversationId"?: string;
         /**
@@ -920,7 +911,7 @@ declare namespace LocalJSX {
          */
         "defaultQuery"?: string;
         /**
-          * 是否以全屏模式打开
+          * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen"?: boolean;
         /**
@@ -968,7 +959,7 @@ declare namespace LocalJSX {
          */
         "apiKey"?: string;
         /**
-          * 会话ID
+          * 会话ID，传入继续对话，否则创建新会话
          */
         "conversationId"?: string;
         /**
@@ -988,7 +979,7 @@ declare namespace LocalJSX {
          */
         "enableVoice"?: boolean;
         /**
-          * 是否以全屏模式打开
+          * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen"?: boolean;
         /**
@@ -1074,7 +1065,7 @@ declare namespace LocalJSX {
          */
         "apiKey"?: string;
         /**
-          * 会话ID
+          * 会话ID，传入继续对话，否则创建新会话
          */
         "conversationId"?: string;
         /**
@@ -1086,17 +1077,13 @@ declare namespace LocalJSX {
          */
         "defaultQuery"?: string;
         /**
-          * 是否以全屏模式打开
+          * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen"?: boolean;
         /**
           * 应用图标URL
          */
         "icon"?: string;
-        /**
-          * 是否为移动端布局
-         */
-        "isMobile"?: boolean;
         /**
           * 是否展示右上角的关闭按钮
          */
@@ -1113,6 +1100,10 @@ declare namespace LocalJSX {
           * 模态框标题
          */
         "modalTitle"?: string;
+        /**
+          * API密钥验证失败事件
+         */
+        "onApiKeyInvalid"?: (event: PcmJlpxModalCustomEvent<void>) => void;
         /**
           * 新会话开始的回调，只会在一轮对话开始时触发一次
          */
@@ -1157,7 +1148,7 @@ declare namespace LocalJSX {
          */
         "apiKey"?: string;
         /**
-          * 会话ID
+          * 会话ID，传入继续对话，否则创建新会话
          */
         "conversationId"?: string;
         /**
@@ -1169,17 +1160,13 @@ declare namespace LocalJSX {
          */
         "defaultQuery"?: string;
         /**
-          * 是否以全屏模式打开
+          * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen"?: boolean;
         /**
           * 应用图标URL
          */
         "icon"?: string;
-        /**
-          * 是否为移动端布局
-         */
-        "isMobile"?: boolean;
         /**
           * 是否展示右上角的关闭按钮
          */
@@ -1196,6 +1183,10 @@ declare namespace LocalJSX {
           * 模态框标题
          */
         "modalTitle"?: string;
+        /**
+          * API密钥验证失败事件
+         */
+        "onApiKeyInvalid"?: (event: PcmMnmsModalCustomEvent<void>) => void;
         /**
           * 新会话开始的回调，只会在一轮对话开始时触发一次
          */
@@ -1240,7 +1231,7 @@ declare namespace LocalJSX {
          */
         "apiKey"?: string;
         /**
-          * 会话ID
+          * 会话ID，传入继续对话，否则创建新会话
          */
         "conversationId"?: string;
         /**
@@ -1260,7 +1251,7 @@ declare namespace LocalJSX {
          */
         "enableVoice"?: boolean;
         /**
-          * 是否以全屏模式打开
+          * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen"?: boolean;
         /**
@@ -1338,7 +1329,7 @@ declare namespace LocalJSX {
          */
         "apiKey"?: string;
         /**
-          * 会话ID
+          * 会话ID，传入继续对话，否则创建新会话
          */
         "conversationId"?: string;
         /**
@@ -1350,17 +1341,13 @@ declare namespace LocalJSX {
          */
         "defaultQuery"?: string;
         /**
-          * 是否以全屏模式打开
+          * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen"?: boolean;
         /**
           * 应用图标URL
          */
         "icon"?: string;
-        /**
-          * 是否为移动端布局
-         */
-        "isMobile"?: boolean;
         /**
           * 是否展示右上角的关闭按钮
          */
@@ -1377,6 +1364,10 @@ declare namespace LocalJSX {
           * 模态框标题
          */
         "modalTitle"?: string;
+        /**
+          * API密钥验证失败事件
+         */
+        "onApiKeyInvalid"?: (event: PcmZyghModalCustomEvent<void>) => void;
         /**
           * 新会话开始的回调，只会在一轮对话开始时触发一次
          */
