@@ -5,8 +5,10 @@ import { PcmAppChatModal as PcmAppChatModalElement, defineCustomElement as defin
 import { PcmChatMessage as PcmChatMessageElement, defineCustomElement as definePcmChatMessage } from "pcm-agents/dist/components/pcm-chat-message.js";
 import { PcmChatModal as PcmChatModalElement, defineCustomElement as definePcmChatModal } from "pcm-agents/dist/components/pcm-chat-modal.js";
 import { PcmHrChatModal as PcmHrChatModalElement, defineCustomElement as definePcmHrChatModal } from "pcm-agents/dist/components/pcm-hr-chat-modal.js";
+import { PcmJlpxModal as PcmJlpxModalElement, defineCustomElement as definePcmJlpxModal } from "pcm-agents/dist/components/pcm-jlpx-modal.js";
 import { PcmMnmsModal as PcmMnmsModalElement, defineCustomElement as definePcmMnmsModal } from "pcm-agents/dist/components/pcm-mnms-modal.js";
 import { PcmVideoChatModal as PcmVideoChatModalElement, defineCustomElement as definePcmVideoChatModal } from "pcm-agents/dist/components/pcm-video-chat-modal.js";
+import { PcmZyghModal as PcmZyghModalElement, defineCustomElement as definePcmZyghModal } from "pcm-agents/dist/components/pcm-zygh-modal.js";
 import React from 'react';
 export const MyComponent = createComponent({
     tagName: 'my-component',
@@ -60,6 +62,20 @@ export const PcmHrChatModal = createComponent({
     },
     defineCustomElement: definePcmHrChatModal
 });
+export const PcmJlpxModal = createComponent({
+    tagName: 'pcm-jlpx-modal',
+    elementClass: PcmJlpxModalElement,
+    react: React,
+    events: {
+        onModalClosed: 'modalClosed',
+        onUploadSuccess: 'uploadSuccess',
+        onStreamComplete: 'streamComplete',
+        onConversationStart: 'conversationStart',
+        onInterviewComplete: 'interviewComplete',
+        onApiKeyInvalid: 'apiKeyInvalid'
+    },
+    defineCustomElement: definePcmJlpxModal
+});
 export const PcmMnmsModal = createComponent({
     tagName: 'pcm-mnms-modal',
     elementClass: PcmMnmsModalElement,
@@ -69,7 +85,8 @@ export const PcmMnmsModal = createComponent({
         onUploadSuccess: 'uploadSuccess',
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
-        onInterviewComplete: 'interviewComplete'
+        onInterviewComplete: 'interviewComplete',
+        onApiKeyInvalid: 'apiKeyInvalid'
     },
     defineCustomElement: definePcmMnmsModal
 });
@@ -85,5 +102,19 @@ export const PcmVideoChatModal = createComponent({
         onRecordingStatusChange: 'recordingStatusChange'
     },
     defineCustomElement: definePcmVideoChatModal
+});
+export const PcmZyghModal = createComponent({
+    tagName: 'pcm-zygh-modal',
+    elementClass: PcmZyghModalElement,
+    react: React,
+    events: {
+        onModalClosed: 'modalClosed',
+        onUploadSuccess: 'uploadSuccess',
+        onStreamComplete: 'streamComplete',
+        onConversationStart: 'conversationStart',
+        onPlanningComplete: 'planningComplete',
+        onApiKeyInvalid: 'apiKeyInvalid'
+    },
+    defineCustomElement: definePcmZyghModal
 });
 //# sourceMappingURL=components.js.map
