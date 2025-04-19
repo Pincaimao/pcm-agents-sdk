@@ -83,7 +83,7 @@
 
   <div class="demo-controls">
     <h2>模拟面试组件演示</h2>
-    <button id="open-app-chat">打开聊天</button>
+    <button id="open-mnms-chat">打开模拟面试</button>
   </div>
 
   <div class="demo-controls">
@@ -100,25 +100,25 @@
 
 
   <!-- 添加聊天模态框组件 -->
-  <pcm-mnms-modal id="pcm-chat-modal" api-key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6bnVsbCwiYm90X2lkIjoiMSIsInNlY3JldF9pZCI6Mzg5OTk1ODAyNTUxOTEwNDAsImV4cCI6MTc0NTA0OTAxM30.56OoTrp16avgl48YfWBKOHywAKHJ5qPGypqRCGCyVt0" modal-title="模拟面试"
+  <pcm-mnms-modal id="pcm-mnms-modal" api-key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOjM4OTk5NTgwMjU1MTkxMDQwLCJleHAiOjE3NDUxMzY2NDd9.L-w2XaJ5SsIBUkE55h_HL1tn-oty63VPyuJ1_S7d-N0" modal-title="模拟面试"
     icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
-    conversation-id="" user-id="1234567890" fullscreen="true"  total-questions="10"
+    conversation-id=""  fullscreen="false"  total-questions="10"
     enable-voice="false" interview-mode="text" defaultQuery="请您提问"></pcm-mnms-modal>
 
-  <pcm-jlpx-modal id="pcm-jlpx-modal" api-key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6bnVsbCwiYm90X2lkIjoiMSIsInNlY3JldF9pZCI6Mzg5OTk1ODAyNTUxOTEwNDAsImV4cCI6MTc0NTA0OTAxM30.56OoTrp16avgl48YfWBKOHywAKHJ5qPGypqRCGCyVt0" modal-title="简历剖析助手"
+  <pcm-jlpx-modal id="pcm-jlpx-modal" api-key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOjM4OTk5NTgwMjU1MTkxMDQwLCJleHAiOjE3NDUxMzY2NDd9.L-w2XaJ5SsIBUkE55h_HL1tn-oty63VPyuJ1_S7d-N0" modal-title="简历剖析助手"
     icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
-    conversation-id="" user-id="1234567890" fullscreen="true"  total-questions="10"
+    conversation-id=""  fullscreen="false"  total-questions="10"
     enable-voice="false" interview-mode="text" defaultQuery="请您提问"></pcm-jlpx-modal>
 
-  <pcm-zygh-modal id="pcm-zygh-modal" api-key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6bnVsbCwiYm90X2lkIjoiMSIsInNlY3JldF9pZCI6Mzg5OTk1ODAyNTUxOTEwNDAsImV4cCI6MTc0NTA0OTAxM30.56OoTrp16avgl48YfWBKOHywAKHJ5qPGypqRCGCyVt0" modal-title="职业规划助手"
+  <pcm-zygh-modal id="pcm-zygh-modal" api-key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOjM4OTk5NTgwMjU1MTkxMDQwLCJleHAiOjE3NDUxMzY2NDd9.L-w2XaJ5SsIBUkE55h_HL1tn-oty63VPyuJ1_S7d-N0" modal-title="职业规划助手"
     icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
-    conversation-id="" user-id="1234567890" fullscreen="true"  total-questions="10"
+    conversation-id=""  fullscreen="false"  total-questions="10"
     enable-voice="false" interview-mode="text" defaultQuery="请您提问"></pcm-zygh-modal>
 
 
   <pcm-video-chat-modal 
       id="pcm-video-chat-modal" 
-      api-key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6bnVsbCwiYm90X2lkIjoiMSIsInNlY3JldF9pZCI6Mzg5OTk1ODAyNTUxOTEwNDAsImV4cCI6MTc0NTA0OTAxM30.56OoTrp16avgl48YfWBKOHywAKHJ5qPGypqRCGCyVt0"
+      api-key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOjM4OTk5NTgwMjU1MTkxMDQwLCJleHAiOjE3NDUxMzY2NDd9.L-w2XaJ5SsIBUkE55h_HL1tn-oty63VPyuJ1_S7d-N0"
       modal-title="视频面试" 
       icon="https://www.ylzhaopin.com/Public/Newhome/images/sidebar/tochat.png"
       conversation-id=""
@@ -130,7 +130,7 @@
 
     <pcm-hr-chat-modal 
       id="pcm-hr-chat-modal" 
-      api-key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6bnVsbCwiYm90X2lkIjoiMSIsInNlY3JldF9pZCI6Mzg5OTk1ODAyNTUxOTEwNDAsImV4cCI6MTc0NTA0OTAxM30.56OoTrp16avgl48YfWBKOHywAKHJ5qPGypqRCGCyVt0"
+      api-key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOjM4OTk5NTgwMjU1MTkxMDQwLCJleHAiOjE3NDUxMzY2NDd9.L-w2XaJ5SsIBUkE55h_HL1tn-oty63VPyuJ1_S7d-N0"
       modal-title="金牌HR大赛" 
       welcome-message="欢迎您参加长沙市人力资源和社会保障局组织的金牌HR大赛，接下来我们将采用数字人方式对您做交流，本次大赛预计需要10-30分钟，请在安静的环境下参与此次大赛。"
       icon="https://p3-pc.douyinpic.com/img/aweme-avatar/tos-cn-avt-0015_55cc4ce1aa0059074f4f9def520246dc~c5_300x300.jpeg"
@@ -225,6 +225,7 @@
           
           chatModal.addEventListener('modalClosed', function() {
             console.log('聊天窗口已关闭');
+            chatModal.isOpen = false;
           });
 
           // 添加 streamComplete 事件监听
@@ -385,49 +386,49 @@
     document.addEventListener('DOMContentLoaded', function () {
       console.log('DOM 已加载，正在设置事件监听器...');
 
-      // 聊天模态框事件监听
-      const chatModal = document.getElementById('pcm-chat-modal');
-      const openChatButton = document.getElementById('open-app-chat');
+      // 模拟面试模态框事件监听
+      const mnmsModal = document.getElementById('pcm-mnms-modal');
+      const openChatButton = document.getElementById('open-mnms-chat');
 
 
-      if (chatModal) {
+      if (mnmsModal) {
 
-        chatModal.addEventListener('modalClosed', function () {
+        mnmsModal.addEventListener('modalClosed', function () {
           console.log('聊天窗口已关闭');
-          chatModal.isOpen = false;
+          mnmsModal.isOpen = false;
         });
 
-        chatModal.addEventListener('streamComplete', function (event) {
+        mnmsModal.addEventListener('streamComplete', function (event) {
           console.log('流式响应完成:', event.detail);
           // 更新 conversation_id
-          chatModal.setAttribute('conversation-id', event.detail.conversation_id);
+          mnmsModal.setAttribute('conversation-id', event.detail.conversation_id);
         });
 
-        chatModal.addEventListener('interviewComplete', function (event) {
+        mnmsModal.addEventListener('interviewComplete', function (event) {
           console.log('面试完成:', event.detail);
-          chatModal.isOpen = false;
+          mnmsModal.isOpen = false;
         });
 
         // 添加新的事件监听器来测试其他回调
-        chatModal.addEventListener('uploadSuccess', function (event) {
+        mnmsModal.addEventListener('uploadSuccess', function (event) {
           console.log('文件上传成功:', event.detail);
         });
 
-        chatModal.addEventListener('conversationStart', function (event) {
+        mnmsModal.addEventListener('conversationStart', function (event) {
           console.log('会话开始:', event.detail);
         });
 
       }
 
       // 打开聊天按钮事件监听
-      if (openChatButton && chatModal) {
+      if (openChatButton && mnmsModal) {
         openChatButton.addEventListener('click', function () {
-          chatModal.isOpen = true;
+          mnmsModal.isOpen = true;
         });
       }
 
       // 通过 JavaScript 设置复杂对象属性
-      chatModal.customInputs = {
+      mnmsModal.customInputs = {
         job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广"
       };
 

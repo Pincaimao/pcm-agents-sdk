@@ -240,7 +240,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数
+          * 自定义输入参数，传入job_info时，会隐藏JD输入区域
          */
         "customInputs": { [key: string]: any };
         /**
@@ -290,7 +290,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数
+          * 自定义输入参数，传入job_info时，会隐藏JD输入区域
          */
         "customInputs": { [key: string]: any };
         /**
@@ -1078,7 +1078,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数
+          * 自定义输入参数，传入job_info时，会隐藏JD输入区域
          */
         "customInputs"?: { [key: string]: any };
         /**
@@ -1161,7 +1161,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数
+          * 自定义输入参数，传入job_info时，会隐藏JD输入区域
          */
         "customInputs"?: { [key: string]: any };
         /**

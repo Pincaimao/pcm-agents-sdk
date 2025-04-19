@@ -3,14 +3,14 @@ import { uploadFileToBackend, FileUploadResponse } from '../../utils/utils';
 
 @Component({
     tag: 'pcm-mnms-modal',
-    styleUrl: 'pcm-mnms-modal.css',
+    styleUrls: ['pcm-mnms-modal.css', '../../global/global.css'],
     shadow: true,
 })
 export class MnmsModal {
     /**
      * 模态框标题
      */
-    @Prop() modalTitle: string = '在线客服';
+    @Prop() modalTitle: string = '模拟面试';
 
     /**
      * API鉴权密钥
@@ -68,7 +68,7 @@ export class MnmsModal {
     @Prop() isMobile: boolean = false;
 
     /**
-     * 自定义输入参数
+     * 自定义输入参数，传入job_info时，会隐藏JD输入区域
      */
     @Prop() customInputs: { [key: string]: any } = {};
 
@@ -118,6 +118,9 @@ export class MnmsModal {
     // 使用 @Element 装饰器获取组件的 host 元素
     @Element() hostElement: HTMLElement;
 
+    @State() jobDescription: string = '';
+    @State() isSubmitting: boolean = false;
+
     private handleClose = () => {
         this.isOpen = false;
         this.modalClosed.emit();
@@ -154,7 +157,7 @@ export class MnmsModal {
             const result = await uploadFileToBackend(this.selectedFile, {
                 'authorization': 'Bearer ' + this.apiKey
             });
-            
+
             this.uploadedFileInfo = result;
             this.uploadSuccess.emit(result);
         } catch (error) {
@@ -166,27 +169,52 @@ export class MnmsModal {
         }
     }
 
+    private handleJobDescriptionChange = (event: Event) => {
+        const textarea = event.target as HTMLTextAreaElement;
+        this.jobDescription = textarea.value;
+    };
+
     private handleStartInterview = async () => {
         if (!this.selectedFile) {
             alert('请上传简历');
             return;
         }
 
-        // 如果还没上传，先上传文件
-        if (!this.uploadedFileInfo) {
-            await this.uploadFile();
-            if (!this.uploadedFileInfo) {
-                return; // 上传失败
-            }
+        // 如果没有预设的job_info，则需要检查用户输入
+        if (!this.customInputs?.job_info && !this.jobDescription.trim()) {
+            alert('请输入职位描述');
+            return;
         }
 
-        console.log('传递的customInputs:', {
-            ...this.customInputs,
-            file_url: this.uploadedFileInfo.cos_key
-        });
+        this.isSubmitting = true;
 
-        // 直接显示聊天模态框
-        this.showChatModal = true;
+        try {
+            // 如果还没上传，先上传文件
+            if (!this.uploadedFileInfo) {
+                await this.uploadFile();
+                if (!this.uploadedFileInfo) {
+                    this.isSubmitting = false;
+                    return; // 上传失败
+                }
+            }
+
+            // 使用预设的job_info或用户输入的jobDescription
+            const jobInfo = this.customInputs?.job_info || this.jobDescription;
+
+            console.log('传递的customInputs:', {
+                ...this.customInputs,
+                file_url: this.uploadedFileInfo.cos_key,
+                job_info: jobInfo
+            });
+
+            // 直接显示聊天模态框
+            this.showChatModal = true;
+        } catch (error) {
+            console.error('开始面试时出错:', error);
+            alert('开始面试时出错，请重试');
+        } finally {
+            this.isSubmitting = false;
+        }
     };
 
     @Watch('isOpen')
@@ -195,7 +223,8 @@ export class MnmsModal {
             // 重置状态
             this.clearSelectedFile();
             this.showChatModal = false;
-            
+            this.jobDescription = '';
+
             // 清除可能存在的计时器
             if (this.transitionTimer) {
                 clearTimeout(this.transitionTimer);
@@ -204,6 +233,13 @@ export class MnmsModal {
         } else if (this.conversationId) {
             // 如果有会话ID，直接显示聊天模态框
             this.showChatModal = true;
+        }
+    }
+
+    componentWillLoad() {
+        // 检查 customInputs 中是否有 job_info
+        if (this.customInputs && this.customInputs.job_info) {
+            this.jobDescription = this.customInputs.job_info;
         }
     }
 
@@ -239,7 +275,7 @@ export class MnmsModal {
             'pc-layout': !this.isMobile,
             'mobile-layout': this.isMobile
         };
-        
+
         const overlayClass = {
             'modal-overlay': true,
             'fullscreen-overlay': this.fullscreen
@@ -249,6 +285,9 @@ export class MnmsModal {
         if (this.conversationId && !this.showChatModal) {
             this.showChatModal = true;
         }
+
+        // 修正这里的逻辑，确保当 customInputs.job_info 存在时，hideJdInput 为 true
+        const hideJdInput = Boolean(this.customInputs && this.customInputs.job_info);
 
         return (
             <div class={overlayClass} style={modalStyle}>
@@ -269,34 +308,52 @@ export class MnmsModal {
 
                     {/* 上传界面 - 仅在不显示聊天模态框且没有会话ID时显示 */}
                     {!this.showChatModal && !this.conversationId && (
-                        <div class="upload-container">
-                            <h3>开始前，请上传您的简历</h3>
-                            <div class="upload-area" onClick={this.handleUploadClick}>
-                                {this.selectedFile ? (
-                                    <div class="file-info">
-                                        <span>{this.selectedFile.name}</span>
-                                        <button class="remove-file" onClick={(e) => {
-                                            e.stopPropagation();
-                                            this.clearSelectedFile();
-                                        }}>×</button>
-                                    </div>
-                                ) : (
-                                    <div class="upload-placeholder">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="48" height="48">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m0-16l-4 4m4-4l4 4" />
-                                        </svg>
-                                        <p>点击上传简历</p>
-                                        <p class="upload-hint">支持 txt、 markdown、 pdf、 docx、 md 格式</p>
-                                    </div>
-                                )}
+                        <div class="input-container">
+                            {/* JD输入区域 - 仅在没有customInputs.job_info时显示 */}
+                            {!hideJdInput && (
+                                <div class="jd-input-section">
+                                    <label htmlFor="job-description">请输入职位描述 (JD)</label>
+                                    <textarea 
+                                        id="job-description"
+                                        class="job-description-textarea"
+                                        placeholder="请输入职位描述，包括职责、要求等信息..."
+                                        rows={6}
+                                        value={this.jobDescription}
+                                        onInput={this.handleJobDescriptionChange}
+                                    ></textarea>
+                                </div>
+                            )}
+                            
+                            {/* 简历上传区域 */}
+                            <div class="resume-upload-section">
+                                <label>上传简历</label>
+                                <div class="upload-area" onClick={this.handleUploadClick}>
+                                    {this.selectedFile ? (
+                                        <div class="file-info">
+                                            <span>{this.selectedFile.name}</span>
+                                            <button class="remove-file" onClick={(e) => {
+                                                e.stopPropagation();
+                                                this.clearSelectedFile();
+                                            }}>×</button>
+                                        </div>
+                                    ) : (
+                                        <div class="upload-placeholder">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="48" height="48">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m0-16l-4 4m4-4l4 4" />
+                                            </svg>
+                                            <p>点击上传简历</p>
+                                            <p class="upload-hint">支持 txt、markdown、pdf、docx、md 格式</p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             <button
                                 class="submit-button"
-                                disabled={!this.selectedFile || this.isUploading}
+                                disabled={!this.selectedFile || (!hideJdInput && !this.jobDescription.trim()) || this.isUploading || this.isSubmitting}
                                 onClick={this.handleStartInterview}
                             >
-                                {this.isUploading ? '上传中...' : '开始面试'}
+                                {this.isUploading ? '上传中...' : this.isSubmitting ? '处理中...' : '开始分析'}
                             </button>
 
                             <input
@@ -326,7 +383,8 @@ export class MnmsModal {
                                 enableVoice={false}
                                 customInputs={this.conversationId ? undefined : {
                                     ...this.customInputs,
-                                    file_url: this.uploadedFileInfo?.cos_key
+                                    file_url: this.uploadedFileInfo?.cos_key,
+                                    job_info: this.customInputs?.job_info || this.jobDescription
                                 }}
                                 interviewMode="text"
                                 onModalClosed={this.handleClose}

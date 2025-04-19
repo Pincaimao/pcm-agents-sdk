@@ -3,7 +3,7 @@ import { uploadFileToBackend, FileUploadResponse } from '../../utils/utils';
 
 @Component({
     tag: 'pcm-jlpx-modal',
-    styleUrl: 'pcm-jlpx-modal.css',
+    styleUrls: ['pcm-jlpx-modal.css','../../global/global.css'],
     shadow: true,
 })
 export class JlpxModal {
@@ -68,7 +68,7 @@ export class JlpxModal {
     @Prop() isMobile: boolean = false;
 
     /**
-     * 自定义输入参数
+     * 自定义输入参数，传入job_info时，会隐藏JD输入区域
      */
     @Prop() customInputs: { [key: string]: any } = {};
 
@@ -304,7 +304,6 @@ export class JlpxModal {
                     {/* 输入界面 - 仅在不显示聊天模态框且没有会话ID时显示 */}
                     {!this.showChatModal && !this.conversationId && (
                         <div class="input-container">
-                            
                             {/* JD输入区域 - 仅在没有customInputs.job_info时显示 */}
                             {!hideJdInput && (
                                 <div class="jd-input-section">
