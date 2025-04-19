@@ -115,6 +115,7 @@ color: #FFFFFF;
 
 .input-view {
   margin-top: 8px;
+  padding-bottom: 10px;
   border: 1px solid #e9ecef;
   border-radius: 6px;
   overflow: hidden;
@@ -132,11 +133,16 @@ color: #FFFFFF;
 }
 
 .input-value {
-  padding: 12px;
+  padding: 12px 12px 0px;
   font-size: 14px;
   line-height: 1.5;
   color: #2c3e50;
   background-color: #ffffff;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .input-metadata {

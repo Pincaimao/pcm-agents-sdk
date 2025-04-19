@@ -6,8 +6,10 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { ChatMessage } from "./interfaces/chat";
+import { FileUploadResponse } from "./utils/utils";
 import { CareerPlanType } from "./components/pcm-zygh-modal/pcm-zygh-modal";
 export { ChatMessage } from "./interfaces/chat";
+export { FileUploadResponse } from "./utils/utils";
 export { CareerPlanType } from "./components/pcm-zygh-modal/pcm-zygh-modal";
 export namespace Components {
     interface MyComponent {
@@ -30,6 +32,10 @@ export namespace Components {
          */
         "apiKey": string;
         /**
+          * 机器人ID
+         */
+        "botId"?: string;
+        /**
           * 会话ID
          */
         "conversationId"?: string;
@@ -49,6 +55,10 @@ export namespace Components {
           * 是否显示题干内容 1: 显示题干内容 0: 不显示题干内容
          */
         "displayContentStatus": string;
+        /**
+          * 是否启用语音播报功能 true: 启用语音合成 false: 禁用语音合成
+         */
+        "enableTTS": boolean;
         /**
           * 是否自动播放语音问题
          */
@@ -90,10 +100,6 @@ export namespace Components {
          */
         "totalQuestions": number;
         /**
-          * 用户ID
-         */
-        "userId": string;
-        /**
           * 聊天框的页面层级
          */
         "zIndex"?: number;
@@ -105,6 +111,10 @@ export namespace Components {
         "message": ChatMessage;
     }
     interface PcmChatModal {
+        /**
+          * API鉴权密钥
+         */
+        "apiKey": string;
         /**
           * 机器人ID
          */
@@ -164,9 +174,9 @@ export namespace Components {
          */
         "defaultQuery": string;
         /**
-          * 是否显示题干内容 1: 显示题干内容 0: 不显示题干内容
+          * 是否显示题干内容
          */
-        "displayContentStatus": string;
+        "displayContentStatus": boolean;
         /**
           * 是否播放语音问题
          */
@@ -334,7 +344,7 @@ export namespace Components {
          */
         "countdownWarningTime": number;
         /**
-          * 默认查询文本
+          * 首次对话提问文本
          */
         "defaultQuery": string;
         /**
@@ -597,12 +607,7 @@ declare global {
     };
     interface HTMLPcmJlpxModalElementEventMap {
         "modalClosed": void;
-        "uploadSuccess": {
-        cos_key: string;
-        filename: string;
-        ext: string;
-        presigned_url: string;
-    };
+        "uploadSuccess": FileUploadResponse;
         "streamComplete": {
         conversation_id: string;
         event: string;
@@ -636,12 +641,7 @@ declare global {
     };
     interface HTMLPcmMnmsModalElementEventMap {
         "modalClosed": void;
-        "uploadSuccess": {
-        cos_key: string;
-        filename: string;
-        ext: string;
-        presigned_url: string;
-    };
+        "uploadSuccess": FileUploadResponse;
         "streamComplete": {
         conversation_id: string;
         event: string;
@@ -711,12 +711,7 @@ declare global {
     };
     interface HTMLPcmZyghModalElementEventMap {
         "modalClosed": void;
-        "uploadSuccess": {
-        cos_key: string;
-        filename: string;
-        ext: string;
-        presigned_url: string;
-    };
+        "uploadSuccess": FileUploadResponse;
         "streamComplete": {
         conversation_id: string;
         event: string;
@@ -781,6 +776,10 @@ declare namespace LocalJSX {
          */
         "apiKey"?: string;
         /**
+          * 机器人ID
+         */
+        "botId"?: string;
+        /**
           * 会话ID
          */
         "conversationId"?: string;
@@ -800,6 +799,10 @@ declare namespace LocalJSX {
           * 是否显示题干内容 1: 显示题干内容 0: 不显示题干内容
          */
         "displayContentStatus"?: string;
+        /**
+          * 是否启用语音播报功能 true: 启用语音合成 false: 禁用语音合成
+         */
+        "enableTTS"?: boolean;
         /**
           * 是否自动播放语音问题
          */
@@ -885,10 +888,6 @@ declare namespace LocalJSX {
          */
         "totalQuestions"?: number;
         /**
-          * 用户ID
-         */
-        "userId"?: string;
-        /**
           * 聊天框的页面层级
          */
         "zIndex"?: number;
@@ -904,6 +903,10 @@ declare namespace LocalJSX {
         "onMessageChange"?: (event: PcmChatMessageCustomEvent<Partial<ChatMessage>>) => void;
     }
     interface PcmChatModal {
+        /**
+          * API鉴权密钥
+         */
+        "apiKey"?: string;
         /**
           * 机器人ID
          */
@@ -977,9 +980,9 @@ declare namespace LocalJSX {
          */
         "defaultQuery"?: string;
         /**
-          * 是否显示题干内容 1: 显示题干内容 0: 不显示题干内容
+          * 是否显示题干内容
          */
-        "displayContentStatus"?: string;
+        "displayContentStatus"?: boolean;
         /**
           * 是否播放语音问题
          */
@@ -1142,12 +1145,7 @@ declare namespace LocalJSX {
         /**
           * 上传成功事件
          */
-        "onUploadSuccess"?: (event: PcmJlpxModalCustomEvent<{
-        cos_key: string;
-        filename: string;
-        ext: string;
-        presigned_url: string;
-    }>) => void;
+        "onUploadSuccess"?: (event: PcmJlpxModalCustomEvent<FileUploadResponse>) => void;
         /**
           * 聊天框的页面层级
          */
@@ -1230,12 +1228,7 @@ declare namespace LocalJSX {
         /**
           * 上传成功事件
          */
-        "onUploadSuccess"?: (event: PcmMnmsModalCustomEvent<{
-        cos_key: string;
-        filename: string;
-        ext: string;
-        presigned_url: string;
-    }>) => void;
+        "onUploadSuccess"?: (event: PcmMnmsModalCustomEvent<FileUploadResponse>) => void;
         /**
           * 聊天框的页面层级
          */
@@ -1255,7 +1248,7 @@ declare namespace LocalJSX {
          */
         "countdownWarningTime"?: number;
         /**
-          * 默认查询文本
+          * 首次对话提问文本
          */
         "defaultQuery"?: string;
         /**
@@ -1416,12 +1409,7 @@ declare namespace LocalJSX {
         /**
           * 上传成功事件
          */
-        "onUploadSuccess"?: (event: PcmZyghModalCustomEvent<{
-        cos_key: string;
-        filename: string;
-        ext: string;
-        presigned_url: string;
-    }>) => void;
+        "onUploadSuccess"?: (event: PcmZyghModalCustomEvent<FileUploadResponse>) => void;
         /**
           * 聊天框的页面层级
          */

@@ -16,7 +16,7 @@
 | `isNeedClose`    | `is-need-close`   | 是否展示右上角的关闭按钮 | `boolean`                 | `true`      |
 | `isOpen`         | `is-open`         | 是否显示聊天模态框    | `boolean`                 | `false`     |
 | `isShowHeader`   | `is-show-header`  | 是否展示顶部标题栏    | `boolean`                 | `true`      |
-| `modalTitle`     | `modal-title`     | 模态框标题        | `string`                  | `'在线客服'`    |
+| `modalTitle`     | `modal-title`     | 模态框标题        | `string`                  | `'职业规划助手'`  |
 | `zIndex`         | `z-index`         | 聊天框的页面层级     | `number`                  | `1000`      |
 
 
@@ -25,8 +25,8 @@
 | Event               | Description             | Type                                                                                       |
 | ------------------- | ----------------------- | ------------------------------------------------------------------------------------------ |
 | `conversationStart` | 新会话开始的回调，只会在一轮对话开始时触发一次 | `CustomEvent<{ conversation_id: string; event: string; message_id: string; id: string; }>` |
-| `interviewComplete` | 当聊天完成时触发                | `CustomEvent<{ conversation_id: string; total_questions: number; }>`                       |
 | `modalClosed`       | 当点击模态框关闭时触发             | `CustomEvent<void>`                                                                        |
+| `planningComplete`  | 当聊天完成时触发                | `CustomEvent<{ conversation_id: string; plan_type: CareerPlanType; }>`                     |
 | `streamComplete`    | 流式输出完成事件                | `CustomEvent<{ conversation_id: string; event: string; message_id: string; id: string; }>` |
 | `uploadSuccess`     | 上传成功事件                  | `CustomEvent<FileUploadResponse>`                                                          |
 
@@ -40,9 +40,9 @@
 ### Graph
 ```mermaid
 graph TD;
-  pcm-mnms-modal --> pcm-app-chat-modal
+  pcm-zygh-modal --> pcm-app-chat-modal
   pcm-app-chat-modal --> pcm-chat-message
-  style pcm-mnms-modal fill:#f9f,stroke:#333,stroke-width:4px
+  style pcm-zygh-modal fill:#f9f,stroke:#333,stroke-width:4px
 ```
 
 ----------------------------------------------

@@ -6,6 +6,7 @@
 
 | Property         | Attribute         | Description  | Type      | Default     |
 | ---------------- | ----------------- | ------------ | --------- | ----------- |
+| `apiKey`         | `api-key`         | API鉴权密钥      | `string`  | `''`        |
 | `botId`          | `bot-id`          | 机器人ID        | `string`  | `undefined` |
 | `conversationId` | `conversation-id` | 会话ID         | `string`  | `undefined` |
 | `defaultQuery`   | `default-query`   | 默认查询文本       | `string`  | `''`        |

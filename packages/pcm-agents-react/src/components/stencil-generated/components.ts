@@ -9,7 +9,7 @@
 
 import type { EventName, StencilReactComponent } from '@stencil/react-output-target/runtime';
 import { createComponent } from '@stencil/react-output-target/runtime';
-import { type CareerPlanType, type ChatMessage, type PcmChatMessageCustomEvent, type PcmZyghModalCustomEvent } from "pcm-agents";
+import { type CareerPlanType, type ChatMessage, type FileUploadResponse, type PcmChatMessageCustomEvent, type PcmJlpxModalCustomEvent, type PcmMnmsModalCustomEvent, type PcmZyghModalCustomEvent } from "pcm-agents";
 import { MyComponent as MyComponentElement, defineCustomElement as defineMyComponent } from "pcm-agents/dist/components/my-component.js";
 import { PcmAppChatModal as PcmAppChatModalElement, defineCustomElement as definePcmAppChatModal } from "pcm-agents/dist/components/pcm-app-chat-modal.js";
 import { PcmChatMessage as PcmChatMessageElement, defineCustomElement as definePcmChatMessage } from "pcm-agents/dist/components/pcm-chat-message.js";
@@ -152,12 +152,7 @@ export const PcmHrChatModal: StencilReactComponent<PcmHrChatModalElement, PcmHrC
 
 type PcmJlpxModalEvents = {
     onModalClosed: EventName<CustomEvent<void>>,
-    onUploadSuccess: EventName<CustomEvent<{
-        cos_key: string;
-        filename: string;
-        ext: string;
-        presigned_url: string;
-    }>>,
+    onUploadSuccess: EventName<PcmJlpxModalCustomEvent<FileUploadResponse>>,
     onStreamComplete: EventName<CustomEvent<{
         conversation_id: string;
         event: string;
@@ -193,12 +188,7 @@ export const PcmJlpxModal: StencilReactComponent<PcmJlpxModalElement, PcmJlpxMod
 
 type PcmMnmsModalEvents = {
     onModalClosed: EventName<CustomEvent<void>>,
-    onUploadSuccess: EventName<CustomEvent<{
-        cos_key: string;
-        filename: string;
-        ext: string;
-        presigned_url: string;
-    }>>,
+    onUploadSuccess: EventName<PcmMnmsModalCustomEvent<FileUploadResponse>>,
     onStreamComplete: EventName<CustomEvent<{
         conversation_id: string;
         event: string;
@@ -272,12 +262,7 @@ export const PcmVideoChatModal: StencilReactComponent<PcmVideoChatModalElement, 
 
 type PcmZyghModalEvents = {
     onModalClosed: EventName<CustomEvent<void>>,
-    onUploadSuccess: EventName<CustomEvent<{
-        cos_key: string;
-        filename: string;
-        ext: string;
-        presigned_url: string;
-    }>>,
+    onUploadSuccess: EventName<PcmZyghModalCustomEvent<FileUploadResponse>>,
     onStreamComplete: EventName<CustomEvent<{
         conversation_id: string;
         event: string;

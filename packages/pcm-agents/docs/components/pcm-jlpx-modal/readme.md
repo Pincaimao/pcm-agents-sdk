@@ -16,7 +16,7 @@
 | `isNeedClose`    | `is-need-close`   | 是否展示右上角的关闭按钮 | `boolean`                 | `true`      |
 | `isOpen`         | `is-open`         | 是否显示聊天模态框    | `boolean`                 | `false`     |
 | `isShowHeader`   | `is-show-header`  | 是否展示顶部标题栏    | `boolean`                 | `true`      |
-| `modalTitle`     | `modal-title`     | 模态框标题        | `string`                  | `'在线客服'`    |
+| `modalTitle`     | `modal-title`     | 模态框标题        | `string`                  | `'简历剖析助手'`  |
 | `zIndex`         | `z-index`         | 聊天框的页面层级     | `number`                  | `1000`      |
 
 
@@ -40,9 +40,9 @@
 ### Graph
 ```mermaid
 graph TD;
-  pcm-mnms-modal --> pcm-app-chat-modal
+  pcm-jlpx-modal --> pcm-app-chat-modal
   pcm-app-chat-modal --> pcm-chat-message
-  style pcm-mnms-modal fill:#f9f,stroke:#333,stroke-width:4px
+  style pcm-jlpx-modal fill:#f9f,stroke:#333,stroke-width:4px
 ```
 
 ----------------------------------------------

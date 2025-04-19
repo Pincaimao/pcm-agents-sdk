@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
-import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest } from '../../utils/utils';
+import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, FileUploadResponse } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
 
 @Component({
@@ -12,6 +12,11 @@ export class ChatModal {
    * 模态框标题
    */
   @Prop() modalTitle: string = '在线客服';
+
+  /**
+   * API鉴权密钥
+   */
+  @Prop({ attribute: 'api-key' }) apiKey: string = '';
 
   /**
    * 是否显示聊天模态框
@@ -107,7 +112,7 @@ export class ChatModal {
 
   @State() selectedFile: File | null = null;
   @State() isUploading: boolean = false;
-  @State() uploadedFileInfo: { cos_key: string, filename: string, ext: string, presigned_url: string }[] = [];
+  @State() uploadedFileInfo: FileUploadResponse[] = [];
 
   /**
    * 默认查询文本
@@ -134,13 +139,13 @@ export class ChatModal {
 
     try {
       const response = await sendHttpRequest({
-        url: `https://pcm_api.ylzhaopin.com/share/messages/${messageId}/suggested`,
+        url: `/share/messages/${messageId}/suggested`,
       });
 
       if (this.stopSuggestedQuestionsRef.current) return;
 
-      if (response.isOk && response.data?.result === 'success') {
-        this.suggestedQuestions = response.data?.data || [];
+      if (response.success && response.data) {
+        this.suggestedQuestions = response.data || [];
       }
     } catch (error) {
       console.error('获取问题建议失败:', error);
@@ -170,25 +175,11 @@ export class ChatModal {
     this.isUploading = true;
     
     try {
-      const formData = new FormData();
-      formData.append('file', this.selectedFile);
-      
-      const response = await fetch('https://pcm_api.ylzhaopin.com/external/v1/files/upload', {
-        method: 'POST',
-        body: formData
+      const result = await uploadFileToBackend(this.selectedFile, {
+        'authorization': 'Bearer ' + this.apiKey
       });
       
-      
-      const result = await response.json();
-      console.log('result', result);
-      if (result) {
-        this.uploadedFileInfo.push({
-          cos_key: result.cos_key,
-          filename: result.filename,
-          ext: result.ext,
-          presigned_url: result.presigned_url
-        });
-      } 
+      this.uploadedFileInfo.push(result);
     } catch (error) {
       console.error('文件上传错误:', error);
       this.clearSelectedFile();
@@ -263,7 +254,7 @@ export class ChatModal {
     }
 
     await sendSSERequest({
-      url: `https://pcm_api.ylzhaopin.com/share/chat-messages`,
+      url: `/sdk/v1/chat/chat-messages`,
       method: 'POST',
       data: requestData,
       onMessage: (data) => {
@@ -401,7 +392,7 @@ export class ChatModal {
 
     try {
       const response = await sendHttpRequest({
-        url: `https://pcm_api.ylzhaopin.com/share/messages`,
+        url: `/share/messages`,
         params: {
           conversation_id: this.conversationId,
           user: '1234567890',
@@ -409,12 +400,12 @@ export class ChatModal {
         }
       });
 
-      if (!response.isOk || !response.data) {
+      if (!response.success || !response.data) {
         throw new Error('加载历史消息失败');
       }
 
       // 适配新的接口返回格式
-      const historyData = response.data.data || [];
+      const historyData = response.data || [];
 
       // 清空现有消息，确保不会重复
       this.currentStreamingMessage = null;

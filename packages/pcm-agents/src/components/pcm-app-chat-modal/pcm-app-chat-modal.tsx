@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element } from '@stencil/core';
-import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest } from '../../utils/utils';
+import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, API_DOMAIN } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
 
 @Component({
@@ -197,10 +197,17 @@ export class ChatAPPModal {
     details?: any;
   }>;
 
+    /**
+   * 是否启用语音播报功能
+   * true: 启用语音合成
+   * false: 禁用语音合成
+   */
+    @Prop() enableTTS: boolean = false;
+
   /**
    * 是否自动播放语音问题
    */
-  @Prop() enableVoice: boolean = true;
+  @Prop() enableVoice: boolean = false;
 
   /**
    * 是否显示题干内容
@@ -209,10 +216,6 @@ export class ChatAPPModal {
    */
   @Prop() displayContentStatus: string = "1";
 
-  /**
-   * 用户ID
-   */
-  @Prop() userId: string = '';
 
   /**
    * 面试模式
@@ -229,6 +232,12 @@ export class ChatAPPModal {
    * 自定义智能体inputs输入参数
    */
   @Prop() customInputs: Record<string, any> = {};
+
+  /**
+   * 机器人ID
+   */
+  @Prop() botId?: string;
+
 
 
   private handleClose = () => {
@@ -289,7 +298,7 @@ export class ChatAPPModal {
       response_mode: 'streaming',
       conversation_id: this.conversationId,
       query: queryText,
-      user: this.userId // 使用传入的 userId
+      bot_id: this.botId // 添加 botId 到请求数据中
     };
 
     // 合并基本输入参数和自定义输入参数
@@ -304,7 +313,7 @@ export class ChatAPPModal {
     }
 
     await sendSSERequest({
-      url: `https://pcm_api.ylzhaopin.com/external/v1/chat/chat-messages`,
+      url: `/sdk/v1/chat/chat-messages`,
       method: 'POST',
       headers: {
         'authorization': 'Bearer ' + this.apiKey
@@ -386,19 +395,25 @@ export class ChatAPPModal {
           // 优先使用 LLMText，如果没有则使用 answer
           const textForSynthesis = llmText || latestAIMessage.answer;
 
-          if (textForSynthesis) {
+          if (textForSynthesis && this.enableTTS) {
             // 合成语音
             const audioUrl = await this.synthesizeAudio(textForSynthesis);
 
             if (this.enableVoice) {
               // 自动播放语音
               await this.playAudio(audioUrl);
-              // 自动播放模式下，播放完成后立即开始等待录制
-              this.startWaitingToRecord();
+              // 自动播放模式下，只在视频模式时开始等待录制
+              if (this.interviewMode === 'video') {
+                this.startWaitingToRecord();
+              }
             } else {
               // 只保存音频URL，不自动播放
               this.audioUrl = audioUrl;
-              // 非自动播放模式下，不立即开始等待录制
+            }
+          } else {
+            // 如果禁用了语音合成，只在视频模式时开始等待录制
+            if (this.interviewMode === 'video') {
+              this.startWaitingToRecord();
             }
           }
         }
@@ -447,59 +462,49 @@ export class ChatAPPModal {
     console.log('加载历史消息...');
 
     try {
-      await sendHttpRequest({
-        url: `https://pcm_api.ylzhaopin.com/external/v1/chat/messages`,
+      const result = await sendHttpRequest({
+        url: '/sdk/v1/chat/messages',
         method: 'GET',
         headers: {
           'authorization': 'Bearer ' + this.apiKey
         },
         data: {
           conversation_id: this.conversationId,
+          bot_id: this.botId,
           limit: 20
-        },
-        onMessage: (data) => {
-          if (data.data) {
-            const historyData = data.data || [];
-            const formattedMessages: ChatMessage[] = historyData.map(msg => {
-              const time = new Date(msg.created_at * 1000);
-              const hours = time.getHours().toString().padStart(2, '0');
-              const minutes = time.getMinutes().toString().padStart(2, '0');
-              const timeStr = `${hours}:${minutes}`;
-
-              // 创建新的消息对象，不包含 inputs 字段
-              const { inputs, ...msgWithoutInputs } = msg;
-
-              return {
-                ...msgWithoutInputs,
-                time: timeStr,
-                isStreaming: false,
-                status: msg.status === 'error' ? 'error' : 'normal' as const
-              };
-            });
-
-            this.messages = formattedMessages;
-            this.isLoadingHistory = false;
-
-            requestAnimationFrame(() => {
-              this.shouldAutoScroll = true;
-              this.scrollToBottom();
-            });
-          } else {
-            this.isLoadingHistory = false;
-          }
-        },
-        onError: (error) => {
-          console.error('加载历史消息失败:', error);
-          alert(error instanceof Error ? error.message : '加载历史消息失败，请刷新重试');
-          this.isLoadingHistory = false;
-        },
-        onComplete: () => {
-          this.isLoadingHistory = false;
         }
       });
+
+      if (result.success && result.data) {
+        const historyData = result.data.data || [];
+        const formattedMessages: ChatMessage[] = historyData.map(msg => {
+          const time = new Date(msg.created_at * 1000);
+          const hours = time.getHours().toString().padStart(2, '0');
+          const minutes = time.getMinutes().toString().padStart(2, '0');
+          const timeStr = `${hours}:${minutes}`;
+
+          // 创建新的消息对象，不包含 inputs 字段
+          const { inputs, ...msgWithoutInputs } = msg;
+
+          return {
+            ...msgWithoutInputs,
+            time: timeStr,
+            isStreaming: false,
+            status: msg.status === 'error' ? 'error' : 'normal' as const
+          };
+        });
+
+        this.messages = formattedMessages;
+        
+        requestAnimationFrame(() => {
+          this.shouldAutoScroll = true;
+          this.scrollToBottom();
+        });
+      }
     } catch (error) {
       console.error('加载历史消息失败:', error);
       alert(error instanceof Error ? error.message : '加载历史消息失败，请刷新重试');
+    } finally {
       this.isLoadingHistory = false;
     }
   }
@@ -531,6 +536,11 @@ export class ChatAPPModal {
 
   // 开始等待录制
   private startWaitingToRecord() {
+    // 如果不是视频模式，直接返回
+    if (this.interviewMode !== 'video') {
+      return;
+    }
+
     // 清除可能存在的计时器
     if (this.waitingTimer) {
       clearInterval(this.waitingTimer);
@@ -812,34 +822,23 @@ export class ChatAPPModal {
   // 修改音频转文字方法
   private async convertAudioToText(cosKey: string): Promise<string | null> {
     try {
-      // 创建一个Promise来处理响应
-      return new Promise((resolve, reject) => {
-        sendHttpRequest({
-          url: `https://pcm_api.ylzhaopin.com/external/v1/tts/audio_to_text`,
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'authorization': 'Bearer ' + this.apiKey
-          },
-          data: {
-            cos_key: cosKey
-          },
-          onMessage: (data) => {
-
-            // 检查返回结果中是否包含转换后的文本
-            if (data && data.text) {
-              resolve(data.text);
-            } else {
-              console.warn('音频转文字返回结果格式不正确');
-              resolve(null);
-            }
-          },
-          onError: (error) => {
-            console.error('音频转文字请求失败:', error);
-            reject(error);
-          }
-        });
+      const result = await sendHttpRequest<{ text: string }>({
+        url: '/sdk/v1/tts/audio_to_text',
+        method: 'POST',
+        headers: {
+          'authorization': 'Bearer ' + this.apiKey
+        },
+        data: {
+          cos_key: cosKey
+        }
       });
+      
+      if (result.success && result.data && result.data.text) {
+        return result.data.text;
+      } else {
+        console.warn('音频转文字返回结果格式不正确');
+        return null;
+      }
     } catch (error) {
       console.error('音频转文字错误:', error);
       return null;
@@ -858,28 +857,19 @@ export class ChatAPPModal {
       const fileExtension = this.recordedBlob.type.includes('webm') ? 'webm' : 'mp4';
       const fileName = `answer.${fileExtension}`;
 
-      const formData = new FormData();
-      formData.append('file', this.recordedBlob, fileName);
-
-      const response = await fetch('https://pcm_api.ylzhaopin.com/external/v1/files/upload', {
-        method: 'POST',
-        headers: {
-          'authorization': 'Bearer ' + this.apiKey
-        },
-        body: formData
+      // 创建File对象
+      const file = new File([this.recordedBlob], fileName, { type: this.recordedBlob.type });
+      
+      // 使用uploadFileToBackend上传文件
+      const fileInfo = await uploadFileToBackend(file, {
+        'authorization': 'Bearer ' + this.apiKey
       });
+      
+      // 调用音频转文字API
+      const transcriptionText = await this.convertAudioToText(fileInfo.cos_key);
 
-      const result = await response.json();
-
-      if (result && result.cos_key) {
-        // 调用音频转文字API
-        const transcriptionText = await this.convertAudioToText(result.cos_key);
-
-        // 发送"下一题"请求，可以附带转录文本
-        this.sendMessageToAPI(transcriptionText || "下一题");
-      } else {
-        throw new Error('视频上传失败');
-      }
+      // 发送"下一题"请求，可以附带转录文本
+      this.sendMessageToAPI(transcriptionText || "下一题");
     } catch (error) {
       console.error('视频上传或处理错误:', error);
       // 通知父组件视频上传失败
@@ -907,21 +897,20 @@ export class ChatAPPModal {
         response_mode: 'streaming',
         conversation_id: this.conversationId,
         query: "面试完成",
-        user: this.userId,
         inputs: {
           // 合并自定义输入参数
           ...this.customInputs
         }
       };
 
-      // 不使用 await，直接发送请求
-      sendSSERequest({
-        url: `https://pcm_api.ylzhaopin.com/external/v1/chat/chat-messages`,
+      // 使用sendHttpRequest发送请求
+      sendHttpRequest({
+        url: '/sdk/v1/chat/chat-messages',
         method: 'POST',
         headers: {
           'authorization': 'Bearer ' + this.apiKey
         },
-        data: requestData,
+        data: requestData
       }).catch(error => {
         console.error('发送面试完成请求失败:', error);
       });
@@ -934,7 +923,7 @@ export class ChatAPPModal {
   // 添加TTS合成音频的方法
   private async synthesizeAudio(text: string): Promise<string> {
     try {
-      const response = await fetch('https://pcm_api.ylzhaopin.com/external/v1/tts/synthesize_audio', {
+      const response = await fetch(`${API_DOMAIN}/sdk/v1/tts/synthesize_audio`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1030,8 +1019,10 @@ export class ChatAPPModal {
   private handlePlayAudio = async () => {
     if (this.audioUrl) {
       await this.playAudio(this.audioUrl);
-      // 手动播放完成后开始等待录制
-      this.startWaitingToRecord();
+      // 手动播放完成后只在视频模式时开始等待录制
+      if (this.interviewMode === 'video') {
+        this.startWaitingToRecord();
+      }
     }
   };
 
@@ -1180,7 +1171,7 @@ export class ChatAPPModal {
       <div class="text-input-area">
         <textarea
           class="text-answer-input"
-          placeholder="请输入您的回答...(按回车发送，Ctrl+回车换行)"
+          placeholder="请输入...(按回车发送，Ctrl+回车换行)"
           value={this.textAnswer}
           onInput={this.handleTextInputChange}
           onKeyDown={this.handleKeyDown}

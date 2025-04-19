@@ -1,4 +1,5 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
+import { uploadFileToBackend, FileUploadResponse } from '../../utils/utils';
 
 @Component({
     tag: 'pcm-mnms-modal',
@@ -74,12 +75,7 @@ export class MnmsModal {
     /**
      * 上传成功事件
      */
-    @Event() uploadSuccess: EventEmitter<{
-        cos_key: string;
-        filename: string;
-        ext: string;
-        presigned_url: string;
-    }>;
+    @Event() uploadSuccess: EventEmitter<FileUploadResponse>;
 
     /**
      * 流式输出完成事件
@@ -112,7 +108,7 @@ export class MnmsModal {
 
     @State() selectedFile: File | null = null;
     @State() isUploading: boolean = false;
-    @State() uploadedFileInfo: { cos_key: string, filename: string, ext: string, presigned_url: string } | null = null;
+    @State() uploadedFileInfo: FileUploadResponse | null = null;
     @State() showChatModal: boolean = false;
 
     // 添加新的状态来控制过渡动画
@@ -154,33 +150,13 @@ export class MnmsModal {
         this.isUploading = true;
 
         try {
-            const formData = new FormData();
-            formData.append('file', this.selectedFile);
-
-            const response = await fetch('https://pcm_api.ylzhaopin.com/external/v1/files/upload', {
-                method: 'POST',
-                headers: {
-                    'authorization': 'Bearer ' + this.apiKey
-                },
-                body: formData
+            // 使用 uploadFileToBackend 工具函数上传文件
+            const result = await uploadFileToBackend(this.selectedFile, {
+                'authorization': 'Bearer ' + this.apiKey
             });
-
-            const result = await response.json();
-            if (!response.ok) {
-                throw new Error(result.message || '文件上传失败');
-            }
-
-            if (result) {
-                this.uploadedFileInfo = {
-                    cos_key: result.cos_key,
-                    filename: result.filename,
-                    ext: result.ext,
-                    presigned_url: result.presigned_url
-                };
-
-                // 触发上传成功事件
-                this.uploadSuccess.emit(this.uploadedFileInfo);
-            }
+            
+            this.uploadedFileInfo = result;
+            this.uploadSuccess.emit(result);
         } catch (error) {
             console.error('文件上传错误:', error);
             this.clearSelectedFile();
@@ -209,7 +185,7 @@ export class MnmsModal {
             file_url: this.uploadedFileInfo.cos_key
         });
 
-        // 直接显示聊天模态框，不使用过渡动画
+        // 直接显示聊天模态框
         this.showChatModal = true;
     };
 
@@ -344,6 +320,7 @@ export class MnmsModal {
                                 isNeedClose={this.isShowHeader} // 不显示内部的关闭按钮，因为外部已有
                                 zIndex={this.zIndex}
                                 fullscreen={this.fullscreen}
+                                botId="3022316191018884"
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
                                 enableVoice={false}

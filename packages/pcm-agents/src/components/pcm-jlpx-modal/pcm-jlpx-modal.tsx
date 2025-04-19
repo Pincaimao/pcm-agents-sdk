@@ -1,4 +1,5 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
+import { uploadFileToBackend, FileUploadResponse } from '../../utils/utils';
 
 @Component({
     tag: 'pcm-jlpx-modal',
@@ -74,12 +75,7 @@ export class JlpxModal {
     /**
      * 上传成功事件
      */
-    @Event() uploadSuccess: EventEmitter<{
-        cos_key: string;
-        filename: string;
-        ext: string;
-        presigned_url: string;
-    }>;
+    @Event() uploadSuccess: EventEmitter<FileUploadResponse>;
 
     /**
      * 流式输出完成事件
@@ -111,7 +107,7 @@ export class JlpxModal {
 
     @State() selectedFile: File | null = null;
     @State() isUploading: boolean = false;
-    @State() uploadedFileInfo: { cos_key: string, filename: string, ext: string, presigned_url: string } | null = null;
+    @State() uploadedFileInfo: FileUploadResponse | null = null;
     @State() showChatModal: boolean = false;
     @State() jobDescription: string = '';
     @State() isSubmitting: boolean = false;
@@ -160,33 +156,13 @@ export class JlpxModal {
         this.isUploading = true;
 
         try {
-            const formData = new FormData();
-            formData.append('file', this.selectedFile);
-
-            const response = await fetch('https://pcm_api.ylzhaopin.com/external/v1/files/upload', {
-                method: 'POST',
-                headers: {
-                    'authorization': 'Bearer ' + this.apiKey
-                },
-                body: formData
+            const result = await uploadFileToBackend(this.selectedFile, {
+                'authorization': 'Bearer ' + this.apiKey
             });
 
-            const result = await response.json();
-            if (!response.ok) {
-                throw new Error(result.message || '文件上传失败');
-            }
-
-            if (result) {
-                this.uploadedFileInfo = {
-                    cos_key: result.cos_key,
-                    filename: result.filename,
-                    ext: result.ext,
-                    presigned_url: result.presigned_url
-                };
-
-                // 触发上传成功事件
-                this.uploadSuccess.emit(this.uploadedFileInfo);
-            }
+            this.uploadedFileInfo = result;
+            // 触发上传成功事件
+            this.uploadSuccess.emit(result);
         } catch (error) {
             console.error('文件上传错误:', error);
             this.clearSelectedFile();
@@ -399,7 +375,9 @@ export class JlpxModal {
                                 fullscreen={this.fullscreen}
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
+                                enableTTS={false}
                                 enableVoice={false}
+                                botId="3022316191018881"
                                 customInputs={this.conversationId ? undefined : {
                                     ...this.customInputs,
                                     file_url: this.uploadedFileInfo?.cos_key,

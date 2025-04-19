@@ -11,9 +11,9 @@
 
 ## Events
 
-| Event           | Description | Type                                                                                                                                                                                                                       |
-| --------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `messageChange` | 消息变更事件      | `CustomEvent<{ id?: string; query?: string; answer?: string; time?: string; conversation_id?: string; isStreaming?: boolean; bot_id?: string; inputs?: Record<string, any>; status?: "error" \| "normal"; error?: any; }>` |
+| Event           | Description | Type                                                                                                                                                                                                      |
+| --------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `messageChange` | 消息变更事件      | `CustomEvent<{ id?: string; query?: string; answer?: string; time?: string; conversation_id?: string; isStreaming?: boolean; inputs?: Record<string, any>; status?: "error" \| "normal"; error?: any; }>` |
 
 
 ## Dependencies

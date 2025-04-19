@@ -1,3 +1,8 @@
+/**
+ * API域名配置
+ */
+// export const API_DOMAIN = 'http://192.168.17.194:8000';
+export const API_DOMAIN = 'https://pcm_api.ylzhaopin.com';
 
 
 export function format(first?: string, middle?: string, last?: string): string {
@@ -81,7 +86,10 @@ export const sendSSERequest = async (config: SSERequestConfig): Promise<void> =>
   const { url, method, headers = {}, data, onMessage, onError, onComplete } = config;
   
   try {
-    const response = await fetch(url, {
+    // 使用 API_DOMAIN 拼接完整的请求URL
+    const requestUrl = `${API_DOMAIN}${url}`;
+    
+    const response = await fetch(requestUrl, {
       method,
       headers: {
         'Accept': 'text/event-stream',
@@ -142,18 +150,29 @@ export interface HttpRequestConfig {
   headers?: Record<string, string>;
   params?: Record<string, any>;
   data?: any;
+  formData?: FormData;  // 添加FormData支持
   onMessage?: (data: any) => void;
   onError?: (error: any) => void;
   onComplete?: () => void;
 }
 
 /**
+ * 统一的API响应接口
+ */
+export interface ApiResponse<T = any> {
+  code: number;
+  message: string;
+  data?: T;
+}
+
+/**
  * HTTP响应接口
  */
 export interface HttpResponse<T = any> {
-  isOk: boolean;
+  success: boolean;
   data?: T;
   error?: any;
+  message?: string;
 }
 
 /**
@@ -162,7 +181,7 @@ export interface HttpResponse<T = any> {
  * @returns Promise<HttpResponse>
  */
 export const sendHttpRequest = async <T = any>(config: HttpRequestConfig): Promise<HttpResponse<T>> => {
-  const { url, method = 'GET', headers = {}, params = {}, data, onMessage } = config;
+  const { url, method = 'GET', headers = {}, params = {}, data, formData, onMessage } = config;
   
   try {
     // 构建URL和查询参数
@@ -173,19 +192,24 @@ export const sendHttpRequest = async <T = any>(config: HttpRequestConfig): Promi
       }
     });
     
-    let requestUrl = `${url}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    // 使用 API_DOMAIN 拼接完整的请求URL
+    let requestUrl = `${API_DOMAIN}${url}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
     
     // 创建请求配置对象
     const requestConfig: RequestInit = {
       method,
-      headers: {
+      headers: formData ? { ...headers } : {
         'Content-Type': 'application/json',
         ...headers
       }
     };
 
-    // 只有在非 GET/HEAD 请求时才添加 body
-    if (method !== 'GET' && method !== 'HEAD' && data) {
+    // 处理请求体
+    if (formData) {
+      // 如果提供了FormData，直接使用
+      requestConfig.body = formData;
+    } else if (method !== 'GET' && method !== 'HEAD' && data) {
+      // 否则，如果是非GET/HEAD请求且有data，将其JSON序列化
       requestConfig.body = JSON.stringify(data);
     }
 
@@ -201,21 +225,37 @@ export const sendHttpRequest = async <T = any>(config: HttpRequestConfig): Promi
     }
 
     const response = await fetch(requestUrl, requestConfig);
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const responseData = await response.json();
+    const responseData: ApiResponse<T> = await response.json();
     
     // 调用 onMessage 回调
     if (onMessage) {
       onMessage(responseData);
     }
     
+    // 检查响应状态
+    if (!response.ok) {
+      console.error(`HTTP错误: ${response.status} ${response.statusText}`);
+      return {
+        success: false,
+        message: responseData.message || `HTTP错误: ${response.status}`,
+        error: responseData
+      };
+    }
+    
+    // 检查业务状态码
+    if (responseData.code !== 0) {
+      console.error(`API错误: ${responseData.message}`);
+      return {
+        success: false,
+        message: responseData.message,
+        error: responseData
+      };
+    }
+    
+    // 直接返回data
     return {
-      isOk: true,
-      data: responseData
+      success: true,
+      data: responseData.data
     };
   } catch (error) {
     console.error('HTTP请求错误:', error);
@@ -223,8 +263,9 @@ export const sendHttpRequest = async <T = any>(config: HttpRequestConfig): Promi
       config.onError(error);
     }
     return {
-      isOk: false,
-      error
+      success: false,
+      error,
+      message: error instanceof Error ? error.message : '未知错误'
     };
   } finally {
     if (config.onComplete) {
@@ -234,107 +275,51 @@ export const sendHttpRequest = async <T = any>(config: HttpRequestConfig): Promi
 };
 
 
-/**
- * 简单的文件类型检查工具
- * @param file 文件对象
- * @param allowedTypes 允许的文件类型数组
- * @returns boolean
- */
-export const checkFileType = (file: File, allowedTypes: string[]): boolean => {
-  const fileType = file.type.toLowerCase();
-  return allowedTypes.some(type => fileType.includes(type));
-};
 
 /**
- * 文件大小检查工具
- * @param file 文件对象
- * @param maxSize 最大文件大小（单位：MB）
- * @returns boolean
+ * 文件上传响应数据接口
  */
-export const checkFileSize = (file: File, maxSize: number): boolean => {
-  const fileSize = file.size / 1024 / 1024; // 转换为MB
-  return fileSize <= maxSize;
-};
-
-/**
- * COS认证信息接口
- */
-export interface COSAuthInfo {
-  filename?: string;
-  filetype?: string;
-  filesize?: number;
-  cos?: {
-    region?: string;
-    bucket?: string;
-    cos_key?: string;
-  };
-  auth?: {
-    expiredTime?: number;
-    expiration?: string;
-    requestId?: string;
-    startTime?: number;
-    credentials?: {
-      sessionToken?: string;
-      tmpSecretId?: string;
-      tmpSecretKey?: string;
-    };
-  };
+export interface FileUploadResponse {
+  /** 文件在对象存储中的唯一标识符 */
+  cos_key: string;
+  /** 文件名称 */
+  file_name: string;
+  /** 文件大小（带单位的字符串，如 "1.5MB"） */
+  file_size: string;
+  /** 文件的预签名URL */
+  presigned_url: string;
+  /** 文件扩展名 */
+  ext: string;
 }
-
-/**
- * 获取COS上传认证信息
- * @param file 文件对象
- * @param tags 可选的标签数组
- * @returns Promise<COSAuthInfo>
- */
-export const getCosAuthInfo = async (file: File, tags?: string[]): Promise<COSAuthInfo> => {
-  const data = {
-    filename: file.name,
-    filesize: file.size,
-    filetype: file.type,
-    tags,
-  };
-
-  const res = await sendHttpRequest<COSAuthInfo>({
-    url: '/resource/get-cos-authkey',
-    method: 'POST',
-    data,
-  });
-
-  return res?.data ?? {};
-};
-
 
 /**
  * 通过后端API上传文件
  * @param file 要上传的文件
+ * @param headers 可选的请求头
  * @returns Promise 包含上传结果
  */
-export const uploadFileToBackend = async (file: File): Promise<{id: string, name: string, size: number, type: string}> => {
+export const uploadFileToBackend = async (
+  file: File,
+  headers?: Record<string, string>
+): Promise<FileUploadResponse> => {
   const formData = new FormData();
   formData.append('file', file);
   
   try {
-    const response = await fetch('https://pcm_api.ylzhaopin.com/external/v1/files/upload', {
+    const response = await sendHttpRequest<{cos_key: string, file_name: string, file_size: string,presigned_url: string, ext: string}>({
+      url: '/sdk/v1/files/upload',
       method: 'POST',
-      body: formData
+      headers: {
+        ...headers
+      },
+      formData
     });
     
-    if (!response.ok) {
-      throw new Error(`上传失败: ${response.status} ${response.statusText}`);
+    if (!response.success || !response.data) {
+      throw new Error(response.message || '文件上传失败');
     }
     
-    const result = await response.json();
-    if (result.code !== 0 || !result.data) {
-      throw new Error(result.message || '文件上传失败');
-    }
-    
-    return {
-      id: result.data.id,
-      name: result.data.name || file.name,
-      size: result.data.size || file.size,
-      type: result.data.type || file.type
-    };
+    return response.data;
   } catch (error) {
     console.error('文件上传错误:', error);
     throw error;

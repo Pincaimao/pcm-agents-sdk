@@ -2,6 +2,8 @@ import { Component, Prop, h, Element, Event, EventEmitter } from '@stencil/core'
 import { marked } from 'marked';
 import extendedTables from 'marked-extended-tables';
 import { ChatMessage } from '../../interfaces/chat';
+import { sendHttpRequest } from '../../utils/utils';
+
 @Component({
     tag: 'pcm-chat-message',
     styleUrl: 'pcm-chat-message.css',
@@ -143,6 +145,57 @@ export class ChatMessageComponent {
         return parts[parts.length - 1];
     }
 
+    // 获取预览URL
+    private async getCosPreviewUrl(cosKey: string): Promise<string | null> {
+        try {
+            const result = await sendHttpRequest<{ file_url: string }>({
+                url: '/sdk/v1/files/presigned-url',
+                method: 'GET',
+                headers: {
+                    'authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6bnVsbCwiYm90X2lkIjoiMSIsInNlY3JldF9pZCI6Mzg5OTk1ODAyNTUxOTEwNDAsImV4cCI6MTc0NTA0OTAxM30.56OoTrp16avgl48YfWBKOHywAKHJ5qPGypqRCGCyVt0'
+                },
+                params: {
+                    cos_key: cosKey
+                }
+            });
+            
+            console.log(result);
+            
+            if (result.success && result.data?.file_url) {
+                const baseUrl = result.data.file_url;
+                return `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}ci-process=doc-preview&copyable=1&dstType=html`;
+            }
+            return null;
+        } catch (error) {
+            console.error('获取预览URL失败:', error);
+            return null;
+        }
+    }
+
+    // 处理文件点击
+    private async handleFileClick(fileUrl: string) {
+        const previewUrl = await this.getCosPreviewUrl(fileUrl);
+        if (previewUrl) {
+            window.open(previewUrl, '_blank');
+        } else {
+            console.error('无法获取预览URL');
+        }
+    }
+
+    // 修改渲染文件项的部分
+    private renderFileItem(fileName: string, fileUrl: string, index: number) {
+        const { icon } = this.getFileIcon(fileName);
+        return (
+            <div key={index} class="input-view">
+                <div class="input-label">附件：</div>
+                <div class="file-item" onClick={() => this.handleFileClick(fileUrl)}>
+                    <div class="file-icon" innerHTML={icon}></div>
+                    <div class="file-name">{fileName}</div>
+                </div>
+            </div>
+        );
+    }
+
     // 修改渲染输入数据的方法
     private renderInputs() {
         if (!this.message.inputs) return null;
@@ -154,32 +207,14 @@ export class ChatMessageComponent {
                     if (value && !key.startsWith('hide_') && key !== 'answer') {
                         if (key === 'file_url') {
                             const fileName = this.getFileName(value);
-                            const { icon } = this.getFileIcon(fileName);
-                            return (
-                                <div key={index} class="input-view">
-                                    <div class="input-label">附件：</div>
-                                    <div class="file-item">
-                                        <div class="file-icon" innerHTML={icon}></div>
-                                        <div class="file-name">{fileName}</div>
-                                    </div>
-                                </div>
-                            );
+                            return this.renderFileItem(fileName, value, index);
                         } else if (key === 'file_urls') {
                             const fileList = Array.isArray(value) ? value : value.split(',');
                             return (
                                 <div key={index} class="file-list">
                                     {fileList.map((fileUrl, fileIndex) => {
                                         const fileName = this.getFileName(fileUrl);
-                                        const { icon } = this.getFileIcon(fileName);
-                                        return (
-                                            <div key={fileIndex} class="input-view">
-                                                <div class="input-label">附件：</div>
-                                                <div class="file-item">
-                                                    <div class="file-icon" innerHTML={icon}></div>
-                                                    <div class="file-name">{fileName}</div>
-                                                </div>
-                                            </div>
-                                        );
+                                        return this.renderFileItem(fileName, fileUrl, fileIndex);
                                     })}
                                 </div>
                             );

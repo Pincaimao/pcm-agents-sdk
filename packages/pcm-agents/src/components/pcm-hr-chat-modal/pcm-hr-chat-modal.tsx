@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
-import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest } from '../../utils/utils';
+import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, FileUploadResponse, API_DOMAIN } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
 
 @Component({
@@ -93,7 +93,7 @@ export class ChatHRModal {
 
   @State() selectedFile: File | null = null;
   @State() isUploading: boolean = false;
-  @State() uploadedFileInfo: { cos_key: string, filename: string, ext: string, presigned_url: string }[] = [];
+  @State() uploadedFileInfo: FileUploadResponse[] = [];
 
   /**
    * 默认查询文本
@@ -224,10 +224,8 @@ export class ChatHRModal {
 
   /**
    * 是否显示题干内容
-   * 1: 显示题干内容
-   * 0: 不显示题干内容
    */
-  @Prop() displayContentStatus: string = "1";
+  @Prop() displayContentStatus: boolean = true;
 
   /**
    * 用户ID
@@ -248,32 +246,21 @@ export class ChatHRModal {
 
   private async uploadFile() {
     if (!this.selectedFile || this.uploadedFileInfo.length > 0) return;
-
+    
     this.isUploading = true;
-
+    
     try {
-      const formData = new FormData();
-      formData.append('file', this.selectedFile);
-
-      const response = await fetch('https://pcm_api.ylzhaopin.com/external/v1/files/upload', {
-        method: 'POST',
-        headers: {
-          'authorization': 'Bearer ' + this.apiKey
-        },
-        body: formData
+      const result = await uploadFileToBackend(this.selectedFile, {
+        'authorization': 'Bearer ' + this.apiKey
       });
-
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result.message || '文件上传失败');
-      }
-
+      
       if (result) {
         this.uploadedFileInfo = [{
           cos_key: result.cos_key,
-          filename: result.filename,
-          ext: result.ext,
-          presigned_url: result.presigned_url
+          file_name: result.file_name,
+          file_size: result.file_size,
+          presigned_url: result.presigned_url,
+          ext: result.ext
         }];
       }
     } catch (error) {
@@ -364,13 +351,14 @@ export class ChatHRModal {
       response_mode: 'streaming',
       conversation_id: this.conversationId,
       query: queryText,
-      user: this.userId // 使用传入的 userId
+      user: this.userId, // 使用传入的 userId
+      bot_id: "3022316191018880"
     };
     requestData.inputs = {
       job_info: this.selectedJobCategory,
       dimensional_info: this.selectedDimensions.join(','),
       email: this.toEmail,
-      display_content_status: this.displayContentStatus
+      display_content_status: this.displayContentStatus ? "1" : "0"
     };
     // 如果有上传的文件，添加到inputs参数
     if (this.uploadedFileInfo.length > 0) {
@@ -380,7 +368,7 @@ export class ChatHRModal {
 
 
     await sendSSERequest({
-      url: `https://pcm_api.ylzhaopin.com/external/v1/chat/chat-messages`,
+      url: '/sdk/v1/chat/chat-messages',
       method: 'POST',
       headers: {
         'authorization': 'Bearer ' + this.apiKey
@@ -480,18 +468,18 @@ export class ChatHRModal {
     });
   }
 
-  // 添加保存答案的方法
+  // 修改保存答案的方法
   private async saveAnswer(conversationId: string, question: string, answer: string) {
     try {
       await sendHttpRequest({
-        url: 'https://pcm_api.ylzhaopin.com/agents/hr_competition/answer',
+        url: '/sdk/v1/hr_competition/answer',
         method: 'POST',
         headers: {
           'authorization': 'Bearer ' + this.apiKey
         },
         data: {
           conversation_id: conversationId,
-          user: this.userId, // 使用传入的 userId
+          user: this.userId,
           question: question,
           answer: answer
         },
@@ -541,7 +529,7 @@ export class ChatHRModal {
     }
   }
 
-  // 修改 loadHistoryMessages 方法
+  // 修改加载历史消息的方法
   private async loadHistoryMessages() {
     if (!this.conversationId) return;
 
@@ -549,60 +537,48 @@ export class ChatHRModal {
     console.log('加载历史消息...');
 
     try {
-      await sendHttpRequest({
-        url: `https://pcm_api.ylzhaopin.com/external/v1/chat/messages`,
+      const response = await sendHttpRequest({
+        url: '/sdk/v1/chat/messages',
         method: 'GET',
         headers: {
           'authorization': 'Bearer ' + this.apiKey
         },
         data: {
           conversation_id: this.conversationId,
+          bot_id: "3022316191018880",
           limit: 20
-        },
-        onMessage: (data) => {
-          if (data.data) {
-            const historyData = data.data || [];
-            const formattedMessages: ChatMessage[] = historyData.map(msg => {
-              const time = new Date(msg.created_at * 1000);
-              const hours = time.getHours().toString().padStart(2, '0');
-              const minutes = time.getMinutes().toString().padStart(2, '0');
-              const timeStr = `${hours}:${minutes}`;
-
-              // 创建新的消息对象，不包含 inputs 字段
-              const { inputs, ...msgWithoutInputs } = msg;
-
-              return {
-                ...msgWithoutInputs,
-                time: timeStr,
-                isStreaming: false,
-                status: msg.status === 'error' ? 'error' : 'normal' as const
-              };
-            });
-
-            this.messages = formattedMessages;
-            this.isLoadingHistory = false;
-
-            requestAnimationFrame(() => {
-              this.shouldAutoScroll = true;
-              this.scrollToBottom();
-            });
-          } else {
-            this.isLoadingHistory = false;
-          }
-        },
-        onError: (error) => {
-          console.error('加载历史消息失败:', error);
-          alert(error instanceof Error ? error.message : '加载历史消息失败，请刷新重试');
-          this.isLoadingHistory = false;
-        },
-        onComplete: () => {
-          this.isLoadingHistory = false;
         }
       });
+
+      if (response.success && response.data) {
+        const historyData = response.data.data || [];
+        const formattedMessages: ChatMessage[] = historyData.map(msg => {
+          const time = new Date(msg.created_at * 1000);
+          const hours = time.getHours().toString().padStart(2, '0');
+          const minutes = time.getMinutes().toString().padStart(2, '0');
+          const timeStr = `${hours}:${minutes}`;
+
+          const { inputs, ...msgWithoutInputs } = msg;
+
+          return {
+            ...msgWithoutInputs,
+            time: timeStr,
+            isStreaming: false,
+            status: msg.status === 'error' ? 'error' : 'normal' as const
+          };
+        });
+
+        this.messages = formattedMessages;
+      }
     } catch (error) {
       console.error('加载历史消息失败:', error);
       alert(error instanceof Error ? error.message : '加载历史消息失败，请刷新重试');
+    } finally {
       this.isLoadingHistory = false;
+      requestAnimationFrame(() => {
+        this.shouldAutoScroll = true;
+        this.scrollToBottom();
+      });
     }
   }
 
@@ -948,57 +924,48 @@ export class ChatHRModal {
     }
   }
 
-  // 上传录制的视频
+  // 修改上传录制的视频的方法
   private async uploadRecordedVideo() {
     if (!this.recordedBlob) return;
 
     try {
-      this.isUploadingVideo = true; // 开始上传时设置状态
-      this.showRecordingUI = false; // 隐藏视频预览
+      this.isUploadingVideo = true;
+      this.showRecordingUI = false;
 
       // 根据Blob类型确定文件扩展名
       const fileExtension = this.recordedBlob.type.includes('webm') ? 'webm' : 'mp4';
       const fileName = `answer.${fileExtension}`;
-
-      const formData = new FormData();
-      formData.append('file', this.recordedBlob, fileName);
-
-      const response = await fetch('https://pcm_api.ylzhaopin.com/external/v1/files/upload', {
-        method: 'POST',
-        headers: {
-          'authorization': 'Bearer ' + this.apiKey
-        },
-        body: formData
+      
+      // 创建File对象
+      const videoFile = new File([this.recordedBlob], fileName, { type: this.recordedBlob.type });
+      
+      // 使用uploadFileToBackend上传视频
+      const result = await uploadFileToBackend(videoFile, {
+        'authorization': 'Bearer ' + this.apiKey
       });
-
-      const result = await response.json();
-      console.log('视频上传结果:', result);
-
-      if (result && result.cos_key) {
-        // 保存视频答案
+      
+      if (result) {
+        // 使用 FileUploadResponse 类型的字段
         await this.saveVideoAnswer(result.cos_key);
-
-        // 发送"下一题"请求
         this.sendNextQuestion();
       } else {
         throw new Error('视频上传失败');
       }
     } catch (error) {
       console.error('视频上传错误:', error);
-      // 通知父组件视频上传失败
       this.recordingError.emit({
         type: 'upload_failed',
         message: '视频上传失败',
         details: error
       });
     } finally {
-      this.isUploadingVideo = false; // 上传完成后重置状态
+      this.isUploadingVideo = false;
       this.showRecordingUI = false;
       this.recordedBlob = null;
     }
   }
 
-  // 保存视频答案
+  // 修改保存视频答案的方法
   private async saveVideoAnswer(cosKey: string) {
     if (!this.conversationId) return;
 
@@ -1008,14 +975,14 @@ export class ChatHRModal {
       if (!lastAIMessage) return;
 
       await sendHttpRequest({
-        url: 'https://pcm_api.ylzhaopin.com/agents/hr_competition/answer',
+        url: '/sdk/v1/hr_competition/answer',
         method: 'POST',
         headers: {
           'authorization': 'Bearer ' + this.apiKey
         },
         data: {
           conversation_id: this.conversationId,
-          user: this.userId, // 使用传入的 userId
+          user: this.userId,
           question: lastAIMessage.answer,
           file_url: cosKey
         },
@@ -1038,13 +1005,12 @@ export class ChatHRModal {
 
     try {
       await sendHttpRequest({
-        url: `https://pcm_api.ylzhaopin.com/agents/hr_competition/${this.conversationId}/end`,
+        url: `/sdk/v1/hr_competition/${this.conversationId}/end`,
         method: 'POST',
         headers: {
           'authorization': 'Bearer ' + this.apiKey
         },
       });
-
     } catch (error) {
       console.error('发送面试完成请求失败:', error);
     }
@@ -1053,7 +1019,7 @@ export class ChatHRModal {
   // 添加TTS合成音频的方法
   private async synthesizeAudio(text: string): Promise<string> {
     try {
-      const response = await fetch('https://pcm_api.ylzhaopin.com/external/v1/tts/synthesize_audio', {
+      const response = await fetch(`${API_DOMAIN}/sdk/v1/tts/synthesize_audio`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

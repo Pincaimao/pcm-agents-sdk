@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
-import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest } from '../../utils/utils';
+import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, API_DOMAIN } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
 
 @Component({
@@ -92,7 +92,7 @@ export class VideoChatModal {
   }>;
 
   /**
-   * 默认查询文本
+   * 首次对话提问文本
    */
   @Prop() defaultQuery: string = '';
 
@@ -262,6 +262,7 @@ export class VideoChatModal {
       response_mode: 'streaming',
       conversation_id: this.conversationId,
       query: queryText,
+      bot_id: "3022316191018903",
       inputs: {
         id: this.resumeId
       }
@@ -273,7 +274,7 @@ export class VideoChatModal {
     }
 
     await sendSSERequest({
-      url: `https://pcm_api.ylzhaopin.com/external/v1/chat/chat-messages`,
+      url: `/sdk/v1/chat/chat-messages`,
       method: 'POST',
       headers: {
         'authorization': 'Bearer ' + this.apiKey
@@ -417,59 +418,48 @@ export class VideoChatModal {
     console.log('加载历史消息...');
 
     try {
-      await sendHttpRequest({
-        url: `https://pcm_api.ylzhaopin.com/external/v1/chat/messages`,
+      const result = await sendHttpRequest({
+        url: '/sdk/v1/chat/messages',
         method: 'GET',
         headers: {
           'authorization': 'Bearer ' + this.apiKey
         },
         data: {
           conversation_id: this.conversationId,
+          bot_id: "3022316191018903",
           limit: 20
-        },
-        onMessage: (data) => {
-          if (data.data) {
-            const historyData = data.data || [];
-            const formattedMessages: ChatMessage[] = historyData.map(msg => {
-              const time = new Date(msg.created_at * 1000);
-              const hours = time.getHours().toString().padStart(2, '0');
-              const minutes = time.getMinutes().toString().padStart(2, '0');
-              const timeStr = `${hours}:${minutes}`;
-
-              // 创建新的消息对象，不包含 inputs 字段
-              const { inputs, ...msgWithoutInputs } = msg;
-
-              return {
-                ...msgWithoutInputs,
-                time: timeStr,
-                isStreaming: false,
-                status: msg.status === 'error' ? 'error' : 'normal' as const
-              };
-            });
-
-            this.messages = formattedMessages;
-            this.isLoadingHistory = false;
-
-            requestAnimationFrame(() => {
-              this.shouldAutoScroll = true;
-              this.scrollToBottom();
-            });
-          } else {
-            this.isLoadingHistory = false;
-          }
-        },
-        onError: (error) => {
-          console.error('加载历史消息失败:', error);
-          alert(error instanceof Error ? error.message : '加载历史消息失败，请刷新重试');
-          this.isLoadingHistory = false;
-        },
-        onComplete: () => {
-          this.isLoadingHistory = false;
         }
       });
+
+      if (result.success && result.data) {
+        const historyData = result.data.data;
+        const formattedMessages: ChatMessage[] = historyData.map(msg => {
+          const time = new Date(msg.created_at * 1000);
+          const hours = time.getHours().toString().padStart(2, '0');
+          const minutes = time.getMinutes().toString().padStart(2, '0');
+          const timeStr = `${hours}:${minutes}`;
+
+          const { inputs, ...msgWithoutInputs } = msg;
+
+          return {
+            ...msgWithoutInputs,
+            time: timeStr,
+            isStreaming: false,
+            status: msg.status === 'error' ? 'error' : 'normal' as const
+          };
+        });
+
+        this.messages = formattedMessages;
+        
+        requestAnimationFrame(() => {
+          this.shouldAutoScroll = true;
+          this.scrollToBottom();
+        });
+      }
     } catch (error) {
       console.error('加载历史消息失败:', error);
       alert(error instanceof Error ? error.message : '加载历史消息失败，请刷新重试');
+    } finally {
       this.isLoadingHistory = false;
     }
   }
@@ -768,38 +758,34 @@ export class VideoChatModal {
     }
   }
 
-  // 上传录制的视频
+  // 修改上传录制的视频方法
   private async uploadRecordedVideo() {
     if (!this.recordedBlob) return;
 
     try {
-      this.isUploadingVideo = true; // 开始上传时设置状态
-      this.showRecordingUI = false; // 隐藏视频预览
+      this.isUploadingVideo = true;
+      this.showRecordingUI = false;
 
       // 根据Blob类型确定文件扩展名
       const fileExtension = this.recordedBlob.type.includes('webm') ? 'webm' : 'mp4';
       const fileName = `answer.${fileExtension}`;
+      
+      // 创建File对象
+      const file = new File([this.recordedBlob], fileName, { type: this.recordedBlob.type });
 
-      const formData = new FormData();
-      formData.append('file', this.recordedBlob, fileName);
-
-      const response = await fetch('https://pcm_api.ylzhaopin.com/external/v1/files/upload', {
-        method: 'POST',
-        headers: {
-          'authorization': 'Bearer ' + this.apiKey
-        },
-        body: formData
+      // 使用uploadFileToBackend上传文件
+      const uploadResult = await uploadFileToBackend(file, {
+        'authorization': 'Bearer ' + this.apiKey
       });
+      console.log('视频上传结果:', uploadResult);
 
-      const result = await response.json();
-      console.log('视频上传结果:', result);
-
-      if (result && result.cos_key) {
+      // 使用 cos_key 作为视频标识符
+      if (uploadResult.cos_key) {
         // 调用音频转文字API
-        const transcriptionText = await this.convertAudioToText(result.cos_key);
+        const transcriptionText = await this.convertAudioToText(uploadResult.cos_key);
         
         // 发送转换后的文本和视频URL到下一个请求
-        await this.sendMessageToAPI(transcriptionText || "下一题", result.cos_key);
+        await this.sendMessageToAPI(transcriptionText || "下一题", uploadResult.cos_key);
       } else {
         throw new Error('视频上传失败');
       }
@@ -811,44 +797,33 @@ export class VideoChatModal {
         details: error
       });
     } finally {
-      this.isUploadingVideo = false; // 上传完成后重置状态
+      this.isUploadingVideo = false;
       this.showRecordingUI = false;
       this.recordedBlob = null;
     }
   }
 
-  // 修改音频转文字方法
+  // 修改音频转文字方法，使用 cos_key
   private async convertAudioToText(cosKey: string): Promise<string | null> {
     try {
-      // 创建一个Promise来处理响应
-      return new Promise((resolve, reject) => {
-        sendHttpRequest({
-          url: `https://pcm_api.ylzhaopin.com/external/v1/tts/audio_to_text`,
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'authorization': 'Bearer ' + this.apiKey
-          },
-          data: {
-            cos_key: cosKey
-          },
-          onMessage: (data) => {
-            
-            // 检查返回结果中是否包含转换后的文本
-            if (data && data.text) {
-              console.log('转换后的文本:', data.text);
-              resolve(data.text);
-            } else {
-              console.warn('音频转文字返回结果格式不正确');
-              resolve(null);
-            }
-          },
-          onError: (error) => {
-            console.error('音频转文字请求失败:', error);
-            reject(error);
-          }
-        });
+      const result = await sendHttpRequest<{ text: string }>({
+        url: '/sdk/v1/tts/audio_to_text',
+        method: 'POST',
+        headers: {
+          'authorization': 'Bearer ' + this.apiKey
+        },
+        data: {
+          cos_key: cosKey
+        }
       });
+      
+      if (result.success && result.data?.text) {
+        console.log('转换后的文本:', result.data.text);
+        return result.data.text;
+      } else {
+        console.warn('音频转文字返回结果格式不正确');
+        return null;
+      }
     } catch (error) {
       console.error('音频转文字错误:', error);
       return null;
@@ -864,6 +839,7 @@ export class VideoChatModal {
       response_mode: 'streaming',
       conversation_id: this.conversationId,
       query: queryText,
+      bot_id: "3022316191018903",
       inputs: {
         id: this.resumeId
       }
@@ -876,7 +852,7 @@ export class VideoChatModal {
 
     // 不使用 await，直接发送请求
     sendSSERequest({
-      url: `https://pcm_api.ylzhaopin.com/external/v1/chat/chat-messages`,
+      url: `/sdk/v1/chat/chat-messages`,
       method: 'POST',
       headers: {
         'authorization': 'Bearer ' + this.apiKey
@@ -890,7 +866,7 @@ export class VideoChatModal {
   // 添加TTS合成音频的方法
   private async synthesizeAudio(text: string): Promise<string> {
     try {
-      const response = await fetch('https://pcm_api.ylzhaopin.com/external/v1/tts/synthesize_audio', {
+      const response = await fetch(`${API_DOMAIN}/sdk/v1/tts/synthesize_audio`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
