@@ -20,7 +20,7 @@ export class ZyghModal {
     /**
      * API鉴权密钥
      */
-    @Prop({ attribute: 'api-key' }) apiKey: string = '';
+    @Prop({ attribute: 'token' }) token: string = '';
 
     /**
      * 是否显示聊天模态框
@@ -162,8 +162,8 @@ export class ZyghModal {
 
         try {
             const result = await uploadFileToBackend(this.selectedFile, {
-                'authorization': 'Bearer ' + this.apiKey
-              });
+                'authorization': 'Bearer ' + this.token
+            });
             
             this.uploadedFileInfo = result;
             this.uploadSuccess.emit(result);
@@ -237,7 +237,7 @@ export class ZyghModal {
      * 验证API密钥
      */
     private async verifyApiKey() {
-        if (!this.apiKey) {
+        if (!this.token) {
             this.apiKeyInvalid.emit();
             return;
         }
@@ -247,7 +247,7 @@ export class ZyghModal {
                 url: '/sdk/v1/user',
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${this.apiKey}`
+                    'Authorization': `Bearer ${this.token}`
                 }
             });
 
@@ -409,7 +409,7 @@ export class ZyghModal {
                                 isOpen={true}
                                 modalTitle={this.modalTitle}
                                 icon={this.icon}
-                                apiKey={this.apiKey}
+                                token={this.token}
                                 isShowHeader={this.isShowHeader} 
                                 isNeedClose={this.isShowHeader} 
                                 zIndex={this.zIndex}

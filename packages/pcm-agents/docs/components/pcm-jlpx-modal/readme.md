@@ -6,7 +6,6 @@
 
 | Property         | Attribute         | Description                   | Type                      | Default     |
 | ---------------- | ----------------- | ----------------------------- | ------------------------- | ----------- |
-| `apiKey`         | `api-key`         | API鉴权密钥                       | `string`                  | `''`        |
 | `conversationId` | `conversation-id` | 会话ID，传入继续对话，否则创建新会话           | `string`                  | `undefined` |
 | `customInputs`   | --                | 自定义输入参数，传入job_info时，会隐藏JD输入区域 | `{ [key: string]: any; }` | `{}`        |
 | `defaultQuery`   | `default-query`   | 默认查询文本                        | `string`                  | `''`        |
@@ -16,6 +15,7 @@
 | `isOpen`         | `is-open`         | 是否显示聊天模态框                     | `boolean`                 | `false`     |
 | `isShowHeader`   | `is-show-header`  | 是否展示顶部标题栏                     | `boolean`                 | `true`      |
 | `modalTitle`     | `modal-title`     | 模态框标题                         | `string`                  | `'简历剖析助手'`  |
+| `token`          | `token`           | API鉴权密钥                       | `string`                  | `''`        |
 | `zIndex`         | `z-index`         | 聊天框的页面层级                      | `number`                  | `1000`      |
 
 

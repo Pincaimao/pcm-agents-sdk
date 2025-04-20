@@ -28,10 +28,6 @@ export namespace Components {
     }
     interface PcmAppChatModal {
         /**
-          * API鉴权密钥
-         */
-        "apiKey": string;
-        /**
           * 机器人ID
          */
         "botId"?: string;
@@ -96,6 +92,10 @@ export namespace Components {
          */
         "modalTitle": string;
         /**
+          * API鉴权密钥
+         */
+        "token": string;
+        /**
           * 控制对话轮数
          */
         "totalQuestions": number;
@@ -158,10 +158,6 @@ export namespace Components {
     }
     interface PcmHrChatModal {
         /**
-          * API鉴权密钥
-         */
-        "apiKey": string;
-        /**
           * 会话ID，传入继续对话，否则创建新会话
          */
         "conversationId"?: string;
@@ -218,6 +214,10 @@ export namespace Components {
          */
         "toEmail": string;
         /**
+          * API鉴权密钥
+         */
+        "token": string;
+        /**
           * 总题目数量
          */
         "totalQuestions": number;
@@ -232,10 +232,6 @@ export namespace Components {
     }
     interface PcmJlpxModal {
         /**
-          * API鉴权密钥
-         */
-        "apiKey": string;
-        /**
           * 会话ID，传入继续对话，否则创建新会话
          */
         "conversationId"?: string;
@@ -271,6 +267,10 @@ export namespace Components {
           * 模态框标题
          */
         "modalTitle": string;
+        /**
+          * API鉴权密钥
+         */
+        "token": string;
         /**
           * 聊天框的页面层级
          */
@@ -278,10 +278,6 @@ export namespace Components {
     }
     interface PcmMnmsModal {
         /**
-          * API鉴权密钥
-         */
-        "apiKey": string;
-        /**
           * 会话ID，传入继续对话，否则创建新会话
          */
         "conversationId"?: string;
@@ -318,15 +314,15 @@ export namespace Components {
          */
         "modalTitle": string;
         /**
+          * API鉴权密钥
+         */
+        "token": string;
+        /**
           * 聊天框的页面层级
          */
         "zIndex"?: number;
     }
     interface PcmVideoChatModal {
-        /**
-          * API鉴权密钥
-         */
-        "apiKey": string;
         /**
           * 会话ID，传入继续对话，否则创建新会话
          */
@@ -380,6 +376,10 @@ export namespace Components {
          */
         "resumeId"?: string;
         /**
+          * API鉴权密钥
+         */
+        "token": string;
+        /**
           * 总题目数量
          */
         "totalQuestions": number;
@@ -389,10 +389,6 @@ export namespace Components {
         "zIndex"?: number;
     }
     interface PcmZyghModal {
-        /**
-          * API鉴权密钥
-         */
-        "apiKey": string;
         /**
           * 会话ID，传入继续对话，否则创建新会话
          */
@@ -429,6 +425,10 @@ export namespace Components {
           * 模态框标题
          */
         "modalTitle": string;
+        /**
+          * API鉴权密钥
+         */
+        "token": string;
         /**
           * 聊天框的页面层级
          */
@@ -763,10 +763,6 @@ declare namespace LocalJSX {
     }
     interface PcmAppChatModal {
         /**
-          * API鉴权密钥
-         */
-        "apiKey"?: string;
-        /**
           * 机器人ID
          */
         "botId"?: string;
@@ -875,6 +871,10 @@ declare namespace LocalJSX {
     id: string;
   }>) => void;
         /**
+          * API鉴权密钥
+         */
+        "token"?: string;
+        /**
           * 控制对话轮数
          */
         "totalQuestions"?: number;
@@ -954,10 +954,6 @@ declare namespace LocalJSX {
         "zIndex"?: number;
     }
     interface PcmHrChatModal {
-        /**
-          * API鉴权密钥
-         */
-        "apiKey"?: string;
         /**
           * 会话ID，传入继续对话，否则创建新会话
          */
@@ -1047,6 +1043,10 @@ declare namespace LocalJSX {
          */
         "toEmail"?: string;
         /**
+          * API鉴权密钥
+         */
+        "token"?: string;
+        /**
           * 总题目数量
          */
         "totalQuestions"?: number;
@@ -1060,10 +1060,6 @@ declare namespace LocalJSX {
         "zIndex"?: number;
     }
     interface PcmJlpxModal {
-        /**
-          * API鉴权密钥
-         */
-        "apiKey"?: string;
         /**
           * 会话ID，传入继续对话，否则创建新会话
          */
@@ -1138,15 +1134,15 @@ declare namespace LocalJSX {
          */
         "onUploadSuccess"?: (event: PcmJlpxModalCustomEvent<FileUploadResponse>) => void;
         /**
+          * API鉴权密钥
+         */
+        "token"?: string;
+        /**
           * 聊天框的页面层级
          */
         "zIndex"?: number;
     }
     interface PcmMnmsModal {
-        /**
-          * API鉴权密钥
-         */
-        "apiKey"?: string;
         /**
           * 会话ID，传入继续对话，否则创建新会话
          */
@@ -1221,15 +1217,15 @@ declare namespace LocalJSX {
          */
         "onUploadSuccess"?: (event: PcmMnmsModalCustomEvent<FileUploadResponse>) => void;
         /**
+          * API鉴权密钥
+         */
+        "token"?: string;
+        /**
           * 聊天框的页面层级
          */
         "zIndex"?: number;
     }
     interface PcmVideoChatModal {
-        /**
-          * API鉴权密钥
-         */
-        "apiKey"?: string;
         /**
           * 会话ID，传入继续对话，否则创建新会话
          */
@@ -1315,6 +1311,10 @@ declare namespace LocalJSX {
          */
         "resumeId"?: string;
         /**
+          * API鉴权密钥
+         */
+        "token"?: string;
+        /**
           * 总题目数量
          */
         "totalQuestions"?: number;
@@ -1324,10 +1324,6 @@ declare namespace LocalJSX {
         "zIndex"?: number;
     }
     interface PcmZyghModal {
-        /**
-          * API鉴权密钥
-         */
-        "apiKey"?: string;
         /**
           * 会话ID，传入继续对话，否则创建新会话
          */
@@ -1401,6 +1397,10 @@ declare namespace LocalJSX {
           * 上传成功事件
          */
         "onUploadSuccess"?: (event: PcmZyghModalCustomEvent<FileUploadResponse>) => void;
+        /**
+          * API鉴权密钥
+         */
+        "token"?: string;
         /**
           * 聊天框的页面层级
          */

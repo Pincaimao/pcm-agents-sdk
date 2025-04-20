@@ -6,7 +6,6 @@
 
 | Property               | Attribute                | Description                     | Type      | Default     |
 | ---------------------- | ------------------------ | ------------------------------- | --------- | ----------- |
-| `apiKey`               | `api-key`                | API鉴权密钥                         | `string`  | `''`        |
 | `conversationId`       | `conversation-id`        | 会话ID，传入继续对话，否则创建新会话             | `string`  | `undefined` |
 | `countdownWarningTime` | `countdown-warning-time` | 录制倒计时提醒时间（秒） 当剩余时间小于此值时，显示倒计时警告 | `number`  | `30`        |
 | `defaultQuery`         | `default-query`          | 首次对话提问文本                        | `string`  | `''`        |
@@ -20,6 +19,7 @@
 | `maxRecordingTime`     | `max-recording-time`     | 视频录制最大时长（秒）                     | `number`  | `120`       |
 | `modalTitle`           | `modal-title`            | 模态框标题                           | `string`  | `'在线客服'`    |
 | `resumeId`             | `resume-id`              | 父组件传入的 简历id                     | `string`  | `undefined` |
+| `token`                | `token`                  | API鉴权密钥                         | `string`  | `''`        |
 | `totalQuestions`       | `total-questions`        | 总题目数量                           | `number`  | `2`         |
 | `zIndex`               | `z-index`                | 聊天框的页面层级                        | `number`  | `1000`      |
 

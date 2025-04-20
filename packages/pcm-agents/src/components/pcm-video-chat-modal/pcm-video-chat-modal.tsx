@@ -16,7 +16,7 @@ export class VideoChatModal {
   /**
    * API鉴权密钥
    */
-  @Prop({ attribute: 'api-key' }) apiKey: string = '';
+  @Prop({ attribute: 'token' }) token: string = '';
 
   /**
    * 是否显示聊天模态框
@@ -277,7 +277,7 @@ export class VideoChatModal {
       url: `/sdk/v1/chat/chat-messages`,
       method: 'POST',
       headers: {
-        'authorization': 'Bearer ' + this.apiKey
+        'authorization': 'Bearer ' + this.token
       },
       data: requestData,
       onMessage: (data) => {
@@ -422,7 +422,7 @@ export class VideoChatModal {
         url: '/sdk/v1/chat/messages',
         method: 'GET',
         headers: {
-          'authorization': 'Bearer ' + this.apiKey
+          'authorization': 'Bearer ' + this.token
         },
         data: {
           conversation_id: this.conversationId,
@@ -775,7 +775,7 @@ export class VideoChatModal {
 
       // 使用uploadFileToBackend上传文件
       const uploadResult = await uploadFileToBackend(file, {
-        'authorization': 'Bearer ' + this.apiKey
+        'authorization': 'Bearer ' + this.token
       });
       console.log('视频上传结果:', uploadResult);
 
@@ -810,7 +810,7 @@ export class VideoChatModal {
         url: '/sdk/v1/tts/audio_to_text',
         method: 'POST',
         headers: {
-          'authorization': 'Bearer ' + this.apiKey
+          'authorization': 'Bearer ' + this.token
         },
         data: {
           cos_key: cosKey
@@ -855,7 +855,7 @@ export class VideoChatModal {
       url: `/sdk/v1/chat/chat-messages`,
       method: 'POST',
       headers: {
-        'authorization': 'Bearer ' + this.apiKey
+        'authorization': 'Bearer ' + this.token
       },
       data: requestData,
     }).catch(error => {
@@ -870,7 +870,7 @@ export class VideoChatModal {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'authorization': 'Bearer ' + this.apiKey
+          'authorization': 'Bearer ' + this.token
         },
         body: JSON.stringify({ text })
       });

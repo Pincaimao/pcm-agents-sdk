@@ -16,7 +16,7 @@ export class ChatAPPModal {
   /**
    * API鉴权密钥
    */
-  @Prop({ attribute: 'api-key' }) apiKey: string = '';
+  @Prop({ attribute: 'token' }) token: string = '';
 
   /**
    * 是否显示聊天模态框
@@ -316,7 +316,7 @@ export class ChatAPPModal {
       url: `/sdk/v1/chat/chat-messages`,
       method: 'POST',
       headers: {
-        'authorization': 'Bearer ' + this.apiKey
+        'authorization': 'Bearer ' + this.token
       },
       data: requestData,
       onMessage: (data) => {
@@ -466,7 +466,7 @@ export class ChatAPPModal {
         url: '/sdk/v1/chat/messages',
         method: 'GET',
         headers: {
-          'authorization': 'Bearer ' + this.apiKey
+          'authorization': 'Bearer ' + this.token
         },
         data: {
           conversation_id: this.conversationId,
@@ -826,7 +826,7 @@ export class ChatAPPModal {
         url: '/sdk/v1/tts/audio_to_text',
         method: 'POST',
         headers: {
-          'authorization': 'Bearer ' + this.apiKey
+          'authorization': 'Bearer ' + this.token
         },
         data: {
           cos_key: cosKey
@@ -862,7 +862,7 @@ export class ChatAPPModal {
       
       // 使用uploadFileToBackend上传文件
       const fileInfo = await uploadFileToBackend(file, {
-        'authorization': 'Bearer ' + this.apiKey
+        'authorization': 'Bearer ' + this.token
       });
       
       // 调用音频转文字API
@@ -908,7 +908,7 @@ export class ChatAPPModal {
         url: '/sdk/v1/chat/chat-messages',
         method: 'POST',
         headers: {
-          'authorization': 'Bearer ' + this.apiKey
+          'authorization': 'Bearer ' + this.token
         },
         data: requestData
       }).catch(error => {
@@ -927,7 +927,7 @@ export class ChatAPPModal {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'authorization': 'Bearer ' + this.apiKey
+          'authorization': 'Bearer ' + this.token
         },
         body: JSON.stringify({ text })
       });

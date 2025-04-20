@@ -16,7 +16,7 @@ export class ChatHRModal {
   /**
    * API鉴权密钥
    */
-  @Prop({ attribute: 'api-key' }) apiKey: string = '';
+  @Prop({ attribute: 'token' }) token: string = '';
 
   /**
    * 是否显示聊天模态框
@@ -251,7 +251,7 @@ export class ChatHRModal {
     
     try {
       const result = await uploadFileToBackend(this.selectedFile, {
-        'authorization': 'Bearer ' + this.apiKey
+        'authorization': 'Bearer ' + this.token
       });
       
       if (result) {
@@ -371,7 +371,7 @@ export class ChatHRModal {
       url: '/sdk/v1/chat/chat-messages',
       method: 'POST',
       headers: {
-        'authorization': 'Bearer ' + this.apiKey
+        'authorization': 'Bearer ' + this.token
       },
       data: requestData,
       onMessage: (data) => {
@@ -475,7 +475,7 @@ export class ChatHRModal {
         url: '/sdk/v1/hr_competition/answer',
         method: 'POST',
         headers: {
-          'authorization': 'Bearer ' + this.apiKey
+          'authorization': 'Bearer ' + this.token
         },
         data: {
           conversation_id: conversationId,
@@ -541,7 +541,7 @@ export class ChatHRModal {
         url: '/sdk/v1/chat/messages',
         method: 'GET',
         headers: {
-          'authorization': 'Bearer ' + this.apiKey
+          'authorization': 'Bearer ' + this.token
         },
         data: {
           conversation_id: this.conversationId,
@@ -941,7 +941,7 @@ export class ChatHRModal {
       
       // 使用uploadFileToBackend上传视频
       const result = await uploadFileToBackend(videoFile, {
-        'authorization': 'Bearer ' + this.apiKey
+        'authorization': 'Bearer ' + this.token
       });
       
       if (result) {
@@ -978,7 +978,7 @@ export class ChatHRModal {
         url: '/sdk/v1/hr_competition/answer',
         method: 'POST',
         headers: {
-          'authorization': 'Bearer ' + this.apiKey
+          'authorization': 'Bearer ' + this.token
         },
         data: {
           conversation_id: this.conversationId,
@@ -1008,7 +1008,7 @@ export class ChatHRModal {
         url: `/sdk/v1/hr_competition/${this.conversationId}/end`,
         method: 'POST',
         headers: {
-          'authorization': 'Bearer ' + this.apiKey
+          'authorization': 'Bearer ' + this.token
         },
       });
     } catch (error) {
@@ -1023,7 +1023,7 @@ export class ChatHRModal {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'authorization': 'Bearer ' + this.apiKey
+          'authorization': 'Bearer ' + this.token
         },
         body: JSON.stringify({ text })
       });

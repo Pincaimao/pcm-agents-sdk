@@ -15,7 +15,7 @@ export class MnmsModal {
     /**
      * API鉴权密钥
      */
-    @Prop({ attribute: 'api-key' }) apiKey: string = '';
+    @Prop({ attribute: 'token' }) token: string = '';
 
     /**
      * 是否显示聊天模态框
@@ -154,7 +154,7 @@ export class MnmsModal {
         try {
             // 使用 uploadFileToBackend 工具函数上传文件
             const result = await uploadFileToBackend(this.selectedFile, {
-                'authorization': 'Bearer ' + this.apiKey
+                'authorization': 'Bearer ' + this.token
             });
 
             this.uploadedFileInfo = result;
@@ -267,7 +267,7 @@ export class MnmsModal {
      * 验证API密钥
      */
     private async verifyApiKey() {
-        if (!this.apiKey) {
+        if (!this.token) {
             this.apiKeyInvalid.emit();
             return;
         }
@@ -277,7 +277,7 @@ export class MnmsModal {
                 url: '/sdk/v1/user',
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${this.apiKey}`
+                    'Authorization': `Bearer ${this.token}`
                 }
             });
 
@@ -404,7 +404,7 @@ export class MnmsModal {
                                 isOpen={true}
                                 modalTitle={this.modalTitle}
                                 icon={this.icon}
-                                apiKey={this.apiKey}
+                                token={this.token}
                                 isShowHeader={this.isShowHeader} // 不显示内部的标题栏，因为外部已有
                                 isNeedClose={this.isShowHeader} // 不显示内部的关闭按钮，因为外部已有
                                 zIndex={this.zIndex}
