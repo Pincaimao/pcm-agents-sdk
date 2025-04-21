@@ -862,6 +862,8 @@ export class ChatAPPModal {
       // 使用uploadFileToBackend上传文件
       const fileInfo = await uploadFileToBackend(file, {
         'authorization': 'Bearer ' + this.token
+      }, {
+        'tags': 'other'
       });
       
       // 调用音频转文字API

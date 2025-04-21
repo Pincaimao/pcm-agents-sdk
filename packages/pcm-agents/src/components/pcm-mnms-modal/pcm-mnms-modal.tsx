@@ -151,6 +151,8 @@ export class MnmsModal {
             // 使用 uploadFileToBackend 工具函数上传文件
             const result = await uploadFileToBackend(this.selectedFile, {
                 'authorization': 'Bearer ' + this.token
+            }, {
+                'tags': 'resume'
             });
 
             this.uploadedFileInfo = result;

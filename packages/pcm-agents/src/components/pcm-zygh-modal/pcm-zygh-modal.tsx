@@ -167,6 +167,8 @@ export class ZyghModal {
         try {
             const result = await uploadFileToBackend(this.selectedFile, {
                 'authorization': 'Bearer ' + this.token
+            }, {
+                'tags': 'resume'
             });
             
             this.uploadedFileInfo = result;

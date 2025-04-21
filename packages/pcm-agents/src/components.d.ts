@@ -280,6 +280,52 @@ export namespace Components {
          */
         "zIndex"?: number;
     }
+    interface PcmMnctModal {
+        /**
+          * 会话ID，传入继续对话，否则创建新会话
+         */
+        "conversationId"?: string;
+        /**
+          * 自定义输入参数，传入job_info时，会隐藏JD输入区域
+         */
+        "customInputs": { [key: string]: any };
+        /**
+          * 默认查询文本
+         */
+        "defaultQuery": string;
+        /**
+          * 是否以全屏模式打开，移动端建议设置为true
+         */
+        "fullscreen": boolean;
+        /**
+          * 应用图标URL
+         */
+        "icon"?: string;
+        /**
+          * 是否展示右上角的关闭按钮
+         */
+        "isNeedClose": boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen": boolean;
+        /**
+          * 是否展示顶部标题栏
+         */
+        "isShowHeader": boolean;
+        /**
+          * 模态框标题
+         */
+        "modalTitle": string;
+        /**
+          * SDK鉴权密钥
+         */
+        "token": string;
+        /**
+          * 聊天框的页面层级
+         */
+        "zIndex"?: number;
+    }
     interface PcmMnmsModal {
         /**
           * 会话ID，传入继续对话，否则创建新会话
@@ -459,6 +505,10 @@ export interface PcmJlppModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmJlppModalElement;
 }
+export interface PcmMnctModalCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLPcmMnctModalElement;
+}
 export interface PcmMnmsModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmMnmsModalElement;
@@ -632,6 +682,41 @@ declare global {
         prototype: HTMLPcmJlppModalElement;
         new (): HTMLPcmJlppModalElement;
     };
+    interface HTMLPcmMnctModalElementEventMap {
+        "modalClosed": void;
+        "uploadSuccess": FileUploadResponse;
+        "streamComplete": {
+        conversation_id: string;
+        event: string;
+        message_id: string;
+        id: string;
+    };
+        "conversationStart": {
+        conversation_id: string;
+        event: string;
+        message_id: string;
+        id: string;
+    };
+        "interviewComplete": {
+        conversation_id: string;
+        total_questions: number;
+    };
+        "tokenInvalid": void;
+    }
+    interface HTMLPcmMnctModalElement extends Components.PcmMnctModal, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLPcmMnctModalElementEventMap>(type: K, listener: (this: HTMLPcmMnctModalElement, ev: PcmMnctModalCustomEvent<HTMLPcmMnctModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLPcmMnctModalElementEventMap>(type: K, listener: (this: HTMLPcmMnctModalElement, ev: PcmMnctModalCustomEvent<HTMLPcmMnctModalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLPcmMnctModalElement: {
+        prototype: HTMLPcmMnctModalElement;
+        new (): HTMLPcmMnctModalElement;
+    };
     interface HTMLPcmMnmsModalElementEventMap {
         "modalClosed": void;
         "uploadSuccess": FileUploadResponse;
@@ -745,6 +830,7 @@ declare global {
         "pcm-chat-modal": HTMLPcmChatModalElement;
         "pcm-hr-chat-modal": HTMLPcmHrChatModalElement;
         "pcm-jlpp-modal": HTMLPcmJlppModalElement;
+        "pcm-mnct-modal": HTMLPcmMnctModalElement;
         "pcm-mnms-modal": HTMLPcmMnmsModalElement;
         "pcm-video-chat-modal": HTMLPcmVideoChatModalElement;
         "pcm-zygh-modal": HTMLPcmZyghModalElement;
@@ -1150,6 +1236,89 @@ declare namespace LocalJSX {
          */
         "zIndex"?: number;
     }
+    interface PcmMnctModal {
+        /**
+          * 会话ID，传入继续对话，否则创建新会话
+         */
+        "conversationId"?: string;
+        /**
+          * 自定义输入参数，传入job_info时，会隐藏JD输入区域
+         */
+        "customInputs"?: { [key: string]: any };
+        /**
+          * 默认查询文本
+         */
+        "defaultQuery"?: string;
+        /**
+          * 是否以全屏模式打开，移动端建议设置为true
+         */
+        "fullscreen"?: boolean;
+        /**
+          * 应用图标URL
+         */
+        "icon"?: string;
+        /**
+          * 是否展示右上角的关闭按钮
+         */
+        "isNeedClose"?: boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen"?: boolean;
+        /**
+          * 是否展示顶部标题栏
+         */
+        "isShowHeader"?: boolean;
+        /**
+          * 模态框标题
+         */
+        "modalTitle"?: string;
+        /**
+          * 新会话开始的回调，只会在一轮对话开始时触发一次
+         */
+        "onConversationStart"?: (event: PcmMnctModalCustomEvent<{
+        conversation_id: string;
+        event: string;
+        message_id: string;
+        id: string;
+    }>) => void;
+        /**
+          * 当聊天完成时触发
+         */
+        "onInterviewComplete"?: (event: PcmMnctModalCustomEvent<{
+        conversation_id: string;
+        total_questions: number;
+    }>) => void;
+        /**
+          * 当点击模态框关闭时触发
+         */
+        "onModalClosed"?: (event: PcmMnctModalCustomEvent<void>) => void;
+        /**
+          * 流式输出完成事件
+         */
+        "onStreamComplete"?: (event: PcmMnctModalCustomEvent<{
+        conversation_id: string;
+        event: string;
+        message_id: string;
+        id: string;
+    }>) => void;
+        /**
+          * SDK密钥验证失败事件
+         */
+        "onTokenInvalid"?: (event: PcmMnctModalCustomEvent<void>) => void;
+        /**
+          * 上传成功事件
+         */
+        "onUploadSuccess"?: (event: PcmMnctModalCustomEvent<FileUploadResponse>) => void;
+        /**
+          * SDK鉴权密钥
+         */
+        "token"?: string;
+        /**
+          * 聊天框的页面层级
+         */
+        "zIndex"?: number;
+    }
     interface PcmMnmsModal {
         /**
           * 会话ID，传入继续对话，否则创建新会话
@@ -1421,6 +1590,7 @@ declare namespace LocalJSX {
         "pcm-chat-modal": PcmChatModal;
         "pcm-hr-chat-modal": PcmHrChatModal;
         "pcm-jlpp-modal": PcmJlppModal;
+        "pcm-mnct-modal": PcmMnctModal;
         "pcm-mnms-modal": PcmMnmsModal;
         "pcm-video-chat-modal": PcmVideoChatModal;
         "pcm-zygh-modal": PcmZyghModal;
@@ -1436,6 +1606,7 @@ declare module "@stencil/core" {
             "pcm-chat-modal": LocalJSX.PcmChatModal & JSXBase.HTMLAttributes<HTMLPcmChatModalElement>;
             "pcm-hr-chat-modal": LocalJSX.PcmHrChatModal & JSXBase.HTMLAttributes<HTMLPcmHrChatModalElement>;
             "pcm-jlpp-modal": LocalJSX.PcmJlppModal & JSXBase.HTMLAttributes<HTMLPcmJlppModalElement>;
+            "pcm-mnct-modal": LocalJSX.PcmMnctModal & JSXBase.HTMLAttributes<HTMLPcmMnctModalElement>;
             "pcm-mnms-modal": LocalJSX.PcmMnmsModal & JSXBase.HTMLAttributes<HTMLPcmMnmsModalElement>;
             "pcm-video-chat-modal": LocalJSX.PcmVideoChatModal & JSXBase.HTMLAttributes<HTMLPcmVideoChatModalElement>;
             "pcm-zygh-modal": LocalJSX.PcmZyghModal & JSXBase.HTMLAttributes<HTMLPcmZyghModalElement>;

@@ -776,6 +776,8 @@ export class VideoChatModal {
       // 使用uploadFileToBackend上传文件
       const uploadResult = await uploadFileToBackend(file, {
         'authorization': 'Bearer ' + this.token
+      }, {
+        'tags': 'other'
       });
       console.log('视频上传结果:', uploadResult);
 

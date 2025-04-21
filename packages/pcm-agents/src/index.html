@@ -96,15 +96,30 @@
     <button id="open-zygh-chat">打开职业规划助手</button>
   </div>
 
+  <div class="demo-controls">
+    <h2>面试出题大师演示</h2>
+    <button id="open-mnct-chat">打开面试出题大师</button>
+  </div>
+
   <!-- <my-component first="Stencil" middle="'Don't call me a framework'" last="JS"></my-component> -->
 
 
   <!-- 添加聊天模态框组件 -->
+  <pcm-mnct-modal id="pcm-mnct-modal"
+    modal-title="面试出题大师" 
+    icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" 
+    conversation-id=""
+    fullscreen="false" 
+    enable-voice="false" 
+    interview-mode="text"
+    default-query="请您提问">
+    </pcm-mnct-modal>
+
   <pcm-mnms-modal id="pcm-mnms-modal"
     modal-title="模拟面试" 
     icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" 
-    conversation-id="695a3b98-ece8-4d2f-9883-dd587efe186d"
-    fullscreen="ture" 
+    conversation-id=""
+    fullscreen="false" 
     enable-voice="false" 
     interview-mode="text"
     default-query="请您提问">
@@ -112,12 +127,12 @@
 
   <pcm-jlpp-modal id="pcm-jlpp-modal"
     modal-title="简历匹配助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id=""
-    fullscreen="ture"  enable-voice="false" interview-mode="text"
+    fullscreen="false"  enable-voice="false" interview-mode="text"
     default-query="请您提问"></pcm-jlpp-modal>
 
   <pcm-zygh-modal id="pcm-zygh-modal"
     modal-title="职业规划助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id=""
-    fullscreen="ture"  enable-voice="false" interview-mode="text"
+    fullscreen="false"  enable-voice="false" interview-mode="text"
     default-query="请您提问"></pcm-zygh-modal>
 
 
@@ -148,12 +163,14 @@
       handleMnmsModal();
       handleJlppModal();
       handleZyghModal();
+      handleMnctModal();
     });
 
     // 为所有组件设置共享的 token
     const setComponentTokens = () => {
       const components = [
         'pcm-mnms-modal',
+        'pcm-mnct-modal',
         'pcm-jlpp-modal',
         'pcm-zygh-modal',
         'pcm-video-chat-modal',
@@ -356,6 +373,52 @@
 
       // 设置自定义输入
       mnmsModal.customInputs = {
+        job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广"
+      };
+    };
+
+    // 面试出题大师模态框处理
+    const handleMnctModal = () => {
+      const mnctModal = document.getElementById('pcm-mnct-modal');
+      const openMnctButton = document.getElementById('open-mnct-chat');
+      
+      if (!mnctModal || !openMnctButton) return;
+
+      // 设置事件监听
+      mnctModal.addEventListener('modalClosed', () => {
+        console.log('聊天窗口已关闭');
+        mnctModal.isOpen = false;
+      });
+
+      mnctModal.addEventListener('streamComplete', (event) => {
+        console.log('流式响应完成:', event.detail);
+      });
+
+      mnctModal.addEventListener('interviewComplete', (event) => {
+        console.log('面试完成:', event.detail);
+        mnctModal.isOpen = false;
+      });
+
+      mnctModal.addEventListener('uploadSuccess', (event) => {
+        console.log('文件上传成功:', event.detail);
+      });
+
+      mnctModal.addEventListener('conversationStart', (event) => {
+        console.log('会话开始:', event.detail);
+        mnctModal.setAttribute('conversation-id', event.detail.conversation_id);
+      });
+
+      mnctModal.addEventListener('tokenInvalid', () => {
+        console.log('SDK密钥验证失败');
+      });
+
+      // 打开聊天按钮事件监听
+      openMnctButton.addEventListener('click', () => {
+        mnctModal.isOpen = true;
+      });
+
+      // 设置自定义输入
+      mnctModal.customInputs = {
         job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广"
       };
     };

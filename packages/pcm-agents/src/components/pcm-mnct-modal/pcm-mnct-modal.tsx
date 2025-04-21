@@ -2,15 +2,15 @@ import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '
 import { uploadFileToBackend, FileUploadResponse, sendHttpRequest } from '../../utils/utils';
 
 @Component({
-    tag: 'pcm-jlpp-modal',
-    styleUrls: ['pcm-jlpp-modal.css','../../global/global.css'],
+    tag: 'pcm-mnct-modal',
+    styleUrls: ['pcm-mnct-modal.css', '../../global/global.css'],
     shadow: true,
 })
-export class JlppModal {
+export class MnctModal {
     /**
      * 模态框标题
      */
-    @Prop() modalTitle: string = '简历剖析助手';
+    @Prop() modalTitle: string = '模拟面试';
 
     /**
      * SDK鉴权密钥
@@ -62,7 +62,6 @@ export class JlppModal {
      */
     @Prop() fullscreen: boolean = false;
 
-
     /**
      * 自定义输入参数，传入job_info时，会隐藏JD输入区域
      */
@@ -110,15 +109,12 @@ export class JlppModal {
     @State() isUploading: boolean = false;
     @State() uploadedFileInfo: FileUploadResponse | null = null;
     @State() showChatModal: boolean = false;
-    @State() jobDescription: string = '';
-    @State() isSubmitting: boolean = false;
-
-    // 添加新的状态来控制过渡动画
-    @State() isTransitioning: boolean = false;
-    @State() transitionTimer: any = null;
 
     // 使用 @Element 装饰器获取组件的 host 元素
     @Element() hostElement: HTMLElement;
+
+    @State() jobDescription: string = '';
+    @State() isSubmitting: boolean = false;
 
     private handleClose = () => {
         this.isOpen = false;
@@ -146,17 +142,13 @@ export class JlppModal {
         }
     };
 
-    private handleJobDescriptionChange = (event: Event) => {
-        const textarea = event.target as HTMLTextAreaElement;
-        this.jobDescription = textarea.value;
-    };
-
     private async uploadFile() {
         if (!this.selectedFile) return;
 
         this.isUploading = true;
 
         try {
+            // 使用 uploadFileToBackend 工具函数上传文件
             const result = await uploadFileToBackend(this.selectedFile, {
                 'authorization': 'Bearer ' + this.token
             }, {
@@ -164,7 +156,6 @@ export class JlppModal {
             });
 
             this.uploadedFileInfo = result;
-            // 触发上传成功事件
             this.uploadSuccess.emit(result);
         } catch (error) {
             console.error('文件上传错误:', error);
@@ -175,7 +166,12 @@ export class JlppModal {
         }
     }
 
-    private handleStartAnalysis = async () => {
+    private handleJobDescriptionChange = (event: Event) => {
+        const textarea = event.target as HTMLTextAreaElement;
+        this.jobDescription = textarea.value;
+    };
+
+    private handleStartInterview = async () => {
         if (!this.selectedFile) {
             alert('请上传简历');
             return;
@@ -211,8 +207,8 @@ export class JlppModal {
             // 直接显示聊天模态框
             this.showChatModal = true;
         } catch (error) {
-            console.error('开始分析时出错:', error);
-            alert('开始分析时出错，请重试');
+            console.error('开始面试时出错:', error);
+            alert('开始面试时出错，请重试');
         } finally {
             this.isSubmitting = false;
         }
@@ -225,12 +221,7 @@ export class JlppModal {
             this.clearSelectedFile();
             this.showChatModal = false;
             this.jobDescription = '';
-            
-            // 清除可能存在的计时器
-            if (this.transitionTimer) {
-                clearTimeout(this.transitionTimer);
-                this.transitionTimer = null;
-            }
+         
         } else {
             // 当模态框打开时，验证API密钥
             this.verifyApiKey();
@@ -240,35 +231,6 @@ export class JlppModal {
                 this.showChatModal = true;
             }
         }
-    }
-
-    /**
-     * 验证API密钥
-     */
-    private async verifyApiKey() {
-        if (!this.token) {
-            this.tokenInvalid.emit();
-            return;
-        }
-        try {
-            const response = await sendHttpRequest({
-                url: '/sdk/v1/user',
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${this.token}`
-                }
-            });
-
-            if (!response.success) {
-                throw new Error(response.message || 'API密钥验证失败');
-            }
-            
-            // 验证成功，继续正常流程
-        } catch (error) {
-            console.error('API密钥验证错误:', error);
-            // 通知父组件API密钥无效
-            this.tokenInvalid.emit();
-        } 
     }
 
     componentWillLoad() {
@@ -294,6 +256,36 @@ export class JlppModal {
         this.interviewComplete.emit(event.detail);
     };
 
+    /**
+     * 验证API密钥
+     */
+    private async verifyApiKey() {
+        if (!this.token) {
+            this.tokenInvalid.emit();
+            return;
+        }
+        
+        try {
+            const response = await sendHttpRequest({
+                url: '/sdk/v1/user',
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${this.token}`
+                }
+            });
+
+            if (!response.success) {
+                throw new Error(response.message || 'API密钥验证失败');
+            }
+            
+            // 验证成功，继续正常流程
+        } catch (error) {
+            console.error('API密钥验证错误:', error);
+            // 通知父组件API密钥无效
+            this.tokenInvalid.emit();
+        }
+    }
+
     render() {
         if (!this.isOpen) return null;
 
@@ -301,12 +293,14 @@ export class JlppModal {
             zIndex: String(this.zIndex)
         };
 
+        console.log('showChatModal:', this.showChatModal);
+
         const containerClass = {
             'modal-container': true,
             'fullscreen': this.fullscreen,
             'pc-layout': true,
         };
-        
+
         const overlayClass = {
             'modal-overlay': true,
             'fullscreen-overlay': this.fullscreen
@@ -337,7 +331,7 @@ export class JlppModal {
                         </div>
                     )}
 
-                    {/* 输入界面 - 仅在不显示聊天模态框且没有会话ID时显示 */}
+                    {/* 上传界面 - 仅在不显示聊天模态框且没有会话ID时显示 */}
                     {!this.showChatModal && !this.conversationId && (
                         <div class="input-container">
                             {/* JD输入区域 - 仅在没有customInputs.job_info时显示 */}
@@ -382,7 +376,7 @@ export class JlppModal {
                             <button
                                 class="submit-button"
                                 disabled={!this.selectedFile || (!hideJdInput && !this.jobDescription.trim()) || this.isUploading || this.isSubmitting}
-                                onClick={this.handleStartAnalysis}
+                                onClick={this.handleStartInterview}
                             >
                                 {this.isUploading ? '上传中...' : this.isSubmitting ? '处理中...' : '开始分析'}
                             </button>
@@ -411,15 +405,14 @@ export class JlppModal {
                                 modalTitle={this.modalTitle}
                                 icon={this.icon}
                                 token={this.token}
-                                isShowHeader={this.isShowHeader} 
-                                isNeedClose={this.isShowHeader} 
+                                isShowHeader={this.isShowHeader} // 不显示内部的标题栏，因为外部已有
+                                isNeedClose={this.isShowHeader} // 不显示内部的关闭按钮，因为外部已有
                                 zIndex={this.zIndex}
                                 fullscreen={this.fullscreen}
+                                botId="3022316191018876"
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
-                                enableTTS={false}
                                 enableVoice={false}
-                                botId="3022316191018881"
                                 customInputs={this.conversationId ? undefined : {
                                     ...this.customInputs,
                                     file_url: this.uploadedFileInfo?.cos_key,

@@ -252,6 +252,8 @@ export class ChatHRModal {
     try {
       const result = await uploadFileToBackend(this.selectedFile, {
         'authorization': 'Bearer ' + this.token
+      }, {
+        'tags': 'resume'
       });
       
       if (result) {
@@ -942,6 +944,8 @@ export class ChatHRModal {
       // 使用uploadFileToBackend上传视频
       const result = await uploadFileToBackend(videoFile, {
         'authorization': 'Bearer ' + this.token
+      }, {
+        'tags': 'other'
       });
       
       if (result) {

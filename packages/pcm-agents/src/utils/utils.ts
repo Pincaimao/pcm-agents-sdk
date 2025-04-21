@@ -296,18 +296,29 @@ export interface FileUploadResponse {
 /**
  * 通过后端API上传文件
  * @param file 要上传的文件
+ * @param params 可选的额外参数
  * @param headers 可选的请求头
  * @returns Promise 包含上传结果
  */
 export const uploadFileToBackend = async (
   file: File,
-  headers?: Record<string, string>
+  headers?: Record<string, string>,
+  params?: Record<string, any>
 ): Promise<FileUploadResponse> => {
   const formData = new FormData();
   formData.append('file', file);
   
+  // 添加额外参数到 formData
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, String(value));
+      }
+    });
+  }
+  
   try {
-    const response = await sendHttpRequest<{cos_key: string, file_name: string, file_size: string,presigned_url: string, ext: string}>({
+    const response = await sendHttpRequest<{cos_key: string, file_name: string, file_size: string, presigned_url: string, ext: string}>({
       url: '/sdk/v1/files/upload',
       method: 'POST',
       headers: {
