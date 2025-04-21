@@ -92,7 +92,7 @@ export namespace Components {
          */
         "modalTitle": string;
         /**
-          * API鉴权密钥
+          * SDK鉴权密钥
          */
         "token": string;
         /**
@@ -214,7 +214,7 @@ export namespace Components {
          */
         "toEmail": string;
         /**
-          * API鉴权密钥
+          * SDK鉴权密钥
          */
         "token": string;
         /**
@@ -268,7 +268,7 @@ export namespace Components {
          */
         "modalTitle": string;
         /**
-          * API鉴权密钥
+          * SDK鉴权密钥
          */
         "token": string;
         /**
@@ -314,7 +314,7 @@ export namespace Components {
          */
         "modalTitle": string;
         /**
-          * API鉴权密钥
+          * SDK鉴权密钥
          */
         "token": string;
         /**
@@ -376,7 +376,7 @@ export namespace Components {
          */
         "resumeId"?: string;
         /**
-          * API鉴权密钥
+          * SDK鉴权密钥
          */
         "token": string;
         /**
@@ -426,7 +426,7 @@ export namespace Components {
          */
         "modalTitle": string;
         /**
-          * API鉴权密钥
+          * SDK鉴权密钥
          */
         "token": string;
         /**
@@ -612,7 +612,7 @@ declare global {
         conversation_id: string;
         total_questions: number;
     };
-        "apiKeyInvalid": void;
+        "tokenInvalid": void;
     }
     interface HTMLPcmJlpxModalElement extends Components.PcmJlpxModal, HTMLStencilElement {
         addEventListener<K extends keyof HTMLPcmJlpxModalElementEventMap>(type: K, listener: (this: HTMLPcmJlpxModalElement, ev: PcmJlpxModalCustomEvent<HTMLPcmJlpxModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -647,7 +647,7 @@ declare global {
         conversation_id: string;
         total_questions: number;
     };
-        "apiKeyInvalid": void;
+        "tokenInvalid": void;
     }
     interface HTMLPcmMnmsModalElement extends Components.PcmMnmsModal, HTMLStencilElement {
         addEventListener<K extends keyof HTMLPcmMnmsModalElementEventMap>(type: K, listener: (this: HTMLPcmMnmsModalElement, ev: PcmMnmsModalCustomEvent<HTMLPcmMnmsModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -718,7 +718,7 @@ declare global {
         conversation_id: string;
         plan_type: CareerPlanType;
     };
-        "apiKeyInvalid": void;
+        "tokenInvalid": void;
     }
     interface HTMLPcmZyghModalElement extends Components.PcmZyghModal, HTMLStencilElement {
         addEventListener<K extends keyof HTMLPcmZyghModalElementEventMap>(type: K, listener: (this: HTMLPcmZyghModalElement, ev: PcmZyghModalCustomEvent<HTMLPcmZyghModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -871,7 +871,7 @@ declare namespace LocalJSX {
     id: string;
   }>) => void;
         /**
-          * API鉴权密钥
+          * SDK鉴权密钥
          */
         "token"?: string;
         /**
@@ -1043,7 +1043,7 @@ declare namespace LocalJSX {
          */
         "toEmail"?: string;
         /**
-          * API鉴权密钥
+          * SDK鉴权密钥
          */
         "token"?: string;
         /**
@@ -1097,10 +1097,6 @@ declare namespace LocalJSX {
          */
         "modalTitle"?: string;
         /**
-          * API密钥验证失败事件
-         */
-        "onApiKeyInvalid"?: (event: PcmJlpxModalCustomEvent<void>) => void;
-        /**
           * 新会话开始的回调，只会在一轮对话开始时触发一次
          */
         "onConversationStart"?: (event: PcmJlpxModalCustomEvent<{
@@ -1130,11 +1126,15 @@ declare namespace LocalJSX {
         id: string;
     }>) => void;
         /**
+          * SDK密钥验证失败事件
+         */
+        "onTokenInvalid"?: (event: PcmJlpxModalCustomEvent<void>) => void;
+        /**
           * 上传成功事件
          */
         "onUploadSuccess"?: (event: PcmJlpxModalCustomEvent<FileUploadResponse>) => void;
         /**
-          * API鉴权密钥
+          * SDK鉴权密钥
          */
         "token"?: string;
         /**
@@ -1180,10 +1180,6 @@ declare namespace LocalJSX {
          */
         "modalTitle"?: string;
         /**
-          * API密钥验证失败事件
-         */
-        "onApiKeyInvalid"?: (event: PcmMnmsModalCustomEvent<void>) => void;
-        /**
           * 新会话开始的回调，只会在一轮对话开始时触发一次
          */
         "onConversationStart"?: (event: PcmMnmsModalCustomEvent<{
@@ -1213,11 +1209,15 @@ declare namespace LocalJSX {
         id: string;
     }>) => void;
         /**
+          * SDK密钥验证失败事件
+         */
+        "onTokenInvalid"?: (event: PcmMnmsModalCustomEvent<void>) => void;
+        /**
           * 上传成功事件
          */
         "onUploadSuccess"?: (event: PcmMnmsModalCustomEvent<FileUploadResponse>) => void;
         /**
-          * API鉴权密钥
+          * SDK鉴权密钥
          */
         "token"?: string;
         /**
@@ -1311,7 +1311,7 @@ declare namespace LocalJSX {
          */
         "resumeId"?: string;
         /**
-          * API鉴权密钥
+          * SDK鉴权密钥
          */
         "token"?: string;
         /**
@@ -1361,10 +1361,6 @@ declare namespace LocalJSX {
          */
         "modalTitle"?: string;
         /**
-          * API密钥验证失败事件
-         */
-        "onApiKeyInvalid"?: (event: PcmZyghModalCustomEvent<void>) => void;
-        /**
           * 新会话开始的回调，只会在一轮对话开始时触发一次
          */
         "onConversationStart"?: (event: PcmZyghModalCustomEvent<{
@@ -1394,11 +1390,15 @@ declare namespace LocalJSX {
         id: string;
     }>) => void;
         /**
+          * SDK密钥验证失败事件
+         */
+        "onTokenInvalid"?: (event: PcmZyghModalCustomEvent<void>) => void;
+        /**
           * 上传成功事件
          */
         "onUploadSuccess"?: (event: PcmZyghModalCustomEvent<FileUploadResponse>) => void;
         /**
-          * API鉴权密钥
+          * SDK鉴权密钥
          */
         "token"?: string;
         /**

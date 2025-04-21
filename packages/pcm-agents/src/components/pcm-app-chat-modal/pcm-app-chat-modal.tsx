@@ -14,7 +14,7 @@ export class ChatAPPModal {
   @Prop() modalTitle: string = '在线客服';
 
   /**
-   * API鉴权密钥
+   * SDK鉴权密钥
    */
   @Prop({ attribute: 'token' }) token: string = '';
 

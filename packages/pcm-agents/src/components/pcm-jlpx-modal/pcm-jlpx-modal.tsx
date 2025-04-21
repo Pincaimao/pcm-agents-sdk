@@ -13,7 +13,7 @@ export class JlpxModal {
     @Prop() modalTitle: string = '简历剖析助手';
 
     /**
-     * API鉴权密钥
+     * SDK鉴权密钥
      */
     @Prop({ attribute: 'token' }) token: string = '';
 
@@ -102,9 +102,9 @@ export class JlpxModal {
     }>;
 
     /**
-     * API密钥验证失败事件
+     * SDK密钥验证失败事件
      */
-    @Event() apiKeyInvalid: EventEmitter<void>;
+    @Event() tokenInvalid: EventEmitter<void>;
 
     @State() selectedFile: File | null = null;
     @State() isUploading: boolean = false;
@@ -245,7 +245,7 @@ export class JlpxModal {
      */
     private async verifyApiKey() {
         if (!this.token) {
-            this.apiKeyInvalid.emit();
+            this.tokenInvalid.emit();
             return;
         }
         try {
@@ -265,7 +265,7 @@ export class JlpxModal {
         } catch (error) {
             console.error('API密钥验证错误:', error);
             // 通知父组件API密钥无效
-            this.apiKeyInvalid.emit();
+            this.tokenInvalid.emit();
         } 
     }
 

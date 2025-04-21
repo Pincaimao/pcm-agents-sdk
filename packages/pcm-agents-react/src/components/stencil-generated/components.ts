@@ -169,7 +169,7 @@ type PcmJlpxModalEvents = {
         conversation_id: string;
         total_questions: number;
     }>>,
-    onApiKeyInvalid: EventName<CustomEvent<void>>
+    onTokenInvalid: EventName<CustomEvent<void>>
 };
 
 export const PcmJlpxModal: StencilReactComponent<PcmJlpxModalElement, PcmJlpxModalEvents> = /*@__PURE__*/ createComponent<PcmJlpxModalElement, PcmJlpxModalEvents>({
@@ -183,7 +183,7 @@ export const PcmJlpxModal: StencilReactComponent<PcmJlpxModalElement, PcmJlpxMod
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
         onInterviewComplete: 'interviewComplete',
-        onApiKeyInvalid: 'apiKeyInvalid'
+        onTokenInvalid: 'tokenInvalid'
     } as PcmJlpxModalEvents,
     defineCustomElement: definePcmJlpxModal
 });
@@ -207,7 +207,7 @@ type PcmMnmsModalEvents = {
         conversation_id: string;
         total_questions: number;
     }>>,
-    onApiKeyInvalid: EventName<CustomEvent<void>>
+    onTokenInvalid: EventName<CustomEvent<void>>
 };
 
 export const PcmMnmsModal: StencilReactComponent<PcmMnmsModalElement, PcmMnmsModalEvents> = /*@__PURE__*/ createComponent<PcmMnmsModalElement, PcmMnmsModalEvents>({
@@ -221,7 +221,7 @@ export const PcmMnmsModal: StencilReactComponent<PcmMnmsModalElement, PcmMnmsMod
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
         onInterviewComplete: 'interviewComplete',
-        onApiKeyInvalid: 'apiKeyInvalid'
+        onTokenInvalid: 'tokenInvalid'
     } as PcmMnmsModalEvents,
     defineCustomElement: definePcmMnmsModal
 });
@@ -283,7 +283,7 @@ type PcmZyghModalEvents = {
         conversation_id: string;
         plan_type: CareerPlanType;
     }>>,
-    onApiKeyInvalid: EventName<CustomEvent<void>>
+    onTokenInvalid: EventName<CustomEvent<void>>
 };
 
 export const PcmZyghModal: StencilReactComponent<PcmZyghModalElement, PcmZyghModalEvents> = /*@__PURE__*/ createComponent<PcmZyghModalElement, PcmZyghModalEvents>({
@@ -297,7 +297,7 @@ export const PcmZyghModal: StencilReactComponent<PcmZyghModalElement, PcmZyghMod
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
         onPlanningComplete: 'planningComplete',
-        onApiKeyInvalid: 'apiKeyInvalid'
+        onTokenInvalid: 'tokenInvalid'
     } as PcmZyghModalEvents,
     defineCustomElement: definePcmZyghModal
 });

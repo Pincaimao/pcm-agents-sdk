@@ -410,6 +410,9 @@
         mnmsModal.addEventListener('conversationStart', function (event) {
           console.log('会话开始:', event.detail);
         });
+        mnmsModal.addEventListener('tokenInvalid', function (event) {
+          console.log('SDK密钥验证失败');
+        });
 
       }
 
