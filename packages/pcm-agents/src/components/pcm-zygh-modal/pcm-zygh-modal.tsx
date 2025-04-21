@@ -69,7 +69,11 @@ export class ZyghModal {
 
 
     /**
-     * 自定义输入参数
+     * 自定义输入参数，传入plan_type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"
+     * 例如：   
+     * zyghModal.customInputs = {
+     *      plan_type: "转行建议"
+     * };
      */
     @Prop() customInputs: { [key: string]: any } = {};
 
@@ -379,7 +383,7 @@ export class ZyghModal {
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m0-16l-4 4m4-4l4 4" />
                                             </svg>
                                             <p>点击上传简历</p>
-                                            <p class="upload-hint">支持 txt、markdown、pdf、docx、md 格式</p>
+                                            <p class="upload-hint">支持 txt、markdown、pdf、docx、doc、md 格式</p>
                                         </div>
                                     )}
                                 </div>
@@ -405,7 +409,6 @@ export class ZyghModal {
                                 type="file"
                                 class="file-input"
                                 onChange={this.handleFileChange}
-                                accept=".pdf,.doc,.docx,.txt,.md"
                             />
                         </div>
                     )}

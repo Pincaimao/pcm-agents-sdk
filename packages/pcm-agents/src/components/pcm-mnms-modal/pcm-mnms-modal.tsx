@@ -374,7 +374,7 @@ export class MnmsModal {
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m0-16l-4 4m4-4l4 4" />
                                             </svg>
                                             <p>点击上传简历</p>
-                                            <p class="upload-hint">支持 txt、markdown、pdf、docx、md 格式</p>
+                                            <p class="upload-hint">支持 txt、markdown、pdf、docx、doc、md 格式</p>
                                         </div>
                                     )}
                                 </div>
@@ -400,7 +400,6 @@ export class MnmsModal {
                                 type="file"
                                 class="file-input"
                                 onChange={this.handleFileChange}
-                                accept=".pdf,.doc,.docx,.txt,.md"
                             />
                         </div>
                     )}
