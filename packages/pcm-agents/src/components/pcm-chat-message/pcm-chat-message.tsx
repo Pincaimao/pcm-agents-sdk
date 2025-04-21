@@ -15,6 +15,11 @@ export class ChatMessageComponent {
      */
     @Prop() message: ChatMessage;
 
+     /**
+   * SDK鉴权密钥
+   */
+    @Prop({ attribute: 'token' }) token: string = '';
+
     /**
      * 消息变更事件
      */
@@ -152,7 +157,7 @@ export class ChatMessageComponent {
                 url: '/sdk/v1/files/presigned-url',
                 method: 'GET',
                 headers: {
-                    'authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6bnVsbCwiYm90X2lkIjoiMSIsInNlY3JldF9pZCI6Mzg5OTk1ODAyNTUxOTEwNDAsImV4cCI6MTc0NTA0OTAxM30.56OoTrp16avgl48YfWBKOHywAKHJ5qPGypqRCGCyVt0'
+                    'authorization': `Bearer ${this.token}`
                 },
                 params: {
                     cos_key: cosKey
