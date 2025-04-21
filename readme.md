@@ -23,6 +23,14 @@ top-most-directory/
 ```
 
 
+## 推送npm包
+
+执行
+
+```bash
+npm run upload
+```
+
 
 ### html中使用
 

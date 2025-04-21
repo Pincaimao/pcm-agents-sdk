@@ -7,6 +7,7 @@
 | Property  | Attribute | Description | Type          | Default     |
 | --------- | --------- | ----------- | ------------- | ----------- |
 | `message` | --        | 消息数据        | `ChatMessage` | `undefined` |
+| `token`   | `token`   | SDK鉴权密钥     | `string`      | `''`        |
 
 
 ## Events
