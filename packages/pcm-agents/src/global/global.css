@@ -1,0 +1,355 @@
+/* 模态框基础样式 */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+/* 全屏模式下取消 padding */
+.fullscreen-overlay {
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.modal-container {
+    background-color: #fff;
+    border-radius: 8px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    margin: auto;
+    transition: all 0.3s ease-out;
+    overflow: hidden;
+}
+
+/* 全屏模式样式 */
+.modal-container.fullscreen {
+    width: 100vw;
+    max-width: none;
+    height: 100%;
+    border-radius: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-height: 100vh;
+}
+
+/* PC端布局 */
+.pc-layout {
+    width: 80%;
+    max-width: 500px;
+    min-width: 320px;
+}
+
+/* 移动端布局 */
+.mobile-layout {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+}
+
+/* 响应式布局 */
+@media screen and (max-width: 768px) {
+    .pc-layout {
+        width: 95%;
+    }
+
+    .modal-overlay {
+        padding: 0;
+    }
+
+    .modal-container.fullscreen {
+        /* 支持 iOS Safari */
+        height: -webkit-fill-available;
+        max-height: -webkit-fill-available;
+        /* 确保内容不会被顶部状态栏和底部工具栏遮挡 */
+        padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+        margin-top: 40px;
+        height: calc(100% - 40px);
+        max-height: calc(100% - 40px);
+        border-radius: 16px 16px 0 0;
+    }
+
+    .modal-container.mobile-layout {
+        width: 100%;
+        height: 100vh;
+        max-height: 100vh;
+        min-height: 100vh;
+        border-radius: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+/* 模态框头部样式 */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 16px;
+    height: 50px;
+    border-bottom: 1px solid #e8e8e8;
+    flex-shrink: 0;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.close-button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+}
+
+.close-button:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+.close-button span {
+    font-size: 24px;
+    line-height: 1;
+    color: #999;
+}
+
+.close-button:hover span {
+    color: #666;
+}
+
+
+/* 文件上传区域通用样式 */
+.upload-area {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.upload-area:hover {
+    border-color: #1890ff;
+    background-color: rgba(24, 144, 255, 0.05);
+}
+
+
+.upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #666;
+}
+
+.upload-placeholder svg {
+    color: #1890ff;
+    margin-bottom: 8px;
+}
+
+.upload-placeholder p {
+    margin: 4px 0;
+}
+
+.upload-hint {
+    font-size: 0.8rem;
+    color: #999;
+    margin-top: 0.5rem;
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+    background: #f9f9f9;
+    border: 1px solid #e8e8e8;
+    border-radius: 4px;
+}
+
+.file-info span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: calc(100% - 30px);
+}
+
+.remove-file {
+    background: transparent;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 16px;
+    line-height: 1;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.remove-file:hover {
+    background-color: #f0f0f0;
+    color: #666;
+}
+
+.file-input {
+    display: none;
+}
+
+
+
+/* 输入容器样式 */
+.input-container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 50px);
+    /* 减去header高度 */
+    overflow-y: auto;
+}
+
+.input-container h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 18px;
+    color: #333;
+    text-align: center;
+}
+
+/* JD输入区域样式 */
+.jd-input-section {
+    margin-bottom: 20px;
+}
+
+.jd-input-section label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+.job-description-textarea {
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+    transition: border-color 0.3s;
+}
+
+.job-description-textarea:focus {
+    outline: none;
+    border-color: #1890ff;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+/* 简历上传区域样式 */
+.resume-upload-section {
+    margin-bottom: 20px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.resume-upload-section label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+    align-self: flex-start;
+}
+
+
+/* 提交按钮通用样式 */
+.submit-button {
+    margin-top: 10px;
+    padding: 10px 30px;
+    background: #1890ff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 400px;
+    align-self: center;
+    /* 确保按钮居中 */
+}
+
+.submit-button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.submit-button:hover:not(:disabled) {
+    background: #40a9ff;
+}
+
+/* 聊天模态框容器 */
+.chat-modal-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* AI免责声明和备案信息样式 */
+.ai-disclaimer {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 12px;
+    color: #999;
+    line-height: 1.5;
+}
+
+.ai-disclaimer p {
+    margin: 4px 0;
+}
+
+.beian-info {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.ai-disclaimer a {
+    color: #666;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.ai-disclaimer a:hover {
+    color: #1890ff;
+    text-decoration: underline;
+}

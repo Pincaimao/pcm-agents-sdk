@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
-import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest } from '../../utils/utils';
+import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, FileUploadResponse } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
 
 @Component({
@@ -12,6 +12,11 @@ export class ChatModal {
    * 模态框标题
    */
   @Prop() modalTitle: string = '在线客服';
+
+  /**
+   * API鉴权密钥
+   */
+  @Prop({ attribute: 'api-key' }) apiKey: string = '';
 
   /**
    * 是否显示聊天模态框
@@ -34,7 +39,7 @@ export class ChatModal {
   @Event() messageSent: EventEmitter<string>;
 
   /**
-   * 当模态框关闭时触发
+   * 点击模态框关闭时触发
    */
   @Event() modalClosed: EventEmitter<void>;
 
@@ -42,11 +47,6 @@ export class ChatModal {
    * 应用图标URL
    */
   @Prop() icon?: string;
-
-  /**
-   * 聊天框窗口的布局风格
-   */
-  @Prop() layout: 'mobile' | 'pc' = 'pc';
 
   /**
    * 聊天框的页面层级
@@ -69,7 +69,7 @@ export class ChatModal {
   @Prop() botId: string;
 
   /**
-   * 会话ID
+   * 会话ID，传入继续对话，否则创建新会话
    */
   @Prop({ mutable: true }) conversationId?: string;
 
@@ -91,7 +91,7 @@ export class ChatModal {
 
   // 添加新的状态控制
   @State() shouldAutoScroll: boolean = true;
-  private readonly SCROLL_THRESHOLD = 100;
+  private readonly SCROLL_THRESHOLD = 30;
 
   @State() isLoadingHistory: boolean = false;
 
@@ -106,8 +106,25 @@ export class ChatModal {
     id: string;
   }>;
 
+  @State() suggestedQuestions: string[] = [];
+  @State() suggestedQuestionsLoading: boolean = false;
+  private stopSuggestedQuestionsRef: { current: boolean } = { current: false };
+
+  @State() selectedFile: File | null = null;
+  @State() isUploading: boolean = false;
+  @State() uploadedFileInfo: FileUploadResponse[] = [];
+
+  /**
+   * 默认查询文本
+   */
+  @Prop() defaultQuery: string = '';
+
+  /**
+   * 是否以全屏模式打开，移动端建议设置为true
+   */
+  @Prop() fullscreen: boolean = false;
+
   private handleClose = () => {
-    this.isOpen = false;
     this.modalClosed.emit();
   };
 
@@ -116,7 +133,79 @@ export class ChatModal {
     this.currentMessage = input.value;
   };
 
+  private async getSuggestedQuestions(messageId: string) {
+    this.stopSuggestedQuestionsRef.current = false;
+    this.suggestedQuestionsLoading = true;
+
+    try {
+      const response = await sendHttpRequest({
+        url: `/share/messages/${messageId}/suggested`,
+      });
+
+      if (this.stopSuggestedQuestionsRef.current) return;
+
+      if (response.success && response.data) {
+        this.suggestedQuestions = response.data || [];
+      }
+    } catch (error) {
+      console.error('获取问题建议失败:', error);
+    } finally {
+      this.suggestedQuestionsLoading = false;
+    }
+  }
+
+  private handleStopSuggestedQuestions = () => {
+    this.suggestedQuestions = [];
+    this.stopSuggestedQuestionsRef.current = true;
+  };
+
+  private handleFileChange = async (event: Event) => {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+      
+      // 文件选择后立即上传
+      await this.uploadFile();
+    }
+  };
+
+  private async uploadFile() {
+    if (!this.selectedFile) return;
+    
+    this.isUploading = true;
+    
+    try {
+      const result = await uploadFileToBackend(this.selectedFile, {
+        'authorization': 'Bearer ' + this.apiKey
+      });
+      
+      this.uploadedFileInfo.push(result);
+    } catch (error) {
+      console.error('文件上传错误:', error);
+      this.clearSelectedFile();
+      alert('文件上传失败，请重试');
+    } finally {
+      this.isUploading = false;
+    }
+  }
+
+  private handleUploadClick = () => {
+    const fileInput = this.hostElement.shadowRoot?.querySelector('.file-input') as HTMLInputElement;
+    fileInput?.click();
+  };
+
+  private clearSelectedFile = () => {
+    this.selectedFile = null;
+    this.uploadedFileInfo = [];
+    const fileInput = this.hostElement.shadowRoot?.querySelector('.file-input') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  };
+
+
   private async sendMessageToAPI(message: string) {
+    this.handleStopSuggestedQuestions();
     console.log('开始发送消息:', message);
     this.isLoading = true;
     let answer = '';
@@ -124,27 +213,21 @@ export class ChatModal {
     const now = new Date();
     const time = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
 
+    // 如果消息为空但有文件，使用默认文本
+    const queryText = message.trim() || (this.uploadedFileInfo.length > 0 ? '请分析这个文件' : '');
+
     // 创建新的消息对象时确保必填字段都有值
     const newMessage: ChatMessage = {
-      id: `temp-${Date.now()}`,  // id 必填
-      time: time,                // time 必填
-      query: message,
-      answer: '',
-      bot_id: this.botId,
-      isStreaming: true,
-      conversation_id: this.conversationId,
-      parent_message_id: this.messages.length > 0
-        ? this.messages[this.messages.length - 1].id
-        : "00000000-0000-0000-0000-000000000000",
-      inputs: {},
-      message_files: [],
-      feedback: null,
-      retriever_resources: [],
-      agent_thoughts: [],
-      status: "normal",
-      error: null
+      id: `temp-${Date.now()}`,  // 消息唯一标识
+      time: time,                // 消息时间
+      query: queryText,          // 用户输入的消息内容
+      answer: '',                // AI助手的回复内容
+      isStreaming: true,        // 是否正在流式输出
+      conversation_id: this.conversationId,  // 会话ID
+      inputs: {},               // 输入参数
+      status: "normal",         // 消息状态
+      error: null              // 错误信息
     };
-
 
     // 设置当前流式消息
     this.currentStreamingMessage = newMessage;
@@ -153,16 +236,27 @@ export class ChatModal {
     // 滚动到底部
     this.scrollToBottom();
 
+    // 准备请求数据
+    const requestData: any = {
+      response_mode: 'streaming',
+      conversation_id: this.conversationId,
+      query: queryText,
+      user: '1234567890'
+    };
+    // 如果有上传的文件，添加到inputs参数
+    if (this.uploadedFileInfo.length > 0) {
+      const fileUrls = this.uploadedFileInfo.map(fileInfo => fileInfo.cos_key).join(',');
+
+      requestData.inputs = {
+        ...requestData.inputs,
+        input: fileUrls
+      };
+    }
+
     await sendSSERequest({
-      url: `https://pcm_api.ylzhaopin.com/share/chat-messages`,
+      url: `/sdk/v1/chat/chat-messages`,
       method: 'POST',
-      data: {
-        bot_id: this.botId,
-        response_mode: 'streaming',
-        conversation_id: this.conversationId,
-        query: message,
-        user: '1234567890'
-      },
+      data: requestData,
       onMessage: (data) => {
         console.log('收到Stream数据:', data);
 
@@ -212,6 +306,12 @@ export class ChatModal {
         console.log('请求完成');
         this.isLoading = false;
         this.messages = [...this.messages, this.currentStreamingMessage];
+
+        // 在消息完成后获取问题建议
+        if (this.currentStreamingMessage) {
+          this.getSuggestedQuestions(this.currentStreamingMessage.conversation_id);
+        }
+
         this.currentStreamingMessage = null;
       }
     });
@@ -258,7 +358,7 @@ export class ChatModal {
   }
 
   private handleSendMessage = () => {
-    if (!this.currentMessage.trim() || this.isLoading) return;
+    if ((!this.currentMessage.trim() && this.uploadedFileInfo.length === 0) || this.isLoading) return;
 
     // 触发消息发送事件
     this.messageSent.emit(this.currentMessage);
@@ -268,6 +368,9 @@ export class ChatModal {
 
     // 清空输入框
     this.currentMessage = '';
+    
+    // 清除已选择的文件
+    this.clearSelectedFile();
 
     // 保持输入框焦点
     const inputElement = this.hostElement.shadowRoot?.querySelector('input');
@@ -284,26 +387,25 @@ export class ChatModal {
   // 修改 loadHistoryMessages 方法
   private async loadHistoryMessages() {
     if (!this.conversationId) return;
-    
+
     this.isLoadingHistory = true;
-    
+
     try {
       const response = await sendHttpRequest({
-        url: `https://pcm_api.ylzhaopin.com/share/messages`,
+        url: `/share/messages`,
         params: {
           conversation_id: this.conversationId,
-          bot_id: this.botId,
           user: '1234567890',
           limit: 20
         }
       });
 
-      if (!response.isOk || !response.data) {
+      if (!response.success || !response.data) {
         throw new Error('加载历史消息失败');
       }
 
       // 适配新的接口返回格式
-      const historyData = response.data.data || [];
+      const historyData = response.data || [];
 
       // 清空现有消息，确保不会重复
       this.currentStreamingMessage = null;
@@ -316,14 +418,13 @@ export class ChatModal {
         return {
           ...msg,
           time: timeStr,
-          bot_id: this.botId,
           isStreaming: false,
           status: msg.status === 'error' ? 'error' : 'normal' as const
         };
       });
 
       this.messages = formattedMessages;
-      
+
       // 使用 requestAnimationFrame 确保在下一帧渲染后滚动
       requestAnimationFrame(() => {
         this.shouldAutoScroll = true;
@@ -341,10 +442,22 @@ export class ChatModal {
   // 添加 isOpen 的 watch 方法
   @Watch('isOpen')
   async handleIsOpenChange(newValue: boolean) {
-    if (newValue) {
-      if (this.conversationId) {
-        await this.loadHistoryMessages();
-      } 
+    if (newValue && this.conversationId) {
+      await this.loadHistoryMessages();
+    }
+  }
+
+  @Watch('defaultQuery')
+  handleDefaultQueryChange(newValue: string) {
+    if (newValue && !this.currentMessage) {
+      this.currentMessage = newValue;
+    }
+  }
+
+  componentWillLoad() {
+    // 组件加载时设置默认查询
+    if (this.defaultQuery) {
+      this.currentMessage = this.defaultQuery;
     }
   }
 
@@ -357,12 +470,16 @@ export class ChatModal {
 
     const containerClass = {
       'modal-container': true,
-      'mobile-layout': this.layout === 'mobile',
-      'pc-layout': this.layout === 'pc'
+      'fullscreen': this.fullscreen
+    };
+
+    const overlayClass = {
+      'modal-overlay': true,
+      'fullscreen-overlay': this.fullscreen
     };
 
     return (
-      <div class="modal-overlay" style={modalStyle}>
+      <div class={overlayClass} style={modalStyle}>
         <div class={containerClass}>
           {this.isShowHeader && (
             <div class="modal-header">
@@ -413,21 +530,86 @@ export class ChatModal {
                 )}
               </>
             )}
+
+            {this.suggestedQuestionsLoading ? (
+              <div class="loading-suggestions">
+                <div class="loading-spinner-small"></div>
+              </div>
+            ) : (
+              this.suggestedQuestions.length > 0 && (
+                <div class="suggested-questions">
+                  {this.suggestedQuestions.map((question, index) => (
+                    <div
+                      key={index}
+                      class="suggested-question"
+                      onClick={() => {
+                        this.currentMessage = question;
+                        this.handleSendMessage();
+                      }}
+                    >
+                      {question}
+                      <span class="arrow-right">→</span>
+                    </div>
+                  ))}
+                </div>
+              )
+            )}
           </div>
+
+          {/* 添加文件预览区域 */}
+          {this.selectedFile && (
+            <div class="file-preview">
+              <div class="file-info">
+                <span class="file-name" title={this.selectedFile.name}>
+                  {this.selectedFile.name}
+                  {this.isUploading && <span class="uploading-indicator"> (上传中...)</span>}
+                  {this.uploadedFileInfo.length > 0 && <span class="upload-success"> (已上传)</span>}
+                </span>
+                <button class="remove-file" onClick={this.clearSelectedFile}>
+                  ×
+                </button>
+              </div>
+            </div>
+          )}
 
           <div class="message-input">
             <input
-              type="text"
-              placeholder="请输入消息..."
-              value={this.currentMessage}
-              onInput={this.handleInputChange}
-              onKeyDown={this.handleKeyDown}
-              disabled={this.isLoading}
+              type="file"
+              class="file-input"
+              onChange={this.handleFileChange}
+              accept="image/*,.pdf,.doc,.docx,.txt"
             />
             <button
+              class="upload-button"
+              onClick={this.handleUploadClick}
+              title="上传文件"
+              disabled={this.isUploading}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m0-16l-4 4m4-4l4 4"
+                />
+              </svg>
+            </button>
+
+            <div class="input-wrapper">
+              <input
+                type="text"
+                placeholder="请输入消息..."
+                value={this.currentMessage}
+                onInput={this.handleInputChange}
+                onKeyDown={this.handleKeyDown}
+                disabled={this.isLoading}
+              />
+            </div>
+
+            <button
               class="send-button"
-              onClick={this.handleSendMessage}
-              disabled={!this.currentMessage.trim() || this.isLoading}
+              onClick={() => this.handleSendMessage()}
+              disabled={(!this.currentMessage.trim() && this.uploadedFileInfo.length === 0) || this.isLoading || this.isUploading}
             >
               {this.isLoading ? '发送中...' : '发送'}
             </button>

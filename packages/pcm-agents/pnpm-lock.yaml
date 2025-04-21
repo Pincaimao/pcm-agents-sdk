@@ -17,6 +17,9 @@ dependencies:
   marked:
     specifier: ^9.1.5
     version: 9.1.6
+  marked-extended-tables:
+    specifier: ^2.0.1
+    version: 2.0.1(marked@9.1.6)
 
 devDependencies:
   '@stencil/core':
@@ -2406,6 +2409,14 @@ packages:
     dependencies:
       tmpl: 1.0.5
     dev: true
+
+  /marked-extended-tables@2.0.1(marked@9.1.6):
+    resolution: {integrity: sha512-DV4Si978ZdaFbycIxzG4TdaNMtC0J8QfIKj1UOCejgJHwVjVJse8DNdJriWDeo/n74DWVYpRC6S56AdgWDPrPA==}
+    peerDependencies:
+      marked: '>=3 <16'
+    dependencies:
+      marked: 9.1.6
+    dev: false
 
   /marked@9.1.6:
     resolution: {integrity: sha512-jcByLnIFkd5gSXZmjNvS1TlmRhCXZjIzHYlaGkPlLIekG55JDR2Z4va9tZwCiP+/RDERiNhMOFu01xd6O5ct1Q==}
