@@ -101,27 +101,27 @@
 
   <!-- 添加聊天模态框组件 -->
   <pcm-mnms-modal id="pcm-mnms-modal"
-    token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOjM4OTk5NTgwMjU1MTkxMDQwLCJleHAiOjE3NDUxMzY2NDd9.L-w2XaJ5SsIBUkE55h_HL1tn-oty63VPyuJ1_S7d-N0"
+    token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOjM4OTk5NTgwMjU1MTkxMDQwLCJleHAiOjE3NDUyODc2NjV9.lvzDhsmn04hQatxDIoPljKFLxX9LEnL79pS1Y5Kceb0"
     modal-title="模拟面试" 
     icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" 
     conversation-id=""
-    fullscreen="false" 
+    fullscreen="true" 
     enable-voice="false" 
     interview-mode="text"
-    defaultQuery="请您提问">
+    default-query="请您提问">
   </pcm-mnms-modal>
 
-  <pcm-jlpx-modal id="pcm-jlpx-modal"
-    token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOjM4OTk5NTgwMjU1MTkxMDQwLCJleHAiOjE3NDUxMzY2NDd9.L-w2XaJ5SsIBUkE55h_HL1tn-oty63VPyuJ1_S7d-N0"
+  <pcm-jlpp-modal id="pcm-jlpp-modal"
+    token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDUyODg3NTN9.v-Zw4kz41BfsU2uyvHEww_EYAFbk3MivwMwJ-SEA9rc"
     modal-title="简历剖析助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id=""
     fullscreen="false"  enable-voice="false" interview-mode="text"
-    defaultQuery="请您提问"></pcm-jlpx-modal>
+    default-query="请您提问"></pcm-jlpp-modal>
 
   <pcm-zygh-modal id="pcm-zygh-modal"
-    token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOjM4OTk5NTgwMjU1MTkxMDQwLCJleHAiOjE3NDUxMzY2NDd9.L-w2XaJ5SsIBUkE55h_HL1tn-oty63VPyuJ1_S7d-N0"
+    token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDUyODg3NTN9.v-Zw4kz41BfsU2uyvHEww_EYAFbk3MivwMwJ-SEA9rc"
     modal-title="职业规划助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id=""
     fullscreen="false"  enable-voice="false" interview-mode="text"
-    defaultQuery="请您提问"></pcm-zygh-modal>
+    default-query="请您提问"></pcm-zygh-modal>
 
 
   <pcm-video-chat-modal id="pcm-video-chat-modal"
@@ -434,36 +434,36 @@
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       // 简历评析模态框事件监听
-      const jlpxModal = document.getElementById('pcm-jlpx-modal');
+      const JlppModal = document.getElementById('pcm-jlpp-modal');
       const openJlpxButton = document.getElementById('open-jlpx-chat');
 
-      if (jlpxModal) {
-        jlpxModal.addEventListener('modalClosed', function () {
+      if (JlppModal) {
+        JlppModal.addEventListener('modalClosed', function () {
           console.log('简历评析窗口已关闭');
-          jlpxModal.isOpen = false;
+          JlppModal.isOpen = false;
         });
 
-        jlpxModal.addEventListener('streamComplete', function (event) {
+        JlppModal.addEventListener('streamComplete', function (event) {
           console.log('流式响应完成:', event.detail);
           // 更新 conversation_id
-          jlpxModal.setAttribute('conversation-id', event.detail.conversation_id);
+          JlppModal.setAttribute('conversation-id', event.detail.conversation_id);
         });
 
-        jlpxModal.addEventListener('uploadSuccess', function (event) {
+        JlppModal.addEventListener('uploadSuccess', function (event) {
           console.log('文件上传成功:', event.detail);
         });
 
-        jlpxModal.addEventListener('conversationStart', function (event) {
+        JlppModal.addEventListener('conversationStart', function (event) {
           console.log('会话开始:', event.detail);
         });
       }
       // 打开简历评析按钮事件监听
-      if (openJlpxButton && jlpxModal) {
+      if (openJlpxButton && JlppModal) {
         openJlpxButton.addEventListener('click', function () {
-          jlpxModal.isOpen = true;
+          JlppModal.isOpen = true;
         });
       }
-      jlpxModal.customInputs = {
+      JlppModal.customInputs = {
         job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广"
       };
     });
@@ -505,7 +505,9 @@
           zyghModal.isOpen = true;
         });
       }
-
+      zyghModal.customInputs = {
+        plan_type: "转行建议"
+      };
 
     });
   </script>

@@ -2,11 +2,11 @@ import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '
 import { uploadFileToBackend, FileUploadResponse, sendHttpRequest } from '../../utils/utils';
 
 @Component({
-    tag: 'pcm-jlpx-modal',
-    styleUrls: ['pcm-jlpx-modal.css','../../global/global.css'],
+    tag: 'pcm-jlpp-modal',
+    styleUrls: ['pcm-jlpp-modal.css','../../global/global.css'],
     shadow: true,
 })
-export class JlpxModal {
+export class JlppModal {
     /**
      * 模态框标题
      */
@@ -198,13 +198,13 @@ export class JlpxModal {
             }
 
             // 使用预设的job_info或用户输入的jobDescription
-            const jobInfo = this.customInputs?.job_info || this.jobDescription;
+            // const jobInfo = this.customInputs?.job_info || this.jobDescription;
 
-            console.log('传递的customInputs:', {
-                ...this.customInputs,
-                file_url: this.uploadedFileInfo.cos_key,
-                job_info: jobInfo
-            });
+            // console.log('传递的customInputs:', {
+            //     ...this.customInputs,
+            //     file_url: this.uploadedFileInfo.cos_key,
+            //     job_info: jobInfo
+            // });
 
             // 直接显示聊天模态框
             this.showChatModal = true;
@@ -384,6 +384,14 @@ export class JlpxModal {
                             >
                                 {this.isUploading ? '上传中...' : this.isSubmitting ? '处理中...' : '开始分析'}
                             </button>
+
+                            <div class="ai-disclaimer">
+                                <p>所有内容均由AI生成仅供参考</p>
+                                <p class="beian-info">
+                                    <span>中央网信办生成式人工智能服务备案号</span>：
+                                    <a href="https://www.pincaimao.com" target="_blank" rel="noopener noreferrer">Hunan-PinCaiMao-202412310003</a>
+                                </p>
+                            </div>
 
                             <input
                                 type="file"

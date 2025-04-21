@@ -194,11 +194,11 @@ export class ZyghModal {
                 }
             }
 
-            console.log('传递的customInputs:', {
-                ...this.customInputs,
-                file_url: this.uploadedFileInfo.cos_key,
-                plan_type: this.selectedPlanType
-            });
+            // console.log('传递的customInputs:', {
+            //     ...this.customInputs,
+            //     file_url: this.uploadedFileInfo.cos_key,
+            //     plan_type: this.selectedPlanType
+            // });
 
             // 直接显示聊天模态框
             this.showChatModal = true;
@@ -392,6 +392,14 @@ export class ZyghModal {
                             >
                                 {this.isUploading ? '上传中...' : this.isSubmitting ? '处理中...' : '开始规划'}
                             </button>
+
+                            <div class="ai-disclaimer">
+                                <p>所有内容均由AI生成仅供参考</p>
+                                <p class="beian-info">
+                                    <span>中央网信办生成式人工智能服务备案号</span>：
+                                    <a href="https://www.pincaimao.com" target="_blank" rel="noopener noreferrer">Hunan-PinCaiMao-202412310003</a>
+                                </p>
+                            </div>
 
                             <input
                                 type="file"

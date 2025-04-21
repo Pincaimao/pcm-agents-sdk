@@ -320,7 +320,7 @@ export class ChatAPPModal {
       },
       data: requestData,
       onMessage: (data) => {
-        console.log('收到Stream数据:', data);
+        // console.log('收到Stream数据:', data);
 
         if (data.conversation_id && !this.conversationId) {
           this.conversationId = data.conversation_id;
@@ -335,7 +335,6 @@ export class ChatAPPModal {
         // 检查是否有 node_finished 事件和 LLMText
         if (data.event === 'node_finished' && data.data.inputs && data.data.inputs.LLMText) {
           llmText = data.data.inputs.LLMText;
-          console.log('获取到 LLMText:', llmText);
         }
 
         if (data.event === 'message') {

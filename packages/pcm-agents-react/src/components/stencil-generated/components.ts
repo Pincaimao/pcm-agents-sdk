@@ -9,13 +9,13 @@
 
 import type { EventName, StencilReactComponent } from '@stencil/react-output-target/runtime';
 import { createComponent } from '@stencil/react-output-target/runtime';
-import { type CareerPlanType, type ChatMessage, type FileUploadResponse, type PcmChatMessageCustomEvent, type PcmJlpxModalCustomEvent, type PcmMnmsModalCustomEvent, type PcmZyghModalCustomEvent } from "pcm-agents";
+import { type CareerPlanType, type ChatMessage, type FileUploadResponse, type PcmChatMessageCustomEvent, type PcmJlppModalCustomEvent, type PcmMnmsModalCustomEvent, type PcmZyghModalCustomEvent } from "pcm-agents";
 import { MyComponent as MyComponentElement, defineCustomElement as defineMyComponent } from "pcm-agents/dist/components/my-component.js";
 import { PcmAppChatModal as PcmAppChatModalElement, defineCustomElement as definePcmAppChatModal } from "pcm-agents/dist/components/pcm-app-chat-modal.js";
 import { PcmChatMessage as PcmChatMessageElement, defineCustomElement as definePcmChatMessage } from "pcm-agents/dist/components/pcm-chat-message.js";
 import { PcmChatModal as PcmChatModalElement, defineCustomElement as definePcmChatModal } from "pcm-agents/dist/components/pcm-chat-modal.js";
 import { PcmHrChatModal as PcmHrChatModalElement, defineCustomElement as definePcmHrChatModal } from "pcm-agents/dist/components/pcm-hr-chat-modal.js";
-import { PcmJlpxModal as PcmJlpxModalElement, defineCustomElement as definePcmJlpxModal } from "pcm-agents/dist/components/pcm-jlpx-modal.js";
+import { PcmJlppModal as PcmJlppModalElement, defineCustomElement as definePcmJlppModal } from "pcm-agents/dist/components/pcm-jlpp-modal.js";
 import { PcmMnmsModal as PcmMnmsModalElement, defineCustomElement as definePcmMnmsModal } from "pcm-agents/dist/components/pcm-mnms-modal.js";
 import { PcmVideoChatModal as PcmVideoChatModalElement, defineCustomElement as definePcmVideoChatModal } from "pcm-agents/dist/components/pcm-video-chat-modal.js";
 import { PcmZyghModal as PcmZyghModalElement, defineCustomElement as definePcmZyghModal } from "pcm-agents/dist/components/pcm-zygh-modal.js";
@@ -150,9 +150,9 @@ export const PcmHrChatModal: StencilReactComponent<PcmHrChatModalElement, PcmHrC
     defineCustomElement: definePcmHrChatModal
 });
 
-type PcmJlpxModalEvents = {
+type PcmJlppModalEvents = {
     onModalClosed: EventName<CustomEvent<void>>,
-    onUploadSuccess: EventName<PcmJlpxModalCustomEvent<FileUploadResponse>>,
+    onUploadSuccess: EventName<PcmJlppModalCustomEvent<FileUploadResponse>>,
     onStreamComplete: EventName<CustomEvent<{
         conversation_id: string;
         event: string;
@@ -172,9 +172,9 @@ type PcmJlpxModalEvents = {
     onTokenInvalid: EventName<CustomEvent<void>>
 };
 
-export const PcmJlpxModal: StencilReactComponent<PcmJlpxModalElement, PcmJlpxModalEvents> = /*@__PURE__*/ createComponent<PcmJlpxModalElement, PcmJlpxModalEvents>({
-    tagName: 'pcm-jlpx-modal',
-    elementClass: PcmJlpxModalElement,
+export const PcmJlppModal: StencilReactComponent<PcmJlppModalElement, PcmJlppModalEvents> = /*@__PURE__*/ createComponent<PcmJlppModalElement, PcmJlppModalEvents>({
+    tagName: 'pcm-jlpp-modal',
+    elementClass: PcmJlppModalElement,
     // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
     react: React,
     events: {
@@ -184,8 +184,8 @@ export const PcmJlpxModal: StencilReactComponent<PcmJlpxModalElement, PcmJlpxMod
         onConversationStart: 'conversationStart',
         onInterviewComplete: 'interviewComplete',
         onTokenInvalid: 'tokenInvalid'
-    } as PcmJlpxModalEvents,
-    defineCustomElement: definePcmJlpxModal
+    } as PcmJlppModalEvents,
+    defineCustomElement: definePcmJlppModal
 });
 
 type PcmMnmsModalEvents = {

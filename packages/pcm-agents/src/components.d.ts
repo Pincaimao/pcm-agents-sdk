@@ -230,7 +230,7 @@ export namespace Components {
          */
         "zIndex"?: number;
     }
-    interface PcmJlpxModal {
+    interface PcmJlppModal {
         /**
           * 会话ID，传入继续对话，否则创建新会话
          */
@@ -451,9 +451,9 @@ export interface PcmHrChatModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmHrChatModalElement;
 }
-export interface PcmJlpxModalCustomEvent<T> extends CustomEvent<T> {
+export interface PcmJlppModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLPcmJlpxModalElement;
+    target: HTMLPcmJlppModalElement;
 }
 export interface PcmMnmsModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -593,7 +593,7 @@ declare global {
         prototype: HTMLPcmHrChatModalElement;
         new (): HTMLPcmHrChatModalElement;
     };
-    interface HTMLPcmJlpxModalElementEventMap {
+    interface HTMLPcmJlppModalElementEventMap {
         "modalClosed": void;
         "uploadSuccess": FileUploadResponse;
         "streamComplete": {
@@ -614,19 +614,19 @@ declare global {
     };
         "tokenInvalid": void;
     }
-    interface HTMLPcmJlpxModalElement extends Components.PcmJlpxModal, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLPcmJlpxModalElementEventMap>(type: K, listener: (this: HTMLPcmJlpxModalElement, ev: PcmJlpxModalCustomEvent<HTMLPcmJlpxModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLPcmJlppModalElement extends Components.PcmJlppModal, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLPcmJlppModalElementEventMap>(type: K, listener: (this: HTMLPcmJlppModalElement, ev: PcmJlppModalCustomEvent<HTMLPcmJlppModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLPcmJlpxModalElementEventMap>(type: K, listener: (this: HTMLPcmJlpxModalElement, ev: PcmJlpxModalCustomEvent<HTMLPcmJlpxModalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLPcmJlppModalElementEventMap>(type: K, listener: (this: HTMLPcmJlppModalElement, ev: PcmJlppModalCustomEvent<HTMLPcmJlppModalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLPcmJlpxModalElement: {
-        prototype: HTMLPcmJlpxModalElement;
-        new (): HTMLPcmJlpxModalElement;
+    var HTMLPcmJlppModalElement: {
+        prototype: HTMLPcmJlppModalElement;
+        new (): HTMLPcmJlppModalElement;
     };
     interface HTMLPcmMnmsModalElementEventMap {
         "modalClosed": void;
@@ -740,7 +740,7 @@ declare global {
         "pcm-chat-message": HTMLPcmChatMessageElement;
         "pcm-chat-modal": HTMLPcmChatModalElement;
         "pcm-hr-chat-modal": HTMLPcmHrChatModalElement;
-        "pcm-jlpx-modal": HTMLPcmJlpxModalElement;
+        "pcm-jlpp-modal": HTMLPcmJlppModalElement;
         "pcm-mnms-modal": HTMLPcmMnmsModalElement;
         "pcm-video-chat-modal": HTMLPcmVideoChatModalElement;
         "pcm-zygh-modal": HTMLPcmZyghModalElement;
@@ -1059,7 +1059,7 @@ declare namespace LocalJSX {
          */
         "zIndex"?: number;
     }
-    interface PcmJlpxModal {
+    interface PcmJlppModal {
         /**
           * 会话ID，传入继续对话，否则创建新会话
          */
@@ -1099,7 +1099,7 @@ declare namespace LocalJSX {
         /**
           * 新会话开始的回调，只会在一轮对话开始时触发一次
          */
-        "onConversationStart"?: (event: PcmJlpxModalCustomEvent<{
+        "onConversationStart"?: (event: PcmJlppModalCustomEvent<{
         conversation_id: string;
         event: string;
         message_id: string;
@@ -1108,18 +1108,18 @@ declare namespace LocalJSX {
         /**
           * 当聊天完成时触发
          */
-        "onInterviewComplete"?: (event: PcmJlpxModalCustomEvent<{
+        "onInterviewComplete"?: (event: PcmJlppModalCustomEvent<{
         conversation_id: string;
         total_questions: number;
     }>) => void;
         /**
           * 当点击模态框关闭时触发
          */
-        "onModalClosed"?: (event: PcmJlpxModalCustomEvent<void>) => void;
+        "onModalClosed"?: (event: PcmJlppModalCustomEvent<void>) => void;
         /**
           * 流式输出完成事件
          */
-        "onStreamComplete"?: (event: PcmJlpxModalCustomEvent<{
+        "onStreamComplete"?: (event: PcmJlppModalCustomEvent<{
         conversation_id: string;
         event: string;
         message_id: string;
@@ -1128,11 +1128,11 @@ declare namespace LocalJSX {
         /**
           * SDK密钥验证失败事件
          */
-        "onTokenInvalid"?: (event: PcmJlpxModalCustomEvent<void>) => void;
+        "onTokenInvalid"?: (event: PcmJlppModalCustomEvent<void>) => void;
         /**
           * 上传成功事件
          */
-        "onUploadSuccess"?: (event: PcmJlpxModalCustomEvent<FileUploadResponse>) => void;
+        "onUploadSuccess"?: (event: PcmJlppModalCustomEvent<FileUploadResponse>) => void;
         /**
           * SDK鉴权密钥
          */
@@ -1412,7 +1412,7 @@ declare namespace LocalJSX {
         "pcm-chat-message": PcmChatMessage;
         "pcm-chat-modal": PcmChatModal;
         "pcm-hr-chat-modal": PcmHrChatModal;
-        "pcm-jlpx-modal": PcmJlpxModal;
+        "pcm-jlpp-modal": PcmJlppModal;
         "pcm-mnms-modal": PcmMnmsModal;
         "pcm-video-chat-modal": PcmVideoChatModal;
         "pcm-zygh-modal": PcmZyghModal;
@@ -1427,7 +1427,7 @@ declare module "@stencil/core" {
             "pcm-chat-message": LocalJSX.PcmChatMessage & JSXBase.HTMLAttributes<HTMLPcmChatMessageElement>;
             "pcm-chat-modal": LocalJSX.PcmChatModal & JSXBase.HTMLAttributes<HTMLPcmChatModalElement>;
             "pcm-hr-chat-modal": LocalJSX.PcmHrChatModal & JSXBase.HTMLAttributes<HTMLPcmHrChatModalElement>;
-            "pcm-jlpx-modal": LocalJSX.PcmJlpxModal & JSXBase.HTMLAttributes<HTMLPcmJlpxModalElement>;
+            "pcm-jlpp-modal": LocalJSX.PcmJlppModal & JSXBase.HTMLAttributes<HTMLPcmJlppModalElement>;
             "pcm-mnms-modal": LocalJSX.PcmMnmsModal & JSXBase.HTMLAttributes<HTMLPcmMnmsModalElement>;
             "pcm-video-chat-modal": LocalJSX.PcmVideoChatModal & JSXBase.HTMLAttributes<HTMLPcmVideoChatModalElement>;
             "pcm-zygh-modal": LocalJSX.PcmZyghModal & JSXBase.HTMLAttributes<HTMLPcmZyghModalElement>;
