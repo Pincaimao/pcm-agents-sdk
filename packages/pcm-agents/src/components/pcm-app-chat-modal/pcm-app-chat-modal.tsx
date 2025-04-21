@@ -1233,6 +1233,7 @@ export class ChatAPPModal {
                     <div id={`message_${message.id}`} key={message.id}>
                       <pcm-chat-message
                         message={message}
+                        token={this.token}
                         onMessageChange={(event) => {
                           const updatedMessages = this.messages.map(msg =>
                             msg.id === message.id ? { ...msg, ...event.detail } : msg
@@ -1245,6 +1246,7 @@ export class ChatAPPModal {
                   {this.currentStreamingMessage && (
                     <div id={`message_${this.currentStreamingMessage.id}`}>
                       <pcm-chat-message
+                        token={this.token}
                         message={this.currentStreamingMessage}
                       ></pcm-chat-message>
                     </div>

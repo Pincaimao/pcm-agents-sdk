@@ -109,6 +109,10 @@ export namespace Components {
           * 消息数据
          */
         "message": ChatMessage;
+        /**
+          * SDK鉴权密钥
+         */
+        "token": string;
     }
     interface PcmChatModal {
         /**
@@ -892,6 +896,10 @@ declare namespace LocalJSX {
           * 消息变更事件
          */
         "onMessageChange"?: (event: PcmChatMessageCustomEvent<Partial<ChatMessage>>) => void;
+        /**
+          * SDK鉴权密钥
+         */
+        "token"?: string;
     }
     interface PcmChatModal {
         /**

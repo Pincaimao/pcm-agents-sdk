@@ -1080,6 +1080,7 @@ export class VideoChatModal {
                   {this.messages.map((message) => (
                     <div id={`message_${message.id}`} key={message.id}>
                       <pcm-chat-message
+                        token={this.token}
                         message={message}
                         onMessageChange={(event) => {
                           const updatedMessages = this.messages.map(msg =>
@@ -1093,6 +1094,7 @@ export class VideoChatModal {
                   {this.currentStreamingMessage && (
                     <div id={`message_${this.currentStreamingMessage.id}`}>
                       <pcm-chat-message
+                        token={this.token}
                         message={this.currentStreamingMessage}
                       ></pcm-chat-message>
                     </div>
