@@ -281,7 +281,7 @@ type PcmZyghModalEvents = {
     }>>,
     onPlanningComplete: EventName<PcmZyghModalCustomEvent<{
         conversation_id: string;
-        plan_type: CareerPlanType;
+        type: CareerPlanType;
     }>>,
     onTokenInvalid: EventName<CustomEvent<void>>
 };

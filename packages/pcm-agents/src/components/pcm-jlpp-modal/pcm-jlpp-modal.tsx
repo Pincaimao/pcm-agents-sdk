@@ -403,7 +403,7 @@ export class JlppModal {
 
                     {/* 聊天界面 - 在显示聊天模态框时显示 */}
                     {this.showChatModal && (
-                        <div class="chat-modal-container">
+                        <div >
                             <pcm-app-chat-modal
                                 isOpen={true}
                                 modalTitle={this.modalTitle}

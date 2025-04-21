@@ -110,10 +110,6 @@ export class MnmsModal {
     @State() uploadedFileInfo: FileUploadResponse | null = null;
     @State() showChatModal: boolean = false;
 
-    // 添加新的状态来控制过渡动画
-    @State() isTransitioning: boolean = false;
-    @State() transitionTimer: any = null;
-
     // 使用 @Element 装饰器获取组件的 host 元素
     @Element() hostElement: HTMLElement;
 
@@ -223,12 +219,7 @@ export class MnmsModal {
             this.clearSelectedFile();
             this.showChatModal = false;
             this.jobDescription = '';
-
-            // 清除可能存在的计时器
-            if (this.transitionTimer) {
-                clearTimeout(this.transitionTimer);
-                this.transitionTimer = null;
-            }
+         
         } else {
             // 当模态框打开时，验证API密钥
             this.verifyApiKey();
@@ -406,7 +397,7 @@ export class MnmsModal {
 
                     {/* 聊天界面 - 在显示聊天模态框时显示 */}
                     {this.showChatModal && (
-                        <div class="chat-modal-container">
+                        <div >
                             <pcm-app-chat-modal
                                 isOpen={true}
                                 modalTitle={this.modalTitle}

@@ -398,7 +398,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入plan_type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径" 例如：    zyghModal.customInputs = {      plan_type: "转行建议" };
+          * 自定义输入参数，传入type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径" 例如：    zyghModal.customInputs = {      type: "转行建议" };
          */
         "customInputs": { [key: string]: any };
         /**
@@ -720,7 +720,7 @@ declare global {
     };
         "planningComplete": {
         conversation_id: string;
-        plan_type: CareerPlanType;
+        type: CareerPlanType;
     };
         "tokenInvalid": void;
     }
@@ -1337,7 +1337,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入plan_type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径" 例如：    zyghModal.customInputs = {      plan_type: "转行建议" };
+          * 自定义输入参数，传入type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径" 例如：    zyghModal.customInputs = {      type: "转行建议" };
          */
         "customInputs"?: { [key: string]: any };
         /**
@@ -1386,7 +1386,7 @@ declare namespace LocalJSX {
          */
         "onPlanningComplete"?: (event: PcmZyghModalCustomEvent<{
         conversation_id: string;
-        plan_type: CareerPlanType;
+        type: CareerPlanType;
     }>) => void;
         /**
           * 流式输出完成事件

@@ -2,8 +2,8 @@
  * API域名配置
  */
 // export const API_DOMAIN = 'http://192.168.17.194:8000';
-// export const API_DOMAIN = 'https://tagents.ylzhaopin.com/agents/api';
-export const API_DOMAIN = 'https://www.pincaimao.com/agents/api';
+export const API_DOMAIN = 'https://tagents.ylzhaopin.com/agents/api';
+// export const API_DOMAIN = 'https://www.pincaimao.com/agents/api';
 
 
 export function format(first?: string, middle?: string, last?: string): string {

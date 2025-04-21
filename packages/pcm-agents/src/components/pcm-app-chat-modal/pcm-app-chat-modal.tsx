@@ -483,7 +483,7 @@ export class ChatAPPModal {
           const timeStr = `${hours}:${minutes}`;
 
           // 创建新的消息对象，不包含 inputs 字段
-          const { inputs, ...msgWithoutInputs } = msg;
+          const { ...msgWithoutInputs } = msg;
 
           return {
             ...msgWithoutInputs,

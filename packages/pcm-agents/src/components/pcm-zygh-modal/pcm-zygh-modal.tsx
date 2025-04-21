@@ -8,7 +8,7 @@ export type CareerPlanType = '长期规划' | '转行建议' | '晋升路径';
 
 @Component({
     tag: 'pcm-zygh-modal',
-    styleUrls: ['pcm-zygh-modal.css','../../global/global.css'],
+    styleUrls: ['../../global/global.css','pcm-zygh-modal.css'],
     shadow: true,
 })
 export class ZyghModal {
@@ -69,10 +69,10 @@ export class ZyghModal {
 
 
     /**
-     * 自定义输入参数，传入plan_type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"
+     * 自定义输入参数，传入type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"
      * 例如：   
      * zyghModal.customInputs = {
-     *      plan_type: "转行建议"
+     *      type: "转行建议"
      * };
      */
     @Prop() customInputs: { [key: string]: any } = {};
@@ -107,7 +107,7 @@ export class ZyghModal {
      */
     @Event() planningComplete: EventEmitter<{
         conversation_id: string;
-        plan_type: CareerPlanType;
+        type: CareerPlanType;
     }>;
 
     /**
@@ -201,7 +201,7 @@ export class ZyghModal {
             // console.log('传递的customInputs:', {
             //     ...this.customInputs,
             //     file_url: this.uploadedFileInfo.cos_key,
-            //     plan_type: this.selectedPlanType
+            //     type: this.selectedPlanType
             // });
 
             // 直接显示聊天模态框
@@ -268,9 +268,9 @@ export class ZyghModal {
     }
 
     componentWillLoad() {
-        // 检查 customInputs 中是否有 plan_type
-        if (this.customInputs && this.customInputs.plan_type) {
-            this.selectedPlanType = this.customInputs.plan_type;
+        // 检查 customInputs 中是否有 type
+        if (this.customInputs && this.customInputs.type) {
+            this.selectedPlanType = this.customInputs.type;
         }
     }
 
@@ -289,7 +289,7 @@ export class ZyghModal {
     private handlePlanningComplete = (event: CustomEvent) => {
         this.planningComplete.emit({
             ...event.detail,
-            plan_type: this.selectedPlanType
+            type: this.selectedPlanType
         });
     };
 
@@ -415,7 +415,7 @@ export class ZyghModal {
 
                     {/* 聊天界面 - 在显示聊天模态框时显示 */}
                     {this.showChatModal && (
-                        <div class="chat-modal-container">
+                        <div>
                             <pcm-app-chat-modal
                                 isOpen={true}
                                 modalTitle={this.modalTitle}
