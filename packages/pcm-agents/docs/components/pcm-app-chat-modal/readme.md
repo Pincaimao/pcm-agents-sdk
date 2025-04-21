@@ -22,7 +22,7 @@
 | `isShowHeader`         | `is-show-header`         | 是否展示顶部标题栏                             | `boolean`               | `true`      |
 | `maxRecordingTime`     | `max-recording-time`     | 视频录制最大时长（秒）                           | `number`                | `120`       |
 | `modalTitle`           | `modal-title`            | 模态框标题                                 | `string`                | `'在线客服'`    |
-| `token`                | `token`                  | API鉴权密钥                               | `string`                | `''`        |
+| `token`                | `token`                  | SDK鉴权密钥                               | `string`                | `''`        |
 | `totalQuestions`       | `total-questions`        | 控制对话轮数                                | `number`                | `2`         |
 | `zIndex`               | `z-index`                | 聊天框的页面层级                              | `number`                | `1000`      |
 
@@ -43,7 +43,7 @@
 
 ### Used by
 
- - [pcm-jlpx-modal](../pcm-jlpx-modal)
+ - [pcm-jlpp-modal](../pcm-jlpp-modal)
  - [pcm-mnms-modal](../pcm-mnms-modal)
  - [pcm-zygh-modal](../pcm-zygh-modal)
 
@@ -55,7 +55,7 @@
 ```mermaid
 graph TD;
   pcm-app-chat-modal --> pcm-chat-message
-  pcm-jlpx-modal --> pcm-app-chat-modal
+  pcm-jlpp-modal --> pcm-app-chat-modal
   pcm-mnms-modal --> pcm-app-chat-modal
   pcm-zygh-modal --> pcm-app-chat-modal
   style pcm-app-chat-modal fill:#f9f,stroke:#333,stroke-width:4px

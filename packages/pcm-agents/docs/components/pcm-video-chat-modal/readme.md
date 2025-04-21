@@ -19,7 +19,7 @@
 | `maxRecordingTime`     | `max-recording-time`     | 视频录制最大时长（秒）                     | `number`  | `120`       |
 | `modalTitle`           | `modal-title`            | 模态框标题                           | `string`  | `'在线客服'`    |
 | `resumeId`             | `resume-id`              | 父组件传入的 简历id                     | `string`  | `undefined` |
-| `token`                | `token`                  | API鉴权密钥                         | `string`  | `''`        |
+| `token`                | `token`                  | SDK鉴权密钥                         | `string`  | `''`        |
 | `totalQuestions`       | `total-questions`        | 总题目数量                           | `number`  | `2`         |
 | `zIndex`               | `z-index`                | 聊天框的页面层级                        | `number`  | `1000`      |
 

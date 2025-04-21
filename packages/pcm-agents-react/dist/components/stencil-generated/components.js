@@ -5,7 +5,7 @@ import { PcmAppChatModal as PcmAppChatModalElement, defineCustomElement as defin
 import { PcmChatMessage as PcmChatMessageElement, defineCustomElement as definePcmChatMessage } from "pcm-agents/dist/components/pcm-chat-message.js";
 import { PcmChatModal as PcmChatModalElement, defineCustomElement as definePcmChatModal } from "pcm-agents/dist/components/pcm-chat-modal.js";
 import { PcmHrChatModal as PcmHrChatModalElement, defineCustomElement as definePcmHrChatModal } from "pcm-agents/dist/components/pcm-hr-chat-modal.js";
-import { PcmJlpxModal as PcmJlpxModalElement, defineCustomElement as definePcmJlpxModal } from "pcm-agents/dist/components/pcm-jlpx-modal.js";
+import { PcmJlppModal as PcmJlppModalElement, defineCustomElement as definePcmJlppModal } from "pcm-agents/dist/components/pcm-jlpp-modal.js";
 import { PcmMnmsModal as PcmMnmsModalElement, defineCustomElement as definePcmMnmsModal } from "pcm-agents/dist/components/pcm-mnms-modal.js";
 import { PcmVideoChatModal as PcmVideoChatModalElement, defineCustomElement as definePcmVideoChatModal } from "pcm-agents/dist/components/pcm-video-chat-modal.js";
 import { PcmZyghModal as PcmZyghModalElement, defineCustomElement as definePcmZyghModal } from "pcm-agents/dist/components/pcm-zygh-modal.js";
@@ -62,9 +62,9 @@ export const PcmHrChatModal = createComponent({
     },
     defineCustomElement: definePcmHrChatModal
 });
-export const PcmJlpxModal = createComponent({
-    tagName: 'pcm-jlpx-modal',
-    elementClass: PcmJlpxModalElement,
+export const PcmJlppModal = createComponent({
+    tagName: 'pcm-jlpp-modal',
+    elementClass: PcmJlppModalElement,
     react: React,
     events: {
         onModalClosed: 'modalClosed',
@@ -72,9 +72,9 @@ export const PcmJlpxModal = createComponent({
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
         onInterviewComplete: 'interviewComplete',
-        onApiKeyInvalid: 'apiKeyInvalid'
+        onTokenInvalid: 'tokenInvalid'
     },
-    defineCustomElement: definePcmJlpxModal
+    defineCustomElement: definePcmJlppModal
 });
 export const PcmMnmsModal = createComponent({
     tagName: 'pcm-mnms-modal',
@@ -86,7 +86,7 @@ export const PcmMnmsModal = createComponent({
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
         onInterviewComplete: 'interviewComplete',
-        onApiKeyInvalid: 'apiKeyInvalid'
+        onTokenInvalid: 'tokenInvalid'
     },
     defineCustomElement: definePcmMnmsModal
 });
@@ -113,7 +113,7 @@ export const PcmZyghModal = createComponent({
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
         onPlanningComplete: 'planningComplete',
-        onApiKeyInvalid: 'apiKeyInvalid'
+        onTokenInvalid: 'tokenInvalid'
     },
     defineCustomElement: definePcmZyghModal
 });

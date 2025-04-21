@@ -1,6 +1,6 @@
 {
   "name": "pcm-agents-vue",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Vue wrapper components for pcm-agents",
   "main": "dist/components.js",
   "module": "dist/components.js",

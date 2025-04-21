@@ -20,7 +20,7 @@
 | `modalTitle`           | `modal-title`            | 模态框标题                           | `string`  | `'在线客服'`    |
 | `requireResume`        | `require-resume`         | 是否需要上传简历                        | `boolean` | `false`     |
 | `toEmail`              | `to-email`               | 接收报告的邮箱地址                       | `string`  | `''`        |
-| `token`                | `token`                  | API鉴权密钥                         | `string`  | `''`        |
+| `token`                | `token`                  | SDK鉴权密钥                         | `string`  | `''`        |
 | `totalQuestions`       | `total-questions`        | 总题目数量                           | `number`  | `2`         |
 | `userId`               | `user-id`                | 用户ID                            | `string`  | `''`        |
 | `zIndex`               | `z-index`                | 聊天框的页面层级                        | `number`  | `1000`      |
