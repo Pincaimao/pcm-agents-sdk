@@ -22,19 +22,19 @@
 | `toEmail`              | `to-email`               | 接收报告的邮箱地址                       | `string`  | `''`        |
 | `token`                | `token`                  | SDK鉴权密钥                         | `string`  | `''`        |
 | `totalQuestions`       | `total-questions`        | 总题目数量                           | `number`  | `2`         |
-| `userId`               | `user-id`                | 用户ID                            | `string`  | `''`        |
 | `zIndex`               | `z-index`                | 聊天框的页面层级                        | `number`  | `1000`      |
 
 
 ## Events
 
-| Event                   | Description | Type                                                                                                   |
-| ----------------------- | ----------- | ------------------------------------------------------------------------------------------------------ |
-| `interviewComplete`     | 当面试完成时触发    | `CustomEvent<{ conversation_id: string; total_questions: number; }>`                                   |
-| `modalClosed`           | 当点击模态框关闭时触发 | `CustomEvent<void>`                                                                                    |
-| `recordingError`        | 录制错误事件      | `CustomEvent<{ type: string; message: string; details?: any; }>`                                       |
-| `recordingStatusChange` | 录制状态变化事件    | `CustomEvent<{ status: "started" \| "stopped" \| "paused" \| "resumed" \| "failed"; details?: any; }>` |
-| `streamComplete`        |             | `CustomEvent<{ conversation_id: string; event: string; message_id: string; id: string; }>`             |
+| Event                   | Description             | Type                                                                                                   |
+| ----------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------ |
+| `conversationStart`     | 新会话开始的回调，只会在一轮对话开始时触发一次 | `CustomEvent<{ conversation_id: string; event: string; message_id: string; id: string; }>`             |
+| `interviewComplete`     | 当面试完成时触发                | `CustomEvent<{ conversation_id: string; total_questions: number; }>`                                   |
+| `modalClosed`           | 当点击模态框关闭时触发             | `CustomEvent<void>`                                                                                    |
+| `recordingError`        | 录制错误事件                  | `CustomEvent<{ type: string; message: string; details?: any; }>`                                       |
+| `recordingStatusChange` | 录制状态变化事件                | `CustomEvent<{ status: "started" \| "stopped" \| "paused" \| "resumed" \| "failed"; details?: any; }>` |
+| `streamComplete`        |                         | `CustomEvent<{ conversation_id: string; event: string; message_id: string; id: string; }>`             |
 
 
 ## Dependencies

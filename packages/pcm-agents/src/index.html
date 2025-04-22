@@ -111,6 +111,11 @@
     <button id="open-hyzj-chat">打开会议总结助手</button>
   </div>
 
+  <div class="demo-controls">
+    <h2>劳动合同卫士演示</h2>
+    <button id="open-htws-chat">打开劳动合同卫士</button>
+  </div>
+
   <!-- <my-component first="Stencil" middle="'Don't call me a framework'" last="JS"></my-component> -->
 
 
@@ -161,6 +166,12 @@
     default-query="请您提问"></pcm-hyzj-modal>
 
 
+    <pcm-htws-modal id="pcm-htws-modal"
+    modal-title="劳动合同卫士" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id=""
+    fullscreen="false"  enable-voice="false" interview-mode="text"
+    default-query="请您提问"></pcm-htws-modal>
+
+
   <pcm-video-chat-modal id="pcm-video-chat-modal"
     modal-title="视频面试" icon="https://www.ylzhaopin.com/Public/Newhome/images/sidebar/tochat.png" conversation-id=""
     resume-id="35677279421992960" fullscreen="true" enable-voice="false" total-questions="2"></pcm-video-chat-modal>
@@ -169,12 +180,12 @@
     modal-title="金牌HR大赛"
     welcome-message="欢迎您参加长沙市人力资源和社会保障局组织的金牌HR大赛，接下来我们将采用数字人方式对您做交流，本次大赛预计需要10-30分钟，请在安静的环境下参与此次大赛。"
     icon="https://p3-pc.douyinpic.com/img/aweme-avatar/tos-cn-avt-0015_55cc4ce1aa0059074f4f9def520246dc~c5_300x300.jpeg"
-    conversation-id="" to-email="790002517@qq.com" user-id="1234567890" display-content-status="true" fullscreen="true"
-    require-resume="false" total-questions="2" enable-voice="false"></pcm-hr-chat-modal>
+    conversation-id="" to-email="790002517@qq.com" display-content-status="true" fullscreen="true"
+    require-resume="ture" total-questions="1" enable-voice="false"></pcm-hr-chat-modal>
 
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJhay1tTGgwWGxHeVdMMDRjQ041OUdiUVR0MTkiLCJleHAiOjE3NDUzMDc1MzJ9.aYVosy7QE3MvWcwElj11L_41vcXOxc_hDCPVDZWlHxI";
+    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc0NTM4ODU2MX0.qVyfKDawGF2G1gauEtglelGw7UgWq5is3ZlHoda9b80";
 
     document.addEventListener('DOMContentLoaded', function () {
       console.log('DOM 已加载，正在设置事件监听器...');
@@ -191,6 +202,7 @@
       handleMnctModal();
       handleMsbgModal();
       handleHyzjModal();
+      handleHtwsModal();
     });
 
     // 为所有组件设置共享的 token
@@ -202,6 +214,7 @@
         'pcm-hyzj-modal',
         'pcm-jlpp-modal',
         'pcm-zygh-modal',
+        'pcm-htws-modal',
         'pcm-video-chat-modal',
         'pcm-hr-chat-modal'
       ];
@@ -616,6 +629,46 @@
       // 打开按钮事件监听
       openHyzjButton.addEventListener('click', () => {
         hyzjModal.isOpen = true;
+      });
+
+      
+    };
+
+
+    // 劳动合同卫士模态框处理
+    const handleHtwsModal = () => {
+      const htwsModal = document.getElementById('pcm-htws-modal');
+      const openHtwsButton = document.getElementById('open-htws-chat');
+      
+      if (!htwsModal || !openHtwsButton) return;
+
+      // 设置事件监听
+      htwsModal.addEventListener('modalClosed', () => {
+        console.log('职业规划助手窗口已关闭');
+        htwsModal.isOpen = false;
+      });
+
+      htwsModal.addEventListener('streamComplete', (event) => {
+        console.log('流式响应完成:', event.detail);
+      });
+
+      htwsModal.addEventListener('uploadSuccess', (event) => {
+        console.log('文件上传成功:', event.detail);
+      });
+
+      htwsModal.addEventListener('conversationStart', (event) => {
+        console.log('会话开始:', event.detail);
+        htwsModal.setAttribute('conversation-id', event.detail.conversation_id);
+
+      });
+
+      htwsModal.addEventListener('planningComplete', (event) => {
+        console.log('规划完成:', event.detail);
+      });
+
+      // 打开按钮事件监听
+      openHtwsButton.addEventListener('click', () => {
+        htwsModal.isOpen = true;
       });
 
       

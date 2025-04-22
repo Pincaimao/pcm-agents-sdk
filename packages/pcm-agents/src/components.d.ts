@@ -226,9 +226,54 @@ export namespace Components {
          */
         "totalQuestions": number;
         /**
-          * 用户ID
+          * 聊天框的页面层级
          */
-        "userId": string;
+        "zIndex"?: number;
+    }
+    /**
+     * 劳动合同卫士
+     */
+    interface PcmHtwsModal {
+        /**
+          * 会话ID，传入继续对话，否则创建新会话
+         */
+        "conversationId"?: string;
+        /**
+          * 自定义输入参数，传入job_info时，会隐藏JD输入区域
+         */
+        "customInputs": { [key: string]: any };
+        /**
+          * 默认查询文本
+         */
+        "defaultQuery": string;
+        /**
+          * 是否以全屏模式打开，移动端建议设置为true
+         */
+        "fullscreen": boolean;
+        /**
+          * 应用图标URL
+         */
+        "icon"?: string;
+        /**
+          * 是否展示右上角的关闭按钮
+         */
+        "isNeedClose": boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen": boolean;
+        /**
+          * 是否展示顶部标题栏
+         */
+        "isShowHeader": boolean;
+        /**
+          * 模态框标题
+         */
+        "modalTitle": string;
+        /**
+          * SDK鉴权密钥
+         */
+        "token": string;
         /**
           * 聊天框的页面层级
          */
@@ -608,6 +653,10 @@ export interface PcmHrChatModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmHrChatModalElement;
 }
+export interface PcmHtwsModalCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLPcmHtwsModalElement;
+}
 export interface PcmHyzjModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmHyzjModalElement;
@@ -734,6 +783,12 @@ declare global {
     message_id: string;
     id: string;
   };
+        "conversationStart": {
+    conversation_id: string;
+    event: string;
+    message_id: string;
+    id: string;
+  };
         "interviewComplete": {
     conversation_id: string;
     total_questions: number;
@@ -761,6 +816,44 @@ declare global {
     var HTMLPcmHrChatModalElement: {
         prototype: HTMLPcmHrChatModalElement;
         new (): HTMLPcmHrChatModalElement;
+    };
+    interface HTMLPcmHtwsModalElementEventMap {
+        "modalClosed": void;
+        "uploadSuccess": FileUploadResponse;
+        "streamComplete": {
+        conversation_id: string;
+        event: string;
+        message_id: string;
+        id: string;
+    };
+        "conversationStart": {
+        conversation_id: string;
+        event: string;
+        message_id: string;
+        id: string;
+    };
+        "interviewComplete": {
+        conversation_id: string;
+        total_questions: number;
+    };
+        "tokenInvalid": void;
+    }
+    /**
+     * 劳动合同卫士
+     */
+    interface HTMLPcmHtwsModalElement extends Components.PcmHtwsModal, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLPcmHtwsModalElementEventMap>(type: K, listener: (this: HTMLPcmHtwsModalElement, ev: PcmHtwsModalCustomEvent<HTMLPcmHtwsModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLPcmHtwsModalElementEventMap>(type: K, listener: (this: HTMLPcmHtwsModalElement, ev: PcmHtwsModalCustomEvent<HTMLPcmHtwsModalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLPcmHtwsModalElement: {
+        prototype: HTMLPcmHtwsModalElement;
+        new (): HTMLPcmHtwsModalElement;
     };
     interface HTMLPcmHyzjModalElementEventMap {
         "modalClosed": void;
@@ -1029,6 +1122,7 @@ declare global {
         "pcm-chat-message": HTMLPcmChatMessageElement;
         "pcm-chat-modal": HTMLPcmChatModalElement;
         "pcm-hr-chat-modal": HTMLPcmHrChatModalElement;
+        "pcm-htws-modal": HTMLPcmHtwsModalElement;
         "pcm-hyzj-modal": HTMLPcmHyzjModalElement;
         "pcm-jlpp-modal": HTMLPcmJlppModalElement;
         "pcm-mnct-modal": HTMLPcmMnctModalElement;
@@ -1299,6 +1393,15 @@ declare namespace LocalJSX {
          */
         "modalTitle"?: string;
         /**
+          * 新会话开始的回调，只会在一轮对话开始时触发一次
+         */
+        "onConversationStart"?: (event: PcmHrChatModalCustomEvent<{
+    conversation_id: string;
+    event: string;
+    message_id: string;
+    id: string;
+  }>) => void;
+        /**
           * 当面试完成时触发
          */
         "onInterviewComplete"?: (event: PcmHrChatModalCustomEvent<{
@@ -1347,9 +1450,91 @@ declare namespace LocalJSX {
          */
         "totalQuestions"?: number;
         /**
-          * 用户ID
+          * 聊天框的页面层级
          */
-        "userId"?: string;
+        "zIndex"?: number;
+    }
+    /**
+     * 劳动合同卫士
+     */
+    interface PcmHtwsModal {
+        /**
+          * 会话ID，传入继续对话，否则创建新会话
+         */
+        "conversationId"?: string;
+        /**
+          * 自定义输入参数，传入job_info时，会隐藏JD输入区域
+         */
+        "customInputs"?: { [key: string]: any };
+        /**
+          * 默认查询文本
+         */
+        "defaultQuery"?: string;
+        /**
+          * 是否以全屏模式打开，移动端建议设置为true
+         */
+        "fullscreen"?: boolean;
+        /**
+          * 应用图标URL
+         */
+        "icon"?: string;
+        /**
+          * 是否展示右上角的关闭按钮
+         */
+        "isNeedClose"?: boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen"?: boolean;
+        /**
+          * 是否展示顶部标题栏
+         */
+        "isShowHeader"?: boolean;
+        /**
+          * 模态框标题
+         */
+        "modalTitle"?: string;
+        /**
+          * 新会话开始的回调，只会在一轮对话开始时触发一次
+         */
+        "onConversationStart"?: (event: PcmHtwsModalCustomEvent<{
+        conversation_id: string;
+        event: string;
+        message_id: string;
+        id: string;
+    }>) => void;
+        /**
+          * 当聊天完成时触发
+         */
+        "onInterviewComplete"?: (event: PcmHtwsModalCustomEvent<{
+        conversation_id: string;
+        total_questions: number;
+    }>) => void;
+        /**
+          * 当点击模态框关闭时触发
+         */
+        "onModalClosed"?: (event: PcmHtwsModalCustomEvent<void>) => void;
+        /**
+          * 流式输出完成事件
+         */
+        "onStreamComplete"?: (event: PcmHtwsModalCustomEvent<{
+        conversation_id: string;
+        event: string;
+        message_id: string;
+        id: string;
+    }>) => void;
+        /**
+          * SDK密钥验证失败事件
+         */
+        "onTokenInvalid"?: (event: PcmHtwsModalCustomEvent<void>) => void;
+        /**
+          * 上传成功事件
+         */
+        "onUploadSuccess"?: (event: PcmHtwsModalCustomEvent<FileUploadResponse>) => void;
+        /**
+          * SDK鉴权密钥
+         */
+        "token"?: string;
         /**
           * 聊天框的页面层级
          */
@@ -1972,6 +2157,7 @@ declare namespace LocalJSX {
         "pcm-chat-message": PcmChatMessage;
         "pcm-chat-modal": PcmChatModal;
         "pcm-hr-chat-modal": PcmHrChatModal;
+        "pcm-htws-modal": PcmHtwsModal;
         "pcm-hyzj-modal": PcmHyzjModal;
         "pcm-jlpp-modal": PcmJlppModal;
         "pcm-mnct-modal": PcmMnctModal;
@@ -1990,6 +2176,10 @@ declare module "@stencil/core" {
             "pcm-chat-message": LocalJSX.PcmChatMessage & JSXBase.HTMLAttributes<HTMLPcmChatMessageElement>;
             "pcm-chat-modal": LocalJSX.PcmChatModal & JSXBase.HTMLAttributes<HTMLPcmChatModalElement>;
             "pcm-hr-chat-modal": LocalJSX.PcmHrChatModal & JSXBase.HTMLAttributes<HTMLPcmHrChatModalElement>;
+            /**
+             * 劳动合同卫士
+             */
+            "pcm-htws-modal": LocalJSX.PcmHtwsModal & JSXBase.HTMLAttributes<HTMLPcmHtwsModalElement>;
             /**
              * 会议总结助手
              */

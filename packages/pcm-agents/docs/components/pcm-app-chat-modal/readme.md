@@ -43,8 +43,12 @@
 
 ### Used by
 
+ - [pcm-htws-modal](../pcm-htws-modal)
+ - [pcm-hyzj-modal](../pcm-hyzj-modal)
  - [pcm-jlpp-modal](../pcm-jlpp-modal)
+ - [pcm-mnct-modal](../pcm-mnct-modal)
  - [pcm-mnms-modal](../pcm-mnms-modal)
+ - [pcm-msbg-modal](../pcm-msbg-modal)
  - [pcm-zygh-modal](../pcm-zygh-modal)
 
 ### Depends on
@@ -55,8 +59,12 @@
 ```mermaid
 graph TD;
   pcm-app-chat-modal --> pcm-chat-message
+  pcm-htws-modal --> pcm-app-chat-modal
+  pcm-hyzj-modal --> pcm-app-chat-modal
   pcm-jlpp-modal --> pcm-app-chat-modal
+  pcm-mnct-modal --> pcm-app-chat-modal
   pcm-mnms-modal --> pcm-app-chat-modal
+  pcm-msbg-modal --> pcm-app-chat-modal
   pcm-zygh-modal --> pcm-app-chat-modal
   style pcm-app-chat-modal fill:#f9f,stroke:#333,stroke-width:4px
 ```

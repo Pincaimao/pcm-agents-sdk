@@ -2,19 +2,19 @@ import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '
 import { uploadFileToBackend, FileUploadResponse, sendHttpRequest } from '../../utils/utils';
 
 /**
- * 会议总结助手
+ * 劳动合同卫士
  */
 
 @Component({
-    tag: 'pcm-hyzj-modal',
-    styleUrls: ['pcm-hyzj-modal.css', '../../global/global.css'],
+    tag: 'pcm-htws-modal',
+    styleUrls: ['pcm-htws-modal.css', '../../global/global.css'],
     shadow: true,
 })
-export class HyzjModal {
+export class HtwsModal {
     /**
      * 模态框标题
      */
-    @Prop() modalTitle: string = '会议总结助手';
+    @Prop() modalTitle: string = '劳动合同卫士';
 
     /**
      * SDK鉴权密钥
@@ -306,9 +306,9 @@ export class HyzjModal {
                     {/* 上传界面 - 仅在不显示聊天模态框且没有会话ID时显示 */}
                     {!this.showChatModal && !this.conversationId && (
                         <div class="input-container">
-                            {/* 上传会议纪要上传区域 */}
+                            {/* 上传合同上传区域 */}
                             <div class="resume-upload-section">
-                                <label>上传会议纪要</label>
+                                <label>上传合同</label>
                                 <div class="upload-area" onClick={this.handleUploadClick}>
                                     {this.selectedFile ? (
                                         <div class="file-info">
@@ -323,8 +323,8 @@ export class HyzjModal {
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="48" height="48">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m0-16l-4 4m4-4l4 4" />
                                             </svg>
-                                            <p>点击上传会议纪要</p>
-                                            <p class="upload-hint">支持 mp3、markdown、pdf、docx、doc、md 格式</p>
+                                            <p>点击上传合同</p>
+                                            <p class="upload-hint">支持markdown、pdf、docx、doc、md 格式</p>
                                         </div>
                                     )}
                                 </div>
@@ -366,7 +366,7 @@ export class HyzjModal {
                                 isNeedClose={this.isShowHeader} // 不显示内部的关闭按钮，因为外部已有
                                 zIndex={this.zIndex}
                                 fullscreen={this.fullscreen}
-                                botId="3022316191018885"
+                                botId="3022316191018882"
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
                                 enableVoice={false}
