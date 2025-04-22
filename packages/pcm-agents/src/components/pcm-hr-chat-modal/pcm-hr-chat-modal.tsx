@@ -83,8 +83,18 @@ export class ChatHRModal {
   // 使用 @Element 装饰器获取组件的 host 元素
   @Element() hostElement: HTMLElement;
 
-  // 添加新的 Event
+  // 一轮对话结束时的回调
   @Event() streamComplete: EventEmitter<{
+    conversation_id: string;
+    event: string;
+    message_id: string;
+    id: string;
+  }>;
+
+  /**
+   * 新会话开始的回调，只会在一轮对话开始时触发一次
+   */
+  @Event() conversationStart: EventEmitter<{
     conversation_id: string;
     event: string;
     message_id: string;
@@ -227,10 +237,6 @@ export class ChatHRModal {
    */
   @Prop() displayContentStatus: boolean = true;
 
-  /**
-   * 用户ID
-   */
-  @Prop() userId: string = '';
 
   private handleClose = () => {
     this.stopRecording();
@@ -353,7 +359,6 @@ export class ChatHRModal {
       response_mode: 'streaming',
       conversation_id: this.conversationId,
       query: queryText,
-      user: this.userId, // 使用传入的 userId
       bot_id: "3022316191018880"
     };
     requestData.inputs = {
@@ -381,7 +386,12 @@ export class ChatHRModal {
 
         if (data.conversation_id && !this.conversationId) {
           this.conversationId = data.conversation_id;
-          this.updateUrlWithConversationId(data.conversation_id);
+          this.conversationStart.emit({
+            conversation_id: data.conversation_id,
+            event: data.event,
+            message_id: data.message_id,
+            id: data.id,
+          });
         }
 
         // 检查是否有 node_finished 事件和 LLMText
@@ -470,7 +480,7 @@ export class ChatHRModal {
     });
   }
 
-  // 修改保存答案的方法
+  // 保存答案的方法
   private async saveAnswer(conversationId: string, question: string, answer: string) {
     try {
       await sendHttpRequest({
@@ -481,7 +491,6 @@ export class ChatHRModal {
         },
         data: {
           conversation_id: conversationId,
-          user: this.userId,
           question: question,
           answer: answer
         },
@@ -519,15 +528,6 @@ export class ChatHRModal {
       if (chatHistory) {
         chatHistory.scrollTop = chatHistory.scrollHeight;
       }
-    }
-  }
-
-  private updateUrlWithConversationId(conversationId: string) {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (!urlParams.get('conversation_id')) {
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.set('conversation_id', conversationId);
-      window.history.replaceState({}, '', newUrl);
     }
   }
 
@@ -986,7 +986,6 @@ export class ChatHRModal {
         },
         data: {
           conversation_id: this.conversationId,
-          user: this.userId,
           question: lastAIMessage.answer,
           file_url: cosKey
         },
@@ -994,7 +993,7 @@ export class ChatHRModal {
     } catch (error) {
       console.error('保存视频答案失败:', error);
     }
-  }
+  } 
 
   // 发送"下一题"请求
   private sendNextQuestion() {
