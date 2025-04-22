@@ -592,10 +592,6 @@ export namespace Components {
     }
     interface PcmZskChatModal {
         /**
-          * 机器人ID
-         */
-        "botId"?: string;
-        /**
           * 会话ID，传入继续对话，否则创建新会话
          */
         "conversationId"?: string;
@@ -607,6 +603,10 @@ export namespace Components {
           * 默认查询文本
          */
         "defaultQuery": string;
+        /**
+          * 数字员工ID，从聘才猫开发平台创建数字员工后，点击分享SDK获取
+         */
+        "employeeId": string;
         /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
@@ -631,6 +631,14 @@ export namespace Components {
           * 模态框标题
          */
         "modalTitle": string;
+        /**
+          * 是否显示引用文档
+         */
+        "showReferences": boolean;
+        /**
+          * 是否显示推荐问题
+         */
+        "showSuggestedQuestions": boolean;
         /**
           * SDK鉴权密钥
          */
@@ -2157,10 +2165,6 @@ declare namespace LocalJSX {
     }
     interface PcmZskChatModal {
         /**
-          * 机器人ID
-         */
-        "botId"?: string;
-        /**
           * 会话ID，传入继续对话，否则创建新会话
          */
         "conversationId"?: string;
@@ -2172,6 +2176,10 @@ declare namespace LocalJSX {
           * 默认查询文本
          */
         "defaultQuery"?: string;
+        /**
+          * 数字员工ID，从聘才猫开发平台创建数字员工后，点击分享SDK获取
+         */
+        "employeeId"?: string;
         /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
@@ -2218,6 +2226,14 @@ declare namespace LocalJSX {
     message_id: string;
     id: string;
   }>) => void;
+        /**
+          * 是否显示引用文档
+         */
+        "showReferences"?: boolean;
+        /**
+          * 是否显示推荐问题
+         */
+        "showSuggestedQuestions"?: boolean;
         /**
           * SDK鉴权密钥
          */

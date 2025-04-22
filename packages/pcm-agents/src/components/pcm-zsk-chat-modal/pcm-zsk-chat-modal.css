@@ -754,3 +754,131 @@
   }
 }
 
+/* 修改引用文档样式 */
+.references-section {
+  margin-top: 20px;
+  padding: 12px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border: 1px solid #e8e8e8;
+}
+
+.references-title {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 8px 0;
+  font-weight: 500;
+}
+
+.references-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reference-item {
+  background-color: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  padding: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.reference-item:hover {
+  background-color: #f5f5f5;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.reference-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.reference-icon {
+  color: #1890ff;
+  display: flex;
+  align-items: center;
+}
+
+.reference-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+  flex: 1;
+}
+
+.download-icon {
+  color: #1890ff;
+  display: flex;
+  align-items: center;
+}
+
+/* 移除不再需要的引用内容样式 */
+.reference-content {
+  display: none;
+}
+
+/* 推荐问题样式 */
+.suggested-questions {
+  margin-top: 20px;
+  padding: 12px;
+  background-color: #f0f7ff;
+  border-radius: 8px;
+  border: 1px solid #d6e8ff;
+}
+
+.suggested-title {
+  font-size: 14px;
+  color: #1890ff;
+  margin: 0 0 8px 0;
+  font-weight: 500;
+}
+
+.suggested-question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background-color: #fff;
+  border: 1px solid #e6f7ff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #1890ff;
+  transition: all 0.3s;
+  margin-bottom: 8px;
+}
+
+.suggested-question:last-child {
+  margin-bottom: 0;
+}
+
+.suggested-question:hover {
+  background-color: #e6f7ff;
+  border-color: #91d5ff;
+}
+
+.arrow-right {
+  color: #1890ff;
+  display: flex;
+  align-items: center;
+}
+
+.loading-suggestions {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+}
+
+.loading-spinner-small {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e6f7ff;
+  border-top-color: #1890ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+

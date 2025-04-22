@@ -1,6 +1,15 @@
-import { Component, Prop, h, State, Event, EventEmitter, Element } from '@stencil/core';
-import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest} from '../../utils/utils';
+import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
+import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
+
+// 添加引用文档接口
+interface Reference {
+  doc_info: {
+    doc_name: string;
+    doc_id: string;
+  };
+  content: string;
+}
 
 @Component({
   tag: 'pcm-zsk-chat-modal',
@@ -125,12 +134,26 @@ export class ChatKBModal {
    */
   @Prop() customInputs: Record<string, any> = {};
 
+
+  // 添加推荐问题和引用文档状态
+  @State() suggestedQuestions: string[] = [];
+  @State() suggestedQuestionsLoading: boolean = false;
+  @State() currentRefs: Reference[] = [];
+
   /**
-   * 机器人ID
+   * 是否显示引用文档
    */
-  @Prop() botId?: string;
+  @Prop() showReferences: boolean = true;
 
+  /**
+   * 是否显示推荐问题
+   */
+  @Prop() showSuggestedQuestions: boolean = true;
 
+  /**
+   * 数字员工ID，从聘才猫开发平台创建数字员工后，点击分享SDK获取
+   */
+  @Prop() employeeId: string = "";
 
   private handleClose = () => {
     this.modalClosed.emit();
@@ -138,6 +161,12 @@ export class ChatKBModal {
 
 
   private async sendMessageToAPI(message: string) {
+    // 验证 employeeId 是否存在
+    if (!this.employeeId) {
+      alert('请提供有效的数字员工ID');
+      return;
+    }
+
     this.isLoading = true;
     let answer = '';
 
@@ -147,6 +176,9 @@ export class ChatKBModal {
     // 修改消息处理逻辑，移除文件上传相关代码
     const queryText = message.trim() || '请开始';
 
+    // 重置推荐问题和引用文档
+    this.suggestedQuestions = [];
+    this.currentRefs = [];
 
     // 创建新的消息对象
     const newMessage: ChatMessage = {
@@ -173,7 +205,7 @@ export class ChatKBModal {
       response_mode: 'streaming',
       conversation_id: this.conversationId,
       query: queryText,
-      employee_id: "137",
+      employee_id: this.employeeId,
     };
 
     // 合并基本输入参数和自定义输入参数
@@ -190,7 +222,7 @@ export class ChatKBModal {
       },
       data: requestData,
       onMessage: (data) => {
-        // console.log('收到Stream数据:', data);
+        console.log('收到Stream数据:', data);
 
         if (data.conversation_id && !this.conversationId) {
           this.conversationId = data.conversation_id;
@@ -202,6 +234,74 @@ export class ChatKBModal {
           });
         }
 
+        // 处理问题建议
+        if (data.event === 'node_started' && data.data.title.includes('聘才猫推荐开始')) {
+          this.suggestedQuestionsLoading = true;
+        }
+
+        // 处理问题建议
+        if (data.event === 'node_finished' && data.data.title.includes('聘才猫推荐结束')) {
+          let suggestions: string[] = [];
+
+          try {
+            // 清理 markdown 代码块标记并解析 JSON
+            let textContent = data.data.outputs.text;
+            if (typeof textContent === 'string') {
+              // 移除 markdown 代码块标记
+              textContent = textContent.replace(/```json\n/, '').replace(/```/, '').trim();
+              const suggestionData = JSON.parse(textContent);
+
+              // 处理标准格式的建议问题
+              if (suggestionData.status === 'success' && Array.isArray(suggestionData.items)) {
+                suggestions = suggestionData.items.map((item: any) => item.question);
+              }
+            } else {
+              // 如果已经是对象，直接使用
+              const suggestionData = textContent;
+              if (suggestionData.status === 'success' && Array.isArray(suggestionData.items)) {
+                suggestions = suggestionData.items.map((item: any) => item.question);
+              }
+            }
+          } catch (e) {
+            console.warn('解析问题建议失败:', e);
+          }
+
+          this.suggestedQuestions = suggestions;
+          this.suggestedQuestionsLoading = false;
+        }
+
+        // 处理引用文档
+        if (data.event === 'node_finished' && data.data?.inputs?.documents) {
+          const refs: Reference[] = [];
+
+          // 遍历 documents 数组
+          data.data.inputs.documents.forEach((arg: any) => {
+            // 遍历每个 arg 中的 result_list
+            if (arg.result_list && Array.isArray(arg.result_list)) {
+              arg.result_list.forEach((result: any) => {
+                if (result.doc_info && result.content) {
+                  refs.push({
+                    doc_info: {
+                      doc_name: result.doc_info.doc_name,
+                      doc_id: result.doc_info.doc_id
+                    },
+                    content: result.content
+                  });
+                }
+              });
+            }
+          });
+
+          // 去重处理
+          const uniqueRefs = new Map();
+          refs.forEach((ref: Reference) => {
+            if (ref.doc_info && ref.doc_info.doc_id) {
+              uniqueRefs.set(ref.doc_info.doc_id, ref);
+            }
+          });
+
+          this.currentRefs = Array.from(uniqueRefs.values());
+        }
 
         if (data.event === 'message') {
           const inputMessage: UserInputMessageType = { message: message };
@@ -324,7 +424,7 @@ export class ChatKBModal {
         });
 
         this.messages = formattedMessages;
-        
+
         requestAnimationFrame(() => {
           this.shouldAutoScroll = true;
           this.scrollToBottom();
@@ -340,7 +440,6 @@ export class ChatKBModal {
 
   // 修改 componentDidLoad 生命周期方法
   componentDidLoad() {
-
     // 添加滚动事件监听器
     const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
     if (chatHistory) {
@@ -362,6 +461,20 @@ export class ChatKBModal {
       }
     }
   }
+
+  // 添加 isOpen 的 watch 方法
+  @Watch('isOpen')
+  async handleIsOpenChange(newValue: boolean) {
+    if (newValue) {
+      // 验证 employeeId 是否存在
+      if (!this.employeeId) {
+        console.error('未提供数字员工ID (employeeId)');
+        setTimeout(() => alert('请提供有效的数字员工ID'), 0);
+        return;
+      }
+    }
+  }
+
 
   // 修改 componentDidLoad 生命周期方法，确保组件卸载时释放资源
   disconnectedCallback() {
@@ -409,10 +522,10 @@ export class ChatKBModal {
     try {
       // 保存当前输入内容
       const textToSend = this.textAnswer;
-      
+
       // 立即清空文本输入
       this.textAnswer = '';
-      
+
       // 发送用户输入的文本作为查询
       await this.sendMessageToAPI(textToSend);
     } catch (error) {
@@ -422,6 +535,50 @@ export class ChatKBModal {
       this.isSubmittingText = false;
     }
   };
+
+  // 添加处理推荐问题点击的方法
+  private handleSuggestedQuestionClick = (question: string) => {
+    if (this.isLoading || this.currentStreamingMessage) return;
+    this.textAnswer = question;
+    this.submitTextAnswer();
+  };
+
+  // 添加文档下载方法
+  private async handleDocumentDownload(ref: Reference) {
+    try {
+
+      // 从文档ID中提取数字部分
+      const docIdMatch = ref.doc_info.doc_id.match(/docID_(\d+)/);
+      if (!docIdMatch || !docIdMatch[1]) {
+        alert('无法解析文档ID');
+        return;
+      }
+      const docId = docIdMatch[1];
+      // 获取文档详细信息
+      const result = await sendHttpRequest({
+        url: `/sdk/v1/files/${docId}/info`,
+        method: 'GET',
+        headers: {
+          'authorization': `Bearer ${this.token}`
+        },
+      });
+
+
+      if (result.success && result.data?.file_url) {
+        // 构建预览URL
+        const baseUrl = result.data.file_url;
+        const previewUrl = `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}ci-process=doc-preview&copyable=1&dstType=html`;
+
+        // 打开预览链接
+        window.open(previewUrl, '_blank');
+      } else {
+        alert('获取文档链接失败');
+      }
+    } catch (error) {
+      console.error('下载文档失败:', error);
+      alert('下载文档失败，请稍后再试');
+    }
+  }
 
   render() {
     if (!this.isOpen) return null;
@@ -440,6 +597,74 @@ export class ChatKBModal {
       'fullscreen-overlay': this.fullscreen
     };
 
+    // 修改渲染引用文档组件的方法
+    const renderReferences = () => {
+      if (!this.showReferences || this.currentRefs.length === 0) return null;
+
+      return (
+        <div class="references-section">
+          <h3 class="references-title">引用文档</h3>
+          <div class="references-list">
+            {this.currentRefs.map((ref, index) => (
+              <div
+                class="reference-item"
+                key={`ref-${index}`}
+                onClick={() => this.handleDocumentDownload(ref)}
+              >
+                <div class="reference-header">
+                  <span class="reference-icon">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                      <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z" />
+                    </svg>
+                  </span>
+                  <span class="reference-name">{ref.doc_info.doc_name}</span>
+                  <span class="download-icon">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                      <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                    </svg>
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    };
+
+    // 渲染推荐问题组件
+    const renderSuggestedQuestions = () => {
+      if (!this.showSuggestedQuestions) return null;
+
+      if (this.suggestedQuestionsLoading) {
+        return (
+          <div class="loading-suggestions">
+            <div class="loading-spinner-small"></div>
+          </div>
+        );
+      }
+
+      if (this.suggestedQuestions.length === 0) return null;
+
+      return (
+        <div class="suggested-questions">
+          <h3 class="suggested-title">推荐问题</h3>
+          {this.suggestedQuestions.map((question, index) => (
+            <div
+              class="suggested-question"
+              key={`question-${index}`}
+              onClick={() => this.handleSuggestedQuestionClick(question)}
+            >
+              <span>{question}</span>
+              <span class="arrow-right">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                  <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
+                </svg>
+              </span>
+            </div>
+          ))}
+        </div>
+      );
+    };
 
     // 修改文本输入区域渲染函数
     const renderTextInputArea = () => (
@@ -532,6 +757,10 @@ export class ChatKBModal {
                       <p>请输入...</p>
                     </div>
                   )}
+
+                  {/* 添加引用文档和推荐问题组件 */}
+                  {renderReferences()}
+                  {renderSuggestedQuestions()}
                 </div>
               )}
             </div>
