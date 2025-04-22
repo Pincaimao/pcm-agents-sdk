@@ -11,7 +11,7 @@ export class ChatHRModal {
   /**
    * 模态框标题
    */
-  @Prop() modalTitle: string = '在线客服';
+  @Prop() modalTitle: string = '金牌HR大赛';
 
   /**
    * SDK鉴权密钥
@@ -83,7 +83,9 @@ export class ChatHRModal {
   // 使用 @Element 装饰器获取组件的 host 元素
   @Element() hostElement: HTMLElement;
 
-  // 一轮对话结束时的回调
+  /**
+   * 一轮对话结束时的回调
+   */
   @Event() streamComplete: EventEmitter<{
     conversation_id: string;
     event: string;
@@ -228,7 +230,7 @@ export class ChatHRModal {
   }>;
 
   /**
-   * 是否播放语音问题
+   * 是否自动播放语音问题
    */
   @Prop() enableVoice: boolean = true;
 

@@ -22,6 +22,7 @@ import { PcmMnctModal as PcmMnctModalElement, defineCustomElement as definePcmMn
 import { PcmMnmsModal as PcmMnmsModalElement, defineCustomElement as definePcmMnmsModal } from "pcm-agents/dist/components/pcm-mnms-modal.js";
 import { PcmMsbgModal as PcmMsbgModalElement, defineCustomElement as definePcmMsbgModal } from "pcm-agents/dist/components/pcm-msbg-modal.js";
 import { PcmVideoChatModal as PcmVideoChatModalElement, defineCustomElement as definePcmVideoChatModal } from "pcm-agents/dist/components/pcm-video-chat-modal.js";
+import { PcmZskChatModal as PcmZskChatModalElement, defineCustomElement as definePcmZskChatModal } from "pcm-agents/dist/components/pcm-zsk-chat-modal.js";
 import { PcmZyghModal as PcmZyghModalElement, defineCustomElement as definePcmZyghModal } from "pcm-agents/dist/components/pcm-zygh-modal.js";
 import React from 'react';
 
@@ -425,6 +426,35 @@ export const PcmVideoChatModal: StencilReactComponent<PcmVideoChatModalElement, 
         onRecordingStatusChange: 'recordingStatusChange'
     } as PcmVideoChatModalEvents,
     defineCustomElement: definePcmVideoChatModal
+});
+
+type PcmZskChatModalEvents = {
+    onModalClosed: EventName<CustomEvent<void>>,
+    onStreamComplete: EventName<CustomEvent<{
+        conversation_id: string;
+        event: string;
+        message_id: string;
+        id: string;
+    }>>,
+    onConversationStart: EventName<CustomEvent<{
+        conversation_id: string;
+        event: string;
+        message_id: string;
+        id: string;
+    }>>
+};
+
+export const PcmZskChatModal: StencilReactComponent<PcmZskChatModalElement, PcmZskChatModalEvents> = /*@__PURE__*/ createComponent<PcmZskChatModalElement, PcmZskChatModalEvents>({
+    tagName: 'pcm-zsk-chat-modal',
+    elementClass: PcmZskChatModalElement,
+    // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
+    react: React,
+    events: {
+        onModalClosed: 'modalClosed',
+        onStreamComplete: 'streamComplete',
+        onConversationStart: 'conversationStart'
+    } as PcmZskChatModalEvents,
+    defineCustomElement: definePcmZskChatModal
 });
 
 type PcmZyghModalEvents = {

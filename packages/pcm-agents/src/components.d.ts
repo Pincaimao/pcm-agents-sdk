@@ -178,7 +178,7 @@ export namespace Components {
          */
         "displayContentStatus": boolean;
         /**
-          * 是否播放语音问题
+          * 是否自动播放语音问题
          */
         "enableVoice": boolean;
         /**
@@ -590,6 +590,56 @@ export namespace Components {
          */
         "zIndex"?: number;
     }
+    interface PcmZskChatModal {
+        /**
+          * 机器人ID
+         */
+        "botId"?: string;
+        /**
+          * 会话ID，传入继续对话，否则创建新会话
+         */
+        "conversationId"?: string;
+        /**
+          * 自定义智能体inputs输入参数
+         */
+        "customInputs": Record<string, any>;
+        /**
+          * 默认查询文本
+         */
+        "defaultQuery": string;
+        /**
+          * 是否以全屏模式打开，移动端建议设置为true
+         */
+        "fullscreen": boolean;
+        /**
+          * 应用图标URL
+         */
+        "icon"?: string;
+        /**
+          * 是否展示右上角的关闭按钮
+         */
+        "isNeedClose": boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen": boolean;
+        /**
+          * 是否展示顶部标题栏
+         */
+        "isShowHeader": boolean;
+        /**
+          * 模态框标题
+         */
+        "modalTitle": string;
+        /**
+          * SDK鉴权密钥
+         */
+        "token": string;
+        /**
+          * 聊天框的页面层级
+         */
+        "zIndex"?: number;
+    }
     interface PcmZyghModal {
         /**
           * 会话ID，传入继续对话，否则创建新会话
@@ -680,6 +730,10 @@ export interface PcmMsbgModalCustomEvent<T> extends CustomEvent<T> {
 export interface PcmVideoChatModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmVideoChatModalElement;
+}
+export interface PcmZskChatModalCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLPcmZskChatModalElement;
 }
 export interface PcmZyghModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -1081,6 +1135,35 @@ declare global {
         prototype: HTMLPcmVideoChatModalElement;
         new (): HTMLPcmVideoChatModalElement;
     };
+    interface HTMLPcmZskChatModalElementEventMap {
+        "modalClosed": void;
+        "streamComplete": {
+    conversation_id: string;
+    event: string;
+    message_id: string;
+    id: string;
+  };
+        "conversationStart": {
+    conversation_id: string;
+    event: string;
+    message_id: string;
+    id: string;
+  };
+    }
+    interface HTMLPcmZskChatModalElement extends Components.PcmZskChatModal, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLPcmZskChatModalElementEventMap>(type: K, listener: (this: HTMLPcmZskChatModalElement, ev: PcmZskChatModalCustomEvent<HTMLPcmZskChatModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLPcmZskChatModalElementEventMap>(type: K, listener: (this: HTMLPcmZskChatModalElement, ev: PcmZskChatModalCustomEvent<HTMLPcmZskChatModalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLPcmZskChatModalElement: {
+        prototype: HTMLPcmZskChatModalElement;
+        new (): HTMLPcmZskChatModalElement;
+    };
     interface HTMLPcmZyghModalElementEventMap {
         "modalClosed": void;
         "uploadSuccess": FileUploadResponse;
@@ -1129,6 +1212,7 @@ declare global {
         "pcm-mnms-modal": HTMLPcmMnmsModalElement;
         "pcm-msbg-modal": HTMLPcmMsbgModalElement;
         "pcm-video-chat-modal": HTMLPcmVideoChatModalElement;
+        "pcm-zsk-chat-modal": HTMLPcmZskChatModalElement;
         "pcm-zygh-modal": HTMLPcmZyghModalElement;
     }
 }
@@ -1361,7 +1445,7 @@ declare namespace LocalJSX {
          */
         "displayContentStatus"?: boolean;
         /**
-          * 是否播放语音问题
+          * 是否自动播放语音问题
          */
         "enableVoice"?: boolean;
         /**
@@ -1427,6 +1511,9 @@ declare namespace LocalJSX {
     status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
     details?: any;
   }>) => void;
+        /**
+          * 一轮对话结束时的回调
+         */
         "onStreamComplete"?: (event: PcmHrChatModalCustomEvent<{
     conversation_id: string;
     event: string;
@@ -2068,6 +2155,78 @@ declare namespace LocalJSX {
          */
         "zIndex"?: number;
     }
+    interface PcmZskChatModal {
+        /**
+          * 机器人ID
+         */
+        "botId"?: string;
+        /**
+          * 会话ID，传入继续对话，否则创建新会话
+         */
+        "conversationId"?: string;
+        /**
+          * 自定义智能体inputs输入参数
+         */
+        "customInputs"?: Record<string, any>;
+        /**
+          * 默认查询文本
+         */
+        "defaultQuery"?: string;
+        /**
+          * 是否以全屏模式打开，移动端建议设置为true
+         */
+        "fullscreen"?: boolean;
+        /**
+          * 应用图标URL
+         */
+        "icon"?: string;
+        /**
+          * 是否展示右上角的关闭按钮
+         */
+        "isNeedClose"?: boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen"?: boolean;
+        /**
+          * 是否展示顶部标题栏
+         */
+        "isShowHeader"?: boolean;
+        /**
+          * 模态框标题
+         */
+        "modalTitle"?: string;
+        /**
+          * 新会话开始的回调，只会在一轮对话开始时触发一次
+         */
+        "onConversationStart"?: (event: PcmZskChatModalCustomEvent<{
+    conversation_id: string;
+    event: string;
+    message_id: string;
+    id: string;
+  }>) => void;
+        /**
+          * 当点击模态框关闭时触发
+         */
+        "onModalClosed"?: (event: PcmZskChatModalCustomEvent<void>) => void;
+        /**
+          * 一轮对话结束时的回调
+         */
+        "onStreamComplete"?: (event: PcmZskChatModalCustomEvent<{
+    conversation_id: string;
+    event: string;
+    message_id: string;
+    id: string;
+  }>) => void;
+        /**
+          * SDK鉴权密钥
+         */
+        "token"?: string;
+        /**
+          * 聊天框的页面层级
+         */
+        "zIndex"?: number;
+    }
     interface PcmZyghModal {
         /**
           * 会话ID，传入继续对话，否则创建新会话
@@ -2164,6 +2323,7 @@ declare namespace LocalJSX {
         "pcm-mnms-modal": PcmMnmsModal;
         "pcm-msbg-modal": PcmMsbgModal;
         "pcm-video-chat-modal": PcmVideoChatModal;
+        "pcm-zsk-chat-modal": PcmZskChatModal;
         "pcm-zygh-modal": PcmZyghModal;
     }
 }
@@ -2201,6 +2361,7 @@ declare module "@stencil/core" {
              */
             "pcm-msbg-modal": LocalJSX.PcmMsbgModal & JSXBase.HTMLAttributes<HTMLPcmMsbgModalElement>;
             "pcm-video-chat-modal": LocalJSX.PcmVideoChatModal & JSXBase.HTMLAttributes<HTMLPcmVideoChatModalElement>;
+            "pcm-zsk-chat-modal": LocalJSX.PcmZskChatModal & JSXBase.HTMLAttributes<HTMLPcmZskChatModalElement>;
             "pcm-zygh-modal": LocalJSX.PcmZyghModal & JSXBase.HTMLAttributes<HTMLPcmZyghModalElement>;
         }
     }

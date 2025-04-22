@@ -116,6 +116,11 @@
     <button id="open-htws-chat">打开劳动合同卫士</button>
   </div>
 
+  <div class="demo-controls">
+    <h2>数字员工演示</h2>
+    <button id="open-zsk-chat">打开数字员工</button>
+  </div>
+
   <!-- <my-component first="Stencil" middle="'Don't call me a framework'" last="JS"></my-component> -->
 
 
@@ -171,6 +176,11 @@
     fullscreen="false"  enable-voice="false" interview-mode="text"
     default-query="请您提问"></pcm-htws-modal>
 
+    <pcm-zsk-chat-modal id="pcm-zsk-chat-modal"
+    modal-title="数字员工" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id=""
+    fullscreen="false"  enable-voice="false" interview-mode="text"
+    default-query="请您提问"></pcm-zsk-chat-modal>
+
 
   <pcm-video-chat-modal id="pcm-video-chat-modal"
     modal-title="视频面试" icon="https://www.ylzhaopin.com/Public/Newhome/images/sidebar/tochat.png" conversation-id=""
@@ -185,7 +195,7 @@
 
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc0NTM4ODU2MX0.qVyfKDawGF2G1gauEtglelGw7UgWq5is3ZlHoda9b80";
+    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDUzOTgwMTl9.s_N8ecqKacMonicopbVU3uqHBYEjd-LaKRLKuGXezxs";
 
     document.addEventListener('DOMContentLoaded', function () {
       console.log('DOM 已加载，正在设置事件监听器...');
@@ -203,6 +213,7 @@
       handleMsbgModal();
       handleHyzjModal();
       handleHtwsModal();
+      handleZskChatModal();
     });
 
     // 为所有组件设置共享的 token
@@ -216,7 +227,8 @@
         'pcm-zygh-modal',
         'pcm-htws-modal',
         'pcm-video-chat-modal',
-        'pcm-hr-chat-modal'
+        'pcm-hr-chat-modal',
+        'pcm-zsk-chat-modal'
       ];
       
       components.forEach(id => {
@@ -419,10 +431,6 @@
       };
     };
 
-    
-
-    
-
     // 简历匹配模态框处理
     const handleJlppModal = () => {
       const jlppModal = document.getElementById('pcm-jlpp-modal');
@@ -549,7 +557,7 @@
       };
     };
 
-
+    // 面试报告模态框处理
     const handleMsbgModal = () => {
       const msbgModal = document.getElementById('pcm-msbg-modal');
       const openMsbgButton = document.getElementById('open-msbg-chat');
@@ -673,6 +681,42 @@
 
       
     };
+  
+    // 金牌HR大赛模态框处理
+    const handleZskChatModal = () => {
+      const chatZSKModal = document.getElementById('pcm-zsk-chat-modal');
+      const openZSKChatButton = document.getElementById('open-zsk-chat');
+      
+      if (!chatZSKModal || !openZSKChatButton) return;
+
+      // 设置事件监听
+      chatZSKModal.addEventListener('messageSent', (event) => {
+        console.log('发送消息:', event.detail);
+      });
+
+      chatZSKModal.addEventListener('modalClosed', () => {
+        console.log('聊天窗口已关闭');
+        chatZSKModal.isOpen = false;
+      });
+
+      chatZSKModal.addEventListener('streamComplete', (event) => {
+        console.log('流式响应完成:', event.detail);
+        // 更新 conversation_id
+        chatZSKModal.setAttribute('conversation-id', event.detail.conversation_id);
+      });
+
+      chatZSKModal.addEventListener('interviewComplete', (event) => {
+        console.log('面试完成:', event.detail);
+        chatZSKModal.isOpen = false;
+        alert('非常感谢您的参与，湖南省人力资源协会将会在2024年*月**日公布评选结果，如想获取您在本次金牌大赛中的评选报告，请联系*****，我们将报告发送到您指定邮箱中。');
+      });
+
+      // 打开聊天按钮事件监听
+      openZSKChatButton.addEventListener('click', () => {
+        chatZSKModal.isOpen = true;
+      });
+    };
+  
   </script>
 </body>
 
