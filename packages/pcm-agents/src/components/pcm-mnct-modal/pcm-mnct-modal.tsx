@@ -1,6 +1,10 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
 import { uploadFileToBackend, FileUploadResponse, sendHttpRequest } from '../../utils/utils';
 
+/**
+ * 模拟出题大师
+ */
+
 @Component({
     tag: 'pcm-mnct-modal',
     styleUrls: ['pcm-mnct-modal.css', '../../global/global.css'],
@@ -10,7 +14,7 @@ export class MnctModal {
     /**
      * 模态框标题
      */
-    @Prop() modalTitle: string = '模拟面试';
+    @Prop() modalTitle: string = '面试出题大师';
 
     /**
      * SDK鉴权密钥

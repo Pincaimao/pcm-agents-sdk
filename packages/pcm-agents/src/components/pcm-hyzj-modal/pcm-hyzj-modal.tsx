@@ -2,19 +2,19 @@ import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '
 import { uploadFileToBackend, FileUploadResponse, sendHttpRequest } from '../../utils/utils';
 
 /**
- * 模拟面试
+ * 会议总结助手
  */
 
 @Component({
-    tag: 'pcm-mnms-modal',
-    styleUrls: ['pcm-mnms-modal.css', '../../global/global.css'],
+    tag: 'pcm-hyzj-modal',
+    styleUrls: ['pcm-hyzj-modal.css', '../../global/global.css'],
     shadow: true,
 })
-export class MnmsModal {
+export class HyzjModal {
     /**
      * 模态框标题
      */
-    @Prop() modalTitle: string = '模拟面试';
+    @Prop() modalTitle: string = '会议总结助手';
 
     /**
      * SDK鉴权密钥
@@ -156,7 +156,7 @@ export class MnmsModal {
             const result = await uploadFileToBackend(this.selectedFile, {
                 'authorization': 'Bearer ' + this.token
             }, {
-                'tags': 'resume'
+                'tags': 'other'
             });
 
             this.uploadedFileInfo = result;
@@ -177,7 +177,7 @@ export class MnmsModal {
 
     private handleStartInterview = async () => {
         if (!this.selectedFile) {
-            alert('请上传简历');
+            alert('请上传面试内容');
             return;
         }
 
@@ -353,9 +353,9 @@ export class MnmsModal {
                                 </div>
                             )}
                             
-                            {/* 简历上传区域 */}
+                            {/* 上传面试内容上传区域 */}
                             <div class="resume-upload-section">
-                                <label>上传简历</label>
+                                <label>上传面试内容</label>
                                 <div class="upload-area" onClick={this.handleUploadClick}>
                                     {this.selectedFile ? (
                                         <div class="file-info">
@@ -370,8 +370,8 @@ export class MnmsModal {
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="48" height="48">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m0-16l-4 4m4-4l4 4" />
                                             </svg>
-                                            <p>点击上传简历</p>
-                                            <p class="upload-hint">支持 txt、markdown、pdf、docx、doc、md 格式</p>
+                                            <p>点击上传面试内容</p>
+                                            <p class="upload-hint">支持 mp3、markdown、pdf、docx、doc、md 格式</p>
                                         </div>
                                     )}
                                 </div>
@@ -413,13 +413,13 @@ export class MnmsModal {
                                 isNeedClose={this.isShowHeader} // 不显示内部的关闭按钮，因为外部已有
                                 zIndex={this.zIndex}
                                 fullscreen={this.fullscreen}
-                                botId="3022316191018884"
+                                botId="3022316191018877"
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
                                 enableVoice={false}
                                 customInputs={this.conversationId ? undefined : {
                                     ...this.customInputs,
-                                    file_url: this.uploadedFileInfo?.cos_key,
+                                    file_urls: this.uploadedFileInfo?.cos_key,
                                     job_info: this.customInputs?.job_info || this.jobDescription
                                 }}
                                 interviewMode="text"

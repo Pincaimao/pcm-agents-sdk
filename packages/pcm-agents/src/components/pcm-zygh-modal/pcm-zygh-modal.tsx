@@ -2,6 +2,10 @@ import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '
 import { uploadFileToBackend, FileUploadResponse, sendHttpRequest } from '../../utils/utils';
 
 /**
+ * 职业规划助手
+ */
+
+/**
  * 职业规划类型枚举
  */
 export type CareerPlanType = '长期规划' | '转行建议' | '晋升路径';

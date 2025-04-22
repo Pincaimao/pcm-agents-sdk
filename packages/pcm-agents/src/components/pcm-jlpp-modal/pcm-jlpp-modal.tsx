@@ -1,6 +1,10 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
 import { uploadFileToBackend, FileUploadResponse, sendHttpRequest } from '../../utils/utils';
 
+/**
+ * 简历匹配
+ */
+
 @Component({
     tag: 'pcm-jlpp-modal',
     styleUrls: ['pcm-jlpp-modal.css','../../global/global.css'],
