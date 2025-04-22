@@ -1176,7 +1176,6 @@ export class ChatAPPModal {
           value={this.textAnswer}
           onInput={this.handleTextInputChange}
           onKeyDown={this.handleKeyDown}
-          disabled={this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.waitingToRecord || this.isPlayingAudio}
         ></textarea>
         <div class="input-toolbar">
           <div class="toolbar-actions">

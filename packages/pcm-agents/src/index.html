@@ -370,7 +370,10 @@
 
       chatModal.addEventListener('streamComplete', (event) => {
         console.log('流式响应完成:', event.detail);
-        // 更新 conversation_id
+      });
+
+      chatModal.addEventListener('conversationStart', (event) => {
+        console.log('会话开始:', event.detail);
         chatModal.setAttribute('conversation-id', event.detail.conversation_id);
       });
 
@@ -403,6 +406,11 @@
         console.log('流式响应完成:', event.detail);
       });
 
+      mnmsModal.addEventListener('conversationStart', (event) => {
+        console.log('会话开始:', event.detail);
+        mnmsModal.setAttribute('conversation-id', event.detail.conversation_id);
+      });
+
       mnmsModal.addEventListener('interviewComplete', (event) => {
         console.log('面试完成:', event.detail);
         mnmsModal.isOpen = false;
@@ -410,11 +418,6 @@
 
       mnmsModal.addEventListener('uploadSuccess', (event) => {
         console.log('文件上传成功:', event.detail);
-      });
-
-      mnmsModal.addEventListener('conversationStart', (event) => {
-        console.log('会话开始:', event.detail);
-        mnmsModal.setAttribute('conversation-id', event.detail.conversation_id);
       });
 
       mnmsModal.addEventListener('tokenInvalid', () => {
@@ -447,18 +450,15 @@
 
       jlppModal.addEventListener('streamComplete', (event) => {
         console.log('流式响应完成:', event.detail);
-        // 更新 conversation_id
-        
-      });
-
-      jlppModal.addEventListener('uploadSuccess', (event) => {
-        console.log('文件上传成功:', event.detail);
       });
 
       jlppModal.addEventListener('conversationStart', (event) => {
         console.log('会话开始:', event.detail);
         jlppModal.setAttribute('conversation-id', event.detail.conversation_id);
+      });
 
+      jlppModal.addEventListener('uploadSuccess', (event) => {
+        console.log('文件上传成功:', event.detail);
       });
 
       // 打开简历事件监听
@@ -486,14 +486,13 @@
         console.log('流式响应完成:', event.detail);
       });
 
-      zyghModal.addEventListener('uploadSuccess', (event) => {
-        console.log('文件上传成功:', event.detail);
-      });
-
       zyghModal.addEventListener('conversationStart', (event) => {
         console.log('会话开始:', event.detail);
         zyghModal.setAttribute('conversation-id', event.detail.conversation_id);
+      });
 
+      zyghModal.addEventListener('uploadSuccess', (event) => {
+        console.log('文件上传成功:', event.detail);
       });
 
       zyghModal.addEventListener('planningComplete', (event) => {
@@ -529,6 +528,11 @@
         console.log('流式响应完成:', event.detail);
       });
 
+      mnctModal.addEventListener('conversationStart', (event) => {
+        console.log('会话开始:', event.detail);
+        mnctModal.setAttribute('conversation-id', event.detail.conversation_id);
+      });
+
       mnctModal.addEventListener('interviewComplete', (event) => {
         console.log('面试完成:', event.detail);
         mnctModal.isOpen = false;
@@ -536,11 +540,6 @@
 
       mnctModal.addEventListener('uploadSuccess', (event) => {
         console.log('文件上传成功:', event.detail);
-      });
-
-      mnctModal.addEventListener('conversationStart', (event) => {
-        console.log('会话开始:', event.detail);
-        mnctModal.setAttribute('conversation-id', event.detail.conversation_id);
       });
 
       mnctModal.addEventListener('tokenInvalid', () => {
@@ -575,6 +574,11 @@
         console.log('流式响应完成:', event.detail);
       });
 
+      msbgModal.addEventListener('conversationStart', (event) => {
+        console.log('会话开始:', event.detail);
+        msbgModal.setAttribute('conversation-id', event.detail.conversation_id);
+      });
+
       msbgModal.addEventListener('interviewComplete', (event) => {
         console.log('面试完成:', event.detail);
         msbgModal.isOpen = false;
@@ -582,11 +586,6 @@
 
       msbgModal.addEventListener('uploadSuccess', (event) => {
         console.log('文件上传成功:', event.detail);
-      });
-
-      msbgModal.addEventListener('conversationStart', (event) => {
-        console.log('会话开始:', event.detail);
-        msbgModal.setAttribute('conversation-id', event.detail.conversation_id);
       });
 
       msbgModal.addEventListener('tokenInvalid', () => {
@@ -621,15 +620,15 @@
         console.log('流式响应完成:', event.detail);
       });
 
-      hyzjModal.addEventListener('uploadSuccess', (event) => {
-        console.log('文件上传成功:', event.detail);
-      });
-
       hyzjModal.addEventListener('conversationStart', (event) => {
         console.log('会话开始:', event.detail);
         hyzjModal.setAttribute('conversation-id', event.detail.conversation_id);
-
       });
+
+      hyzjModal.addEventListener('uploadSuccess', (event) => {
+        console.log('文件上传成功:', event.detail);
+      });
+    
 
       hyzjModal.addEventListener('planningComplete', (event) => {
         console.log('规划完成:', event.detail);
@@ -661,16 +660,14 @@
         console.log('流式响应完成:', event.detail);
       });
 
-      htwsModal.addEventListener('uploadSuccess', (event) => {
-        console.log('文件上传成功:', event.detail);
-      });
-
       htwsModal.addEventListener('conversationStart', (event) => {
         console.log('会话开始:', event.detail);
         htwsModal.setAttribute('conversation-id', event.detail.conversation_id);
-
       });
 
+      htwsModal.addEventListener('uploadSuccess', (event) => {
+        console.log('文件上传成功:', event.detail);
+      });
       htwsModal.addEventListener('planningComplete', (event) => {
         console.log('规划完成:', event.detail);
       });
@@ -702,7 +699,10 @@
 
       chatZSKModal.addEventListener('streamComplete', (event) => {
         console.log('流式响应完成:', event.detail);
-        // 更新 conversation_id
+      });
+
+      chatZSKModal.addEventListener('conversationStart', (event) => {
+        console.log('会话开始:', event.detail);
         chatZSKModal.setAttribute('conversation-id', event.detail.conversation_id);
       });
 

@@ -11,6 +11,24 @@ interface Reference {
   content: string;
 }
 
+// 添加智能体详情接口
+interface EmployeeDetails {
+  id: number;
+  name: string;
+  description: string;
+  avatar: string;
+  default_greeting: string;
+  quick_questions: string;
+  user_id: number;
+  created_at: string;
+  updated_at: string;
+  is_active: boolean;
+  dify_app_key: string | null;
+  last_conversation_id: string | null;
+  workflow_id: string;
+  agent_name: string;
+}
+
 @Component({
   tag: 'pcm-zsk-chat-modal',
   styleUrl: 'pcm-zsk-chat-modal.css',
@@ -154,6 +172,21 @@ export class ChatKBModal {
    * 数字员工ID，从聘才猫开发平台创建数字员工后，点击分享SDK获取
    */
   @Prop() employeeId: string = "";
+
+  /**
+   * 智能体详情
+   */
+  @State() employeeDetails: EmployeeDetails | null = null;
+
+  /**
+   * 是否正在加载智能体详情
+   */
+  @State() isLoadingEmployeeDetails: boolean = false;
+
+  /**
+   * 预设问题列表
+   */
+  @State() quickQuestions: string[] = [];
 
   private handleClose = () => {
     this.modalClosed.emit();
@@ -462,7 +495,48 @@ export class ChatKBModal {
     }
   }
 
-  // 添加 isOpen 的 watch 方法
+  // 添加获取智能体详情的方法
+  private async fetchEmployeeDetails() {
+    if (!this.employeeId || !this.token) return;
+
+    this.isLoadingEmployeeDetails = true;
+
+    try {
+      const result = await sendHttpRequest({
+        url: `/sdk/v1/knowledge/chat/employee/${this.employeeId}`,
+        method: 'GET',
+        headers: {
+          'authorization': 'Bearer ' + this.token
+        }
+      });
+      console.log('获取智能体详情结果:', result.success);
+      console.log('获取智能体详情结果:', result.data);
+      if (result.success && result.data) {
+        this.employeeDetails = result.data;
+        
+        // 设置预设问题
+        if (this.employeeDetails.quick_questions) {
+          this.quickQuestions = this.employeeDetails.quick_questions
+            .split(',')
+            .map(q => q.trim())
+            .filter(q => q);
+        }
+
+        // 如果有上次会话ID，加载历史消息
+        if (!this.conversationId) {
+          await this.loadHistoryMessages();
+        }
+      }else{
+        alert('获取智能体详情失败，请稍后再试');
+      }
+    } catch (error) {
+      console.error('获取智能体详情失败:', error);
+    } finally {
+      this.isLoadingEmployeeDetails = false;
+    }
+  }
+
+  // 修改 isOpen 的 watch 方法
   @Watch('isOpen')
   async handleIsOpenChange(newValue: boolean) {
     if (newValue) {
@@ -472,6 +546,9 @@ export class ChatKBModal {
         setTimeout(() => alert('请提供有效的数字员工ID'), 0);
         return;
       }
+
+      // 获取智能体详情
+      await this.fetchEmployeeDetails();
     }
   }
 
@@ -666,6 +743,32 @@ export class ChatKBModal {
       );
     };
 
+    // 渲染预设问题组件
+    const renderQuickQuestions = () => {
+      // 只有在没有会话ID且有预设问题时才显示
+      if (this.conversationId || this.quickQuestions.length === 0) return null;
+
+      return (
+        <div class="suggested-questions">
+          <h3 class="suggested-title">常见问题</h3>
+          {this.quickQuestions.map((question, index) => (
+            <div
+              class="suggested-question"
+              key={`preset-question-${index}`}
+              onClick={() => this.handleSuggestedQuestionClick(question)}
+            >
+              <span>{question}</span>
+              <span class="arrow-right">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                  <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
+                </svg>
+              </span>
+            </div>
+          ))}
+        </div>
+      );
+    };
+
     // 修改文本输入区域渲染函数
     const renderTextInputArea = () => (
       <div class="text-input-area">
@@ -675,7 +778,6 @@ export class ChatKBModal {
           value={this.textAnswer}
           onInput={this.handleTextInputChange}
           onKeyDown={this.handleKeyDown}
-          disabled={this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage}
         ></textarea>
         <div class="input-toolbar">
           <div class="toolbar-actions">
@@ -754,13 +856,20 @@ export class ChatKBModal {
                   )}
                   {this.messages.length === 0 && !this.currentStreamingMessage && (
                     <div class="empty-state">
-                      <p>请输入...</p>
+                      {this.isLoadingEmployeeDetails ? (
+                        <p>加载中...</p>
+                      ) : this.employeeDetails?.default_greeting ? (
+                        <p>{this.employeeDetails.default_greeting}</p>
+                      ) : (
+                        <p>请输入...</p>
+                      )}
                     </div>
                   )}
 
                   {/* 添加引用文档和推荐问题组件 */}
                   {renderReferences()}
                   {renderSuggestedQuestions()}
+                  {renderQuickQuestions()}
                 </div>
               )}
             </div>
