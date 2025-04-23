@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
-import { uploadFileToBackend, FileUploadResponse, sendHttpRequest } from '../../utils/utils';
+import { uploadFileToBackend, FileUploadResponse, verifyApiKey } from '../../utils/utils';
 
 /**
  * 会议总结助手
@@ -67,11 +67,7 @@ export class HyzjModal {
     @Prop() fullscreen: boolean = false;
 
     /**
-     * 自定义输入参数，传入job_info时，会隐藏JD输入区域
-     * 
-     * hyzjModal.customInputs = {
-     *      job_info: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；策划并执行线上线下营销活动；"
-     * };
+     * 自定义输入参数
      */
     @Prop() customInputs: Record<string, any> = {};
 
@@ -239,25 +235,12 @@ export class HyzjModal {
      * 验证API密钥
      */
     private async verifyApiKey() {
-        if (!this.token) {
-            this.tokenInvalid.emit();
-            return;
-        }
-        
         try {
-            const response = await sendHttpRequest({
-                url: '/sdk/v1/user',
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${this.token}`
-                }
-            });
-
-            if (!response.success) {
-                throw new Error(response.message || 'API密钥验证失败');
-            }
+            const isValid = await verifyApiKey(this.token);
             
-            // 验证成功，继续正常流程
+            if (!isValid) {
+                throw new Error('API密钥验证失败');
+            }
         } catch (error) {
             console.error('API密钥验证错误:', error);
             // 通知父组件API密钥无效

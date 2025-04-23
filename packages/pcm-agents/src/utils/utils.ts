@@ -275,7 +275,31 @@ export const sendHttpRequest = async <T = any>(config: HttpRequestConfig): Promi
   }
 };
 
+/**
+ * 验证API密钥
+ * @param token API密钥
+ * @returns Promise<boolean> 验证是否成功
+ */
+export const verifyApiKey = async (token: string): Promise<boolean> => {
+  if (!token) {
+    return false;
+  }
+  
+  try {
+    const response = await sendHttpRequest({
+      url: '/sdk/v1/user',
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
 
+    return response.success;
+  } catch (error) {
+    console.error('API密钥验证错误:', error);
+    return false;
+  }
+};
 
 /**
  * 文件上传响应数据接口

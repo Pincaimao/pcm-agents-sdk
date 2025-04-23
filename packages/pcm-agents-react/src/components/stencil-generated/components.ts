@@ -478,7 +478,8 @@ type PcmZskChatModalEvents = {
         event: string;
         message_id: string;
         id: string;
-    }>>
+    }>>,
+    onTokenInvalid: EventName<CustomEvent<void>>
 };
 
 export const PcmZskChatModal: StencilReactComponent<PcmZskChatModalElement, PcmZskChatModalEvents> = /*@__PURE__*/ createComponent<PcmZskChatModalElement, PcmZskChatModalEvents>({
@@ -489,7 +490,8 @@ export const PcmZskChatModal: StencilReactComponent<PcmZskChatModalElement, PcmZ
     events: {
         onModalClosed: 'modalClosed',
         onStreamComplete: 'streamComplete',
-        onConversationStart: 'conversationStart'
+        onConversationStart: 'conversationStart',
+        onTokenInvalid: 'tokenInvalid'
     } as PcmZskChatModalEvents,
     defineCustomElement: definePcmZskChatModal
 });

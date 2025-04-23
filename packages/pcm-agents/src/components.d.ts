@@ -288,7 +288,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入job_info时，会隐藏JD输入区域  hyzjModal.customInputs = {      job_info: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；策划并执行线上线下营销活动；" };
+          * 自定义输入参数
          */
         "customInputs": Record<string, any>;
         /**
@@ -649,11 +649,7 @@ export namespace Components {
          */
         "customInputs": Record<string, any>;
         /**
-          * 默认查询文本
-         */
-        "defaultQuery": string;
-        /**
-          * 数字员工ID，从聘才猫开发平台创建数字员工后，点击分享SDK获取
+          * 数字员工ID，从聘才猫开发平台创建数字员工后，点击导出获取
          */
         "employeeId": string;
         /**
@@ -1247,6 +1243,7 @@ declare global {
     message_id: string;
     id: string;
   };
+        "tokenInvalid": void;
     }
     interface HTMLPcmZskChatModalElement extends Components.PcmZskChatModal, HTMLStencilElement {
         addEventListener<K extends keyof HTMLPcmZskChatModalElementEventMap>(type: K, listener: (this: HTMLPcmZskChatModalElement, ev: PcmZskChatModalCustomEvent<HTMLPcmZskChatModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -1735,7 +1732,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入job_info时，会隐藏JD输入区域  hyzjModal.customInputs = {      job_info: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；策划并执行线上线下营销活动；" };
+          * 自定义输入参数
          */
         "customInputs"?: Record<string, any>;
         /**
@@ -2346,13 +2343,9 @@ declare namespace LocalJSX {
          */
         "customInputs"?: Record<string, any>;
         /**
-          * 默认查询文本
+          * 数字员工ID，从聘才猫开发平台创建数字员工后，点击导出获取
          */
-        "defaultQuery"?: string;
-        /**
-          * 数字员工ID，从聘才猫开发平台创建数字员工后，点击分享SDK获取
-         */
-        "employeeId"?: string;
+        "employeeId": string;
         /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
@@ -2399,6 +2392,10 @@ declare namespace LocalJSX {
     message_id: string;
     id: string;
   }>) => void;
+        /**
+          * SDK密钥验证失败事件
+         */
+        "onTokenInvalid"?: (event: PcmZskChatModalCustomEvent<void>) => void;
         /**
           * 是否显示引用文档
          */

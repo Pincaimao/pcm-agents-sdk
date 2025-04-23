@@ -135,8 +135,6 @@
     icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" 
     conversation-id=""
     fullscreen="false" 
-    enable-voice="false" 
-    interview-mode="text"
     default-query="请您提问">
   </pcm-msbg-modal>
   
@@ -145,8 +143,6 @@
     icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" 
     conversation-id=""
     fullscreen="false" 
-    enable-voice="false" 
-    interview-mode="text"
     default-query="请您提问">
     </pcm-mnct-modal>
 
@@ -155,30 +151,28 @@
     icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" 
     conversation-id=""
     fullscreen="false" 
-    enable-voice="false" 
-    interview-mode="text"
     default-query="请您提问">
   </pcm-mnms-modal>
 
   <pcm-jlpp-modal id="pcm-jlpp-modal"
     modal-title="简历匹配助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id=""
-    fullscreen="false"  enable-voice="false" interview-mode="text"
+    fullscreen="false"
     default-query="请您提问"></pcm-jlpp-modal>
 
   <pcm-zygh-modal id="pcm-zygh-modal"
     modal-title="职业规划助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id=""
-    fullscreen="false"  enable-voice="false" interview-mode="text"
+    fullscreen="false"
     default-query="请您提问"></pcm-zygh-modal>
 
     <pcm-hyzj-modal id="pcm-hyzj-modal"
     modal-title="会议总结助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id=""
-    fullscreen="false"  enable-voice="false" interview-mode="text"
+    fullscreen="false"
     default-query="请您提问"></pcm-hyzj-modal>
 
 
     <pcm-htws-modal id="pcm-htws-modal"
     modal-title="劳动合同卫士" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id=""
-    fullscreen="false"  enable-voice="false" interview-mode="text"
+    fullscreen="false" 
     default-query="请您提问"></pcm-htws-modal>
 
     <pcm-zsk-chat-modal id="pcm-zsk-chat-modal"
@@ -194,8 +188,6 @@
       icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" 
       conversation-id=""
       fullscreen="false" 
-      enable-voice="false" 
-      interview-mode="text"
       default-query="请帮我生成职位信息">
     </pcm-jd-modal>
 
@@ -631,7 +623,6 @@
 
       // 设置事件监听
       hyzjModal.addEventListener('modalClosed', () => {
-        console.log('职业规划助手窗口已关闭');
         hyzjModal.isOpen = false;
       });
 
@@ -671,7 +662,6 @@
 
       // 设置事件监听
       htwsModal.addEventListener('modalClosed', () => {
-        console.log('职业规划助手窗口已关闭');
         htwsModal.isOpen = false;
       });
 
@@ -730,9 +720,7 @@
       });
 
       chatZSKModal.addEventListener('interviewComplete', (event) => {
-        console.log('面试完成:', event.detail);
         chatZSKModal.isOpen = false;
-        alert('非常感谢您的参与，湖南省人力资源协会将会在2024年*月**日公布评选结果，如想获取您在本次金牌大赛中的评选报告，请联系*****，我们将报告发送到您指定邮箱中。');
       });
 
       // 打开聊天按钮事件监听
@@ -783,7 +771,7 @@
 
       // 设置自定义输入
       // jdModal.customInputs = {
-      //   job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广"
+      //   input: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广"
       // };
     };
   </script>

@@ -1,6 +1,11 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
-import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest } from '../../utils/utils';
+import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, verifyApiKey } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
+
+/**
+ * 知识库问答助手
+ */
+
 
 // 添加引用文档接口
 interface Reference {
@@ -130,10 +135,11 @@ export class ChatKBModal {
     id: string;
   }>;
 
+
   /**
-   * 默认查询文本
-   */
-  @Prop() defaultQuery: string = '你好';
+     * SDK密钥验证失败事件
+     */
+  @Event() tokenInvalid: EventEmitter<void>;
 
 
   private readonly SCROLL_THRESHOLD = 30;
@@ -166,12 +172,12 @@ export class ChatKBModal {
   /**
    * 是否显示推荐问题
    */
-  @Prop() showSuggestedQuestions: boolean = true;
+  @Prop() showSuggestedQuestions: boolean = false;
 
   /**
-   * 数字员工ID，从聘才猫开发平台创建数字员工后，点击分享SDK获取
+   * 数字员工ID，从聘才猫开发平台创建数字员工后，点击导出获取
    */
-  @Prop() employeeId: string = "";
+  @Prop() employeeId!: string;
 
   /**
    * 智能体详情
@@ -446,7 +452,7 @@ export class ChatKBModal {
           const timeStr = `${hours}:${minutes}`;
 
           // 创建新的消息对象，不包含 inputs 字段
-          const { ...msgWithoutInputs } = msg;
+          const { inputs, ...msgWithoutInputs } = msg;
 
           return {
             ...msgWithoutInputs,
@@ -480,20 +486,6 @@ export class ChatKBModal {
     }
   }
 
-  // 添加 componentWillLoad 生命周期方法
-  componentWillLoad() {
-
-    // 如果组件加载时已经是打开状态，则直接开始对话
-    if (this.isOpen) {
-      if (this.conversationId) {
-        // 在下一个事件循环中加载历史消息，避免在componentWillLoad中进行异步操作
-        setTimeout(() => this.loadHistoryMessages(), 0);
-      } else {
-        // 在下一个事件循环中发送初始消息，避免在componentWillLoad中进行异步操作
-        setTimeout(() => this.sendMessageToAPI(this.defaultQuery), 0);
-      }
-    }
-  }
 
   // 添加获取智能体详情的方法
   private async fetchEmployeeDetails() {
@@ -509,8 +501,6 @@ export class ChatKBModal {
           'authorization': 'Bearer ' + this.token
         }
       });
-      console.log('获取智能体详情结果:', result.success);
-      console.log('获取智能体详情结果:', result.data);
       if (result.success && result.data) {
         this.employeeDetails = result.data;
         
@@ -523,7 +513,7 @@ export class ChatKBModal {
         }
 
         // 如果有上次会话ID，加载历史消息
-        if (!this.conversationId) {
+        if (this.conversationId) {
           await this.loadHistoryMessages();
         }
       }else{
@@ -547,6 +537,9 @@ export class ChatKBModal {
         return;
       }
 
+      // 当模态框打开时，验证API密钥
+      this.verifyApiKey();
+
       // 获取智能体详情
       await this.fetchEmployeeDetails();
     }
@@ -562,6 +555,24 @@ export class ChatKBModal {
     }
 
   }
+
+
+   /**
+     * 验证API密钥
+     */
+   private async verifyApiKey() {
+    try {
+        const isValid = await verifyApiKey(this.token);
+        
+        if (!isValid) {
+            throw new Error('API密钥验证失败');
+        }
+    } catch (error) {
+        console.error('API密钥验证错误:', error);
+        // 通知父组件API密钥无效
+        this.tokenInvalid.emit();
+    }
+}
 
   // 处理文本输入变化
   private handleTextInputChange = (event: Event) => {

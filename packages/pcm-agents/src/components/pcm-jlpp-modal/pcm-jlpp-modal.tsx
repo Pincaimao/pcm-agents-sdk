@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
-import { uploadFileToBackend, FileUploadResponse, sendHttpRequest } from '../../utils/utils';
+import { uploadFileToBackend, FileUploadResponse, verifyApiKey } from '../../utils/utils';
 
 /**
  * 简历匹配
@@ -121,9 +121,6 @@ export class JlppModal {
     @State() jobDescription: string = '';
     @State() isSubmitting: boolean = false;
 
-    // 添加新的状态来控制过渡动画
-    @State() isTransitioning: boolean = false;
-    @State() transitionTimer: any = null;
 
     // 使用 @Element 装饰器获取组件的 host 元素
     @Element() hostElement: HTMLElement;
@@ -233,12 +230,7 @@ export class JlppModal {
             this.clearSelectedFile();
             this.showChatModal = false;
             this.jobDescription = '';
-            
-            // 清除可能存在的计时器
-            if (this.transitionTimer) {
-                clearTimeout(this.transitionTimer);
-                this.transitionTimer = null;
-            }
+         
         } else {
             // 当模态框打开时，验证API密钥
             this.verifyApiKey();
@@ -254,29 +246,17 @@ export class JlppModal {
      * 验证API密钥
      */
     private async verifyApiKey() {
-        if (!this.token) {
-            this.tokenInvalid.emit();
-            return;
-        }
         try {
-            const response = await sendHttpRequest({
-                url: '/sdk/v1/user',
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${this.token}`
-                }
-            });
-
-            if (!response.success) {
-                throw new Error(response.message || 'API密钥验证失败');
-            }
+            const isValid = await verifyApiKey(this.token);
             
-            // 验证成功，继续正常流程
+            if (!isValid) {
+                throw new Error('API密钥验证失败');
+            }
         } catch (error) {
             console.error('API密钥验证错误:', error);
             // 通知父组件API密钥无效
             this.tokenInvalid.emit();
-        } 
+        }
     }
 
     componentWillLoad() {

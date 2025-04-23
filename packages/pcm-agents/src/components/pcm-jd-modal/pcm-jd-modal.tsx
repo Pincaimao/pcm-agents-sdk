@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
-import { sendHttpRequest } from '../../utils/utils';
+import { sendHttpRequest, verifyApiKey } from '../../utils/utils';
 
 /**
  * 职位生成组件
@@ -451,25 +451,12 @@ export class PcmJdModal {
      * 验证API密钥
      */
     private async verifyApiKey() {
-        if (!this.token) {
-            this.tokenInvalid.emit();
-            return;
-        }
-        
         try {
-            const response = await sendHttpRequest({
-                url: '/sdk/v1/user',
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${this.token}`
-                }
-            });
-
-            if (!response.success) {
-                throw new Error(response.message || 'API密钥验证失败');
-            }
+            const isValid = await verifyApiKey(this.token);
             
-            // 验证成功，继续正常流程
+            if (!isValid) {
+                throw new Error('API密钥验证失败');
+            }
         } catch (error) {
             console.error('API密钥验证错误:', error);
             // 通知父组件API密钥无效
