@@ -121,6 +121,11 @@
     <button id="open-zsk-chat">打开数字员工</button>
   </div>
 
+  <div class="demo-controls">
+    <h2>职位生成演示</h2>
+    <button id="open-jd-chat">打开职位生成</button>
+  </div>
+
   <!-- <my-component first="Stencil" middle="'Don't call me a framework'" last="JS"></my-component> -->
 
 
@@ -183,6 +188,17 @@
     default-query="请您提问"></pcm-zsk-chat-modal>
 
 
+    <pcm-jd-modal id="pcm-jd-modal"
+      modal-title="职位生成" 
+      icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" 
+      conversation-id=""
+      fullscreen="false" 
+      enable-voice="false" 
+      interview-mode="text"
+      default-query="请您提问">
+    </pcm-jd-modal>
+
+
   <pcm-video-chat-modal id="pcm-video-chat-modal"
     modal-title="视频面试" icon="https://www.ylzhaopin.com/Public/Newhome/images/sidebar/tochat.png" conversation-id=""
     resume-id="35677279421992960" fullscreen="true" enable-voice="false" total-questions="2"></pcm-video-chat-modal>
@@ -196,7 +212,7 @@
 
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDUzOTgwMTl9.s_N8ecqKacMonicopbVU3uqHBYEjd-LaKRLKuGXezxs";
+    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDU0NjIyNzN9.cMkVDG4iZN4Z-MVLyUiiMWFmquDp5FuQANvpCj51MU0";
 
     document.addEventListener('DOMContentLoaded', function () {
       console.log('DOM 已加载，正在设置事件监听器...');
@@ -215,6 +231,7 @@
       handleHyzjModal();
       handleHtwsModal();
       handleZskChatModal();
+      handleJdModal();
     });
 
     // 为所有组件设置共享的 token
@@ -229,7 +246,8 @@
         'pcm-htws-modal',
         'pcm-video-chat-modal',
         'pcm-hr-chat-modal',
-        'pcm-zsk-chat-modal'
+        'pcm-zsk-chat-modal',
+        'pcm-jd-modal'
       ];
       
       components.forEach(id => {
@@ -680,7 +698,7 @@
       
     };
   
-    // 金牌HR大赛模态框处理
+    // 数字员工模态框处理
     const handleZskChatModal = () => {
       const chatZSKModal = document.getElementById('pcm-zsk-chat-modal');
       const openZSKChatButton = document.getElementById('open-zsk-chat');
@@ -718,6 +736,51 @@
       });
     };
   
+    // 职位生成模态框处理
+    const handleJdModal = () => {
+      const jdModal = document.getElementById('pcm-jd-modal');
+      const openJDButton = document.getElementById('open-jd-chat');
+      
+      if (!jdModal || !openJDButton) return;
+
+      // 设置事件监听
+      jdModal.addEventListener('modalClosed', () => {
+        console.log('聊天窗口已关闭');
+        jdModal.isOpen = false;
+      });
+
+      jdModal.addEventListener('streamComplete', (event) => {
+        console.log('流式响应完成:', event.detail);
+      });
+
+      jdModal.addEventListener('conversationStart', (event) => {
+        console.log('会话开始:', event.detail);
+        jdModal.setAttribute('conversation-id', event.detail.conversation_id);
+      });
+
+      jdModal.addEventListener('interviewComplete', (event) => {
+        console.log('面试完成:', event.detail);
+        jdModal.isOpen = false;
+      });
+
+      jdModal.addEventListener('uploadSuccess', (event) => {
+        console.log('文件上传成功:', event.detail);
+      });
+
+      jdModal.addEventListener('tokenInvalid', () => {
+        console.log('SDK密钥验证失败');
+      });
+
+      // 打开聊天按钮事件监听
+      openJDButton.addEventListener('click', () => {
+        jdModal.isOpen = true;
+      });
+
+      // 设置自定义输入
+      // jdModal.customInputs = {
+      //   job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广"
+      // };
+    };
   </script>
 </body>
 
