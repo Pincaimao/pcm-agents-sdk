@@ -19,7 +19,7 @@ export class HtwsModal {
     /**
      * SDK鉴权密钥
      */
-    @Prop({ attribute: 'token' }) token: string = '';
+    @Prop({ attribute: 'token' }) token!: string;
 
     /**
      * 是否显示聊天模态框
@@ -59,7 +59,7 @@ export class HtwsModal {
     /**
      * 默认查询文本
      */
-    @Prop() defaultQuery: string = '';
+    @Prop() defaultQuery: string = '请开始分析';
 
     /**
      * 是否以全屏模式打开，移动端建议设置为true
@@ -67,9 +67,13 @@ export class HtwsModal {
     @Prop() fullscreen: boolean = false;
 
     /**
-     * 自定义输入参数，传入job_info时，会隐藏JD输入区域
+     * 自定义输入参数，传入input时，会自动切换到自由输入模式
+     * 
+     * htwsModal.customInputs = {
+     *      input: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；"
+     * };
      */
-    @Prop() customInputs: { [key: string]: any } = {};
+    @Prop() customInputs: Record<string, any> = {};
 
     /**
      * 上传成功事件
@@ -118,6 +122,12 @@ export class HtwsModal {
     @Element() hostElement: HTMLElement;
 
     @State() isSubmitting: boolean = false;
+
+    // 添加输入模式状态
+    @State() inputMode: 'upload' | 'free' = 'upload';
+    
+    // 自由输入模式的文本
+    @State() freeInputText: string = '';
 
     private handleClose = () => {
         this.isOpen = false;
@@ -169,29 +179,47 @@ export class HtwsModal {
         }
     }
 
+    // 添加切换输入模式的方法
+    private handleToggleInput = () => {
+        this.inputMode = this.inputMode === 'upload' ? 'free' : 'upload';
+    };
+
+    // 添加自由输入文本变更处理方法
+    private handleFreeInputChange = (event: Event) => {
+        const textarea = event.target as HTMLTextAreaElement;
+        this.freeInputText = textarea.value;
+    };
+
     private handleStartInterview = async () => {
-        if (!this.selectedFile) {
-            alert('请上传面试内容');
+        if (this.inputMode === 'upload' && !this.selectedFile) {
+            alert('请上传合同文件');
+            return;
+        }
+
+        if (this.inputMode === 'free' && !this.freeInputText.trim()) {
+            alert('请输入合同内容');
             return;
         }
 
         this.isSubmitting = true;
 
         try {
-            // 如果还没上传，先上传文件
-            if (!this.uploadedFileInfo) {
-                await this.uploadFile();
+            if (this.inputMode === 'upload') {
+                // 如果还没上传，先上传文件
                 if (!this.uploadedFileInfo) {
-                    this.isSubmitting = false;
-                    return; // 上传失败
+                    await this.uploadFile();
+                    if (!this.uploadedFileInfo) {
+                        this.isSubmitting = false;
+                        return; // 上传失败
+                    }
                 }
             }
 
             // 直接显示聊天模态框
             this.showChatModal = true;
         } catch (error) {
-            console.error('开始面试时出错:', error);
-            alert('开始面试时出错，请重试');
+            console.error('开始分析时出错:', error);
+            alert('开始分析时出错，请重试');
         } finally {
             this.isSubmitting = false;
         }
@@ -203,6 +231,8 @@ export class HtwsModal {
             // 重置状态
             this.clearSelectedFile();
             this.showChatModal = false;
+            this.freeInputText = '';
+            this.inputMode = 'upload'; // 重置为默认上传模式
         } else {
             // 当模态框打开时，验证API密钥
             this.verifyApiKey();
@@ -214,6 +244,14 @@ export class HtwsModal {
         }
     }
 
+    componentWillLoad() {
+        // 检查 customInputs 中是否有 input
+        if (this.customInputs && this.customInputs.input) {
+            // 如果有 input，直接切换到自由输入模式并填充内容
+            this.inputMode = 'free';
+            this.freeInputText = this.customInputs.input;
+        }
+    }
 
     // 处理流式输出完成事件
     private handleStreamComplete = (event: CustomEvent) => {
@@ -303,36 +341,81 @@ export class HtwsModal {
                         </div>
                     )}
 
-                    {/* 上传界面 - 仅在不显示聊天模态框且没有会话ID时显示 */}
+                    {/* 输入界面 - 仅在不显示聊天模态框且没有会话ID时显示 */}
                     {!this.showChatModal && !this.conversationId && (
                         <div class="input-container">
-                            {/* 上传合同上传区域 */}
-                            <div class="resume-upload-section">
-                                <label>上传合同</label>
-                                <div class="upload-area" onClick={this.handleUploadClick}>
-                                    {this.selectedFile ? (
-                                        <div class="file-info">
-                                            <span>{this.selectedFile.name}</span>
-                                            <button class="remove-file" onClick={(e) => {
-                                                e.stopPropagation();
-                                                this.clearSelectedFile();
-                                            }}>×</button>
-                                        </div>
-                                    ) : (
-                                        <div class="upload-placeholder">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="48" height="48">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m0-16l-4 4m4-4l4 4" />
-                                            </svg>
-                                            <p>点击上传合同</p>
-                                            <p class="upload-hint">支持markdown、pdf、docx、doc、md 格式</p>
-                                        </div>
-                                    )}
-                                </div>
+                            {/* 输入模式切换 */}
+                            <div class="input-mode-toggle">
+                                <span>合同内容</span>
+                                <button 
+                                    class="toggle-button" 
+                                    onClick={this.handleToggleInput}
+                                >
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                    </svg>
+                                    切换输入
+                                </button>
                             </div>
+
+                            {/* 上传模式 */}
+                            {this.inputMode === 'upload' && (
+                                <div class="resume-upload-section">
+                                    <div class="upload-area" onClick={this.handleUploadClick}>
+                                        {this.selectedFile ? (
+                                            <div class="file-info">
+                                                <span>{this.selectedFile.name}</span>
+                                                <button class="remove-file" onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    this.clearSelectedFile();
+                                                }}>×</button>
+                                            </div>
+                                        ) : (
+                                            <div class="upload-placeholder">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="48" height="48">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m0-16l-4 4m4-4l4 4" />
+                                                </svg>
+                                                <p>点击上传合同</p>
+                                                <p class="upload-hint">支持markdown、pdf、docx、doc、md 格式</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* 自由输入模式 */}
+                            {this.inputMode === 'free' && (
+                                <div class="free-input">
+                                    <div class="textarea-container">
+                                        <textarea
+                                            id="free-input-text"
+                                            placeholder="请输入合同内容"
+                                            rows={8}
+                                            value={this.freeInputText}
+                                            onInput={this.handleFreeInputChange}
+                                        ></textarea>
+                                    </div>
+
+                                    <div class="input-guide">
+                                        <div class="guide-title">输入提示：</div>
+                                        <div class="guide-content">
+                                            <div>• 请输入完整的劳动合同内容</div>
+                                            <div>• 包括甲方（公司）、乙方（员工）信息</div>
+                                            <div>• 合同期限、工作内容、工作地点</div>
+                                            <div>• 工作时间、休息休假、劳动报酬</div>
+                                            <div>• 社会保险、劳动保护、劳动条件</div>
+                                            <div>• 合同变更、解除和终止条件等</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             <button
                                 class="submit-button"
-                                disabled={!this.selectedFile || this.isUploading || this.isSubmitting}
+                                disabled={(this.inputMode === 'upload' && !this.selectedFile) || 
+                                         (this.inputMode === 'free' && !this.freeInputText.trim()) || 
+                                         this.isUploading || 
+                                         this.isSubmitting}
                                 onClick={this.handleStartInterview}
                             >
                                 {this.isUploading ? '上传中...' : this.isSubmitting ? '处理中...' : '开始分析'}
@@ -356,14 +439,14 @@ export class HtwsModal {
 
                     {/* 聊天界面 - 在显示聊天模态框时显示 */}
                     {this.showChatModal && (
-                        <div >
+                        <div>
                             <pcm-app-chat-modal
                                 isOpen={true}
                                 modalTitle={this.modalTitle}
                                 icon={this.icon}
                                 token={this.token}
-                                isShowHeader={this.isShowHeader} // 不显示内部的标题栏，因为外部已有
-                                isNeedClose={this.isShowHeader} // 不显示内部的关闭按钮，因为外部已有
+                                isShowHeader={this.isShowHeader}
+                                isNeedClose={this.isShowHeader}
                                 zIndex={this.zIndex}
                                 fullscreen={this.fullscreen}
                                 botId="3022316191018882"
@@ -372,7 +455,8 @@ export class HtwsModal {
                                 enableVoice={false}
                                 customInputs={this.conversationId ? undefined : {
                                     ...this.customInputs,
-                                    file_url: this.uploadedFileInfo?.cos_key
+                                    file_url: this.inputMode === 'upload' ? this.uploadedFileInfo?.cos_key : undefined,
+                                    input: this.inputMode === 'free' ? this.freeInputText : undefined
                                 }}
                                 interviewMode="text"
                                 onModalClosed={this.handleClose}

@@ -19,7 +19,7 @@ export class MnmsModal {
     /**
      * SDK鉴权密钥
      */
-    @Prop({ attribute: 'token' }) token: string = '';
+    @Prop({ attribute: 'token' }) token!: string;
 
     /**
      * 是否显示聊天模态框
@@ -59,7 +59,7 @@ export class MnmsModal {
     /**
      * 默认查询文本
      */
-    @Prop() defaultQuery: string = '';
+    @Prop() defaultQuery: string = '请开始模拟面试';
 
     /**
      * 是否以全屏模式打开，移动端建议设置为true
@@ -68,8 +68,12 @@ export class MnmsModal {
 
     /**
      * 自定义输入参数，传入job_info时，会隐藏JD输入区域
+     * 
+     * mnmsModal.customInputs = {
+     *      job_info: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；策划并执行线上线下营销活动；"
+     * };
      */
-    @Prop() customInputs: { [key: string]: any } = {};
+    @Prop() customInputs: Record<string, any> = {};
 
     /**
      * 上传成功事件

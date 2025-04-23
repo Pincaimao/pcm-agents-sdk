@@ -185,6 +185,7 @@
     employee-id="137"
     modal-title="数字员工" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id=""
     fullscreen="false"
+    show-suggested-questions="false"
     default-query="请您提问"></pcm-zsk-chat-modal>
 
 
@@ -195,7 +196,7 @@
       fullscreen="false" 
       enable-voice="false" 
       interview-mode="text"
-      default-query="请您提问">
+      default-query="请帮我生成职位信息">
     </pcm-jd-modal>
 
 
@@ -448,9 +449,9 @@
       });
 
       // 设置自定义输入
-      mnmsModal.customInputs = {
-        job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广"
-      };
+      // mnmsModal.customInputs = {
+      //   job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广"
+      // };
     };
 
     // 简历匹配模态框处理
@@ -570,9 +571,9 @@
       });
 
       // 设置自定义输入
-      mnctModal.customInputs = {
-        job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广"
-      };
+      // mnctModal.customInputs = {
+      //   job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广"
+      // };
     };
 
     // 面试报告模态框处理
@@ -616,9 +617,9 @@
       });
 
       // 设置自定义输入
-      msbgModal.customInputs = {
-        job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广"
-      };
+      // msbgModal.customInputs = {
+      //   job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广"
+      // };
     };
 
     // 会议总结助手模态框处理
@@ -695,6 +696,10 @@
         htwsModal.isOpen = true;
       });
 
+      // 设置自定义输入
+      htwsModal.customInputs = {
+        input: " 使 用 说 明 一、双方在签订本合同前，应认真阅读本合同。本合同一经签订，即具有法律效力，双方必须严格履行。 二、本合同必须由用人单位加盖用人单位公章（或者劳动合同专用章），劳动者（乙方）签字。 三、本合同中的空栏，由双方协商确定后填写，并不得违反法律、法规和相关规定；不需填写的空栏，划上“／”。 四、本合同的未尽事宜，可另行签订补充协议，作为本合同的附件，与本合同一并履行。 五、本合同必须认真填写，字迹清楚、文字简练、准确，并不得擅自涂改。 根据《中华人民共和国劳动法》、《中华人民共和国劳动合同法》等法律、法规的规定，在平等自愿、协商一致的基础上，订立本劳动合同。 一、合同期限 第一条 甲、乙双方选择以下第 （一） 种形式确定本合同期限： "
+      };
       
     };
   

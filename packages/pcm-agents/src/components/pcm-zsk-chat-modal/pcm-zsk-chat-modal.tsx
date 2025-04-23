@@ -43,7 +43,7 @@ export class ChatKBModal {
   /**
    * SDK鉴权密钥
    */
-  @Prop({ attribute: 'token' }) token: string = '';
+  @Prop({ attribute: 'token' }) token!: string;
 
   /**
    * 是否显示聊天模态框
@@ -133,7 +133,7 @@ export class ChatKBModal {
   /**
    * 默认查询文本
    */
-  @Prop() defaultQuery: string = '';
+  @Prop() defaultQuery: string = '你好';
 
 
   private readonly SCROLL_THRESHOLD = 30;

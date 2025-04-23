@@ -22,7 +22,7 @@
 | `isShowHeader`         | `is-show-header`         | 是否展示顶部标题栏                             | `boolean`               | `true`      |
 | `maxRecordingTime`     | `max-recording-time`     | 视频录制最大时长（秒）                           | `number`                | `120`       |
 | `modalTitle`           | `modal-title`            | 模态框标题                                 | `string`                | `'在线客服'`    |
-| `token`                | `token`                  | SDK鉴权密钥                               | `string`                | `''`        |
+| `token` _(required)_   | `token`                  | SDK鉴权密钥                               | `string`                | `undefined` |
 | `totalQuestions`       | `total-questions`        | 控制对话轮数                                | `number`                | `2`         |
 | `zIndex`               | `z-index`                | 聊天框的页面层级                              | `number`                | `1000`      |
 
@@ -45,6 +45,7 @@
 
  - [pcm-htws-modal](../pcm-htws-modal)
  - [pcm-hyzj-modal](../pcm-hyzj-modal)
+ - [pcm-jd-modal](../pcm-jd-modal)
  - [pcm-jlpp-modal](../pcm-jlpp-modal)
  - [pcm-mnct-modal](../pcm-mnct-modal)
  - [pcm-mnms-modal](../pcm-mnms-modal)
@@ -61,6 +62,7 @@ graph TD;
   pcm-app-chat-modal --> pcm-chat-message
   pcm-htws-modal --> pcm-app-chat-modal
   pcm-hyzj-modal --> pcm-app-chat-modal
+  pcm-jd-modal --> pcm-app-chat-modal
   pcm-jlpp-modal --> pcm-app-chat-modal
   pcm-mnct-modal --> pcm-app-chat-modal
   pcm-mnms-modal --> pcm-app-chat-modal

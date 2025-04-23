@@ -16,7 +16,7 @@ export class ChatHRModal {
   /**
    * SDK鉴权密钥
    */
-  @Prop({ attribute: 'token' }) token: string = '';
+  @Prop({ attribute: 'token' }) token!: string;
 
   /**
    * 是否显示聊天模态框
@@ -110,7 +110,7 @@ export class ChatHRModal {
   /**
    * 默认查询文本
    */
-  @Prop() defaultQuery: string = '';
+  @Prop() defaultQuery: string = '请开始出题';
 
   // 添加新的状态
   @State() showInitialUpload: boolean = true;

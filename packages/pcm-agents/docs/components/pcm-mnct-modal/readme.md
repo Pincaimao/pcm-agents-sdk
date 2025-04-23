@@ -8,19 +8,19 @@
 
 ## Properties
 
-| Property         | Attribute         | Description                   | Type                      | Default     |
-| ---------------- | ----------------- | ----------------------------- | ------------------------- | ----------- |
-| `conversationId` | `conversation-id` | 会话ID，传入继续对话，否则创建新会话           | `string`                  | `undefined` |
-| `customInputs`   | --                | 自定义输入参数，传入job_info时，会隐藏JD输入区域 | `{ [key: string]: any; }` | `{}`        |
-| `defaultQuery`   | `default-query`   | 默认查询文本                        | `string`                  | `''`        |
-| `fullscreen`     | `fullscreen`      | 是否以全屏模式打开，移动端建议设置为true        | `boolean`                 | `false`     |
-| `icon`           | `icon`            | 应用图标URL                       | `string`                  | `undefined` |
-| `isNeedClose`    | `is-need-close`   | 是否展示右上角的关闭按钮                  | `boolean`                 | `true`      |
-| `isOpen`         | `is-open`         | 是否显示聊天模态框                     | `boolean`                 | `false`     |
-| `isShowHeader`   | `is-show-header`  | 是否展示顶部标题栏                     | `boolean`                 | `true`      |
-| `modalTitle`     | `modal-title`     | 模态框标题                         | `string`                  | `'面试出题大师'`  |
-| `token`          | `token`           | SDK鉴权密钥                       | `string`                  | `''`        |
-| `zIndex`         | `z-index`         | 聊天框的页面层级                      | `number`                  | `1000`      |
+| Property             | Attribute         | Description                                                                                                                | Type                    | Default     |
+| -------------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ----------- |
+| `conversationId`     | `conversation-id` | 会话ID，传入继续对话，否则创建新会话                                                                                                        | `string`                | `undefined` |
+| `customInputs`       | --                | 自定义输入参数，传入job_info时，会隐藏JD输入区域  mnctModal.customInputs = {      job_info: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；策划并执行线上线下营销活动；" }; | `{ [x: string]: any; }` | `{}`        |
+| `defaultQuery`       | `default-query`   | 默认查询文本                                                                                                                     | `string`                | `'请开始出题'`   |
+| `fullscreen`         | `fullscreen`      | 是否以全屏模式打开，移动端建议设置为true                                                                                                     | `boolean`               | `false`     |
+| `icon`               | `icon`            | 应用图标URL                                                                                                                    | `string`                | `undefined` |
+| `isNeedClose`        | `is-need-close`   | 是否展示右上角的关闭按钮                                                                                                               | `boolean`               | `true`      |
+| `isOpen`             | `is-open`         | 是否显示聊天模态框                                                                                                                  | `boolean`               | `false`     |
+| `isShowHeader`       | `is-show-header`  | 是否展示顶部标题栏                                                                                                                  | `boolean`               | `true`      |
+| `modalTitle`         | `modal-title`     | 模态框标题                                                                                                                      | `string`                | `'面试出题大师'`  |
+| `token` _(required)_ | `token`           | SDK鉴权密钥                                                                                                                    | `string`                | `undefined` |
+| `zIndex`             | `z-index`         | 聊天框的页面层级                                                                                                                   | `number`                | `1000`      |
 
 
 ## Events

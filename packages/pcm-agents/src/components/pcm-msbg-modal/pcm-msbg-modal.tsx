@@ -19,7 +19,7 @@ export class MsbgModal {
     /**
      * SDK鉴权密钥
      */
-    @Prop({ attribute: 'token' }) token: string = '';
+    @Prop({ attribute: 'token' }) token!: string;
 
     /**
      * 是否显示聊天模态框
@@ -59,7 +59,7 @@ export class MsbgModal {
     /**
      * 默认查询文本
      */
-    @Prop() defaultQuery: string = '';
+    @Prop() defaultQuery: string = '请开始分析';
 
     /**
      * 是否以全屏模式打开，移动端建议设置为true

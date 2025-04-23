@@ -239,9 +239,9 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入input时，会自动切换到自由输入模式  htwsModal.customInputs = {      input: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；" };
          */
-        "customInputs": { [key: string]: any };
+        "customInputs": Record<string, any>;
         /**
           * 默认查询文本
          */
@@ -288,9 +288,9 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入job_info时，会隐藏JD输入区域  hyzjModal.customInputs = {      job_info: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；策划并执行线上线下营销活动；" };
          */
-        "customInputs": { [key: string]: any };
+        "customInputs": Record<string, any>;
         /**
           * 默认查询文本
          */
@@ -329,7 +329,7 @@ export namespace Components {
         "zIndex"?: number;
     }
     /**
-     * 模拟面试
+     * 职位生成组件
      */
     interface PcmJdModal {
         /**
@@ -337,9 +337,9 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入job_info时，会隐藏JD输入区域  jdModal.customInputs = {      job_info: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；策划并执行线上线下营销活动；" };
          */
-        "customInputs": { [key: string]: any };
+        "customInputs": Record<string, any>;
         /**
           * 默认查询文本
          */
@@ -386,9 +386,9 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入job_info时，会隐藏JD输入区域  jlppModal.customInputs = {      job_info: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；策划并执行线上线下营销活动；" };
          */
-        "customInputs": { [key: string]: any };
+        "customInputs": Record<string, any>;
         /**
           * 默认查询文本
          */
@@ -435,9 +435,9 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入job_info时，会隐藏JD输入区域  mnctModal.customInputs = {      job_info: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；策划并执行线上线下营销活动；" };
          */
-        "customInputs": { [key: string]: any };
+        "customInputs": Record<string, any>;
         /**
           * 默认查询文本
          */
@@ -484,9 +484,9 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入job_info时，会隐藏JD输入区域  mnmsModal.customInputs = {      job_info: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；策划并执行线上线下营销活动；" };
          */
-        "customInputs": { [key: string]: any };
+        "customInputs": Record<string, any>;
         /**
           * 默认查询文本
          */
@@ -703,9 +703,9 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径" 例如：    zyghModal.customInputs = {      type: "转行建议" };
+          * 自定义输入参数，传入type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"  zyghModal.customInputs = {      type: "转行建议" };
          */
-        "customInputs": { [key: string]: any };
+        "customInputs": Record<string, any>;
         /**
           * 默认查询文本
          */
@@ -1010,7 +1010,6 @@ declare global {
     };
     interface HTMLPcmJdModalElementEventMap {
         "modalClosed": void;
-        "uploadSuccess": FileUploadResponse;
         "streamComplete": {
         conversation_id: string;
         event: string;
@@ -1030,7 +1029,7 @@ declare global {
         "tokenInvalid": void;
     }
     /**
-     * 模拟面试
+     * 职位生成组件
      */
     interface HTMLPcmJdModalElement extends Components.PcmJdModal, HTMLStencilElement {
         addEventListener<K extends keyof HTMLPcmJdModalElementEventMap>(type: K, listener: (this: HTMLPcmJdModalElement, ev: PcmJdModalCustomEvent<HTMLPcmJdModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -1443,7 +1442,7 @@ declare namespace LocalJSX {
         /**
           * SDK鉴权密钥
          */
-        "token"?: string;
+        "token": string;
         /**
           * 控制对话轮数
          */
@@ -1631,7 +1630,7 @@ declare namespace LocalJSX {
         /**
           * SDK鉴权密钥
          */
-        "token"?: string;
+        "token": string;
         /**
           * 总题目数量
          */
@@ -1650,9 +1649,9 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入input时，会自动切换到自由输入模式  htwsModal.customInputs = {      input: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；" };
          */
-        "customInputs"?: { [key: string]: any };
+        "customInputs"?: Record<string, any>;
         /**
           * 默认查询文本
          */
@@ -1721,7 +1720,7 @@ declare namespace LocalJSX {
         /**
           * SDK鉴权密钥
          */
-        "token"?: string;
+        "token": string;
         /**
           * 聊天框的页面层级
          */
@@ -1736,9 +1735,9 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入job_info时，会隐藏JD输入区域  hyzjModal.customInputs = {      job_info: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；策划并执行线上线下营销活动；" };
          */
-        "customInputs"?: { [key: string]: any };
+        "customInputs"?: Record<string, any>;
         /**
           * 默认查询文本
          */
@@ -1807,14 +1806,14 @@ declare namespace LocalJSX {
         /**
           * SDK鉴权密钥
          */
-        "token"?: string;
+        "token": string;
         /**
           * 聊天框的页面层级
          */
         "zIndex"?: number;
     }
     /**
-     * 模拟面试
+     * 职位生成组件
      */
     interface PcmJdModal {
         /**
@@ -1822,9 +1821,9 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入job_info时，会隐藏JD输入区域  jdModal.customInputs = {      job_info: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；策划并执行线上线下营销活动；" };
          */
-        "customInputs"?: { [key: string]: any };
+        "customInputs"?: Record<string, any>;
         /**
           * 默认查询文本
          */
@@ -1887,13 +1886,9 @@ declare namespace LocalJSX {
          */
         "onTokenInvalid"?: (event: PcmJdModalCustomEvent<void>) => void;
         /**
-          * 上传成功事件
-         */
-        "onUploadSuccess"?: (event: PcmJdModalCustomEvent<FileUploadResponse>) => void;
-        /**
           * SDK鉴权密钥
          */
-        "token"?: string;
+        "token": string;
         /**
           * 聊天框的页面层级
          */
@@ -1908,9 +1903,9 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入job_info时，会隐藏JD输入区域  jlppModal.customInputs = {      job_info: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；策划并执行线上线下营销活动；" };
          */
-        "customInputs"?: { [key: string]: any };
+        "customInputs"?: Record<string, any>;
         /**
           * 默认查询文本
          */
@@ -1979,7 +1974,7 @@ declare namespace LocalJSX {
         /**
           * SDK鉴权密钥
          */
-        "token"?: string;
+        "token": string;
         /**
           * 聊天框的页面层级
          */
@@ -1994,9 +1989,9 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入job_info时，会隐藏JD输入区域  mnctModal.customInputs = {      job_info: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；策划并执行线上线下营销活动；" };
          */
-        "customInputs"?: { [key: string]: any };
+        "customInputs"?: Record<string, any>;
         /**
           * 默认查询文本
          */
@@ -2065,7 +2060,7 @@ declare namespace LocalJSX {
         /**
           * SDK鉴权密钥
          */
-        "token"?: string;
+        "token": string;
         /**
           * 聊天框的页面层级
          */
@@ -2080,9 +2075,9 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入job_info时，会隐藏JD输入区域  mnmsModal.customInputs = {      job_info: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；策划并执行线上线下营销活动；" };
          */
-        "customInputs"?: { [key: string]: any };
+        "customInputs"?: Record<string, any>;
         /**
           * 默认查询文本
          */
@@ -2151,7 +2146,7 @@ declare namespace LocalJSX {
         /**
           * SDK鉴权密钥
          */
-        "token"?: string;
+        "token": string;
         /**
           * 聊天框的页面层级
          */
@@ -2237,7 +2232,7 @@ declare namespace LocalJSX {
         /**
           * SDK鉴权密钥
          */
-        "token"?: string;
+        "token": string;
         /**
           * 聊天框的页面层级
          */
@@ -2331,7 +2326,7 @@ declare namespace LocalJSX {
         /**
           * SDK鉴权密钥
          */
-        "token"?: string;
+        "token": string;
         /**
           * 总题目数量
          */
@@ -2415,7 +2410,7 @@ declare namespace LocalJSX {
         /**
           * SDK鉴权密钥
          */
-        "token"?: string;
+        "token": string;
         /**
           * 聊天框的页面层级
          */
@@ -2427,9 +2422,9 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径" 例如：    zyghModal.customInputs = {      type: "转行建议" };
+          * 自定义输入参数，传入type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"  zyghModal.customInputs = {      type: "转行建议" };
          */
-        "customInputs"?: { [key: string]: any };
+        "customInputs"?: Record<string, any>;
         /**
           * 默认查询文本
          */
@@ -2498,7 +2493,7 @@ declare namespace LocalJSX {
         /**
           * SDK鉴权密钥
          */
-        "token"?: string;
+        "token": string;
         /**
           * 聊天框的页面层级
          */
@@ -2540,7 +2535,7 @@ declare module "@stencil/core" {
              */
             "pcm-hyzj-modal": LocalJSX.PcmHyzjModal & JSXBase.HTMLAttributes<HTMLPcmHyzjModalElement>;
             /**
-             * 模拟面试
+             * 职位生成组件
              */
             "pcm-jd-modal": LocalJSX.PcmJdModal & JSXBase.HTMLAttributes<HTMLPcmJdModalElement>;
             /**
