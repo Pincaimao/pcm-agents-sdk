@@ -1,7 +1,9 @@
+/// <reference types="node" />
 import { Config } from '@stencil/core';
 import { reactOutputTarget } from '@stencil/react-output-target';
 import { vueOutputTarget } from '@stencil/vue-output-target';
 import { readFileSync } from 'fs';
+
 export const config: Config = {
   namespace: 'pcm-agents',
   outputTargets: [
@@ -31,7 +33,33 @@ export const config: Config = {
     }),
   ],
   testing: {
-    browserHeadless: "shell",
+    browserHeadless: 'shell',
+  },
+  rollupPlugins: {
+    after: [
+      {
+        name: 'remove-console-log',
+        transform(code, id) {
+          if (process.argv.includes('--prod')) {
+            const result = code.replace(/console\.log\s*\([^)]*\)\s*;?/g, '');
+  
+            // 如果代码没有改变，返回 null
+            if (result === code) {
+              return null;
+            }
+  
+            // 返回修改后的代码和空的 sourcemap
+            return {
+              code: result,
+              map: { mappings: '' },
+            };
+          } else {
+            // 在非生产环境下也应该返回 null 或者正确的 map
+            return null; // 表示不做任何修改
+          }
+        },
+      },
+    ],
   },
   devServer: {
     reloadStrategy: 'pageReload',

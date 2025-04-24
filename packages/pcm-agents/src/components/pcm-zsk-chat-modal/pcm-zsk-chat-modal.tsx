@@ -634,7 +634,8 @@ export class ChatKBModal {
   // 添加文档下载方法
   private async handleDocumentDownload(ref: Reference) {
     try {
-
+      console.log('下载文档:', ref);
+      
       // 从文档ID中提取数字部分
       const docIdMatch = ref.doc_info.doc_id.match(/docID_(\d+)/);
       if (!docIdMatch || !docIdMatch[1]) {
