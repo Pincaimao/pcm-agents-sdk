@@ -7,11 +7,13 @@ import { PcmChatModal as PcmChatModalElement, defineCustomElement as definePcmCh
 import { PcmHrChatModal as PcmHrChatModalElement, defineCustomElement as definePcmHrChatModal } from "pcm-agents/dist/components/pcm-hr-chat-modal.js";
 import { PcmHtwsModal as PcmHtwsModalElement, defineCustomElement as definePcmHtwsModal } from "pcm-agents/dist/components/pcm-htws-modal.js";
 import { PcmHyzjModal as PcmHyzjModalElement, defineCustomElement as definePcmHyzjModal } from "pcm-agents/dist/components/pcm-hyzj-modal.js";
+import { PcmJdModal as PcmJdModalElement, defineCustomElement as definePcmJdModal } from "pcm-agents/dist/components/pcm-jd-modal.js";
 import { PcmJlppModal as PcmJlppModalElement, defineCustomElement as definePcmJlppModal } from "pcm-agents/dist/components/pcm-jlpp-modal.js";
 import { PcmMnctModal as PcmMnctModalElement, defineCustomElement as definePcmMnctModal } from "pcm-agents/dist/components/pcm-mnct-modal.js";
 import { PcmMnmsModal as PcmMnmsModalElement, defineCustomElement as definePcmMnmsModal } from "pcm-agents/dist/components/pcm-mnms-modal.js";
 import { PcmMsbgModal as PcmMsbgModalElement, defineCustomElement as definePcmMsbgModal } from "pcm-agents/dist/components/pcm-msbg-modal.js";
 import { PcmVideoChatModal as PcmVideoChatModalElement, defineCustomElement as definePcmVideoChatModal } from "pcm-agents/dist/components/pcm-video-chat-modal.js";
+import { PcmZskChatModal as PcmZskChatModalElement, defineCustomElement as definePcmZskChatModal } from "pcm-agents/dist/components/pcm-zsk-chat-modal.js";
 import { PcmZyghModal as PcmZyghModalElement, defineCustomElement as definePcmZyghModal } from "pcm-agents/dist/components/pcm-zygh-modal.js";
 import React from 'react';
 export const MyComponent = createComponent({
@@ -95,6 +97,19 @@ export const PcmHyzjModal = createComponent({
     },
     defineCustomElement: definePcmHyzjModal
 });
+export const PcmJdModal = createComponent({
+    tagName: 'pcm-jd-modal',
+    elementClass: PcmJdModalElement,
+    react: React,
+    events: {
+        onModalClosed: 'modalClosed',
+        onStreamComplete: 'streamComplete',
+        onConversationStart: 'conversationStart',
+        onInterviewComplete: 'interviewComplete',
+        onTokenInvalid: 'tokenInvalid'
+    },
+    defineCustomElement: definePcmJdModal
+});
 export const PcmJlppModal = createComponent({
     tagName: 'pcm-jlpp-modal',
     elementClass: PcmJlppModalElement,
@@ -163,6 +178,18 @@ export const PcmVideoChatModal = createComponent({
         onRecordingStatusChange: 'recordingStatusChange'
     },
     defineCustomElement: definePcmVideoChatModal
+});
+export const PcmZskChatModal = createComponent({
+    tagName: 'pcm-zsk-chat-modal',
+    elementClass: PcmZskChatModalElement,
+    react: React,
+    events: {
+        onModalClosed: 'modalClosed',
+        onStreamComplete: 'streamComplete',
+        onConversationStart: 'conversationStart',
+        onTokenInvalid: 'tokenInvalid'
+    },
+    defineCustomElement: definePcmZskChatModal
 });
 export const PcmZyghModal = createComponent({
     tagName: 'pcm-zygh-modal',
