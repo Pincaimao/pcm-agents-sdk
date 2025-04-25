@@ -105,36 +105,36 @@ export namespace Components {
         "zIndex"?: number;
     }
     /**
-     * 业务卡片组件
-     * 用于展示业务功能入口，点击后打开对应的模态框
+     * 智能体卡片组件
+     * 用于展示各业务功能入口，点击后根据回调打开对应的模态框
      */
     interface PcmCard {
         /**
-          * 作者名称
+          * 自定义作者名称
          */
         "author": string;
         /**
-          * 作者头像URL
+          * 自定义作者头像URL
          */
         "authorAvatarUrl": string;
-        /**
-          * 卡片背景色
-         */
-        "backgroundColor": string;
         /**
           * 智能体ID
          */
         "botId": string;
         /**
-          * 卡片标题
+          * 自定义卡片标题
          */
         "cardTitle": string;
         /**
-          * 卡片描述
+          * 自定义右侧标签
+         */
+        "customChatTag": string;
+        /**
+          * 自定义卡片描述
          */
         "description": string;
         /**
-          * 卡片图标URL
+          * 自定义卡片图标URL
          */
         "iconUrl": string;
         /**
@@ -142,25 +142,13 @@ export namespace Components {
          */
         "showChatTag": boolean;
         /**
-          * 收藏数量
-         */
-        "starCount": number;
-        /**
           * SDK鉴权密钥
          */
         "token": string;
         /**
-          * 立即使用按钮文本
+          * 自定义立即使用按钮文本
          */
         "useButtonText": string;
-        /**
-          * 使用次数
-         */
-        "useCount": number;
-        /**
-          * 用户数量
-         */
-        "userCount": number;
     }
     interface PcmChatMessage {
         /**
@@ -297,7 +285,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入input时，会自动切换到自由输入模式  htwsModal.customInputs = {      input: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；" };
+          * 自定义输入参数，传入customInputs.input时，会自动切换到自由输入模式
          */
         "customInputs": Record<string, any>;
         /**
@@ -395,7 +383,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入job_info时，会隐藏JD输入区域  jdModal.customInputs = {      job_info: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；策划并执行线上线下营销活动；" };
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
          */
         "customInputs": Record<string, any>;
         /**
@@ -444,7 +432,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入job_info时，会隐藏JD输入区域  jlppModal.customInputs = {      job_info: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；策划并执行线上线下营销活动；" };
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
          */
         "customInputs": Record<string, any>;
         /**
@@ -493,7 +481,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入job_info时，会隐藏JD输入区域  mnctModal.customInputs = {      job_info: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；策划并执行线上线下营销活动；" };
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
          */
         "customInputs": Record<string, any>;
         /**
@@ -542,7 +530,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入job_info时，会隐藏JD输入区域  mnmsModal.customInputs = {      job_info: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；策划并执行线上线下营销活动；" };
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
          */
         "customInputs": Record<string, any>;
         /**
@@ -591,7 +579,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
          */
         "customInputs": { [key: string]: any };
         /**
@@ -757,7 +745,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"  zyghModal.customInputs = {      type: "转行建议" };
+          * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"
          */
         "customInputs": Record<string, any>;
         /**
@@ -911,8 +899,8 @@ declare global {
         "cardClick": void;
     }
     /**
-     * 业务卡片组件
-     * 用于展示业务功能入口，点击后打开对应的模态框
+     * 智能体卡片组件
+     * 用于展示各业务功能入口，点击后根据回调打开对应的模态框
      */
     interface HTMLPcmCardElement extends Components.PcmCard, HTMLStencilElement {
         addEventListener<K extends keyof HTMLPcmCardElementEventMap>(type: K, listener: (this: HTMLPcmCardElement, ev: PcmCardCustomEvent<HTMLPcmCardElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -1534,36 +1522,36 @@ declare namespace LocalJSX {
         "zIndex"?: number;
     }
     /**
-     * 业务卡片组件
-     * 用于展示业务功能入口，点击后打开对应的模态框
+     * 智能体卡片组件
+     * 用于展示各业务功能入口，点击后根据回调打开对应的模态框
      */
     interface PcmCard {
         /**
-          * 作者名称
+          * 自定义作者名称
          */
         "author"?: string;
         /**
-          * 作者头像URL
+          * 自定义作者头像URL
          */
         "authorAvatarUrl"?: string;
-        /**
-          * 卡片背景色
-         */
-        "backgroundColor"?: string;
         /**
           * 智能体ID
          */
         "botId"?: string;
         /**
-          * 卡片标题
+          * 自定义卡片标题
          */
         "cardTitle"?: string;
         /**
-          * 卡片描述
+          * 自定义右侧标签
+         */
+        "customChatTag"?: string;
+        /**
+          * 自定义卡片描述
          */
         "description"?: string;
         /**
-          * 卡片图标URL
+          * 自定义卡片图标URL
          */
         "iconUrl"?: string;
         /**
@@ -1575,25 +1563,13 @@ declare namespace LocalJSX {
          */
         "showChatTag"?: boolean;
         /**
-          * 收藏数量
-         */
-        "starCount"?: number;
-        /**
           * SDK鉴权密钥
          */
         "token": string;
         /**
-          * 立即使用按钮文本
+          * 自定义立即使用按钮文本
          */
         "useButtonText"?: string;
-        /**
-          * 使用次数
-         */
-        "useCount"?: number;
-        /**
-          * 用户数量
-         */
-        "userCount"?: number;
     }
     interface PcmChatMessage {
         /**
@@ -1792,7 +1768,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入input时，会自动切换到自由输入模式  htwsModal.customInputs = {      input: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；" };
+          * 自定义输入参数，传入customInputs.input时，会自动切换到自由输入模式
          */
         "customInputs"?: Record<string, any>;
         /**
@@ -1964,7 +1940,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入job_info时，会隐藏JD输入区域  jdModal.customInputs = {      job_info: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；策划并执行线上线下营销活动；" };
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
          */
         "customInputs"?: Record<string, any>;
         /**
@@ -2046,7 +2022,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入job_info时，会隐藏JD输入区域  jlppModal.customInputs = {      job_info: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；策划并执行线上线下营销活动；" };
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
          */
         "customInputs"?: Record<string, any>;
         /**
@@ -2132,7 +2108,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入job_info时，会隐藏JD输入区域  mnctModal.customInputs = {      job_info: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；策划并执行线上线下营销活动；" };
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
          */
         "customInputs"?: Record<string, any>;
         /**
@@ -2218,7 +2194,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入job_info时，会隐藏JD输入区域  mnmsModal.customInputs = {      job_info: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；策划并执行线上线下营销活动；" };
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
          */
         "customInputs"?: Record<string, any>;
         /**
@@ -2304,7 +2280,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
          */
         "customInputs"?: { [key: string]: any };
         /**
@@ -2565,7 +2541,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"  zyghModal.customInputs = {      type: "转行建议" };
+          * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"
          */
         "customInputs"?: Record<string, any>;
         /**
@@ -2668,8 +2644,8 @@ declare module "@stencil/core" {
             "my-component": LocalJSX.MyComponent & JSXBase.HTMLAttributes<HTMLMyComponentElement>;
             "pcm-app-chat-modal": LocalJSX.PcmAppChatModal & JSXBase.HTMLAttributes<HTMLPcmAppChatModalElement>;
             /**
-             * 业务卡片组件
-             * 用于展示业务功能入口，点击后打开对应的模态框
+             * 智能体卡片组件
+             * 用于展示各业务功能入口，点击后根据回调打开对应的模态框
              */
             "pcm-card": LocalJSX.PcmCard & JSXBase.HTMLAttributes<HTMLPcmCardElement>;
             "pcm-chat-message": LocalJSX.PcmChatMessage & JSXBase.HTMLAttributes<HTMLPcmChatMessageElement>;

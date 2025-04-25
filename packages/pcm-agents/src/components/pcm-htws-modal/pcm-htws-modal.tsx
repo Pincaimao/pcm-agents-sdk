@@ -67,11 +67,7 @@ export class HtwsModal {
     @Prop() fullscreen: boolean = false;
 
     /**
-     * 自定义输入参数，传入input时，会自动切换到自由输入模式
-     * 
-     * htwsModal.customInputs = {
-     *      input: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；"
-     * };
+     * 自定义输入参数，传入customInputs.input时，会自动切换到自由输入模式
      */
     @Prop() customInputs: Record<string, any> = {};
 

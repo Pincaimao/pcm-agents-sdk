@@ -81,6 +81,12 @@
     <button id="open-hr-chat">打开金牌HR大赛</button>
   </div>
 
+  <div style="margin: 20px;">
+    <pcm-card bot-id="3022316191018884" 
+      target-modal-id="pcm-mnms-modal"
+      show-chat-tag="true" id="pcm-card"></pcm-card>
+  </div>
+
   <div class="demo-controls">
     <h2>模拟面试组件演示</h2>
     <button id="open-mnms-chat">打开模拟面试</button>
@@ -125,10 +131,7 @@
     <h2>职位生成演示</h2>
     <button id="open-jd-chat">打开职位生成</button>
   </div>
-  <div style="margin: 20px;">
-    <pcm-card bot-id="3022316191018884" 
-      show-chat-tag="true" id="pcm-card"></pcm-card>
-  </div>
+
   <!-- <my-component first="Stencil" middle="'Don't call me a framework'" last="JS"></my-component> -->
 
 
@@ -753,11 +756,13 @@
     };
 
     const handlePcmCard = () => {
-      const pcmCard = document.getElementById('pcm-jd-card');
+      const pcmCard = document.getElementById('pcm-card');
       if (!pcmCard) return;
 
       pcmCard.addEventListener('cardClick', () => {
         console.log('ss');
+        const targetModalId = document.getElementById('pcm-mnms-modal');
+        targetModalId.isOpen = true;
 
       });
     };

@@ -67,11 +67,7 @@ export class MnctModal {
     @Prop() fullscreen: boolean = false;
 
     /**
-     * 自定义输入参数，传入job_info时，会隐藏JD输入区域
-     * 
-     * mnctModal.customInputs = {
-     *      job_info: "负责市场营销策略制定与执行；开展市场调研，分析竞争对手情况；策划并执行线上线下营销活动；"
-     * };
+     * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
      */
     @Prop() customInputs: Record<string, any> = {};
 
