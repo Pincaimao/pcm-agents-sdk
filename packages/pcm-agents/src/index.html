@@ -125,94 +125,69 @@
     <h2>职位生成演示</h2>
     <button id="open-jd-chat">打开职位生成</button>
   </div>
-
+  <div style="margin: 20px;">
+    <pcm-card bot-id="3022316191018884" 
+      show-chat-tag="true" id="pcm-card"></pcm-card>
+  </div>
   <!-- <my-component first="Stencil" middle="'Don't call me a framework'" last="JS"></my-component> -->
 
 
   <!-- 添加聊天模态框组件 -->
-  <pcm-msbg-modal id="pcm-msbg-modal"
-    modal-title="面试报告" 
-    icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" 
-    conversation-id=""
-    fullscreen="false" 
-    default-query="请您提问">
+  <pcm-msbg-modal id="pcm-msbg-modal" modal-title="面试报告" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
+    conversation-id="" fullscreen="false" default-query="请您提问">
   </pcm-msbg-modal>
-  
-  <pcm-mnct-modal id="pcm-mnct-modal"
-    modal-title="面试出题大师" 
-    icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" 
-    conversation-id=""
-    fullscreen="false" 
-    default-query="请您提问">
-    </pcm-mnct-modal>
 
-  <pcm-mnms-modal id="pcm-mnms-modal"
-    modal-title="模拟面试" 
-    icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" 
-    conversation-id=""
-    fullscreen="false" 
-    default-query="请您提问">
+  <pcm-mnct-modal id="pcm-mnct-modal" modal-title="面试出题大师" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
+    conversation-id="" fullscreen="false" default-query="请您提问">
+  </pcm-mnct-modal>
+
+  <pcm-mnms-modal id="pcm-mnms-modal" modal-title="模拟面试" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
+    conversation-id="" fullscreen="false" default-query="请您提问">
   </pcm-mnms-modal>
 
-  <pcm-jlpp-modal id="pcm-jlpp-modal"
-    modal-title="简历匹配助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id=""
-    fullscreen="false"
-    default-query="请您提问"></pcm-jlpp-modal>
+  <pcm-jlpp-modal id="pcm-jlpp-modal" modal-title="简历匹配助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
+    conversation-id="" fullscreen="false" default-query="请您提问"></pcm-jlpp-modal>
 
-  <pcm-zygh-modal id="pcm-zygh-modal"
-    modal-title="职业规划助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id=""
-    fullscreen="false"
-    default-query="请您提问"></pcm-zygh-modal>
+  <pcm-zygh-modal id="pcm-zygh-modal" modal-title="职业规划助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
+    conversation-id="" fullscreen="false" default-query="请您提问"></pcm-zygh-modal>
 
-    <pcm-hyzj-modal id="pcm-hyzj-modal"
-    modal-title="会议总结助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id=""
-    fullscreen="false"
-    default-query="请您提问"></pcm-hyzj-modal>
+  <pcm-hyzj-modal id="pcm-hyzj-modal" modal-title="会议总结助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
+    conversation-id="" fullscreen="false" default-query="请您提问"></pcm-hyzj-modal>
 
 
-    <pcm-htws-modal id="pcm-htws-modal"
-    modal-title="劳动合同卫士" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id=""
-    fullscreen="false" 
-    default-query="请您提问"></pcm-htws-modal>
+  <pcm-htws-modal id="pcm-htws-modal" modal-title="劳动合同卫士" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
+    conversation-id="" fullscreen="false" default-query="请您提问"></pcm-htws-modal>
 
-    <pcm-zsk-chat-modal id="pcm-zsk-chat-modal"
-    employee-id="137"
-    modal-title="数字员工" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id=""
-    fullscreen="false"
-    show-suggested-questions="false"
-    default-query="请您提问"></pcm-zsk-chat-modal>
+  <pcm-zsk-chat-modal id="pcm-zsk-chat-modal" employee-id="137" modal-title="数字员工"
+    icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id="" fullscreen="false"
+    show-suggested-questions="false" default-query="请您提问"></pcm-zsk-chat-modal>
 
 
-    <pcm-jd-modal id="pcm-jd-modal"
-      modal-title="职位生成" 
-      icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" 
-      conversation-id=""
-      fullscreen="false" 
-      default-query="请帮我生成职位信息">
-    </pcm-jd-modal>
+  <pcm-jd-modal id="pcm-jd-modal" modal-title="职位生成" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
+    conversation-id="" fullscreen="false" default-query="请帮我生成职位信息">
+  </pcm-jd-modal>
 
 
-  <pcm-video-chat-modal id="pcm-video-chat-modal"
-    modal-title="视频面试" icon="https://www.ylzhaopin.com/Public/Newhome/images/sidebar/tochat.png" conversation-id=""
+  <pcm-video-chat-modal id="pcm-video-chat-modal" modal-title="视频面试"
+    icon="https://www.ylzhaopin.com/Public/Newhome/images/sidebar/tochat.png" conversation-id=""
     resume-id="35677279421992960" fullscreen="true" enable-voice="false" total-questions="2"></pcm-video-chat-modal>
 
-  <pcm-hr-chat-modal id="pcm-hr-chat-modal"
-    modal-title="金牌HR大赛"
+  <pcm-hr-chat-modal id="pcm-hr-chat-modal" modal-title="金牌HR大赛"
     welcome-message="欢迎您参加长沙市人力资源和社会保障局组织的金牌HR大赛，接下来我们将采用数字人方式对您做交流，本次大赛预计需要10-30分钟，请在安静的环境下参与此次大赛。"
     icon="https://p3-pc.douyinpic.com/img/aweme-avatar/tos-cn-avt-0015_55cc4ce1aa0059074f4f9def520246dc~c5_300x300.jpeg"
-    conversation-id="" to-email="790002517@qq.com" display-content-status="true" fullscreen="true"
-    require-resume="ture" total-questions="1" enable-voice="false"></pcm-hr-chat-modal>
+    conversation-id="" to-email="790002517@qq.com" display-content-status="true" fullscreen="true" require-resume="ture"
+    total-questions="1" enable-voice="false"></pcm-hr-chat-modal>
 
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc0NTU0NzI5NH0.0xR3DzAciReT7jagcfIOUbCGr035Y9k3T0S4c-nBGs8";
+    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDU2NTMyOTZ9.yDqrocWszIhdV5xuqp8CHDEucK_uX8gWkJTXyaemaoM";
 
     document.addEventListener('DOMContentLoaded', function () {
       console.log('DOM 已加载，正在设置事件监听器...');
-      
+
       // 设置所有组件的 token 属性
       setComponentTokens();
-      
+
       handleDeviceCheck();
       handleVideoChatModal();
       handleHrChatModal();
@@ -225,6 +200,7 @@
       handleHtwsModal();
       handleZskChatModal();
       handleJdModal();
+      handlePcmCard();
     });
 
     // 为所有组件设置共享的 token
@@ -240,9 +216,10 @@
         'pcm-video-chat-modal',
         'pcm-hr-chat-modal',
         'pcm-zsk-chat-modal',
-        'pcm-jd-modal'
+        'pcm-jd-modal',
+        'pcm-card'
       ];
-      
+
       components.forEach(id => {
         const component = document.getElementById(id);
         if (component) {
@@ -332,7 +309,7 @@
     const handleVideoChatModal = () => {
       const chatModal = document.getElementById('pcm-video-chat-modal');
       const openChatButton = document.getElementById('open-chat');
-      
+
       if (!chatModal || !openChatButton) return;
 
       // 设置事件监听
@@ -366,7 +343,7 @@
     const handleHrChatModal = () => {
       const chatModal = document.getElementById('pcm-hr-chat-modal');
       const openChatButton = document.getElementById('open-hr-chat');
-      
+
       if (!chatModal || !openChatButton) return;
 
       // 设置事件监听
@@ -404,7 +381,7 @@
     const handleMnmsModal = () => {
       const mnmsModal = document.getElementById('pcm-mnms-modal');
       const openChatButton = document.getElementById('open-mnms-chat');
-      
+
       if (!mnmsModal || !openChatButton) return;
 
       // 设置事件监听
@@ -450,7 +427,7 @@
     const handleJlppModal = () => {
       const jlppModal = document.getElementById('pcm-jlpp-modal');
       const openJlpxButton = document.getElementById('open-jlpx-chat');
-      
+
       if (!jlppModal) return;
 
       // 设置事件监听
@@ -484,7 +461,7 @@
     const handleZyghModal = () => {
       const zyghModal = document.getElementById('pcm-zygh-modal');
       const openZyghButton = document.getElementById('open-zygh-chat');
-      
+
       if (!zyghModal || !openZyghButton) return;
 
       // 设置事件监听
@@ -526,7 +503,7 @@
     const handleMnctModal = () => {
       const mnctModal = document.getElementById('pcm-mnct-modal');
       const openMnctButton = document.getElementById('open-mnct-chat');
-      
+
       if (!mnctModal || !openMnctButton) return;
 
       // 设置事件监听
@@ -572,7 +549,7 @@
     const handleMsbgModal = () => {
       const msbgModal = document.getElementById('pcm-msbg-modal');
       const openMsbgButton = document.getElementById('open-msbg-chat');
-      
+
       if (!msbgModal || !openMsbgButton) return;
 
       // 设置事件监听
@@ -618,7 +595,7 @@
     const handleHyzjModal = () => {
       const hyzjModal = document.getElementById('pcm-hyzj-modal');
       const openHyzjButton = document.getElementById('open-hyzj-chat');
-      
+
       if (!hyzjModal || !openHyzjButton) return;
 
       // 设置事件监听
@@ -638,7 +615,7 @@
       hyzjModal.addEventListener('uploadSuccess', (event) => {
         console.log('文件上传成功:', event.detail);
       });
-    
+
 
       hyzjModal.addEventListener('planningComplete', (event) => {
         console.log('规划完成:', event.detail);
@@ -649,7 +626,7 @@
         hyzjModal.isOpen = true;
       });
 
-      
+
     };
 
 
@@ -657,7 +634,7 @@
     const handleHtwsModal = () => {
       const htwsModal = document.getElementById('pcm-htws-modal');
       const openHtwsButton = document.getElementById('open-htws-chat');
-      
+
       if (!htwsModal || !openHtwsButton) return;
 
       // 设置事件监听
@@ -690,14 +667,14 @@
       htwsModal.customInputs = {
         input: " 使 用 说 明 一、双方在签订本合同前，应认真阅读本合同。本合同一经签订，即具有法律效力，双方必须严格履行。 二、本合同必须由用人单位加盖用人单位公章（或者劳动合同专用章），劳动者（乙方）签字。 三、本合同中的空栏，由双方协商确定后填写，并不得违反法律、法规和相关规定；不需填写的空栏，划上“／”。 四、本合同的未尽事宜，可另行签订补充协议，作为本合同的附件，与本合同一并履行。 五、本合同必须认真填写，字迹清楚、文字简练、准确，并不得擅自涂改。 根据《中华人民共和国劳动法》、《中华人民共和国劳动合同法》等法律、法规的规定，在平等自愿、协商一致的基础上，订立本劳动合同。 一、合同期限 第一条 甲、乙双方选择以下第 （一） 种形式确定本合同期限： "
       };
-      
+
     };
-  
+
     // 数字员工模态框处理
     const handleZskChatModal = () => {
       const chatZSKModal = document.getElementById('pcm-zsk-chat-modal');
       const openZSKChatButton = document.getElementById('open-zsk-chat');
-      
+
       if (!chatZSKModal || !openZSKChatButton) return;
 
       // 设置事件监听
@@ -728,12 +705,12 @@
         chatZSKModal.isOpen = true;
       });
     };
-  
+
     // 职位生成模态框处理
     const handleJdModal = () => {
       const jdModal = document.getElementById('pcm-jd-modal');
       const openJDButton = document.getElementById('open-jd-chat');
-      
+
       if (!jdModal || !openJDButton) return;
 
       // 设置事件监听
@@ -773,6 +750,16 @@
       // jdModal.customInputs = {
       //   input: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广"
       // };
+    };
+
+    const handlePcmCard = () => {
+      const pcmCard = document.getElementById('pcm-jd-card');
+      if (!pcmCard) return;
+
+      pcmCard.addEventListener('cardClick', () => {
+        console.log('ss');
+
+      });
     };
   </script>
 </body>

@@ -104,6 +104,64 @@ export namespace Components {
          */
         "zIndex"?: number;
     }
+    /**
+     * 业务卡片组件
+     * 用于展示业务功能入口，点击后打开对应的模态框
+     */
+    interface PcmCard {
+        /**
+          * 作者名称
+         */
+        "author": string;
+        /**
+          * 作者头像URL
+         */
+        "authorAvatarUrl": string;
+        /**
+          * 卡片背景色
+         */
+        "backgroundColor": string;
+        /**
+          * 智能体ID
+         */
+        "botId": string;
+        /**
+          * 卡片标题
+         */
+        "cardTitle": string;
+        /**
+          * 卡片描述
+         */
+        "description": string;
+        /**
+          * 卡片图标URL
+         */
+        "iconUrl": string;
+        /**
+          * 是否显示右侧对话标签
+         */
+        "showChatTag": boolean;
+        /**
+          * 收藏数量
+         */
+        "starCount": number;
+        /**
+          * SDK鉴权密钥
+         */
+        "token": string;
+        /**
+          * 立即使用按钮文本
+         */
+        "useButtonText": string;
+        /**
+          * 使用次数
+         */
+        "useCount": number;
+        /**
+          * 用户数量
+         */
+        "userCount": number;
+    }
     interface PcmChatMessage {
         /**
           * 消息数据
@@ -744,6 +802,10 @@ export interface PcmAppChatModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmAppChatModalElement;
 }
+export interface PcmCardCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLPcmCardElement;
+}
 export interface PcmChatMessageCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmChatMessageElement;
@@ -844,6 +906,27 @@ declare global {
     var HTMLPcmAppChatModalElement: {
         prototype: HTMLPcmAppChatModalElement;
         new (): HTMLPcmAppChatModalElement;
+    };
+    interface HTMLPcmCardElementEventMap {
+        "cardClick": void;
+    }
+    /**
+     * 业务卡片组件
+     * 用于展示业务功能入口，点击后打开对应的模态框
+     */
+    interface HTMLPcmCardElement extends Components.PcmCard, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLPcmCardElementEventMap>(type: K, listener: (this: HTMLPcmCardElement, ev: PcmCardCustomEvent<HTMLPcmCardElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLPcmCardElementEventMap>(type: K, listener: (this: HTMLPcmCardElement, ev: PcmCardCustomEvent<HTMLPcmCardElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLPcmCardElement: {
+        prototype: HTMLPcmCardElement;
+        new (): HTMLPcmCardElement;
     };
     interface HTMLPcmChatMessageElementEventMap {
         "messageChange": Partial<ChatMessage>;
@@ -1297,6 +1380,7 @@ declare global {
     interface HTMLElementTagNameMap {
         "my-component": HTMLMyComponentElement;
         "pcm-app-chat-modal": HTMLPcmAppChatModalElement;
+        "pcm-card": HTMLPcmCardElement;
         "pcm-chat-message": HTMLPcmChatMessageElement;
         "pcm-chat-modal": HTMLPcmChatModalElement;
         "pcm-hr-chat-modal": HTMLPcmHrChatModalElement;
@@ -1448,6 +1532,68 @@ declare namespace LocalJSX {
           * 聊天框的页面层级
          */
         "zIndex"?: number;
+    }
+    /**
+     * 业务卡片组件
+     * 用于展示业务功能入口，点击后打开对应的模态框
+     */
+    interface PcmCard {
+        /**
+          * 作者名称
+         */
+        "author"?: string;
+        /**
+          * 作者头像URL
+         */
+        "authorAvatarUrl"?: string;
+        /**
+          * 卡片背景色
+         */
+        "backgroundColor"?: string;
+        /**
+          * 智能体ID
+         */
+        "botId"?: string;
+        /**
+          * 卡片标题
+         */
+        "cardTitle"?: string;
+        /**
+          * 卡片描述
+         */
+        "description"?: string;
+        /**
+          * 卡片图标URL
+         */
+        "iconUrl"?: string;
+        /**
+          * 卡片点击事件
+         */
+        "onCardClick"?: (event: PcmCardCustomEvent<void>) => void;
+        /**
+          * 是否显示右侧对话标签
+         */
+        "showChatTag"?: boolean;
+        /**
+          * 收藏数量
+         */
+        "starCount"?: number;
+        /**
+          * SDK鉴权密钥
+         */
+        "token": string;
+        /**
+          * 立即使用按钮文本
+         */
+        "useButtonText"?: string;
+        /**
+          * 使用次数
+         */
+        "useCount"?: number;
+        /**
+          * 用户数量
+         */
+        "userCount"?: number;
     }
     interface PcmChatMessage {
         /**
@@ -2499,6 +2645,7 @@ declare namespace LocalJSX {
     interface IntrinsicElements {
         "my-component": MyComponent;
         "pcm-app-chat-modal": PcmAppChatModal;
+        "pcm-card": PcmCard;
         "pcm-chat-message": PcmChatMessage;
         "pcm-chat-modal": PcmChatModal;
         "pcm-hr-chat-modal": PcmHrChatModal;
@@ -2520,6 +2667,11 @@ declare module "@stencil/core" {
         interface IntrinsicElements {
             "my-component": LocalJSX.MyComponent & JSXBase.HTMLAttributes<HTMLMyComponentElement>;
             "pcm-app-chat-modal": LocalJSX.PcmAppChatModal & JSXBase.HTMLAttributes<HTMLPcmAppChatModalElement>;
+            /**
+             * 业务卡片组件
+             * 用于展示业务功能入口，点击后打开对应的模态框
+             */
+            "pcm-card": LocalJSX.PcmCard & JSXBase.HTMLAttributes<HTMLPcmCardElement>;
             "pcm-chat-message": LocalJSX.PcmChatMessage & JSXBase.HTMLAttributes<HTMLPcmChatMessageElement>;
             "pcm-chat-modal": LocalJSX.PcmChatModal & JSXBase.HTMLAttributes<HTMLPcmChatModalElement>;
             "pcm-hr-chat-modal": LocalJSX.PcmHrChatModal & JSXBase.HTMLAttributes<HTMLPcmHrChatModalElement>;
