@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
-  <title>Stencil Component Starter</title>
+  <title>聘才猫智能体组件展示</title>
 
   <script type="module" src="/build/pcm-agents.esm.js"></script>
   <script nomodule src="/build/pcm-agents.js"></script>
@@ -66,7 +66,7 @@
 </head>
 
 <body>
-  <div class="demo-controls">
+  <!-- <div class="demo-controls">
     <h2>组件演示</h2>
 
     <div class="device-check">
@@ -77,9 +77,9 @@
       </div>
     </div>
 
-    <button id="open-chat">打开视频面试</button>
-    <button id="open-hr-chat">打开金牌HR大赛</button>
-  </div>
+    <button id="open-chat">打开视频面试</button> 
+    <button id="open-hr-chat" disabled>打开金牌HR大赛</button>
+  </div> -->
 
   <div style="margin: 20px;">
     <pcm-card bot-id="3022316191018884" 
@@ -184,14 +184,15 @@
   <script>
     // 定义全局 token 变量，所有组件共享使用
     const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDU2NTMyOTZ9.yDqrocWszIhdV5xuqp8CHDEucK_uX8gWkJTXyaemaoM";
-
+    let stream = null;
+    
     document.addEventListener('DOMContentLoaded', function () {
       console.log('DOM 已加载，正在设置事件监听器...');
 
       // 设置所有组件的 token 属性
       setComponentTokens();
 
-      handleDeviceCheck();
+      // handleDeviceCheck();
       handleVideoChatModal();
       handleHrChatModal();
       handleMnmsModal();
@@ -235,7 +236,7 @@
     const handleDeviceCheck = () => {
       const checkDevicesButton = document.getElementById('check-devices');
       const statusMessage = document.getElementById('status-message');
-      let stream = null;
+     
 
       // 辅助函数
       const showError = (message) => {
@@ -282,8 +283,12 @@
 
           // 更新UI状态
           showSuccess('设备和权限检查通过，可以开始聊天');
-          document.getElementById('open-chat').disabled = false;
-          document.getElementById('open-hr-chat').disabled = false;
+          if (document.getElementById('open-chat')) {
+            document.getElementById('open-chat').disabled = false;
+          }
+          if (document.getElementById('open-hr-chat')) {
+            document.getElementById('open-hr-chat').disabled = false;
+          }
 
         } catch (error) {
           console.error('获取媒体设备失败:', error);
@@ -339,6 +344,11 @@
       // 打开聊天按钮事件监听
       openChatButton.addEventListener('click', () => {
         chatModal.isOpen = true;
+        // 停止媒体流，因为已经不需要了
+        if (stream) {
+              stream.getTracks().forEach(track => track.stop());
+              stream = null;
+            }
       });
     };
 
@@ -377,6 +387,11 @@
       // 打开聊天按钮事件监听
       openChatButton.addEventListener('click', () => {
         chatModal.isOpen = true;
+        // 停止媒体流，因为已经不需要了
+        if (stream) {
+              stream.getTracks().forEach(track => track.stop());
+              stream = null;
+            }
       });
     };
 
