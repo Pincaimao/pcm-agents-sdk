@@ -12,6 +12,7 @@ import { createComponent } from '@stencil/react-output-target/runtime';
 import { type CareerPlanType, type ChatMessage, type FileUploadResponse, type PcmChatMessageCustomEvent, type PcmHtwsModalCustomEvent, type PcmHyzjModalCustomEvent, type PcmJlppModalCustomEvent, type PcmMnctModalCustomEvent, type PcmMnmsModalCustomEvent, type PcmMsbgModalCustomEvent, type PcmZyghModalCustomEvent } from "pcm-agents";
 import { MyComponent as MyComponentElement, defineCustomElement as defineMyComponent } from "pcm-agents/dist/components/my-component.js";
 import { PcmAppChatModal as PcmAppChatModalElement, defineCustomElement as definePcmAppChatModal } from "pcm-agents/dist/components/pcm-app-chat-modal.js";
+import { PcmButton as PcmButtonElement, defineCustomElement as definePcmButton } from "pcm-agents/dist/components/pcm-button.js";
 import { PcmCard as PcmCardElement, defineCustomElement as definePcmCard } from "pcm-agents/dist/components/pcm-card.js";
 import { PcmChatMessage as PcmChatMessageElement, defineCustomElement as definePcmChatMessage } from "pcm-agents/dist/components/pcm-chat-message.js";
 import { PcmChatModal as PcmChatModalElement, defineCustomElement as definePcmChatModal } from "pcm-agents/dist/components/pcm-chat-modal.js";
@@ -84,14 +85,25 @@ export const PcmAppChatModal: StencilReactComponent<PcmAppChatModalElement, PcmA
     defineCustomElement: definePcmAppChatModal
 });
 
-type PcmCardEvents = { onCardClick: EventName<CustomEvent<void>> };
+type PcmButtonEvents = NonNullable<unknown>;
+
+export const PcmButton: StencilReactComponent<PcmButtonElement, PcmButtonEvents> = /*@__PURE__*/ createComponent<PcmButtonElement, PcmButtonEvents>({
+    tagName: 'pcm-button',
+    elementClass: PcmButtonElement,
+    // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
+    react: React,
+    events: {} as PcmButtonEvents,
+    defineCustomElement: definePcmButton
+});
+
+type PcmCardEvents = NonNullable<unknown>;
 
 export const PcmCard: StencilReactComponent<PcmCardElement, PcmCardEvents> = /*@__PURE__*/ createComponent<PcmCardElement, PcmCardEvents>({
     tagName: 'pcm-card',
     elementClass: PcmCardElement,
     // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
     react: React,
-    events: { onCardClick: 'cardClick' } as PcmCardEvents,
+    events: {} as PcmCardEvents,
     defineCustomElement: definePcmCard
 });
 

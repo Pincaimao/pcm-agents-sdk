@@ -1,0 +1,199 @@
+:host {
+  display: inline-block;
+}
+
+.pcm-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 400;
+  white-space: nowrap;
+  text-align: center;
+  background-image: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+  user-select: none;
+  touch-action: manipulation;
+  height: 32px;
+  padding: 0 15px;
+  font-size: 14px;
+  border-radius: 4px;
+  color: rgba(0, 0, 0, 0.85);
+  background-color: white;
+  border-color: #d9d9d9;
+  outline: none;
+}
+
+.pcm-button:hover {
+  border-color: #40a9ff;
+  color: #40a9ff;
+}
+
+.pcm-button:active {
+  border-color: #096dd9;
+  color: #096dd9;
+}
+
+/* 按钮类型样式 */
+.pcm-button-default {
+  background-color: white;
+  border-color: #d9d9d9;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.pcm-button-primary {
+  background-color: #1677FF;
+  border-color: #1677FF;
+  color: white;
+}
+
+.pcm-button-primary:hover {
+  background-color: #40a9ff;
+  border-color: #40a9ff;
+  color: white;
+}
+
+.pcm-button-primary:active {
+  background-color: #096dd9;
+  border-color: #096dd9;
+  color: white;
+}
+
+.pcm-button-dashed {
+  background-color: white;
+  border-color: #d9d9d9;
+  border-style: dashed;
+}
+
+.pcm-button-text {
+  background-color: transparent;
+  border-color: transparent;
+  color: rgba(0, 0, 0, 0.85);
+  box-shadow: none;
+}
+
+.pcm-button-text:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-color: transparent;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.pcm-button-link {
+  background-color: transparent;
+  border-color: transparent;
+  color: #1677FF;
+  box-shadow: none;
+}
+
+.pcm-button-link:hover {
+  color: #40a9ff;
+  background-color: transparent;
+  border-color: transparent;
+}
+
+/* 按钮尺寸样式 */
+.pcm-button-large {
+  height: 40px;
+  padding: 0 20px;
+  font-size: 16px;
+}
+
+.pcm-button-small {
+  height: 24px;
+  padding: 0 7px;
+  font-size: 12px;
+}
+
+/* 按钮形状样式 */
+.pcm-button-circle {
+  min-width: 32px;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.pcm-button-large.pcm-button-circle {
+  min-width: 40px;
+}
+
+.pcm-button-small.pcm-button-circle {
+  min-width: 24px;
+}
+
+.pcm-button-round {
+  border-radius: 40px;
+}
+
+/* 按钮加载状态样式 */
+.pcm-button-loading {
+  opacity: 0.65;
+  cursor: default;
+}
+
+.loading-icon {
+  width: 14px;
+  height: 14px;
+  margin-right: 8px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: loading-spin 1s infinite linear;
+  display: inline-block;
+}
+
+@keyframes loading-spin {
+  0% { 
+    transform: rotate(0deg); 
+  }
+  100% { 
+    transform: rotate(360deg); 
+  }
+}
+
+/* 按钮禁用状态样式 */
+.pcm-button-disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.pcm-button-disabled:hover,
+.pcm-button-disabled:active {
+  color: rgba(0, 0, 0, 0.25);
+  background-color: #f5f5f5;
+  border-color: #d9d9d9;
+}
+
+.pcm-button-primary.pcm-button-disabled:hover,
+.pcm-button-primary.pcm-button-disabled:active {
+  background-color: #1677FF;
+  border-color: #1677FF;
+  color: white;
+}
+
+/* 图标样式 */
+.button-icon {
+  margin-right: 8px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.button-icon img {
+  width: 16px;
+  height: 16px;
+}
+
+.pcm-button-small .button-icon img {
+  width: 12px;
+  height: 12px;
+}
+
+.pcm-button-large .button-icon img {
+  width: 18px;
+  height: 18px;
+}
+
+/* 块级按钮样式 */
+.pcm-button-block {
+  width: 100%;
+  display: flex;
+}

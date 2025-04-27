@@ -20,6 +20,12 @@
       border-radius: 8px;
     }
 
+    .pcm-button{
+      margin-right: 10px;
+      margin-bottom: 10px;
+      display: inline-block;
+    }
+
     button {
       padding: 8px 16px;
       background-color: #1890ff;
@@ -27,7 +33,7 @@
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      margin-right: 10px;
+      
     }
 
     button:disabled {
@@ -66,7 +72,10 @@
 </head>
 
 <body>
-  <!-- <div class="demo-controls">
+  <div style="width: 100%; display: flex;justify-content: center;">
+    <div style="max-width: 700px;display: flex;flex-wrap: wrap;justify-content: center;">
+
+      <!-- <div class="demo-controls">
     <h2>组件演示</h2>
 
     <div class="device-check">
@@ -81,57 +90,27 @@
     <button id="open-hr-chat" disabled>打开金牌HR大赛</button>
   </div> -->
 
-  <div style="margin: 20px;">
-    <pcm-card bot-id="3022316191018884" 
-      show-chat-tag="true" id="pcm-card">
-    </pcm-card>
-  </div>
+      <div style="margin: 20px;">
+        <pcm-card bot-id="3022316191018884" show-chat-tag="true" id="pcm-card">
+        </pcm-card>
+      </div>
 
-  <div class="demo-controls">
-    <h2>模拟面试组件演示</h2>
-    <button id="open-mnms-chat">打开模拟面试</button>
+      <div class="demo-controls">
+        <h2>组件演示</h2>
+        <div class="pcm-button">
+          <pcm-button id="open-mnms-chat">模拟面试</pcm-button>
+        </div>
+        <button class="pcm-button" id="open-jlpx-chat">简历匹配</button>
+        <button class="pcm-button" id="open-zygh-chat">职业规划助手</button>
+        <button class="pcm-button" id="open-mnct-chat">面试出题大师</button>
+        <button class="pcm-button" id="open-msbg-chat">面试报告</button>
+        <button class="pcm-button" id="open-hyzj-chat">会议总结助手</button>
+        <button class="pcm-button" id="open-htws-chat">劳动合同卫士</button>
+        <button class="pcm-button" id="open-zsk-chat">数字员工</button>
+        <button class="pcm-button" id="open-jd-chat">JD生成</button>
+      </div>
+    </div>
   </div>
-
-  <div class="demo-controls">
-    <h2>简历匹配组件演示</h2>
-    <button id="open-jlpx-chat">打开简历匹配</button>
-  </div>
-
-  <div class="demo-controls">
-    <h2>职业规划助手演示</h2>
-    <button id="open-zygh-chat">打开职业规划助手</button>
-  </div>
-
-  <div class="demo-controls">
-    <h2>面试出题大师演示</h2>
-    <button id="open-mnct-chat">打开面试出题大师</button>
-  </div>
-
-  <div class="demo-controls">
-    <h2>面试报告演示</h2>
-    <button id="open-msbg-chat">打开面试报告</button>
-  </div>
-
-  <div class="demo-controls">
-    <h2>会议总结助手演示</h2>
-    <button id="open-hyzj-chat">打开会议总结助手</button>
-  </div>
-
-  <div class="demo-controls">
-    <h2>劳动合同卫士演示</h2>
-    <button id="open-htws-chat">打开劳动合同卫士</button>
-  </div>
-
-  <div class="demo-controls">
-    <h2>数字员工演示</h2>
-    <button id="open-zsk-chat">打开数字员工</button>
-  </div>
-
-  <div class="demo-controls">
-    <h2>职位生成演示</h2>
-    <button id="open-jd-chat">打开职位生成</button>
-  </div>
-
   <!-- <my-component first="Stencil" middle="'Don't call me a framework'" last="JS"></my-component> -->
 
 
@@ -183,9 +162,9 @@
 
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDU2NTMyOTZ9.yDqrocWszIhdV5xuqp8CHDEucK_uX8gWkJTXyaemaoM";
+    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDU4MTIyMzh9.qthZjw5YzJUgbWuEk-w00tHzJcK63qUX8HgdPsUBZ28";
     let stream = null;
-    
+
     document.addEventListener('DOMContentLoaded', function () {
       console.log('DOM 已加载，正在设置事件监听器...');
 
@@ -236,7 +215,7 @@
     const handleDeviceCheck = () => {
       const checkDevicesButton = document.getElementById('check-devices');
       const statusMessage = document.getElementById('status-message');
-     
+
 
       // 辅助函数
       const showError = (message) => {
@@ -346,9 +325,9 @@
         chatModal.isOpen = true;
         // 停止媒体流，因为已经不需要了
         if (stream) {
-              stream.getTracks().forEach(track => track.stop());
-              stream = null;
-            }
+          stream.getTracks().forEach(track => track.stop());
+          stream = null;
+        }
       });
     };
 
@@ -389,9 +368,9 @@
         chatModal.isOpen = true;
         // 停止媒体流，因为已经不需要了
         if (stream) {
-              stream.getTracks().forEach(track => track.stop());
-              stream = null;
-            }
+          stream.getTracks().forEach(track => track.stop());
+          stream = null;
+        }
       });
     };
 
@@ -774,8 +753,7 @@
       const pcmCard = document.getElementById('pcm-card');
       if (!pcmCard) return;
 
-      pcmCard.addEventListener('cardClick', () => {
-        console.log('ss');
+      pcmCard.addEventListener('click', () => {
         const targetModalId = document.getElementById('pcm-mnms-modal');
         targetModalId.isOpen = true;
 

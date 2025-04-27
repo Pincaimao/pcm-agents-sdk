@@ -105,6 +105,64 @@ export namespace Components {
         "zIndex"?: number;
     }
     /**
+     * 按钮组件
+     * 一个简化版的类似于 ant-design 的按钮组件，支持自定义文字、颜色、圆角等属性
+     */
+    interface PcmButton {
+        /**
+          * 自定义按钮背景色
+         */
+        "backgroundColor": string;
+        /**
+          * 是否为块级按钮（宽度撑满父元素）
+         */
+        "block": boolean;
+        /**
+          * 自定义按钮边框颜色
+         */
+        "borderColor": string;
+        /**
+          * 自定义按钮圆角大小（像素）
+         */
+        "borderRadius": number;
+        /**
+          * 按钮边框样式 可选值: 'solid', 'dashed', 'dotted', 'none'
+         */
+        "borderStyle": 'solid' | 'dashed' | 'dotted' | 'none';
+        /**
+          * 是否为禁用状态
+         */
+        "disabled": boolean;
+        /**
+          * 设置按钮的图标 使用图标的URL或者base64字符串
+         */
+        "icon": string;
+        /**
+          * 是否为加载状态
+         */
+        "loading": boolean;
+        /**
+          * 自定义按钮形状 可选值: 'default', 'circle', 'round'
+         */
+        "shape": 'default' | 'circle' | 'round';
+        /**
+          * 按钮尺寸 可选值: 'large', 'middle', 'small'
+         */
+        "size": 'large' | 'middle' | 'small';
+        /**
+          * 自定义按钮文字颜色
+         */
+        "textColor": string;
+        /**
+          * 按钮类型 可选值: 'primary', 'default', 'dashed', 'text', 'link'
+         */
+        "type": 'primary' | 'default' | 'dashed' | 'text' | 'link';
+        /**
+          * 按钮宽度（像素或百分比）
+         */
+        "width": string;
+    }
+    /**
      * 智能体卡片组件
      * 用于展示各业务功能入口，点击后根据回调打开对应的模态框
      */
@@ -790,10 +848,6 @@ export interface PcmAppChatModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmAppChatModalElement;
 }
-export interface PcmCardCustomEvent<T> extends CustomEvent<T> {
-    detail: T;
-    target: HTMLPcmCardElement;
-}
 export interface PcmChatMessageCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmChatMessageElement;
@@ -895,22 +949,21 @@ declare global {
         prototype: HTMLPcmAppChatModalElement;
         new (): HTMLPcmAppChatModalElement;
     };
-    interface HTMLPcmCardElementEventMap {
-        "cardClick": void;
+    /**
+     * 按钮组件
+     * 一个简化版的类似于 ant-design 的按钮组件，支持自定义文字、颜色、圆角等属性
+     */
+    interface HTMLPcmButtonElement extends Components.PcmButton, HTMLStencilElement {
     }
+    var HTMLPcmButtonElement: {
+        prototype: HTMLPcmButtonElement;
+        new (): HTMLPcmButtonElement;
+    };
     /**
      * 智能体卡片组件
      * 用于展示各业务功能入口，点击后根据回调打开对应的模态框
      */
     interface HTMLPcmCardElement extends Components.PcmCard, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLPcmCardElementEventMap>(type: K, listener: (this: HTMLPcmCardElement, ev: PcmCardCustomEvent<HTMLPcmCardElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
-        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
-        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
-        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLPcmCardElementEventMap>(type: K, listener: (this: HTMLPcmCardElement, ev: PcmCardCustomEvent<HTMLPcmCardElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
-        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
-        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
     var HTMLPcmCardElement: {
         prototype: HTMLPcmCardElement;
@@ -1368,6 +1421,7 @@ declare global {
     interface HTMLElementTagNameMap {
         "my-component": HTMLMyComponentElement;
         "pcm-app-chat-modal": HTMLPcmAppChatModalElement;
+        "pcm-button": HTMLPcmButtonElement;
         "pcm-card": HTMLPcmCardElement;
         "pcm-chat-message": HTMLPcmChatMessageElement;
         "pcm-chat-modal": HTMLPcmChatModalElement;
@@ -1522,6 +1576,64 @@ declare namespace LocalJSX {
         "zIndex"?: number;
     }
     /**
+     * 按钮组件
+     * 一个简化版的类似于 ant-design 的按钮组件，支持自定义文字、颜色、圆角等属性
+     */
+    interface PcmButton {
+        /**
+          * 自定义按钮背景色
+         */
+        "backgroundColor"?: string;
+        /**
+          * 是否为块级按钮（宽度撑满父元素）
+         */
+        "block"?: boolean;
+        /**
+          * 自定义按钮边框颜色
+         */
+        "borderColor"?: string;
+        /**
+          * 自定义按钮圆角大小（像素）
+         */
+        "borderRadius"?: number;
+        /**
+          * 按钮边框样式 可选值: 'solid', 'dashed', 'dotted', 'none'
+         */
+        "borderStyle"?: 'solid' | 'dashed' | 'dotted' | 'none';
+        /**
+          * 是否为禁用状态
+         */
+        "disabled"?: boolean;
+        /**
+          * 设置按钮的图标 使用图标的URL或者base64字符串
+         */
+        "icon"?: string;
+        /**
+          * 是否为加载状态
+         */
+        "loading"?: boolean;
+        /**
+          * 自定义按钮形状 可选值: 'default', 'circle', 'round'
+         */
+        "shape"?: 'default' | 'circle' | 'round';
+        /**
+          * 按钮尺寸 可选值: 'large', 'middle', 'small'
+         */
+        "size"?: 'large' | 'middle' | 'small';
+        /**
+          * 自定义按钮文字颜色
+         */
+        "textColor"?: string;
+        /**
+          * 按钮类型 可选值: 'primary', 'default', 'dashed', 'text', 'link'
+         */
+        "type"?: 'primary' | 'default' | 'dashed' | 'text' | 'link';
+        /**
+          * 按钮宽度（像素或百分比）
+         */
+        "width"?: string;
+    }
+    /**
      * 智能体卡片组件
      * 用于展示各业务功能入口，点击后根据回调打开对应的模态框
      */
@@ -1554,10 +1666,6 @@ declare namespace LocalJSX {
           * 自定义卡片图标URL
          */
         "iconUrl"?: string;
-        /**
-          * 卡片点击事件
-         */
-        "onCardClick"?: (event: PcmCardCustomEvent<void>) => void;
         /**
           * 是否显示右侧对话标签
          */
@@ -2621,6 +2729,7 @@ declare namespace LocalJSX {
     interface IntrinsicElements {
         "my-component": MyComponent;
         "pcm-app-chat-modal": PcmAppChatModal;
+        "pcm-button": PcmButton;
         "pcm-card": PcmCard;
         "pcm-chat-message": PcmChatMessage;
         "pcm-chat-modal": PcmChatModal;
@@ -2643,6 +2752,11 @@ declare module "@stencil/core" {
         interface IntrinsicElements {
             "my-component": LocalJSX.MyComponent & JSXBase.HTMLAttributes<HTMLMyComponentElement>;
             "pcm-app-chat-modal": LocalJSX.PcmAppChatModal & JSXBase.HTMLAttributes<HTMLPcmAppChatModalElement>;
+            /**
+             * 按钮组件
+             * 一个简化版的类似于 ant-design 的按钮组件，支持自定义文字、颜色、圆角等属性
+             */
+            "pcm-button": LocalJSX.PcmButton & JSXBase.HTMLAttributes<HTMLPcmButtonElement>;
             /**
              * 智能体卡片组件
              * 用于展示各业务功能入口，点击后根据回调打开对应的模态框

@@ -1,4 +1,4 @@
-import { Component, Prop, h, Event, EventEmitter, State, Watch } from '@stencil/core';
+import { Component, Prop, h,  State, Watch } from '@stencil/core';
 import { sendHttpRequest } from '../../utils/utils';
 
 /**
@@ -60,11 +60,6 @@ export class PcmCard {
      * 智能体ID
      */
     @Prop() botId: string = '';
-
-    /**
-     * 卡片点击事件
-     */
-    @Event() cardClick: EventEmitter<void>;
 
     /**
      * 内部状态：用于存储从接口获取的智能体数据
@@ -132,13 +127,6 @@ export class PcmCard {
         }
     }
 
-    /**
-     * 处理卡片点击
-     */
-    private handleClick = () => {
-        this.cardClick.emit();
-    };
-
     render() {
         // 从 botData 中获取信息，如果用户传入的属性存在则优先使用用户传入的
         const title = this.cardTitle || (this.botData?.title || '');
@@ -167,7 +155,6 @@ export class PcmCard {
         return (
             <div
                 class="card-container"
-                onClick={this.handleClick}
             >
                 {this.loading ? (
                     <div class="loading-container">
