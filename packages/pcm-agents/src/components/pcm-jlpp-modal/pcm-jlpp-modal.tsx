@@ -229,6 +229,9 @@ export class JlppModal {
             this.jobDescription = '';
          
         } else {
+            if (this.customInputs && this.customInputs.job_info) {
+                this.jobDescription = this.customInputs.job_info;
+            }
             // 当模态框打开时，验证API密钥
             this.verifyApiKey();
             
@@ -256,12 +259,6 @@ export class JlppModal {
         }
     }
 
-    componentWillLoad() {
-        // 检查 customInputs 中是否有 job_info
-        if (this.customInputs && this.customInputs.job_info) {
-            this.jobDescription = this.customInputs.job_info;
-        }
-    }
 
     // 处理流式输出完成事件
     private handleStreamComplete = (event: CustomEvent) => {

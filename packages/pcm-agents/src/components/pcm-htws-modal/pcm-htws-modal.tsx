@@ -230,6 +230,11 @@ export class HtwsModal {
             this.freeInputText = '';
             this.inputMode = 'upload'; // 重置为默认上传模式
         } else {
+            if (this.customInputs && this.customInputs.input) {
+                // 如果有 input，直接切换到自由输入模式并填充内容
+                this.inputMode = 'free';
+                this.freeInputText = this.customInputs.input;
+            }
             // 当模态框打开时，验证API密钥
             this.verifyApiKey();
             
@@ -237,15 +242,6 @@ export class HtwsModal {
                 // 如果有会话ID，直接显示聊天模态框
                 this.showChatModal = true;
             }
-        }
-    }
-
-    componentWillLoad() {
-        // 检查 customInputs 中是否有 input
-        if (this.customInputs && this.customInputs.input) {
-            // 如果有 input，直接切换到自由输入模式并填充内容
-            this.inputMode = 'free';
-            this.freeInputText = this.customInputs.input;
         }
     }
 

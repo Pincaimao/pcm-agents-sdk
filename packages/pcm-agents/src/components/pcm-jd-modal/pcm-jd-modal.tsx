@@ -408,6 +408,12 @@ export class PcmJdModal {
                 education: ''
             };
         } else {
+            if (this.customInputs && this.customInputs.job_info) {
+                this.jobDescription = this.customInputs.job_info;
+                // 如果有 job_info，直接切换到自由输入模式并填充内容
+                this.inputMode = 'free';
+                this.freeInputText = this.customInputs.job_info;
+            }
             // 当模态框打开时，验证API密钥
             this.verifyApiKey();
             
@@ -418,15 +424,6 @@ export class PcmJdModal {
         }
     }
 
-    componentWillLoad() {
-        // 检查 customInputs 中是否有 job_info
-        if (this.customInputs && this.customInputs.job_info) {
-            this.jobDescription = this.customInputs.job_info;
-            // 如果有 job_info，直接切换到自由输入模式并填充内容
-            this.inputMode = 'free';
-            this.freeInputText = this.customInputs.job_info;
-        }
-    }
 
     // 处理流式输出完成事件
     private handleStreamComplete = (event: CustomEvent) => {

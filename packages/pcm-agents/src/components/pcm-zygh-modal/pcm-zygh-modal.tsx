@@ -220,6 +220,9 @@ export class ZyghModal {
             this.showChatModal = false;
             
         } else {
+            if (this.customInputs && this.customInputs.type) {
+                this.selectedPlanType = this.customInputs.type;
+            }
             // 当模态框打开时，验证API密钥
             this.verifyApiKey();
             
@@ -249,9 +252,7 @@ export class ZyghModal {
 
     componentWillLoad() {
         // 检查 customInputs 中是否有 type
-        if (this.customInputs && this.customInputs.type) {
-            this.selectedPlanType = this.customInputs.type;
-        }
+        
     }
 
     // 处理流式输出完成事件
