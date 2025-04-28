@@ -1,6 +1,6 @@
 {
   "name": "pcm-agents-react",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "React wrapper components for pcm-agents",
   "main": "dist/index.js",
   "module": "dist/index.js",
