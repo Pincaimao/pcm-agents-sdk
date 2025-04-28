@@ -20,7 +20,7 @@
       border-radius: 8px;
     }
 
-    .pcm-button{
+    .pcm-button {
       margin-right: 10px;
       margin-bottom: 10px;
       display: inline-block;
@@ -33,7 +33,7 @@
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      
+
     }
 
     button:disabled {
@@ -75,20 +75,20 @@
   <div style="width: 100%; display: flex;justify-content: center;">
     <div style="max-width: 700px;display: flex;flex-wrap: wrap;justify-content: center;">
 
-      <!-- <div class="demo-controls">
-    <h2>组件演示</h2>
+      <div class="demo-controls" id="openhr" style="display: none;">
+        <h2>组件演示</h2>
 
-    <div class="device-check">
-      <button id="check-devices">检查设备权限</button>
-      <div id="status-message" class="status" style="display: none;"></div>
-      <div class="permission-info">
-        需要检查您的摄像头和麦克风权限，以便在聊天过程中进行视频通话。
+        <div class="device-check">
+          <button id="check-devices">检查设备权限</button>
+          <div id="status-message" class="status" style="display: none;"></div>
+          <div class="permission-info">
+            需要检查您的摄像头和麦克风权限，以便在聊天过程中进行视频通话。
+          </div>
+        </div>
+
+        <button id="open-chat" disabled>打开视频面试</button>
+        <button id="open-hr-chat" disabled>打开金牌HR大赛</button>
       </div>
-    </div>
-
-    <button id="open-chat">打开视频面试</button> 
-    <button id="open-hr-chat" disabled>打开金牌HR大赛</button>
-  </div> -->
 
       <div style="margin: 20px;">
         <pcm-card bot-id="3022316191018884" show-chat-tag="true" id="pcm-card">
@@ -162,8 +162,15 @@
 
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDU4MTIyMzh9.qthZjw5YzJUgbWuEk-w00tHzJcK63qUX8HgdPsUBZ28";
+    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc0NTkxMTA4OX0.X1xM_P6oU4ZcYAkFdlfmvuUUt3BgUPx9yiZnSOFa46g";
     let stream = null;
+    const urlParams = new URLSearchParams(window.location.search);
+      
+      // 检查是否需要自动打开金牌HR大赛对话框
+      if (urlParams.get('openhr') === '1') {
+        const openhr = document.getElementById('openhr');
+        openhr.style.display = 'block';
+      }
 
     document.addEventListener('DOMContentLoaded', function () {
       console.log('DOM 已加载，正在设置事件监听器...');
@@ -171,7 +178,7 @@
       // 设置所有组件的 token 属性
       setComponentTokens();
 
-      // handleDeviceCheck();
+      handleDeviceCheck();
       handleVideoChatModal();
       handleHrChatModal();
       handleMnmsModal();
