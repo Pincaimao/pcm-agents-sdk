@@ -835,7 +835,7 @@ export class ChatKBModal {
             </div>
           )}
 
-          <div style={{ height: '100%' }}>
+          <div class="chat-container">
             <div class="chat-history" onScroll={this.handleScroll}>
               {this.isLoadingHistory ? (
                 <div class="loading-container">
@@ -848,6 +848,7 @@ export class ChatKBModal {
                     <div id={`message_${message.id}`} key={message.id}>
                       <pcm-chat-message
                         message={message}
+                        showFeedbackButtons={false}
                         token={this.token}
                         onMessageChange={(event) => {
                           const updatedMessages = this.messages.map(msg =>
@@ -863,6 +864,7 @@ export class ChatKBModal {
                       <pcm-chat-message
                         token={this.token}
                         message={this.currentStreamingMessage}
+                        showFeedbackButtons={false}
                       ></pcm-chat-message>
                     </div>
                   )}

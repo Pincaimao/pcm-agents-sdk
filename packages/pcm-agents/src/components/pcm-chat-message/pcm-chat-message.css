@@ -20,31 +20,30 @@
   flex-direction: column;
   align-items: flex-start;
   margin-bottom: 8px;
+  position: relative;
 }
 
 /* 添加消息气泡样式 */
 .message-bubble {
-  padding: 7px 18px;
+  padding: 15px 10px;
   max-width: 80%;
   position: relative;
 }
 
 /* 用户消息气泡样式 */
 .user-message {
-  background-image: linear-gradient(100deg, #4A9FFF 0%, #1058FF 100%);
-  font-weight: 600;
-font-size: 14px;
-color: #FFFFFF;
-  border-radius: 14px 0 14px 14px;
+  background-color: #fff;
+  font-size: 14px;
+  color: #1F2328;
+  border-radius: .375rem;
 }
 
 /* 助手消息气泡样式 */
 .assistant-message {
-  background-color: #0000000f;
-  border-radius: 0 14px 14px 14px;
-  font-weight: 600;
+  background-color: #fff;
+  border-radius: .375rem;
   font-size: 14px;
-  color: #00000099;
+  color: #1F2328;
 }
 
 .message-time {
@@ -115,6 +114,7 @@ color: #FFFFFF;
 
 .input-view {
   margin-top: 8px;
+  margin-bottom: 10px;
   padding-bottom: 10px;
   border: 1px solid #e9ecef;
   border-radius: 6px;
@@ -123,13 +123,39 @@ color: #FFFFFF;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.input-label {
-  padding: 8px 12px;
+
+.input-label-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
   background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  padding: 8px 12px;
+}
+
+.copy-input-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8c8c8c;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+  margin-left: 5px;
+}
+
+.copy-input-button:hover {
+  opacity: 1;
+  color: #1677ff;
+}
+
+.input-label {
   font-size: 13px;
   font-weight: 600;
   color: #495057;
-  border-bottom: 1px solid #e9ecef;
 }
 
 .input-value {
@@ -1386,36 +1412,57 @@ color: #FFFFFF;
 
 .message-actions {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  opacity: 0;
+  bottom: -40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   transition: opacity 0.2s ease;
 }
 
-.assistant-message:hover .message-actions {
-  opacity: 1;
+.action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  padding: 4px 15px;
+  font-size: 14px;
+  height: 32px;
+  background-color: white;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.88);
+  transition: all 0.2s;
 }
 
-.copy-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  color: #6e6e80;
+.action-button:hover {
+  color: #1677ff;
+  border-color: #1677ff;
+}
+
+.action-button.primary {
+  color: #1677ff;
+  border-color: #1677ff;
+}
+
+.action-button.primary:hover {
+  color: #4096ff;
+  border-color: #4096ff;
+}
+
+.action-button.icon-only {
+  padding: 4px 8px;
+  margin-right: 9px;
+}
+
+.button-icon {
+  margin-right: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.copy-button:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-  color: #000;
-}
-
-.copy-button svg {
-  width: 16px;
-  height: 16px;
+.icon-only .button-icon {
+  margin-right: 0;
 }
 
 .file-list {

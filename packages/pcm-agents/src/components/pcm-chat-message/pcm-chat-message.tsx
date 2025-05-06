@@ -15,10 +15,15 @@ export class ChatMessageComponent {
      */
     @Prop() message: ChatMessage;
 
-     /**
-   * SDK鉴权密钥
-   */
+    /**
+  * SDK鉴权密钥
+  */
     @Prop({ attribute: 'token' }) token: string = '';
+
+    /**
+     * 是否显示点赞点踩按钮 
+     */
+    @Prop() showFeedbackButtons: boolean = true;
 
     /**
      * 消息变更事件
@@ -44,8 +49,24 @@ export class ChatMessageComponent {
                 .then(() => {
                     // 可以添加复制成功的提示
                     console.log('内容已复制到剪贴板');
+                    alert('内容已复制到剪贴板');
                 })
                 .catch(err => {
+                    alert('复制失败');
+                    console.error('复制失败:', err);
+                });
+        }
+    }
+
+    private copyInputValue(text: string) {
+        if (text) {
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    console.log('内容已复制到剪贴板');
+                    alert('内容已复制到剪贴板');
+                })
+                .catch(err => {
+                    alert('复制失败');
                     console.error('复制失败:', err);
                 });
         }
@@ -59,7 +80,7 @@ export class ChatMessageComponent {
             <div class="user-message-container">
                 <div class="message-bubble user-message">
                     {this.renderInputs()}
-                    <p>{this.message.query}</p>
+                    <div>{this.message.query}</div>
                 </div>
             </div>
         );
@@ -86,12 +107,33 @@ export class ChatMessageComponent {
                 </div>
                 {!showLoading && this.message.answer && (
                     <div class="message-actions">
-                        <button class="copy-button" onClick={() => this.copyMessageContent()} title="复制内容">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                            </svg>
+                        <button class="action-button primary" onClick={() => this.copyMessageContent()} title="复制内容">
+                            <span class="button-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                            </span>
+                            复制
                         </button>
+                        {this.showFeedbackButtons && (
+                            <>
+                                <button class="action-button icon-only" title="赞">
+                                    <span class="button-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                                        </svg>
+                                    </span>
+                                </button>
+                                <button class="action-button icon-only" title="踩">
+                                    <span class="button-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path>
+                                        </svg>
+                                    </span>
+                                </button>
+                            </>
+                        )}
                     </div>
                 )}
             </div>
@@ -163,9 +205,9 @@ export class ChatMessageComponent {
                     cos_key: cosKey
                 }
             });
-            
+
             console.log(result);
-            
+
             if (result.success && result.data?.file_url) {
                 const baseUrl = result.data.file_url;
                 return `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}ci-process=doc-preview&copyable=1&dstType=html`;
@@ -192,7 +234,9 @@ export class ChatMessageComponent {
         const { icon } = this.getFileIcon(fileName);
         return (
             <div key={index} class="input-view">
-                <div class="input-label">附件：</div>
+                <div class="input-label-container">
+                    <div class="input-label">附件：</div>
+                </div>
                 <div class="file-item" onClick={() => this.handleFileClick(fileUrl)}>
                     <div class="file-icon" innerHTML={icon}></div>
                     <div class="file-name">{fileName}</div>
@@ -226,8 +270,16 @@ export class ChatMessageComponent {
                         } else if (key === 'job_info' || key === 'rule') {
                             return (
                                 <div key={index} class="input-view">
-                                    <div class="input-label">{key === 'job_info' ? '职位信息' : '评估规则'}</div>
-                                    <div class="input-value">{value}</div>
+                                    <div class="input-label-container">
+                                        <div class="input-label">{key === 'job_info' ? '职位信息' : '评估规则'}</div>
+                                        <button class="copy-input-button" onClick={() => this.copyInputValue(value)} title="复制内容">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="input-value" title={value}>{value}</div>
                                 </div>
                             );
                         } else {

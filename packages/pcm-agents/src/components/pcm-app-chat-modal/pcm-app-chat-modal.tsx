@@ -1221,7 +1221,7 @@ export class ChatAPPModal {
             </div>
           )}
 
-          <div style={{ height: '100%' }}>
+          <div class="chat-container">
             <div class="chat-history" onScroll={this.handleScroll}>
               {this.isLoadingHistory ? (
                 <div class="loading-container">

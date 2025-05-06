@@ -171,6 +171,12 @@
 .close-button:hover span {
   color: #666;
 }
+.chat-container{
+  background-image: url(https://pub.pincaimao.com/static/web/images/login/bg_login_m.png);
+  background-size: 100%;
+  height: 100%;
+  border-radius:0px 0px 8px 8px;
+}
 
 .chat-history {
   position: relative;
@@ -179,8 +185,7 @@
   padding: 20px;
   scroll-behavior: smooth;
   height: 400px;
-  background: url(https://pcm-resource-1312611446.cos.ap-guangzhou.myqcloud.com/web/sdk/chat_bg.png);
-  background-size: 100%;
+ 
 }
 
 /* 添加全屏模式下的样式 */
@@ -462,7 +467,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
+  padding: 10px 20px 0px 20px;
   border-radius: 14px 14px 0 0;
   flex: 0 0 auto;
 }

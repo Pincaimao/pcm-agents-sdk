@@ -214,6 +214,10 @@ export namespace Components {
          */
         "message": ChatMessage;
         /**
+          * 是否显示点赞点踩按钮
+         */
+        "showFeedbackButtons": boolean;
+        /**
           * SDK鉴权密钥
          */
         "token": string;
@@ -1688,6 +1692,10 @@ declare namespace LocalJSX {
           * 消息变更事件
          */
         "onMessageChange"?: (event: PcmChatMessageCustomEvent<Partial<ChatMessage>>) => void;
+        /**
+          * 是否显示点赞点踩按钮
+         */
+        "showFeedbackButtons"?: boolean;
         /**
           * SDK鉴权密钥
          */
