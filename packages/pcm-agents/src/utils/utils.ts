@@ -2,8 +2,8 @@
  * API域名配置
  */
 // export const API_DOMAIN = 'http://127.0.0.1:8001';
-// export const API_DOMAIN = 'https://tagents.ylzhaopin.com/agents/api';
-export const API_DOMAIN = 'https://api.pincaimao.com/agents/platform';
+export const API_DOMAIN = 'https://tagents.ylzhaopin.com/agents/api';
+// export const API_DOMAIN = 'https://api.pincaimao.com/agents/platform';
 
 
 export function format(first?: string, middle?: string, last?: string): string {

@@ -669,7 +669,7 @@ export class PcmJdModal {
                                 <div class="free-input">
                                     <div class="textarea-container">
                                         <label htmlFor="free-input-text">
-                                            职位需求信息 <span class="required">*</span>
+                                            JD信息 <span class="required">*</span>
                                         </label>
                                         <textarea
                                             id="free-input-text"

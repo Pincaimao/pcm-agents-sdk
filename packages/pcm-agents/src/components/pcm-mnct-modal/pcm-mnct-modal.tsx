@@ -342,8 +342,11 @@ export class MnctModal {
                                 <label>上传简历</label>
                                 <div class="upload-area" onClick={this.handleUploadClick}>
                                     {this.selectedFile ? (
-                                        <div class="file-info">
-                                            <span>{this.selectedFile.name}</span>
+                                        <div class="file-item">
+                                            <div class="file-item-content">
+                                                <span class="file-icon">📝</span>
+                                                <span class="file-name">{this.selectedFile.name}</span>
+                                            </div>
                                             <button class="remove-file" onClick={(e) => {
                                                 e.stopPropagation();
                                                 this.clearSelectedFile();
@@ -351,10 +354,8 @@ export class MnctModal {
                                         </div>
                                     ) : (
                                         <div class="upload-placeholder">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="48" height="48">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m0-16l-4 4m4-4l4 4" />
-                                            </svg>
-                                            <p>点击上传简历</p>
+                                            <img src='https://pub.pincaimao.com/static/web/images/home/i_upload.png'></img>
+                                            <p class='upload-text'>点击上传简历</p>
                                             <p class="upload-hint">支持 txt、markdown、pdf、docx、doc、md 格式</p>
                                         </div>
                                     )}

@@ -254,16 +254,16 @@ export class ChatHRModal {
 
   private async uploadFile() {
     if (!this.selectedFile || this.uploadedFileInfo.length > 0) return;
-    
+
     this.isUploading = true;
-    
+
     try {
       const result = await uploadFileToBackend(this.selectedFile, {
         'authorization': 'Bearer ' + this.token
       }, {
         'tags': 'resume'
       });
-      
+
       if (result) {
         this.uploadedFileInfo = [{
           cos_key: result.cos_key,
@@ -461,7 +461,7 @@ export class ChatHRModal {
         if (latestAIMessage && latestAIMessage.answer) {
           // 优先使用 LLMText，如果没有则使用 answer
           const textForSynthesis = llmText || latestAIMessage.answer;
-          
+
           if (textForSynthesis) {
             // 合成语音
             const audioUrl = await this.synthesizeAudio(textForSynthesis);
@@ -592,7 +592,7 @@ export class ChatHRModal {
     if (newValue) {
       if (this.conversationId) {
         await this.loadHistoryMessages();
-      } 
+      }
     }
   }
 
@@ -939,17 +939,17 @@ export class ChatHRModal {
       // 根据Blob类型确定文件扩展名
       const fileExtension = this.recordedBlob.type.includes('webm') ? 'webm' : 'mp4';
       const fileName = `answer.${fileExtension}`;
-      
+
       // 创建File对象
       const videoFile = new File([this.recordedBlob], fileName, { type: this.recordedBlob.type });
-      
+
       // 使用uploadFileToBackend上传视频
       const result = await uploadFileToBackend(videoFile, {
         'authorization': 'Bearer ' + this.token
       }, {
         'tags': 'other'
       });
-      
+
       if (result) {
         // 使用 FileUploadResponse 类型的字段
         await this.saveVideoAnswer(result.cos_key);
@@ -995,7 +995,7 @@ export class ChatHRModal {
     } catch (error) {
       console.error('保存视频答案失败:', error);
     }
-  } 
+  }
 
   // 发送"下一题"请求
   private sendNextQuestion() {
@@ -1200,7 +1200,7 @@ export class ChatHRModal {
           </div>
         );
       }
-      
+
       // 添加默认状态
       return (
         <div class="placeholder-status default-status">
@@ -1235,8 +1235,11 @@ export class ChatHRModal {
                     <h3>开始前，请上传您的简历</h3>
                     <div class="upload-area" onClick={this.handleUploadClick}>
                       {this.selectedFile ? (
-                        <div class="file-info">
-                          <span>{this.selectedFile.name}</span>
+                        <div class="file-item">
+                          <div class="file-item-content">
+                            <span class="file-icon">📝</span>
+                            <span class="file-name">{this.selectedFile.name}</span>
+                          </div>
                           <button class="remove-file" onClick={(e) => {
                             e.stopPropagation();
                             this.clearSelectedFile();
@@ -1244,10 +1247,8 @@ export class ChatHRModal {
                         </div>
                       ) : (
                         <div class="upload-placeholder">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="48" height="48">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m0-16l-4 4m4-4l4 4" />
-                          </svg>
-                          <p>点击上传简历</p>
+                          <img src='https://pub.pincaimao.com/static/web/images/home/i_upload.png'></img>
+                          <p class='upload-text'>点击上传简历</p>
                           <p class="upload-hint">支持 txt、 markdown、 pdf、 docx、  md 格式</p>
                         </div>
                       )}
@@ -1366,10 +1367,10 @@ export class ChatHRModal {
                   {/* 添加进度条和数字进度 */}
                   <div class="progress-container">
                     <div class="progress-bar-container">
-                      <div 
-                        class="progress-bar" 
-                        style={{ 
-                          width: `${Math.max(0, this.currentQuestionNumber - 1) / this.totalQuestions * 100}%` 
+                      <div
+                        class="progress-bar"
+                        style={{
+                          width: `${Math.max(0, this.currentQuestionNumber - 1) / this.totalQuestions * 100}%`
                         }}
                       ></div>
                     </div>
@@ -1401,7 +1402,7 @@ export class ChatHRModal {
                               </div>
                             );
                           }
-                          
+
                           // 其他状态下显示禁用的"完成回答"按钮
                           return (
                             <button class="stop-recording-button disabled" disabled>
@@ -1412,8 +1413,8 @@ export class ChatHRModal {
                       </div>
                     )}
                   </div>
-                  
-                  
+
+
                 </div>
               </div>
             </div>

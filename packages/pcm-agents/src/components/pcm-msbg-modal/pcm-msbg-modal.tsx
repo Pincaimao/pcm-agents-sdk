@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
-import { uploadFileToBackend, FileUploadResponse,  verifyApiKey } from '../../utils/utils';
+import { uploadFileToBackend, FileUploadResponse, verifyApiKey } from '../../utils/utils';
 
 /**
  * 面试报告
@@ -225,14 +225,14 @@ export class MsbgModal {
             this.clearSelectedFile();
             this.showChatModal = false;
             this.jobDescription = '';
-         
+
         } else {
             if (this.customInputs && this.customInputs.job_info) {
                 this.jobDescription = this.customInputs.job_info;
             }
             // 当模态框打开时，验证API密钥
             this.verifyApiKey();
-            
+
             if (this.conversationId) {
                 // 如果有会话ID，直接显示聊天模态框
                 this.showChatModal = true;
@@ -264,7 +264,7 @@ export class MsbgModal {
     private async verifyApiKey() {
         try {
             const isValid = await verifyApiKey(this.token);
-            
+
             if (!isValid) {
                 throw new Error('API密钥验证失败');
             }
@@ -327,7 +327,7 @@ export class MsbgModal {
                             {!hideJdInput && (
                                 <div class="jd-input-section">
                                     <label htmlFor="job-description">请输入职位描述 (JD)</label>
-                                    <textarea 
+                                    <textarea
                                         id="job-description"
                                         class="job-description-textarea"
                                         placeholder="请输入职位描述，包括职责、要求等信息..."
@@ -337,14 +337,17 @@ export class MsbgModal {
                                     ></textarea>
                                 </div>
                             )}
-                            
+
                             {/* 上传面试内容上传区域 */}
                             <div class="resume-upload-section">
                                 <label>上传面试内容</label>
                                 <div class="upload-area" onClick={this.handleUploadClick}>
                                     {this.selectedFile ? (
-                                        <div class="file-info">
-                                            <span>{this.selectedFile.name}</span>
+                                        <div class="file-item">
+                                            <div class="file-item-content">
+                                                <span class="file-icon">📝</span>
+                                                <span class="file-name">{this.selectedFile.name}</span>
+                                            </div>
                                             <button class="remove-file" onClick={(e) => {
                                                 e.stopPropagation();
                                                 this.clearSelectedFile();
@@ -352,10 +355,8 @@ export class MsbgModal {
                                         </div>
                                     ) : (
                                         <div class="upload-placeholder">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="48" height="48">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m0-16l-4 4m4-4l4 4" />
-                                            </svg>
-                                            <p>点击上传面试内容</p>
+                                            <img src='https://pub.pincaimao.com/static/web/images/home/i_upload.png'></img>
+                                            <p class='upload-text'>点击上传面试内容</p>
                                             <p class="upload-hint">支持 mp3、markdown、pdf、docx、doc、md 格式</p>
                                         </div>
                                     )}

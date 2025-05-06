@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
-import { uploadFileToBackend, FileUploadResponse,verifyApiKey } from '../../utils/utils';
+import { uploadFileToBackend, FileUploadResponse, verifyApiKey } from '../../utils/utils';
 
 /**
  * 职业规划助手
@@ -12,7 +12,7 @@ export type CareerPlanType = '长期规划' | '转行建议' | '晋升路径';
 
 @Component({
     tag: 'pcm-zygh-modal',
-    styleUrls: ['../../global/global.css','pcm-zygh-modal.css'],
+    styleUrls: ['../../global/global.css', 'pcm-zygh-modal.css'],
     shadow: true,
 })
 export class ZyghModal {
@@ -166,7 +166,7 @@ export class ZyghModal {
             }, {
                 'tags': 'resume'
             });
-            
+
             this.uploadedFileInfo = result;
             this.uploadSuccess.emit(result);
         } catch (error) {
@@ -218,14 +218,14 @@ export class ZyghModal {
             // 重置状态
             this.clearSelectedFile();
             this.showChatModal = false;
-            
+
         } else {
             if (this.customInputs && this.customInputs.type) {
                 this.selectedPlanType = this.customInputs.type;
             }
             // 当模态框打开时，验证API密钥
             this.verifyApiKey();
-            
+
             if (this.conversationId) {
                 // 如果有会话ID，直接显示聊天模态框
                 this.showChatModal = true;
@@ -239,7 +239,7 @@ export class ZyghModal {
     private async verifyApiKey() {
         try {
             const isValid = await verifyApiKey(this.token);
-            
+
             if (!isValid) {
                 throw new Error('API密钥验证失败');
             }
@@ -252,7 +252,7 @@ export class ZyghModal {
 
     componentWillLoad() {
         // 检查 customInputs 中是否有 type
-        
+
     }
 
     // 处理流式输出完成事件
@@ -286,7 +286,7 @@ export class ZyghModal {
             'fullscreen': this.fullscreen,
             'pc-layout': true,
         };
-        
+
         const overlayClass = {
             'modal-overlay': true,
             'fullscreen-overlay': this.fullscreen
@@ -317,26 +317,26 @@ export class ZyghModal {
                     {/* 输入界面 - 仅在不显示聊天模态框且没有会话ID时显示 */}
                     {!this.showChatModal && !this.conversationId && (
                         <div class="input-container">
-                            
+
                             {/* 规划类型选择 */}
                             <div class="plan-type-section">
                                 <label>选择规划类型</label>
                                 <div class="plan-type-options">
-                                    <div 
+                                    <div
                                         class={`plan-type-option ${this.selectedPlanType === '长期规划' ? 'selected' : ''}`}
                                         onClick={() => this.handlePlanTypeChange('长期规划')}
                                     >
                                         <div class="option-icon">📈</div>
                                         <div class="option-label">长期规划</div>
                                     </div>
-                                    <div 
+                                    <div
                                         class={`plan-type-option ${this.selectedPlanType === '转行建议' ? 'selected' : ''}`}
                                         onClick={() => this.handlePlanTypeChange('转行建议')}
                                     >
                                         <div class="option-icon">🔄</div>
                                         <div class="option-label">转行建议</div>
                                     </div>
-                                    <div 
+                                    <div
                                         class={`plan-type-option ${this.selectedPlanType === '晋升路径' ? 'selected' : ''}`}
                                         onClick={() => this.handlePlanTypeChange('晋升路径')}
                                     >
@@ -345,14 +345,17 @@ export class ZyghModal {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             {/* 简历上传区域 */}
                             <div class="resume-upload-section">
                                 <label>上传简历</label>
                                 <div class="upload-area" onClick={this.handleUploadClick}>
                                     {this.selectedFile ? (
-                                        <div class="file-info">
-                                            <span>{this.selectedFile.name}</span>
+                                        <div class="file-item">
+                                            <div class="file-item-content">
+                                                <span class="file-icon">📝</span>
+                                                <span class="file-name">{this.selectedFile.name}</span>
+                                            </div>
                                             <button class="remove-file" onClick={(e) => {
                                                 e.stopPropagation();
                                                 this.clearSelectedFile();
@@ -360,10 +363,8 @@ export class ZyghModal {
                                         </div>
                                     ) : (
                                         <div class="upload-placeholder">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="48" height="48">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m0-16l-4 4m4-4l4 4" />
-                                            </svg>
-                                            <p>点击上传简历</p>
+                                            <img src='https://pub.pincaimao.com/static/web/images/home/i_upload.png'></img>
+                                            <p class='upload-text'>点击上传简历</p>
                                             <p class="upload-hint">支持 txt、markdown、pdf、docx、doc、md 格式</p>
                                         </div>
                                     )}
@@ -402,8 +403,8 @@ export class ZyghModal {
                                 modalTitle={this.modalTitle}
                                 icon={this.icon}
                                 token={this.token}
-                                isShowHeader={this.isShowHeader} 
-                                isNeedClose={this.isShowHeader} 
+                                isShowHeader={this.isShowHeader}
+                                isNeedClose={this.isShowHeader}
                                 zIndex={this.zIndex}
                                 botId="3022316191018898"
                                 fullscreen={this.fullscreen}
