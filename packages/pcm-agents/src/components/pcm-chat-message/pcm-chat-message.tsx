@@ -1,4 +1,4 @@
-import { Component, Prop, h, Element, Event, EventEmitter } from '@stencil/core';
+import { Component, Prop, h, Element, Event, EventEmitter, State } from '@stencil/core';
 import { marked } from 'marked';
 import extendedTables from 'marked-extended-tables';
 import { ChatMessage } from '../../interfaces/chat';
@@ -16,14 +16,19 @@ export class ChatMessageComponent {
     @Prop() message: ChatMessage;
 
     /**
-  * SDK鉴权密钥
-  */
+     * SDK鉴权密钥
+     */
     @Prop({ attribute: 'token' }) token: string = '';
 
     /**
      * 是否显示点赞点踩按钮 
      */
     @Prop() showFeedbackButtons: boolean = true;
+
+    /**
+     * 机器人ID
+     */
+    @Prop() botId?: string;
 
     /**
      * 消息变更事件
@@ -33,6 +38,11 @@ export class ChatMessageComponent {
     // 使用 @Element 装饰器获取组件的 host 元素
     @Element() hostElement: HTMLElement;
 
+    /**
+     * 点赞点踩状态
+     */
+    @State() feedbackStatus: 'like' | 'dislike' | null = null;
+
     constructor() {
         // 配置 marked 选项
         marked.use(extendedTables);
@@ -40,6 +50,16 @@ export class ChatMessageComponent {
             breaks: true,
             gfm: true
         });
+    }
+
+    /**
+     * 组件加载时检查消息是否已有反馈状态
+     */
+    componentWillLoad() {
+        // 如果消息已经有反馈状态，初始化feedbackStatus
+        if (this.message && this.message.feedback) {
+            this.feedbackStatus = this.message.feedback.rating as 'like' | 'dislike' | null;
+        }
     }
 
     // 复制消息内容到剪贴板
@@ -118,14 +138,22 @@ export class ChatMessageComponent {
                         </button>
                         {this.showFeedbackButtons && (
                             <>
-                                <button class="action-button icon-only" title="赞">
+                                <button 
+                                    class={`action-button icon-only ${this.feedbackStatus === 'like' ? 'active' : ''}`} 
+                                    title="赞"
+                                    onClick={() => this.handleLike()}
+                                >
                                     <span class="button-icon">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
                                         </svg>
                                     </span>
                                 </button>
-                                <button class="action-button icon-only" title="踩">
+                                <button 
+                                    class={`action-button icon-only ${this.feedbackStatus === 'dislike' ? 'active' : ''}`} 
+                                    title="踩"
+                                    onClick={() => this.handleDislike()}
+                                >
                                     <span class="button-icon">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path>
@@ -290,6 +318,74 @@ export class ChatMessageComponent {
                 })}
             </div>
         );
+    }
+
+    /**
+     * 处理点赞操作
+     */
+    private async handleLike() {
+        // 如果当前已经是点赞状态，则取消点赞
+        const newStatus = this.feedbackStatus === 'like' ? null : 'like';
+        
+        // 发送请求到服务器
+        await this.submitFeedback(newStatus);
+    }
+
+    /**
+     * 处理点踩操作
+     */
+    private async handleDislike() {
+        // 如果当前已经是点踩状态，则取消点踩
+        const newStatus = this.feedbackStatus === 'dislike' ? null : 'dislike';
+        
+        // 发送请求到服务器
+        await this.submitFeedback(newStatus);
+    }
+
+    /**
+     * 提交反馈到服务器
+     */
+    private async submitFeedback(rating: 'like' | 'dislike' | null) {
+        if (!this.message.id) {
+            console.error('消息ID不存在，无法提交反馈');
+            return;
+        }
+
+        try {
+            const result = await sendHttpRequest({
+                url: `/sdk/v1/chat/messages/${this.message.id}/feedbacks`,
+                method: 'POST',
+                headers: {
+                    'authorization': `Bearer ${this.token}`
+                },
+                data: {
+                    rating,
+                    bot_id: this.botId,
+                    content: '',
+                }
+            });
+            if (result.success) {
+                // 更新本地状态
+                this.feedbackStatus = rating;
+                
+                // 更新消息对象中的反馈状态，创建新对象以确保引用变化
+                if (this.message && this.message.feedback) {
+                    this.message = {
+                        ...this.message,
+                        feedback: {
+                            ...this.message.feedback,
+                            rating
+                        }
+                    };
+                }
+                
+                console.log('反馈提交成功');
+            } else {
+                console.error('反馈提交失败:', result.message);
+            }
+        } catch (error) {
+            console.error('提交反馈时发生错误:', error);
+        }
     }
 
     render() {

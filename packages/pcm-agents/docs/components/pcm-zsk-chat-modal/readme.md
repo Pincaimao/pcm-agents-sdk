@@ -14,6 +14,7 @@
 | `isNeedClose`             | `is-need-close`            | 是否展示右上角的关闭按钮                  | `boolean`               | `true`      |
 | `isOpen`                  | `is-open`                  | 是否显示聊天模态框                     | `boolean`               | `false`     |
 | `isShowHeader`            | `is-show-header`           | 是否展示顶部标题栏                     | `boolean`               | `true`      |
+| `maxAudioRecordingTime`   | `max-audio-recording-time` | 语音录制最大时长（秒）                   | `number`                | `60`        |
 | `modalTitle`              | `modal-title`              | 模态框标题                         | `string`                | `'在线客服'`    |
 | `showReferences`          | `show-references`          | 是否显示引用文档                      | `boolean`               | `true`      |
 | `showSuggestedQuestions`  | `show-suggested-questions` | 是否显示推荐问题                      | `boolean`               | `false`     |

@@ -733,6 +733,53 @@
   cursor: not-allowed;
 }
 
+/* 语音输入按钮样式 */
+.toolbar-button.recording {
+  background-color: rgba(255, 0, 0, 0.1);
+  color: #ff3b30;
+  animation: pulse 1.5s infinite;
+}
+
+.toolbar-button.converting {
+  background-color: rgba(0, 122, 255, 0.1);
+  color: #007aff;
+}
+
+.toolbar-button .recording-time {
+  font-size: 12px;
+  margin-left: 4px;
+}
+
+.converting-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.converting-indicator svg {
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(255, 0, 0, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
+  }
+}
 
 /* 响应式布局 */
 @media screen and (max-width: 768px) {

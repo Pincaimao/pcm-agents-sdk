@@ -4,17 +4,19 @@
 
 ## Properties
 
-| Property  | Attribute | Description | Type          | Default     |
-| --------- | --------- | ----------- | ------------- | ----------- |
-| `message` | --        | 消息数据        | `ChatMessage` | `undefined` |
-| `token`   | `token`   | SDK鉴权密钥     | `string`      | `''`        |
+| Property              | Attribute               | Description | Type          | Default     |
+| --------------------- | ----------------------- | ----------- | ------------- | ----------- |
+| `botId`               | `bot-id`                | 机器人ID       | `string`      | `undefined` |
+| `message`             | --                      | 消息数据        | `ChatMessage` | `undefined` |
+| `showFeedbackButtons` | `show-feedback-buttons` | 是否显示点赞点踩按钮  | `boolean`     | `true`      |
+| `token`               | `token`                 | SDK鉴权密钥     | `string`      | `''`        |
 
 
 ## Events
 
-| Event           | Description | Type                                                                                                                                                                                                      |
-| --------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `messageChange` | 消息变更事件      | `CustomEvent<{ id?: string; query?: string; answer?: string; time?: string; conversation_id?: string; isStreaming?: boolean; inputs?: Record<string, any>; status?: "error" \| "normal"; error?: any; }>` |
+| Event           | Description | Type                                                                                                                                                                                                                                                                                                                                                                   |
+| --------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `messageChange` | 消息变更事件      | `CustomEvent<{ id?: string; conversation_id?: string; parent_message_id?: string; inputs?: Record<string, any>; query?: string; answer?: string; message_files?: any[]; feedback?: Record<string, any>; retriever_resources?: any[]; created_at?: string; agent_thoughts?: any[]; status?: "error" \| "normal"; error?: any; time?: string; isStreaming?: boolean; }>` |
 
 
 ## Dependencies

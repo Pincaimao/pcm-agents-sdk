@@ -197,12 +197,12 @@ export class ChatAPPModal {
     details?: any;
   }>;
 
-    /**
-   * 是否启用语音播报功能
-   * true: 启用语音合成
-   * false: 禁用语音合成
-   */
-    @Prop() enableTTS: boolean = false;
+  /**
+ * 是否启用语音播报功能
+ * true: 启用语音合成
+ * false: 禁用语音合成
+ */
+  @Prop() enableTTS: boolean = false;
 
   /**
    * 是否自动播放语音问题
@@ -238,7 +238,19 @@ export class ChatAPPModal {
    */
   @Prop() botId?: string;
 
+  // 添加语音输入相关状态
+  @State() isRecordingAudio: boolean = false;
+  @State() audioRecorder: MediaRecorder | null = null;
+  @State() audioChunks: BlobPart[] = [];
+  @State() isConvertingAudio: boolean = false;
+  @State() audioRecordingTimeLeft: number = 60; // 最大录音时间（秒）
+  @State() audioRecordingTimer: any = null;
+  @State() audioRecordingStartTime: number = 0;
 
+  /**
+   * 语音录制最大时长（秒）
+   */
+  @Prop() maxAudioRecordingTime: number = 60;
 
   private handleClose = () => {
     this.stopRecording();
@@ -260,17 +272,24 @@ export class ChatAPPModal {
     // 检查是否是最后一题
     const isLastQuestion = this.currentQuestionNumber >= this.totalQuestions;
 
-    // 创建新的消息对象
+    // 创建新的消息对象，统一对齐消息结构
     const newMessage: ChatMessage = {
-      id: `temp-${Date.now()}`,  // 消息唯一标识
-      time: time,                // 消息时间
-      query: queryText,          // 用户输入的消息内容
-      answer: '',
-      isStreaming: true,        // 是否正在流式输出
+      id: `temp-${Date.now()}`,  // 临时ID，将被服务器返回的ID替换
       conversation_id: this.conversationId,  // 会话ID
-      inputs: this.customInputs,               // 输入参数
-      status: "normal",         // 消息状态
-      error: null              // 错误信息
+      parent_message_id: "00000000-0000-0000-0000-000000000000", // 默认父消息ID
+      inputs: this.customInputs || {},  // 输入参数
+      query: queryText,  // 用户输入的消息内容
+      answer: '',  // 初始为空
+      message_files: [],  // 消息附件
+      feedback: {},  // 反馈
+      retriever_resources: [],  // 检索资源
+      created_at: Math.floor(Date.now() / 1000).toString(),  // 创建时间
+      agent_thoughts: [],  // 代理思考过程
+      status: "normal",  // 消息状态
+      error: null,  // 错误信息
+      // 添加组件内部使用的字段
+      time: time,  // 消息时间（显示用）
+      isStreaming: true  // 是否正在流式输出
     };
 
     // 设置当前流式消息
@@ -344,10 +363,16 @@ export class ChatAPPModal {
           if (data.event === 'agent_message' || data.event === 'message') {
             if (data.answer) {
               answer += data.answer;
+              // 更新消息时保持完整的消息结构
               const updatedMessage: ChatMessage = {
                 ...this.currentStreamingMessage,
                 answer,
-                isStreaming: true
+                id: data.message_id || this.currentStreamingMessage.id,
+                isStreaming: true,
+                // 如果服务器返回了其他字段，也更新它们
+                parent_message_id: data.parent_message_id || this.currentStreamingMessage.parent_message_id,
+                retriever_resources: data.retriever_resources || this.currentStreamingMessage.retriever_resources,
+                agent_thoughts: data.agent_thoughts || this.currentStreamingMessage.agent_thoughts
               };
               this.currentStreamingMessage = updatedMessage;
               this.scrollToBottom();
@@ -477,24 +502,34 @@ export class ChatAPPModal {
       if (result.success && result.data) {
         const historyData = result.data.data || [];
         const formattedMessages: ChatMessage[] = historyData.map(msg => {
-          const time = new Date(msg.created_at * 1000);
+          const time = new Date(parseInt(msg.created_at) * 1000);
           const hours = time.getHours().toString().padStart(2, '0');
           const minutes = time.getMinutes().toString().padStart(2, '0');
           const timeStr = `${hours}:${minutes}`;
 
-          // 创建新的消息对象，不包含 inputs 字段
-          const { ...msgWithoutInputs } = msg;
-
+          // 创建完整的消息对象，保持统一结构
           return {
-            ...msgWithoutInputs,
+            id: msg.id,
+            conversation_id: msg.conversation_id,
+            parent_message_id: msg.parent_message_id || "00000000-0000-0000-0000-000000000000",
+            inputs: msg.inputs || {},
+            query: msg.query || "",
+            answer: msg.answer || "",
+            message_files: msg.message_files || [],
+            feedback: msg.feedback || {},
+            retriever_resources: msg.retriever_resources || [],
+            created_at: msg.created_at,
+            agent_thoughts: msg.agent_thoughts || [],
+            status: msg.status || "normal",
+            error: msg.error,
+            // 组件内部使用的字段
             time: timeStr,
-            isStreaming: false,
-            status: msg.status === 'error' ? 'error' : 'normal' as const
+            isStreaming: false
           };
         });
 
         this.messages = formattedMessages;
-        
+
         requestAnimationFrame(() => {
           this.shouldAutoScroll = true;
           this.scrollToBottom();
@@ -831,7 +866,7 @@ export class ChatAPPModal {
           cos_key: cosKey
         }
       });
-      
+
       if (result.success && result.data && result.data.text) {
         return result.data.text;
       } else {
@@ -858,14 +893,14 @@ export class ChatAPPModal {
 
       // 创建File对象
       const file = new File([this.recordedBlob], fileName, { type: this.recordedBlob.type });
-      
+
       // 使用uploadFileToBackend上传文件
       const fileInfo = await uploadFileToBackend(file, {
         'authorization': 'Bearer ' + this.token
       }, {
         'tags': 'other'
       });
-      
+
       // 调用音频转文字API
       const transcriptionText = await this.convertAudioToText(fileInfo.cos_key);
 
@@ -1012,8 +1047,17 @@ export class ChatAPPModal {
       this.recordingTimer = null;
     }
 
+    // 清理音频录制计时器
+    if (this.audioRecordingTimer) {
+      clearInterval(this.audioRecordingTimer);
+      this.audioRecordingTimer = null;
+    }
+
     // 停止录制
     this.stopRecording();
+    
+    // 停止音频录制
+    this.stopAudioRecording();
   }
 
   // 修改手动播放音频的方法
@@ -1063,10 +1107,10 @@ export class ChatAPPModal {
     try {
       // 保存当前输入内容
       const textToSend = this.textAnswer;
-      
+
       // 立即清空文本输入
       this.textAnswer = '';
-      
+
       // 发送用户输入的文本作为查询
       await this.sendMessageToAPI(textToSend);
     } catch (error) {
@@ -1074,6 +1118,208 @@ export class ChatAPPModal {
       alert('提交回答失败，请重试');
     } finally {
       this.isSubmittingText = false;
+    }
+  };
+
+  // 开始录制音频
+  private async startAudioRecording() {
+    try {
+      // 请求麦克风权限
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: false
+      });
+
+      // 检测浏览器支持的音频MIME类型
+      const mimeType = this.getSupportedAudioMimeType();
+
+      // 创建MediaRecorder实例
+      let audioRecorder;
+      try {
+        audioRecorder = new MediaRecorder(stream, {
+          mimeType: mimeType
+        });
+      } catch (e) {
+        console.warn('指定的音频MIME类型不受支持，使用默认设置:', e);
+        try {
+          audioRecorder = new MediaRecorder(stream);
+        } catch (recorderError) {
+          console.error('无法创建音频录制器:', recorderError);
+          alert('您的浏览器不支持音频录制功能');
+          return;
+        }
+      }
+
+      this.audioRecorder = audioRecorder;
+      this.audioChunks = [];
+      this.isRecordingAudio = true;
+      this.audioRecordingStartTime = Date.now();
+      this.audioRecordingTimeLeft = this.maxAudioRecordingTime;
+
+      // 设置数据可用事件处理
+      audioRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          this.audioChunks.push(event.data);
+        }
+      };
+
+      // 设置录制停止事件处理
+      audioRecorder.onstop = () => {
+        // 停止并释放媒体流
+        stream.getTracks().forEach(track => track.stop());
+        
+        // 处理录制的音频
+        this.processAudioRecording();
+      };
+
+      // 开始录制
+      audioRecorder.start(100); // 每100毫秒获取一次数据
+
+      // 设置录制计时器
+      this.audioRecordingTimer = setInterval(() => {
+        const elapsedTime = Math.floor((Date.now() - this.audioRecordingStartTime) / 1000);
+        this.audioRecordingTimeLeft = Math.max(0, this.maxAudioRecordingTime - elapsedTime);
+
+        // 时间到自动停止录制
+        if (this.audioRecordingTimeLeft <= 0) {
+          this.stopAudioRecording();
+        }
+      }, 1000);
+
+    } catch (error) {
+      console.error('无法访问麦克风:', error);
+      alert('无法访问麦克风，请确保已授予权限');
+    }
+  }
+
+  // 停止录制音频
+  private stopAudioRecording() {
+    if (this.audioRecorder && this.isRecordingAudio) {
+      this.audioRecorder.stop();
+      this.isRecordingAudio = false;
+
+      // 清理计时器
+      if (this.audioRecordingTimer) {
+        clearInterval(this.audioRecordingTimer);
+        this.audioRecordingTimer = null;
+      }
+    }
+  }
+
+  // 处理录制的音频
+  private async processAudioRecording() {
+    if (this.audioChunks.length === 0) {
+      console.warn('没有录制到音频数据');
+      return;
+    }
+
+    try {
+      this.isConvertingAudio = true;
+
+      // 创建音频Blob
+      const audioType = this.getSupportedAudioMimeType() || 'audio/webm';
+      const audioBlob = new Blob(this.audioChunks, { type: audioType });
+
+      if (audioBlob.size === 0) {
+        console.warn('录制的音频为空');
+        this.isConvertingAudio = false;
+        return;
+      }
+
+      // 创建File对象
+      const fileExtension = audioType.includes('webm') ? 'webm' : 'mp3';
+      const fileName = `audio_input.${fileExtension}`;
+      const audioFile = new File([audioBlob], fileName, { type: audioType });
+
+      // 上传音频文件
+      const fileInfo = await uploadFileToBackend(audioFile, {
+        'authorization': 'Bearer ' + this.token
+      }, {
+        'tags': 'audio'
+      });
+
+      // 调用音频转文字API
+      const transcriptionText = await this.convertAudioToText(fileInfo.cos_key);
+
+      // 将转录文本追加到文本框，而不是替换
+      if (transcriptionText) {
+        // 保存当前光标位置
+        const textArea = this.hostElement.shadowRoot?.querySelector('.text-answer-input') as HTMLTextAreaElement;
+        const cursorPosition = textArea?.selectionStart || this.textAnswer.length;
+        
+        // 在光标位置插入识别的文本
+        const beforeCursor = this.textAnswer.substring(0, cursorPosition);
+        const afterCursor = this.textAnswer.substring(cursorPosition);
+        
+        // 如果当前文本不为空且不以空格结尾，添加一个空格
+        const spacer = (beforeCursor.length > 0 && !beforeCursor.endsWith(' ')) ? ' ' : '';
+        
+        // 更新文本
+        this.textAnswer = beforeCursor + spacer + transcriptionText + afterCursor;
+        
+        // 设置新的光标位置
+        setTimeout(() => {
+          if (textArea) {
+            const newPosition = cursorPosition + spacer.length + transcriptionText.length;
+            textArea.focus();
+            textArea.setSelectionRange(newPosition, newPosition);
+          }
+        }, 0);
+      } else {
+        console.warn('未能识别语音内容');
+        alert('未能识别语音内容，请重试或直接输入文字');
+      }
+    } catch (error) {
+      console.error('处理音频录制失败:', error);
+      alert('语音识别失败，请重试');
+    } finally {
+      this.isConvertingAudio = false;
+      this.audioChunks = [];
+    }
+  }
+
+  // 获取支持的音频MIME类型
+  private getSupportedAudioMimeType(): string {
+    // 按优先级排列的音频MIME类型列表
+    const mimeTypes = [
+      'audio/webm;codecs=opus',
+      'audio/webm',
+      'audio/mp4',
+      'audio/ogg;codecs=opus',
+      'audio/ogg',
+      ''  // 空字符串表示使用浏览器默认值
+    ];
+
+    // 检查MediaRecorder是否可用
+    if (!window.MediaRecorder) {
+      console.warn('MediaRecorder API不可用');
+      return '';
+    }
+
+    // 检查每种MIME类型是否受支持
+    for (const type of mimeTypes) {
+      if (!type) return ''; // 如果是空字符串，直接返回
+
+      try {
+        if (MediaRecorder.isTypeSupported(type)) {
+          return type;
+        }
+      } catch (e) {
+        console.warn(`检查音频MIME类型支持时出错 ${type}:`, e);
+      }
+    }
+
+    // 如果没有找到支持的类型，返回空字符串
+    console.warn('没有找到支持的音频MIME类型，将使用浏览器默认值');
+    return '';
+  }
+
+  // 处理语音输入按钮点击
+  private handleVoiceInputClick = () => {
+    if (this.isRecordingAudio) {
+      this.stopAudioRecording();
+    } else {
+      this.startAudioRecording();
     }
   };
 
@@ -1176,26 +1422,49 @@ export class ChatAPPModal {
           value={this.textAnswer}
           onInput={this.handleTextInputChange}
           onKeyDown={this.handleKeyDown}
+          disabled={this.isRecordingAudio || this.isConvertingAudio}
         ></textarea>
         <div class="input-toolbar">
           <div class="toolbar-actions">
-            {/* <button class="toolbar-button" title="表情" disabled>
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-6c.78 2.34 2.72 4 5 4s4.22-1.66 5-4H7zm1.5-5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm7 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3z" />
-              </svg>
+            <button 
+              class={{
+                'toolbar-button': true,
+                'recording': this.isRecordingAudio,
+                'converting': this.isConvertingAudio
+              }} 
+              title={this.isRecordingAudio ? '点击停止录音' : this.isConvertingAudio ? '正在识别语音...' : '语音输入'}
+              onClick={this.handleVoiceInputClick}
+              disabled={this.isConvertingAudio || this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.waitingToRecord || this.isPlayingAudio}
+            >
+              {this.isRecordingAudio ? (
+                <div>
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
+                    <circle cx="12" cy="11" r="4" fill="red" />
+                  </svg>
+                  <span class="recording-time">{this.audioRecordingTimeLeft}s</span>
+                </div>
+              ) : this.isConvertingAudio ? (
+                <div class="converting-indicator">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z" />
+                  </svg>
+                </div>
+              ) : (
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                  <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+                  <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
+                </svg>
+              )}
             </button>
-            <button class="toolbar-button" title="图片" disabled>
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4.86 8.86l-3 3.87L9 13.14 6 17h12l-3.86-5.14z" />
-              </svg>
-            </button> */}
           </div>
           <button
             class={{
               'submit-text-button': true,
-              'disabled': !this.textAnswer.trim() || this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.waitingToRecord || this.isPlayingAudio
+              'disabled': !this.textAnswer.trim() || this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.waitingToRecord || this.isPlayingAudio || this.isRecordingAudio || this.isConvertingAudio
             }}
-            disabled={!this.textAnswer.trim() || this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.waitingToRecord || this.isPlayingAudio}
+            disabled={!this.textAnswer.trim() || this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.waitingToRecord || this.isPlayingAudio || this.isRecordingAudio || this.isConvertingAudio}
             onClick={this.submitTextAnswer}
           >
             {this.isSubmittingText ? '发送中...' : '发送'}
@@ -1233,6 +1502,7 @@ export class ChatAPPModal {
                   {this.messages.map((message) => (
                     <div id={`message_${message.id}`} key={message.id}>
                       <pcm-chat-message
+                        botId={this.botId}
                         message={message}
                         token={this.token}
                         onMessageChange={(event) => {
@@ -1247,6 +1517,7 @@ export class ChatAPPModal {
                   {this.currentStreamingMessage && (
                     <div id={`message_${this.currentStreamingMessage.id}`}>
                       <pcm-chat-message
+                        botId={this.botId}
                         token={this.token}
                         message={this.currentStreamingMessage}
                       ></pcm-chat-message>

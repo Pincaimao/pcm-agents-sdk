@@ -1501,3 +1501,12 @@
     white-space: nowrap;
     color: #8B4513;
 }
+
+.action-button.active {
+  color: #1677ff;
+  background-color: rgba(22, 119, 255, 0.1);
+}
+
+.action-button.active .button-icon svg {
+  stroke: #1677ff;
+}

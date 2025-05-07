@@ -84,6 +84,10 @@ export namespace Components {
          */
         "isShowHeader": boolean;
         /**
+          * 语音录制最大时长（秒）
+         */
+        "maxAudioRecordingTime": number;
+        /**
           * 视频录制最大时长（秒）
          */
         "maxRecordingTime": number;
@@ -209,6 +213,10 @@ export namespace Components {
         "useButtonText": string;
     }
     interface PcmChatMessage {
+        /**
+          * 机器人ID
+         */
+        "botId"?: string;
         /**
           * 消息数据
          */
@@ -780,6 +788,10 @@ export namespace Components {
           * 是否展示顶部标题栏
          */
         "isShowHeader": boolean;
+        /**
+          * 语音录制最大时长（秒）
+         */
+        "maxAudioRecordingTime": number;
         /**
           * 模态框标题
          */
@@ -1515,6 +1527,10 @@ declare namespace LocalJSX {
          */
         "isShowHeader"?: boolean;
         /**
+          * 语音录制最大时长（秒）
+         */
+        "maxAudioRecordingTime"?: number;
+        /**
           * 视频录制最大时长（秒）
          */
         "maxRecordingTime"?: number;
@@ -1684,6 +1700,10 @@ declare namespace LocalJSX {
         "useButtonText"?: string;
     }
     interface PcmChatMessage {
+        /**
+          * 机器人ID
+         */
+        "botId"?: string;
         /**
           * 消息数据
          */
@@ -2604,6 +2624,10 @@ declare namespace LocalJSX {
           * 是否展示顶部标题栏
          */
         "isShowHeader"?: boolean;
+        /**
+          * 语音录制最大时长（秒）
+         */
+        "maxAudioRecordingTime"?: number;
         /**
           * 模态框标题
          */
