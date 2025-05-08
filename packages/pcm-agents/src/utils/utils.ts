@@ -302,6 +302,37 @@ export const verifyApiKey = async (token: string): Promise<boolean> => {
 };
 
 /**
+ * 获取智能体信息
+ * @param token API密钥
+ * @param botId 智能体ID
+ * @returns Promise<any> 智能体信息数据
+ */
+export const fetchAgentInfo = async (token: string, botId: string): Promise<any> => {
+  if (!token || !botId) {
+    throw new Error('API密钥和智能体ID不能为空');
+  }
+  
+  try {
+    const response = await sendHttpRequest({
+      url: `/sdk/v1/agent/${botId}/info`,
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.success) {
+      throw new Error(response.message || '获取智能体信息失败');
+    }
+    
+    return response.data;
+  } catch (error) {
+    console.error('获取智能体信息失败:', error);
+    throw error;
+  }
+};
+
+/**
  * 文件上传响应数据接口
  */
 export interface FileUploadResponse {

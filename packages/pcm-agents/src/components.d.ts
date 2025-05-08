@@ -28,6 +28,10 @@ export namespace Components {
     }
     interface PcmAppChatModal {
         /**
+          * 助手头像URL
+         */
+        "assistantAvatar"?: string;
+        /**
           * 机器人ID
          */
         "botId"?: string;
@@ -103,6 +107,10 @@ export namespace Components {
           * 控制对话轮数
          */
         "totalQuestions": number;
+        /**
+          * 用户头像URL
+         */
+        "userAvatar"?: string;
         /**
           * 聊天框的页面层级
          */
@@ -214,6 +222,10 @@ export namespace Components {
     }
     interface PcmChatMessage {
         /**
+          * 助手头像URL
+         */
+        "assistantAvatar"?: string;
+        /**
           * 机器人ID
          */
         "botId"?: string;
@@ -229,6 +241,10 @@ export namespace Components {
           * SDK鉴权密钥
          */
         "token": string;
+        /**
+          * 用户头像URL
+         */
+        "userAvatar"?: string;
     }
     interface PcmChatModal {
         /**
@@ -1471,6 +1487,10 @@ declare namespace LocalJSX {
     }
     interface PcmAppChatModal {
         /**
+          * 助手头像URL
+         */
+        "assistantAvatar"?: string;
+        /**
           * 机器人ID
          */
         "botId"?: string;
@@ -1591,6 +1611,10 @@ declare namespace LocalJSX {
          */
         "totalQuestions"?: number;
         /**
+          * 用户头像URL
+         */
+        "userAvatar"?: string;
+        /**
           * 聊天框的页面层级
          */
         "zIndex"?: number;
@@ -1701,6 +1725,10 @@ declare namespace LocalJSX {
     }
     interface PcmChatMessage {
         /**
+          * 助手头像URL
+         */
+        "assistantAvatar"?: string;
+        /**
           * 机器人ID
          */
         "botId"?: string;
@@ -1720,6 +1748,10 @@ declare namespace LocalJSX {
           * SDK鉴权密钥
          */
         "token"?: string;
+        /**
+          * 用户头像URL
+         */
+        "userAvatar"?: string;
     }
     interface PcmChatModal {
         /**

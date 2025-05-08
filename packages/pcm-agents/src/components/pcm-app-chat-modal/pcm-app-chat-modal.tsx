@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element } from '@stencil/core';
-import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, API_DOMAIN } from '../../utils/utils';
+import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, API_DOMAIN, fetchAgentInfo } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
 
 @Component({
@@ -252,11 +252,39 @@ export class ChatAPPModal {
    */
   @Prop() maxAudioRecordingTime: number = 60;
 
+  /**
+   * 用户头像URL
+   */
+  @Prop() userAvatar?: string = "https://pub.pincaimao.com/static/common/i_pcm_logo.png";
+
+  /**
+   * 助手头像URL
+   */
+  @Prop() assistantAvatar?: string;
+
+  /**
+   * 智能体头像URL（从后端获取）
+   */
+  @State() agentLogo: string = '';
+
   private handleClose = () => {
     this.stopRecording();
     this.modalClosed.emit();
   };
 
+  // 添加获取智能体信息的方法
+  private async fetchAgentLogo() {
+    if (!this.botId || !this.token) return;
+    
+    try {
+      const agentInfo = await fetchAgentInfo(this.token, this.botId);
+      if (agentInfo && agentInfo.logo) {
+        this.agentLogo = agentInfo.logo;
+      }
+    } catch (error) {
+      console.error('获取智能体信息失败:', error);
+    }
+  }
 
   private async sendMessageToAPI(message: string, videoUrl?: string) {
     this.isLoading = true;
@@ -553,8 +581,12 @@ export class ChatAPPModal {
     }
   }
 
-  // 添加 componentWillLoad 生命周期方法
+  // 修改 componentWillLoad 生命周期方法
   componentWillLoad() {
+    // 如果没有设置助手头像，尝试获取智能体头像
+    if (!this.assistantAvatar && this.botId) {
+      this.fetchAgentLogo();
+    }
 
     // 如果组件加载时已经是打开状态，则直接开始对话
     if (this.isOpen) {
@@ -1473,6 +1505,9 @@ export class ChatAPPModal {
       </div>
     );
 
+    // 确定要使用的助手头像
+    const effectiveAssistantAvatar = this.assistantAvatar || this.agentLogo;
+
     return (
       <div class={overlayClass} style={modalStyle}>
         <div class={containerClass}>
@@ -1505,6 +1540,8 @@ export class ChatAPPModal {
                         botId={this.botId}
                         message={message}
                         token={this.token}
+                        userAvatar={this.userAvatar}
+                        assistantAvatar={effectiveAssistantAvatar}
                         onMessageChange={(event) => {
                           const updatedMessages = this.messages.map(msg =>
                             msg.id === message.id ? { ...msg, ...event.detail } : msg
@@ -1520,6 +1557,8 @@ export class ChatAPPModal {
                         botId={this.botId}
                         token={this.token}
                         message={this.currentStreamingMessage}
+                        userAvatar={this.userAvatar}
+                        assistantAvatar={effectiveAssistantAvatar}
                       ></pcm-chat-message>
                     </div>
                   )}
