@@ -27,11 +27,11 @@
 
 | Event                   | Description | Type                                                                                                   |
 | ----------------------- | ----------- | ------------------------------------------------------------------------------------------------------ |
-| `interviewComplete`     | 当面试完成时触发    | `CustomEvent<{ conversation_id: string; }>`                                                            |
+| `interviewComplete`     | 当面试完成时触发    | `CustomEvent<InterviewCompleteEventData>`                                                              |
 | `modalClosed`           | 当点击模态框关闭时触发 | `CustomEvent<void>`                                                                                    |
 | `recordingError`        | 录制错误事件      | `CustomEvent<{ type: string; message: string; details?: any; }>`                                       |
 | `recordingStatusChange` | 录制状态变化事件    | `CustomEvent<{ status: "started" \| "stopped" \| "paused" \| "resumed" \| "failed"; details?: any; }>` |
-| `streamComplete`        |             | `CustomEvent<{ conversation_id: string; event: string; message_id: string; id: string; }>`             |
+| `streamComplete`        |             | `CustomEvent<StreamCompleteEventData>`                                                                 |
 
 
 ## Dependencies

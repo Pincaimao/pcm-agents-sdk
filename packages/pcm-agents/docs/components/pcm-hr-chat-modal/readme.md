@@ -29,12 +29,12 @@
 
 | Event                   | Description             | Type                                                                                                   |
 | ----------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------ |
-| `conversationStart`     | 新会话开始的回调，只会在一轮对话开始时触发一次 | `CustomEvent<{ conversation_id: string; event: string; message_id: string; id: string; }>`             |
-| `interviewComplete`     | 当面试完成时触发                | `CustomEvent<{ conversation_id: string; total_questions: number; }>`                                   |
+| `conversationStart`     | 新会话开始的回调，只会在一轮对话开始时触发一次 | `CustomEvent<ConversationStartEventData>`                                                              |
+| `interviewComplete`     | 当面试完成时触发                | `CustomEvent<InterviewCompleteEventData>`                                                              |
 | `modalClosed`           | 当点击模态框关闭时触发             | `CustomEvent<void>`                                                                                    |
 | `recordingError`        | 录制错误事件                  | `CustomEvent<{ type: string; message: string; details?: any; }>`                                       |
 | `recordingStatusChange` | 录制状态变化事件                | `CustomEvent<{ status: "started" \| "stopped" \| "paused" \| "resumed" \| "failed"; details?: any; }>` |
-| `streamComplete`        | 一轮对话结束时的回调              | `CustomEvent<{ conversation_id: string; event: string; message_id: string; id: string; }>`             |
+| `streamComplete`        | 一轮对话结束时的回调              | `CustomEvent<StreamCompleteEventData>`                                                                 |
 
 
 ## Dependencies

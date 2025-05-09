@@ -1,6 +1,13 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element } from '@stencil/core';
 import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, API_DOMAIN, fetchAgentInfo } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
+import { 
+  StreamCompleteEventData, 
+  ConversationStartEventData, 
+  InterviewCompleteEventData,
+  RecordingErrorEventData,
+  RecordingStatusChangeEventData
+} from '../../interfaces/events';
 
 @Component({
   tag: 'pcm-app-chat-modal',
@@ -86,22 +93,12 @@ export class ChatAPPModal {
   /**
    * 一轮对话结束时的回调
    */
-  @Event() streamComplete: EventEmitter<{
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  }>;
+  @Event() streamComplete: EventEmitter<StreamCompleteEventData>;
 
   /**
    * 新会话开始的回调，只会在一轮对话开始时触发一次
    */
-  @Event() conversationStart: EventEmitter<{
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  }>;
+  @Event() conversationStart: EventEmitter<ConversationStartEventData>;
 
   @State() selectedFile: File | null = null;
   @State() isUploading: boolean = false;
@@ -162,11 +159,7 @@ export class ChatAPPModal {
   /**
    * 当聊天完成时触发
    */
-  @Event() interviewComplete: EventEmitter<{
-    conversation_id: string;
-    current_question_number: number;
-    total_questions: number;
-  }>;
+  @Event() interviewComplete: EventEmitter<InterviewCompleteEventData>;
 
   private readonly SCROLL_THRESHOLD = 30;
 
@@ -190,19 +183,12 @@ export class ChatAPPModal {
   /**
    * 录制错误事件
    */
-  @Event() recordingError: EventEmitter<{
-    type: string;
-    message: string;
-    details?: any;
-  }>;
+  @Event() recordingError: EventEmitter<RecordingErrorEventData>;
 
   /**
    * 录制状态变化事件
    */
-  @Event() recordingStatusChange: EventEmitter<{
-    status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
-    details?: any;
-  }>;
+  @Event() recordingStatusChange: EventEmitter<RecordingStatusChangeEventData>;
 
   /**
  * 是否启用语音播报功能

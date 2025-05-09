@@ -5,10 +5,14 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
+import { ConversationStartEventData, InterviewCompleteEventData, RecordingErrorEventData, RecordingStatusChangeEventData, StreamCompleteEventData } from "./interfaces/events";
 import { ChatMessage } from "./interfaces/chat";
+import { ConversationStartEventData as ConversationStartEventData1, InterviewCompleteEventData as InterviewCompleteEventData1, StreamCompleteEventData as StreamCompleteEventData1 } from "./components";
 import { FileUploadResponse } from "./utils/utils";
 import { CareerPlanType } from "./components/pcm-zygh-modal/pcm-zygh-modal";
+export { ConversationStartEventData, InterviewCompleteEventData, RecordingErrorEventData, RecordingStatusChangeEventData, StreamCompleteEventData } from "./interfaces/events";
 export { ChatMessage } from "./interfaces/chat";
+export { ConversationStartEventData as ConversationStartEventData1, InterviewCompleteEventData as InterviewCompleteEventData1, StreamCompleteEventData as StreamCompleteEventData1 } from "./components";
 export { FileUploadResponse } from "./utils/utils";
 export { CareerPlanType } from "./components/pcm-zygh-modal/pcm-zygh-modal";
 export namespace Components {
@@ -949,32 +953,11 @@ declare global {
     };
     interface HTMLPcmAppChatModalElementEventMap {
         "modalClosed": void;
-        "streamComplete": {
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  };
-        "conversationStart": {
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  };
-        "interviewComplete": {
-    conversation_id: string;
-    current_question_number: number;
-    total_questions: number;
-  };
-        "recordingError": {
-    type: string;
-    message: string;
-    details?: any;
-  };
-        "recordingStatusChange": {
-    status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
-    details?: any;
-  };
+        "streamComplete": StreamCompleteEventData;
+        "conversationStart": ConversationStartEventData;
+        "interviewComplete": InterviewCompleteEventData;
+        "recordingError": RecordingErrorEventData;
+        "recordingStatusChange": RecordingStatusChangeEventData;
     }
     interface HTMLPcmAppChatModalElement extends Components.PcmAppChatModal, HTMLStencilElement {
         addEventListener<K extends keyof HTMLPcmAppChatModalElementEventMap>(type: K, listener: (this: HTMLPcmAppChatModalElement, ev: PcmAppChatModalCustomEvent<HTMLPcmAppChatModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -1030,12 +1013,7 @@ declare global {
     interface HTMLPcmChatModalElementEventMap {
         "messageSent": string;
         "modalClosed": void;
-        "streamComplete": {
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  };
+        "streamComplete": StreamCompleteEventData1;
     }
     interface HTMLPcmChatModalElement extends Components.PcmChatModal, HTMLStencilElement {
         addEventListener<K extends keyof HTMLPcmChatModalElementEventMap>(type: K, listener: (this: HTMLPcmChatModalElement, ev: PcmChatModalCustomEvent<HTMLPcmChatModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -1053,22 +1031,9 @@ declare global {
     };
     interface HTMLPcmHrChatModalElementEventMap {
         "modalClosed": void;
-        "streamComplete": {
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  };
-        "conversationStart": {
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  };
-        "interviewComplete": {
-    conversation_id: string;
-    total_questions: number;
-  };
+        "streamComplete": StreamCompleteEventData1;
+        "conversationStart": ConversationStartEventData1;
+        "interviewComplete": InterviewCompleteEventData1;
         "recordingError": {
     type: string;
     message: string;
@@ -1096,22 +1061,9 @@ declare global {
     interface HTMLPcmHtwsModalElementEventMap {
         "modalClosed": void;
         "uploadSuccess": FileUploadResponse;
-        "streamComplete": {
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    };
-        "conversationStart": {
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    };
-        "interviewComplete": {
-        conversation_id: string;
-        total_questions: number;
-    };
+        "streamComplete": StreamCompleteEventData1;
+        "conversationStart": ConversationStartEventData1;
+        "interviewComplete": InterviewCompleteEventData1;
         "tokenInvalid": void;
     }
     /**
@@ -1134,22 +1086,9 @@ declare global {
     interface HTMLPcmHyzjModalElementEventMap {
         "modalClosed": void;
         "uploadSuccess": FileUploadResponse;
-        "streamComplete": {
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    };
-        "conversationStart": {
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    };
-        "interviewComplete": {
-        conversation_id: string;
-        total_questions: number;
-    };
+        "streamComplete": StreamCompleteEventData1;
+        "conversationStart": ConversationStartEventData1;
+        "interviewComplete": InterviewCompleteEventData1;
         "tokenInvalid": void;
     }
     /**
@@ -1171,22 +1110,9 @@ declare global {
     };
     interface HTMLPcmJdModalElementEventMap {
         "modalClosed": void;
-        "streamComplete": {
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    };
-        "conversationStart": {
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    };
-        "interviewComplete": {
-        conversation_id: string;
-        total_questions: number;
-    };
+        "streamComplete": StreamCompleteEventData1;
+        "conversationStart": ConversationStartEventData1;
+        "interviewComplete": InterviewCompleteEventData1;
         "tokenInvalid": void;
     }
     /**
@@ -1209,22 +1135,9 @@ declare global {
     interface HTMLPcmJlppModalElementEventMap {
         "modalClosed": void;
         "uploadSuccess": FileUploadResponse;
-        "streamComplete": {
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    };
-        "conversationStart": {
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    };
-        "interviewComplete": {
-        conversation_id: string;
-        total_questions: number;
-    };
+        "streamComplete": StreamCompleteEventData1;
+        "conversationStart": ConversationStartEventData1;
+        "interviewComplete": InterviewCompleteEventData1;
         "tokenInvalid": void;
     }
     /**
@@ -1247,22 +1160,9 @@ declare global {
     interface HTMLPcmMnctModalElementEventMap {
         "modalClosed": void;
         "uploadSuccess": FileUploadResponse;
-        "streamComplete": {
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    };
-        "conversationStart": {
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    };
-        "interviewComplete": {
-        conversation_id: string;
-        total_questions: number;
-    };
+        "streamComplete": StreamCompleteEventData1;
+        "conversationStart": ConversationStartEventData1;
+        "interviewComplete": InterviewCompleteEventData1;
         "tokenInvalid": void;
     }
     /**
@@ -1285,22 +1185,9 @@ declare global {
     interface HTMLPcmMnmsModalElementEventMap {
         "modalClosed": void;
         "uploadSuccess": FileUploadResponse;
-        "streamComplete": {
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    };
-        "conversationStart": {
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    };
-        "interviewComplete": {
-        conversation_id: string;
-        total_questions: number;
-    };
+        "streamComplete": StreamCompleteEventData;
+        "conversationStart": ConversationStartEventData;
+        "interviewComplete": InterviewCompleteEventData;
         "tokenInvalid": void;
     }
     /**
@@ -1323,22 +1210,9 @@ declare global {
     interface HTMLPcmMsbgModalElementEventMap {
         "modalClosed": void;
         "uploadSuccess": FileUploadResponse;
-        "streamComplete": {
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    };
-        "conversationStart": {
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    };
-        "interviewComplete": {
-        conversation_id: string;
-        total_questions: number;
-    };
+        "streamComplete": StreamCompleteEventData1;
+        "conversationStart": ConversationStartEventData1;
+        "interviewComplete": InterviewCompleteEventData1;
         "tokenInvalid": void;
     }
     /**
@@ -1360,15 +1234,8 @@ declare global {
     };
     interface HTMLPcmVideoChatModalElementEventMap {
         "modalClosed": void;
-        "streamComplete": {
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  };
-        "interviewComplete": {
-    conversation_id: string;
-  };
+        "streamComplete": StreamCompleteEventData1;
+        "interviewComplete": InterviewCompleteEventData1;
         "recordingError": {
     type: string;
     message: string;
@@ -1395,18 +1262,8 @@ declare global {
     };
     interface HTMLPcmZskChatModalElementEventMap {
         "modalClosed": void;
-        "streamComplete": {
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  };
-        "conversationStart": {
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  };
+        "streamComplete": StreamCompleteEventData1;
+        "conversationStart": ConversationStartEventData1;
         "tokenInvalid": void;
     }
     interface HTMLPcmZskChatModalElement extends Components.PcmZskChatModal, HTMLStencilElement {
@@ -1426,18 +1283,8 @@ declare global {
     interface HTMLPcmZyghModalElementEventMap {
         "modalClosed": void;
         "uploadSuccess": FileUploadResponse;
-        "streamComplete": {
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    };
-        "conversationStart": {
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    };
+        "streamComplete": StreamCompleteEventData1;
+        "conversationStart": ConversationStartEventData1;
         "planningComplete": {
         conversation_id: string;
         type: CareerPlanType;
@@ -1573,20 +1420,11 @@ declare namespace LocalJSX {
         /**
           * 新会话开始的回调，只会在一轮对话开始时触发一次
          */
-        "onConversationStart"?: (event: PcmAppChatModalCustomEvent<{
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  }>) => void;
+        "onConversationStart"?: (event: PcmAppChatModalCustomEvent<ConversationStartEventData>) => void;
         /**
           * 当聊天完成时触发
          */
-        "onInterviewComplete"?: (event: PcmAppChatModalCustomEvent<{
-    conversation_id: string;
-    current_question_number: number;
-    total_questions: number;
-  }>) => void;
+        "onInterviewComplete"?: (event: PcmAppChatModalCustomEvent<InterviewCompleteEventData>) => void;
         /**
           * 当点击模态框关闭时触发
          */
@@ -1594,27 +1432,15 @@ declare namespace LocalJSX {
         /**
           * 录制错误事件
          */
-        "onRecordingError"?: (event: PcmAppChatModalCustomEvent<{
-    type: string;
-    message: string;
-    details?: any;
-  }>) => void;
+        "onRecordingError"?: (event: PcmAppChatModalCustomEvent<RecordingErrorEventData>) => void;
         /**
           * 录制状态变化事件
          */
-        "onRecordingStatusChange"?: (event: PcmAppChatModalCustomEvent<{
-    status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
-    details?: any;
-  }>) => void;
+        "onRecordingStatusChange"?: (event: PcmAppChatModalCustomEvent<RecordingStatusChangeEventData>) => void;
         /**
           * 一轮对话结束时的回调
          */
-        "onStreamComplete"?: (event: PcmAppChatModalCustomEvent<{
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  }>) => void;
+        "onStreamComplete"?: (event: PcmAppChatModalCustomEvent<StreamCompleteEventData>) => void;
         /**
           * 是否显示进度条 true: 显示进度条 false: 隐藏进度条
          */
@@ -1819,12 +1645,7 @@ declare namespace LocalJSX {
           * 点击模态框关闭时触发
          */
         "onModalClosed"?: (event: PcmChatModalCustomEvent<void>) => void;
-        "onStreamComplete"?: (event: PcmChatModalCustomEvent<{
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  }>) => void;
+        "onStreamComplete"?: (event: PcmChatModalCustomEvent<StreamCompleteEventData1>) => void;
         /**
           * 聊天框的页面层级
          */
@@ -1882,19 +1703,11 @@ declare namespace LocalJSX {
         /**
           * 新会话开始的回调，只会在一轮对话开始时触发一次
          */
-        "onConversationStart"?: (event: PcmHrChatModalCustomEvent<{
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  }>) => void;
+        "onConversationStart"?: (event: PcmHrChatModalCustomEvent<ConversationStartEventData1>) => void;
         /**
           * 当面试完成时触发
          */
-        "onInterviewComplete"?: (event: PcmHrChatModalCustomEvent<{
-    conversation_id: string;
-    total_questions: number;
-  }>) => void;
+        "onInterviewComplete"?: (event: PcmHrChatModalCustomEvent<InterviewCompleteEventData1>) => void;
         /**
           * 当点击模态框关闭时触发
          */
@@ -1917,12 +1730,7 @@ declare namespace LocalJSX {
         /**
           * 一轮对话结束时的回调
          */
-        "onStreamComplete"?: (event: PcmHrChatModalCustomEvent<{
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  }>) => void;
+        "onStreamComplete"?: (event: PcmHrChatModalCustomEvent<StreamCompleteEventData1>) => void;
         /**
           * 是否需要上传简历
          */
@@ -1987,19 +1795,11 @@ declare namespace LocalJSX {
         /**
           * 新会话开始的回调，只会在一轮对话开始时触发一次
          */
-        "onConversationStart"?: (event: PcmHtwsModalCustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>) => void;
+        "onConversationStart"?: (event: PcmHtwsModalCustomEvent<ConversationStartEventData1>) => void;
         /**
           * 当聊天完成时触发
          */
-        "onInterviewComplete"?: (event: PcmHtwsModalCustomEvent<{
-        conversation_id: string;
-        total_questions: number;
-    }>) => void;
+        "onInterviewComplete"?: (event: PcmHtwsModalCustomEvent<InterviewCompleteEventData1>) => void;
         /**
           * 当点击模态框关闭时触发
          */
@@ -2007,12 +1807,7 @@ declare namespace LocalJSX {
         /**
           * 流式输出完成事件
          */
-        "onStreamComplete"?: (event: PcmHtwsModalCustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>) => void;
+        "onStreamComplete"?: (event: PcmHtwsModalCustomEvent<StreamCompleteEventData1>) => void;
         /**
           * SDK密钥验证失败事件
          */
@@ -2073,19 +1868,11 @@ declare namespace LocalJSX {
         /**
           * 新会话开始的回调，只会在一轮对话开始时触发一次
          */
-        "onConversationStart"?: (event: PcmHyzjModalCustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>) => void;
+        "onConversationStart"?: (event: PcmHyzjModalCustomEvent<ConversationStartEventData1>) => void;
         /**
           * 当聊天完成时触发
          */
-        "onInterviewComplete"?: (event: PcmHyzjModalCustomEvent<{
-        conversation_id: string;
-        total_questions: number;
-    }>) => void;
+        "onInterviewComplete"?: (event: PcmHyzjModalCustomEvent<InterviewCompleteEventData1>) => void;
         /**
           * 当点击模态框关闭时触发
          */
@@ -2093,12 +1880,7 @@ declare namespace LocalJSX {
         /**
           * 流式输出完成事件
          */
-        "onStreamComplete"?: (event: PcmHyzjModalCustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>) => void;
+        "onStreamComplete"?: (event: PcmHyzjModalCustomEvent<StreamCompleteEventData1>) => void;
         /**
           * SDK密钥验证失败事件
          */
@@ -2159,19 +1941,11 @@ declare namespace LocalJSX {
         /**
           * 新会话开始的回调，只会在一轮对话开始时触发一次
          */
-        "onConversationStart"?: (event: PcmJdModalCustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>) => void;
+        "onConversationStart"?: (event: PcmJdModalCustomEvent<ConversationStartEventData1>) => void;
         /**
           * 当聊天完成时触发
          */
-        "onInterviewComplete"?: (event: PcmJdModalCustomEvent<{
-        conversation_id: string;
-        total_questions: number;
-    }>) => void;
+        "onInterviewComplete"?: (event: PcmJdModalCustomEvent<InterviewCompleteEventData1>) => void;
         /**
           * 当点击模态框关闭时触发
          */
@@ -2179,12 +1953,7 @@ declare namespace LocalJSX {
         /**
           * 流式输出完成事件
          */
-        "onStreamComplete"?: (event: PcmJdModalCustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>) => void;
+        "onStreamComplete"?: (event: PcmJdModalCustomEvent<StreamCompleteEventData1>) => void;
         /**
           * SDK密钥验证失败事件
          */
@@ -2241,19 +2010,11 @@ declare namespace LocalJSX {
         /**
           * 新会话开始的回调，只会在一轮对话开始时触发一次
          */
-        "onConversationStart"?: (event: PcmJlppModalCustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>) => void;
+        "onConversationStart"?: (event: PcmJlppModalCustomEvent<ConversationStartEventData1>) => void;
         /**
           * 当聊天完成时触发
          */
-        "onInterviewComplete"?: (event: PcmJlppModalCustomEvent<{
-        conversation_id: string;
-        total_questions: number;
-    }>) => void;
+        "onInterviewComplete"?: (event: PcmJlppModalCustomEvent<InterviewCompleteEventData1>) => void;
         /**
           * 当点击模态框关闭时触发
          */
@@ -2261,12 +2022,7 @@ declare namespace LocalJSX {
         /**
           * 流式输出完成事件
          */
-        "onStreamComplete"?: (event: PcmJlppModalCustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>) => void;
+        "onStreamComplete"?: (event: PcmJlppModalCustomEvent<StreamCompleteEventData1>) => void;
         /**
           * SDK密钥验证失败事件
          */
@@ -2327,19 +2083,11 @@ declare namespace LocalJSX {
         /**
           * 新会话开始的回调，只会在一轮对话开始时触发一次
          */
-        "onConversationStart"?: (event: PcmMnctModalCustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>) => void;
+        "onConversationStart"?: (event: PcmMnctModalCustomEvent<ConversationStartEventData1>) => void;
         /**
           * 当聊天完成时触发
          */
-        "onInterviewComplete"?: (event: PcmMnctModalCustomEvent<{
-        conversation_id: string;
-        total_questions: number;
-    }>) => void;
+        "onInterviewComplete"?: (event: PcmMnctModalCustomEvent<InterviewCompleteEventData1>) => void;
         /**
           * 当点击模态框关闭时触发
          */
@@ -2347,12 +2095,7 @@ declare namespace LocalJSX {
         /**
           * 流式输出完成事件
          */
-        "onStreamComplete"?: (event: PcmMnctModalCustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>) => void;
+        "onStreamComplete"?: (event: PcmMnctModalCustomEvent<StreamCompleteEventData1>) => void;
         /**
           * SDK密钥验证失败事件
          */
@@ -2417,19 +2160,11 @@ declare namespace LocalJSX {
         /**
           * 新会话开始的回调，只会在一轮对话开始时触发一次
          */
-        "onConversationStart"?: (event: PcmMnmsModalCustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>) => void;
+        "onConversationStart"?: (event: PcmMnmsModalCustomEvent<ConversationStartEventData>) => void;
         /**
           * 当聊天完成时触发
          */
-        "onInterviewComplete"?: (event: PcmMnmsModalCustomEvent<{
-        conversation_id: string;
-        total_questions: number;
-    }>) => void;
+        "onInterviewComplete"?: (event: PcmMnmsModalCustomEvent<InterviewCompleteEventData>) => void;
         /**
           * 当点击模态框关闭时触发
          */
@@ -2437,12 +2172,7 @@ declare namespace LocalJSX {
         /**
           * 流式输出完成事件
          */
-        "onStreamComplete"?: (event: PcmMnmsModalCustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>) => void;
+        "onStreamComplete"?: (event: PcmMnmsModalCustomEvent<StreamCompleteEventData>) => void;
         /**
           * SDK密钥验证失败事件
          */
@@ -2503,19 +2233,11 @@ declare namespace LocalJSX {
         /**
           * 新会话开始的回调，只会在一轮对话开始时触发一次
          */
-        "onConversationStart"?: (event: PcmMsbgModalCustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>) => void;
+        "onConversationStart"?: (event: PcmMsbgModalCustomEvent<ConversationStartEventData1>) => void;
         /**
           * 当聊天完成时触发
          */
-        "onInterviewComplete"?: (event: PcmMsbgModalCustomEvent<{
-        conversation_id: string;
-        total_questions: number;
-    }>) => void;
+        "onInterviewComplete"?: (event: PcmMsbgModalCustomEvent<InterviewCompleteEventData1>) => void;
         /**
           * 当点击模态框关闭时触发
          */
@@ -2523,12 +2245,7 @@ declare namespace LocalJSX {
         /**
           * 流式输出完成事件
          */
-        "onStreamComplete"?: (event: PcmMsbgModalCustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>) => void;
+        "onStreamComplete"?: (event: PcmMsbgModalCustomEvent<StreamCompleteEventData1>) => void;
         /**
           * SDK密钥验证失败事件
          */
@@ -2598,9 +2315,7 @@ declare namespace LocalJSX {
         /**
           * 当面试完成时触发
          */
-        "onInterviewComplete"?: (event: PcmVideoChatModalCustomEvent<{
-    conversation_id: string;
-  }>) => void;
+        "onInterviewComplete"?: (event: PcmVideoChatModalCustomEvent<InterviewCompleteEventData1>) => void;
         /**
           * 当点击模态框关闭时触发
          */
@@ -2620,12 +2335,7 @@ declare namespace LocalJSX {
     status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
     details?: any;
   }>) => void;
-        "onStreamComplete"?: (event: PcmVideoChatModalCustomEvent<{
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  }>) => void;
+        "onStreamComplete"?: (event: PcmVideoChatModalCustomEvent<StreamCompleteEventData1>) => void;
         /**
           * 父组件传入的 简历id
          */
@@ -2683,12 +2393,7 @@ declare namespace LocalJSX {
         /**
           * 新会话开始的回调，只会在一轮对话开始时触发一次
          */
-        "onConversationStart"?: (event: PcmZskChatModalCustomEvent<{
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  }>) => void;
+        "onConversationStart"?: (event: PcmZskChatModalCustomEvent<ConversationStartEventData1>) => void;
         /**
           * 当点击模态框关闭时触发
          */
@@ -2696,12 +2401,7 @@ declare namespace LocalJSX {
         /**
           * 一轮对话结束时的回调
          */
-        "onStreamComplete"?: (event: PcmZskChatModalCustomEvent<{
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  }>) => void;
+        "onStreamComplete"?: (event: PcmZskChatModalCustomEvent<StreamCompleteEventData1>) => void;
         /**
           * SDK密钥验证失败事件
          */
@@ -2763,12 +2463,7 @@ declare namespace LocalJSX {
         /**
           * 新会话开始的回调，只会在一轮对话开始时触发一次
          */
-        "onConversationStart"?: (event: PcmZyghModalCustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>) => void;
+        "onConversationStart"?: (event: PcmZyghModalCustomEvent<ConversationStartEventData1>) => void;
         /**
           * 当点击模态框关闭时触发
          */
@@ -2783,12 +2478,7 @@ declare namespace LocalJSX {
         /**
           * 流式输出完成事件
          */
-        "onStreamComplete"?: (event: PcmZyghModalCustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>) => void;
+        "onStreamComplete"?: (event: PcmZyghModalCustomEvent<StreamCompleteEventData1>) => void;
         /**
           * SDK密钥验证失败事件
          */

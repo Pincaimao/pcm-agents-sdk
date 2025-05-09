@@ -24,12 +24,12 @@
 
 ## Events
 
-| Event               | Description             | Type                                                                                       |
-| ------------------- | ----------------------- | ------------------------------------------------------------------------------------------ |
-| `conversationStart` | 新会话开始的回调，只会在一轮对话开始时触发一次 | `CustomEvent<{ conversation_id: string; event: string; message_id: string; id: string; }>` |
-| `modalClosed`       | 当点击模态框关闭时触发             | `CustomEvent<void>`                                                                        |
-| `streamComplete`    | 一轮对话结束时的回调              | `CustomEvent<{ conversation_id: string; event: string; message_id: string; id: string; }>` |
-| `tokenInvalid`      | SDK密钥验证失败事件             | `CustomEvent<void>`                                                                        |
+| Event               | Description             | Type                                      |
+| ------------------- | ----------------------- | ----------------------------------------- |
+| `conversationStart` | 新会话开始的回调，只会在一轮对话开始时触发一次 | `CustomEvent<ConversationStartEventData>` |
+| `modalClosed`       | 当点击模态框关闭时触发             | `CustomEvent<void>`                       |
+| `streamComplete`    | 一轮对话结束时的回调              | `CustomEvent<StreamCompleteEventData>`    |
+| `tokenInvalid`      | SDK密钥验证失败事件             | `CustomEvent<void>`                       |
 
 
 ## Dependencies

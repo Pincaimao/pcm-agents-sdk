@@ -1,6 +1,7 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
 import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, FileUploadResponse, API_DOMAIN } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
+import { ConversationStartEventData, InterviewCompleteEventData, StreamCompleteEventData } from '../../components';
 
 @Component({
   tag: 'pcm-hr-chat-modal',
@@ -86,22 +87,12 @@ export class ChatHRModal {
   /**
    * 一轮对话结束时的回调
    */
-  @Event() streamComplete: EventEmitter<{
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  }>;
+  @Event() streamComplete: EventEmitter<StreamCompleteEventData>;
 
   /**
    * 新会话开始的回调，只会在一轮对话开始时触发一次
    */
-  @Event() conversationStart: EventEmitter<{
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  }>;
+  @Event() conversationStart: EventEmitter<ConversationStartEventData>;
 
   @State() selectedFile: File | null = null;
   @State() isUploading: boolean = false;
@@ -169,10 +160,7 @@ export class ChatHRModal {
   /**
    * 当面试完成时触发
    */
-  @Event() interviewComplete: EventEmitter<{
-    conversation_id: string;
-    total_questions: number;
-  }>;
+  @Event() interviewComplete: EventEmitter<InterviewCompleteEventData>;
 
   private readonly SCROLL_THRESHOLD = 30;
 

@@ -268,14 +268,25 @@ export class ChatMessageComponent {
                     const value = this.message.inputs[key];
                     if (value && !key.startsWith('hide_') && key !== 'answer') {
                         if (key === 'file_url') {
-                            const fileName = this.getFileName(value);
+                            // 优先使用 file_name 属性，如果不存在则从 file_url 提取文件名
+                            const fileName = this.message.inputs.file_name || this.getFileName(value);
                             return this.renderFileItem(fileName, value, index);
                         } else if (key === 'file_urls') {
-                            const fileList = Array.isArray(value) ? value : value.split(',');
+                            // 始终将 file_urls 视为逗号分隔的字符串
+                            const fileList = typeof value === 'string' ? value.split(',') : [value.toString()];
+                            
+                            // 同样将 file_names 视为逗号分隔的字符串
+                            const fileNames = this.message.inputs.file_names ? 
+                                (typeof this.message.inputs.file_names === 'string' ? 
+                                    this.message.inputs.file_names.split(',') : 
+                                    [this.message.inputs.file_names.toString()]) : 
+                                [];
+                            
                             return (
                                 <div key={index}>
                                     {fileList.map((fileUrl, fileIndex) => {
-                                        const fileName = this.getFileName(fileUrl);
+                                        // 使用对应的文件名，如果不存在则从URL提取
+                                        const fileName = fileNames[fileIndex] || this.getFileName(fileUrl);
                                         return this.renderFileItem(fileName, fileUrl, fileIndex);
                                     })}
                                 </div>

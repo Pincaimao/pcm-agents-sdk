@@ -1,6 +1,7 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
 import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, API_DOMAIN } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
+import { InterviewCompleteEventData, StreamCompleteEventData } from '../../components';
 
 @Component({
   tag: 'pcm-video-chat-modal',
@@ -84,12 +85,7 @@ export class VideoChatModal {
   @Element() hostElement: HTMLElement;
 
   // 添加新的 Event
-  @Event() streamComplete: EventEmitter<{
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  }>;
+  @Event() streamComplete: EventEmitter<StreamCompleteEventData>;
 
   /**
    * 首次对话提问文本
@@ -99,6 +95,16 @@ export class VideoChatModal {
   // 添加新的状态
   @State() showInitialUpload: boolean = true;
 
+  /**
+ * 视频录制最大时长（秒）
+ */
+  @Prop() maxRecordingTime: number = 120;
+
+  /**
+   * 录制倒计时提醒时间（秒）
+   * 当剩余时间小于此值时，显示倒计时警告
+   */
+  @Prop() countdownWarningTime: number = 30;
   // 添加视频录制相关状态
   @State() isRecording: boolean = false;
   @State() recordingStream: MediaStream | null = null;
@@ -108,7 +114,6 @@ export class VideoChatModal {
   @State() showRecordingUI: boolean = false;
   @State() recordingTimer: any = null;
   @State() recordingStartTime: number = 0;
-  @State() recordingMaxTime: number = 120; // 最大录制时间（秒）
   @State() waitingToRecord: boolean = false;
   @State() waitingTimer: any = null;
   @State() waitingTimeLeft: number = 10; // 等待时间（秒）
@@ -125,22 +130,11 @@ export class VideoChatModal {
   /**
    * 当面试完成时触发
    */
-  @Event() interviewComplete: EventEmitter<{
-    conversation_id: string;
-  }>;
+  @Event() interviewComplete: EventEmitter<InterviewCompleteEventData>;
 
   private readonly SCROLL_THRESHOLD = 30;
 
-  /**
-   * 视频录制最大时长（秒）
-   */
-  @Prop() maxRecordingTime: number = 120;
 
-  /**
-   * 录制倒计时提醒时间（秒）
-   * 当剩余时间小于此值时，显示倒计时警告
-   */
-  @Prop() countdownWarningTime: number = 30;
 
   @State() showCountdownWarning: boolean = false;
 
@@ -274,10 +268,10 @@ export class VideoChatModal {
         // 添加对任务结束的判断
         if (data.event === 'node_finished' && data.data.title && data.data.title.includes('聘才猫任务结束')) {
           console.log('检测到任务结束事件:', data);
-          
+
           // 设置标志，表示任务已结束
           this.isTaskCompleted = true;
-          
+
           // 触发面试完成事件
           this.interviewComplete.emit({
             conversation_id: this.conversationId,
@@ -443,7 +437,7 @@ export class VideoChatModal {
         });
 
         this.messages = formattedMessages;
-        
+
         requestAnimationFrame(() => {
           this.shouldAutoScroll = true;
           this.scrollToBottom();
@@ -763,7 +757,7 @@ export class VideoChatModal {
       // 根据Blob类型确定文件扩展名
       const fileExtension = this.recordedBlob.type.includes('webm') ? 'webm' : 'mp4';
       const fileName = `answer.${fileExtension}`;
-      
+
       // 创建File对象
       const file = new File([this.recordedBlob], fileName, { type: this.recordedBlob.type });
 
@@ -779,7 +773,7 @@ export class VideoChatModal {
       if (uploadResult.cos_key) {
         // 调用音频转文字API
         const transcriptionText = await this.convertAudioToText(uploadResult.cos_key);
-        
+
         // 发送转换后的文本和视频URL到下一个请求
         await this.sendMessageToAPI(transcriptionText || "下一题", uploadResult.cos_key);
       } else {
@@ -812,7 +806,7 @@ export class VideoChatModal {
           cos_key: cosKey
         }
       });
-      
+
       if (result.success && result.data?.text) {
         console.log('转换后的文本:', result.data.text);
         return result.data.text;
@@ -1078,7 +1072,7 @@ export class VideoChatModal {
                     </div>
                   )}
                 </div>
-                
+
                 <div class="recording-controls">
                   {this.showRecordingUI ? (
                     <button

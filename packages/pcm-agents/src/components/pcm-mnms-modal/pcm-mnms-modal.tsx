@@ -1,5 +1,10 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
 import { uploadFileToBackend, FileUploadResponse, verifyApiKey } from '../../utils/utils';
+import { 
+  StreamCompleteEventData, 
+  ConversationStartEventData, 
+  InterviewCompleteEventData,
+} from '../../interfaces/events';
 
 /**
  * 模拟面试
@@ -79,30 +84,17 @@ export class MnmsModal {
     /**
      * 流式输出完成事件
      */
-    @Event() streamComplete: EventEmitter<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>;
+    @Event() streamComplete: EventEmitter<StreamCompleteEventData>;
 
     /**
      * 新会话开始的回调，只会在一轮对话开始时触发一次
      */
-    @Event() conversationStart: EventEmitter<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>;
+    @Event() conversationStart: EventEmitter<ConversationStartEventData>;
 
     /**
      * 当聊天完成时触发
      */
-    @Event() interviewComplete: EventEmitter<{
-        conversation_id: string;
-        total_questions: number;
-    }>;
+    @Event() interviewComplete: EventEmitter<InterviewCompleteEventData>;
 
     /**
      * SDK密钥验证失败事件
@@ -410,6 +402,7 @@ export class MnmsModal {
                                 customInputs={this.conversationId ? undefined : {
                                     ...this.customInputs,
                                     file_url: this.uploadedFileInfo?.cos_key,
+                                    file_name: this.uploadedFileInfo?.file_name,
                                     job_info: this.customInputs?.job_info || this.jobDescription
                                 }}
                                 interviewMode={this.interviewMode}

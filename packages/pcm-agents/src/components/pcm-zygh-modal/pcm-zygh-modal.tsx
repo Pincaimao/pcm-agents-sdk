@@ -1,5 +1,6 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
 import { uploadFileToBackend, FileUploadResponse, verifyApiKey } from '../../utils/utils';
+import { ConversationStartEventData, StreamCompleteEventData } from '../../components';
 
 /**
  * 职业规划助手
@@ -85,22 +86,12 @@ export class ZyghModal {
     /**
      * 流式输出完成事件
      */
-    @Event() streamComplete: EventEmitter<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>;
+    @Event() streamComplete: EventEmitter<StreamCompleteEventData>;
 
     /**
      * 新会话开始的回调，只会在一轮对话开始时触发一次
      */
-    @Event() conversationStart: EventEmitter<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>;
+    @Event() conversationStart: EventEmitter<ConversationStartEventData>;
 
     /**
      * 当聊天完成时触发
@@ -414,6 +405,7 @@ export class ZyghModal {
                                 customInputs={this.conversationId ? undefined : {
                                     ...this.customInputs,
                                     file_url: this.uploadedFileInfo?.cos_key,
+                                    file_name: this.uploadedFileInfo?.file_name,
                                     type: this.selectedPlanType
                                 }}
                                 interviewMode="text"

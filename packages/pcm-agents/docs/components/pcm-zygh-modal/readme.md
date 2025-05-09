@@ -21,14 +21,14 @@
 
 ## Events
 
-| Event               | Description             | Type                                                                                       |
-| ------------------- | ----------------------- | ------------------------------------------------------------------------------------------ |
-| `conversationStart` | 新会话开始的回调，只会在一轮对话开始时触发一次 | `CustomEvent<{ conversation_id: string; event: string; message_id: string; id: string; }>` |
-| `modalClosed`       | 当点击模态框关闭时触发             | `CustomEvent<void>`                                                                        |
-| `planningComplete`  | 当聊天完成时触发                | `CustomEvent<{ conversation_id: string; type: CareerPlanType; }>`                          |
-| `streamComplete`    | 流式输出完成事件                | `CustomEvent<{ conversation_id: string; event: string; message_id: string; id: string; }>` |
-| `tokenInvalid`      | SDK密钥验证失败事件             | `CustomEvent<void>`                                                                        |
-| `uploadSuccess`     | 上传成功事件                  | `CustomEvent<FileUploadResponse>`                                                          |
+| Event               | Description             | Type                                                              |
+| ------------------- | ----------------------- | ----------------------------------------------------------------- |
+| `conversationStart` | 新会话开始的回调，只会在一轮对话开始时触发一次 | `CustomEvent<ConversationStartEventData>`                         |
+| `modalClosed`       | 当点击模态框关闭时触发             | `CustomEvent<void>`                                               |
+| `planningComplete`  | 当聊天完成时触发                | `CustomEvent<{ conversation_id: string; type: CareerPlanType; }>` |
+| `streamComplete`    | 流式输出完成事件                | `CustomEvent<StreamCompleteEventData>`                            |
+| `tokenInvalid`      | SDK密钥验证失败事件             | `CustomEvent<void>`                                               |
+| `uploadSuccess`     | 上传成功事件                  | `CustomEvent<FileUploadResponse>`                                 |
 
 
 ## Dependencies

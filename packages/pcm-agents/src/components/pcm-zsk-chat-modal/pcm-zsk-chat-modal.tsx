@@ -1,6 +1,7 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
 import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, verifyApiKey, uploadFileToBackend } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
+import { ConversationStartEventData, StreamCompleteEventData } from '../../components';
 
 /**
  * 知识库问答助手
@@ -118,22 +119,12 @@ export class ChatKBModal {
   /**
    * 一轮对话结束时的回调
    */
-  @Event() streamComplete: EventEmitter<{
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  }>;
+  @Event() streamComplete: EventEmitter<StreamCompleteEventData>;
 
   /**
    * 新会话开始的回调，只会在一轮对话开始时触发一次
    */
-  @Event() conversationStart: EventEmitter<{
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  }>;
+  @Event() conversationStart: EventEmitter<ConversationStartEventData>;;
 
 
   /**

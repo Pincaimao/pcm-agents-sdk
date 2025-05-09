@@ -21,11 +21,11 @@
 
 ## Events
 
-| Event            | Description | Type                                                                                       |
-| ---------------- | ----------- | ------------------------------------------------------------------------------------------ |
-| `messageSent`    | 当发送消息时触发    | `CustomEvent<string>`                                                                      |
-| `modalClosed`    | 点击模态框关闭时触发  | `CustomEvent<void>`                                                                        |
-| `streamComplete` |             | `CustomEvent<{ conversation_id: string; event: string; message_id: string; id: string; }>` |
+| Event            | Description | Type                                   |
+| ---------------- | ----------- | -------------------------------------- |
+| `messageSent`    | 当发送消息时触发    | `CustomEvent<string>`                  |
+| `modalClosed`    | 点击模态框关闭时触发  | `CustomEvent<void>`                    |
+| `streamComplete` |             | `CustomEvent<StreamCompleteEventData>` |
 
 
 ## Dependencies
