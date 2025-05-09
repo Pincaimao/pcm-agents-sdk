@@ -116,6 +116,17 @@ export class ChatAPPModal {
   @State() showInitialUpload: boolean = false;
 
 
+  /**
+   * 视频录制最大时长（秒）
+   */
+  @Prop() maxRecordingTime: number = 120;
+
+  /**
+   * 录制倒计时提醒时间（秒）
+   * 当剩余时间小于此值时，显示倒计时警告
+   */
+  @Prop() countdownWarningTime: number = 30;
+
   // 添加视频录制相关状态
   @State() isRecording: boolean = false;
   @State() recordingStream: MediaStream | null = null;
@@ -125,7 +136,6 @@ export class ChatAPPModal {
   @State() showRecordingUI: boolean = false;
   @State() recordingTimer: any = null;
   @State() recordingStartTime: number = 0;
-  @State() recordingMaxTime: number = 120; // 最大录制时间（秒）
   @State() waitingToRecord: boolean = false;
   @State() waitingTimer: any = null;
   @State() waitingTimeLeft: number = 10; // 等待时间（秒）
@@ -160,16 +170,7 @@ export class ChatAPPModal {
 
   private readonly SCROLL_THRESHOLD = 30;
 
-  /**
-   * 视频录制最大时长（秒）
-   */
-  @Prop() maxRecordingTime: number = 120;
 
-  /**
-   * 录制倒计时提醒时间（秒）
-   * 当剩余时间小于此值时，显示倒计时警告
-   */
-  @Prop() countdownWarningTime: number = 30;
 
   @State() showCountdownWarning: boolean = false;
 
@@ -291,7 +292,7 @@ export class ChatAPPModal {
   // 添加获取智能体信息的方法
   private async fetchAgentLogo() {
     if (!this.botId || !this.token) return;
-    
+
     try {
       const agentInfo = await fetchAgentInfo(this.token, this.botId);
       if (agentInfo && agentInfo.logo) {
@@ -315,7 +316,7 @@ export class ChatAPPModal {
 
     // 检查是否是最后一题
     const isLastQuestion = this.currentQuestionNumber >= this.totalQuestions;
-    
+
     // 创建新的消息对象，统一对齐消息结构
     const newMessage: ChatMessage = {
       id: `temp-${Date.now()}`,  // 临时ID，将被服务器返回的ID替换
@@ -404,10 +405,10 @@ export class ChatAPPModal {
         // 添加对任务结束的判断
         if (data.event === 'node_finished' && data.data.title && data.data.title.includes('聘才猫任务结束')) {
           console.log('检测到任务结束事件:', data);
-          
+
           // 设置标志，表示任务已结束
           this.isTaskCompleted = true;
-          
+
           // 触发面试完成事件
           this.interviewComplete.emit({
             conversation_id: this.conversationId,
@@ -1121,7 +1122,7 @@ export class ChatAPPModal {
 
     // 停止录制
     this.stopRecording();
-    
+
     // 停止音频录制
     this.stopAudioRecording();
   }
@@ -1201,7 +1202,7 @@ export class ChatAPPModal {
         })
         .catch(error => {
           console.error('麦克风权限请求失败:', error);
-          
+
           // 根据错误类型提供更具体的提示
           if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
             alert('麦克风访问被拒绝。\n\n在Mac上，请前往系统偏好设置 > 安全性与隐私 > 隐私 > 麦克风，确保您的浏览器已被允许访问麦克风。');
@@ -1254,7 +1255,7 @@ export class ChatAPPModal {
       audioRecorder.onstop = () => {
         // 停止并释放媒体流
         stream.getTracks().forEach(track => track.stop());
-        
+
         // 处理录制的音频
         this.processAudioRecording();
       };
@@ -1321,17 +1322,17 @@ export class ChatAPPModal {
         // 保存当前光标位置
         const textArea = this.hostElement.shadowRoot?.querySelector('.text-answer-input') as HTMLTextAreaElement;
         const cursorPosition = textArea?.selectionStart || this.textAnswer.length;
-        
+
         // 在光标位置插入识别的文本
         const beforeCursor = this.textAnswer.substring(0, cursorPosition);
         const afterCursor = this.textAnswer.substring(cursorPosition);
-        
+
         // 如果当前文本不为空且不以空格结尾，添加一个空格
         const spacer = (beforeCursor.length > 0 && !beforeCursor.endsWith(' ')) ? ' ' : '';
-        
+
         // 更新文本
         this.textAnswer = beforeCursor + spacer + transcriptionText + afterCursor;
-        
+
         // 设置新的光标位置
         setTimeout(() => {
           if (textArea) {
@@ -1506,12 +1507,12 @@ export class ChatAPPModal {
         ></textarea>
         <div class="input-toolbar">
           <div class="toolbar-actions">
-            <button 
+            <button
               class={{
                 'toolbar-button': true,
                 'recording': this.isRecordingAudio,
                 'converting': this.isConvertingAudio
-              }} 
+              }}
               title={this.isRecordingAudio ? '点击停止录音' : this.isConvertingAudio ? '正在识别语音...' : '语音输入'}
               onClick={this.handleVoiceInputClick}
               disabled={this.isConvertingAudio || this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.waitingToRecord || this.isPlayingAudio}
