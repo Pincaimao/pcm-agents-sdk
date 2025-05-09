@@ -134,9 +134,14 @@ export class ChatAPPModal {
   private videoRef: HTMLVideoElement | null = null;
 
   /**
+   * 是否通过对话轮数控制结束
+   */
+  @Prop() isControlByQuestionNumber: boolean = false;
+
+  /**
    * 控制对话轮数
    */
-  @Prop() totalQuestions: number = 2;
+  @Prop() totalQuestions: number = 10;
 
   /**
    * 当前轮数
@@ -149,6 +154,7 @@ export class ChatAPPModal {
    */
   @Event() interviewComplete: EventEmitter<{
     conversation_id: string;
+    current_question_number: number;
     total_questions: number;
   }>;
 
@@ -267,6 +273,16 @@ export class ChatAPPModal {
    */
   @State() agentLogo: string = '';
 
+  /**
+   * 是否显示进度条
+   * true: 显示进度条
+   * false: 隐藏进度条
+   */
+  @Prop() showProgressBar: boolean = true;
+
+  // 添加新的状态属性来跟踪任务是否已完成
+  @State() isTaskCompleted: boolean = false;
+
   private handleClose = () => {
     this.stopRecording();
     this.modalClosed.emit();
@@ -299,7 +315,7 @@ export class ChatAPPModal {
 
     // 检查是否是最后一题
     const isLastQuestion = this.currentQuestionNumber >= this.totalQuestions;
-
+    
     // 创建新的消息对象，统一对齐消息结构
     const newMessage: ChatMessage = {
       id: `temp-${Date.now()}`,  // 临时ID，将被服务器返回的ID替换
@@ -328,13 +344,14 @@ export class ChatAPPModal {
     this.scrollToBottom();
 
     // 如果是最后一题，直接显示结束消息并完成面试
-    if (isLastQuestion) {
+    if (isLastQuestion && this.isControlByQuestionNumber) {
       this.messages = [...this.messages, newMessage];
       this.currentStreamingMessage = null;
       this.isLoading = false;
       await this.completeInterview();
       this.interviewComplete.emit({
         conversation_id: this.conversationId,
+        current_question_number: this.currentQuestionNumber,
         total_questions: this.totalQuestions
       });
       return;
@@ -367,7 +384,7 @@ export class ChatAPPModal {
       },
       data: requestData,
       onMessage: (data) => {
-        // console.log('收到Stream数据:', data);
+        console.log('收到Stream数据:', data);
 
         if (data.conversation_id && !this.conversationId) {
           this.conversationId = data.conversation_id;
@@ -382,6 +399,21 @@ export class ChatAPPModal {
         // 检查是否有 node_finished 事件和 LLMText
         if (data.event === 'node_finished' && data.data.inputs && data.data.inputs.LLMText) {
           llmText = data.data.inputs.LLMText;
+        }
+
+        // 添加对任务结束的判断
+        if (data.event === 'node_finished' && data.data.title && data.data.title.includes('聘才猫任务结束')) {
+          console.log('检测到任务结束事件:', data);
+          
+          // 设置标志，表示任务已结束
+          this.isTaskCompleted = true;
+          
+          // 触发面试完成事件
+          this.interviewComplete.emit({
+            conversation_id: this.conversationId,
+            current_question_number: this.currentQuestionNumber,
+            total_questions: this.totalQuestions
+          });
         }
 
         if (data.event === 'message') {
@@ -433,14 +465,16 @@ export class ChatAPPModal {
 
         // 获取最新的AI回复内容
         const latestAIMessage = this.currentStreamingMessage;
-
+        latestAIMessage.isStreaming = false;
         // 更新消息列表
-        this.messages = [...this.messages, this.currentStreamingMessage];
+        this.messages = [...this.messages, latestAIMessage];
         this.currentStreamingMessage = null;
 
-        // 如果是初始消息或"下一题"消息，增加题目计数
-        if (message === "下一题" || this.currentQuestionNumber === 0) {
-          this.currentQuestionNumber++;
+        // 增加题目计数
+        this.currentQuestionNumber++;
+
+        if (this.isTaskCompleted) {
+          return;
         }
 
         if (latestAIMessage && latestAIMessage.answer) {
@@ -1153,15 +1187,34 @@ export class ChatAPPModal {
     }
   };
 
-  // 开始录制音频
-  private async startAudioRecording() {
-    try {
-      // 请求麦克风权限
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: false
-      });
+  // 处理语音输入按钮点击
+  private handleVoiceInputClick = () => {
+    if (this.isRecordingAudio) {
+      this.stopAudioRecording();
+    } else {
+      // 直接在用户交互事件处理程序中请求权限
+      // 不使用 async/await，而是使用 Promise 链
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+          // 权限已获取，开始录音
+          this.startRecordingWithStream(stream);
+        })
+        .catch(error => {
+          console.error('麦克风权限请求失败:', error);
+          
+          // 根据错误类型提供更具体的提示
+          if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+            alert('麦克风访问被拒绝。\n\n在Mac上，请前往系统偏好设置 > 安全性与隐私 > 隐私 > 麦克风，确保您的浏览器已被允许访问麦克风。');
+          } else {
+            alert('无法访问麦克风，请确保已授予权限并且麦克风设备正常工作。');
+          }
+        });
+    }
+  };
 
+  // 新方法：使用已获取的媒体流开始录音
+  private startRecordingWithStream(stream: MediaStream) {
+    try {
       // 检测浏览器支持的音频MIME类型
       const mimeType = this.getSupportedAudioMimeType();
 
@@ -1176,6 +1229,8 @@ export class ChatAPPModal {
         try {
           audioRecorder = new MediaRecorder(stream);
         } catch (recorderError) {
+          // 停止并释放媒体流
+          stream.getTracks().forEach(track => track.stop());
           console.error('无法创建音频录制器:', recorderError);
           alert('您的浏览器不支持音频录制功能');
           return;
@@ -1219,22 +1274,10 @@ export class ChatAPPModal {
       }, 1000);
 
     } catch (error) {
-      console.error('无法访问麦克风:', error);
-      alert('无法访问麦克风，请确保已授予权限');
-    }
-  }
-
-  // 停止录制音频
-  private stopAudioRecording() {
-    if (this.audioRecorder && this.isRecordingAudio) {
-      this.audioRecorder.stop();
-      this.isRecordingAudio = false;
-
-      // 清理计时器
-      if (this.audioRecordingTimer) {
-        clearInterval(this.audioRecordingTimer);
-        this.audioRecordingTimer = null;
-      }
+      // 停止并释放媒体流
+      stream.getTracks().forEach(track => track.stop());
+      console.error('开始录音失败:', error);
+      alert('开始录音失败，请确保麦克风设备正常工作');
     }
   }
 
@@ -1346,14 +1389,19 @@ export class ChatAPPModal {
     return '';
   }
 
-  // 处理语音输入按钮点击
-  private handleVoiceInputClick = () => {
-    if (this.isRecordingAudio) {
-      this.stopAudioRecording();
-    } else {
-      this.startAudioRecording();
+  // 停止录制音频
+  private stopAudioRecording() {
+    if (this.audioRecorder && this.isRecordingAudio) {
+      this.audioRecorder.stop();
+      this.isRecordingAudio = false;
+
+      // 清理计时器
+      if (this.audioRecordingTimer) {
+        clearInterval(this.audioRecordingTimer);
+        this.audioRecordingTimer = null;
+      }
     }
-  };
+  }
 
   render() {
     if (!this.isOpen) return null;
@@ -1450,7 +1498,7 @@ export class ChatAPPModal {
       <div class="text-input-area">
         <textarea
           class="text-answer-input"
-          placeholder="请输入...(按回车发送，Ctrl+回车换行)"
+          placeholder="发消息"
           value={this.textAnswer}
           onInput={this.handleTextInputChange}
           onKeyDown={this.handleKeyDown}
@@ -1475,7 +1523,7 @@ export class ChatAPPModal {
                     <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
                     <circle cx="12" cy="11" r="4" fill="red" />
                   </svg>
-                  <span class="recording-time">{this.audioRecordingTimeLeft}s</span>
+                  {/* <span class="recording-time">{this.audioRecordingTimeLeft}s</span> */}
                 </div>
               ) : this.isConvertingAudio ? (
                 <div class="converting-indicator">
@@ -1491,19 +1539,24 @@ export class ChatAPPModal {
               )}
             </button>
           </div>
-          <button
+          <div
             class={{
-              'submit-text-button': true,
+              'send-button': true,
               'disabled': !this.textAnswer.trim() || this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.waitingToRecord || this.isPlayingAudio || this.isRecordingAudio || this.isConvertingAudio
             }}
-            disabled={!this.textAnswer.trim() || this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.waitingToRecord || this.isPlayingAudio || this.isRecordingAudio || this.isConvertingAudio}
-            onClick={this.submitTextAnswer}
+            onClick={() => {
+              if (!this.textAnswer.trim() || this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.waitingToRecord || this.isPlayingAudio || this.isRecordingAudio || this.isConvertingAudio) {
+                return;
+              }
+              this.submitTextAnswer();
+            }}
           >
-            {this.isSubmittingText ? '发送中...' : '发送'}
-          </button>
+            <img src="https://pcm-pub-1351162788.cos.ap-guangzhou.myqcloud.com/sdk/image/i_send.png" alt="发送" />
+          </div>
         </div>
       </div>
     );
+
 
     // 确定要使用的助手头像
     const effectiveAssistantAvatar = this.assistantAvatar || this.agentLogo;
@@ -1579,7 +1632,7 @@ export class ChatAPPModal {
                   )
                 }
                 {this.interviewMode === 'video' && (
-                  <div style={{ width: '100%', display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+                  <div class="video-container">
                     <div class="video-area">
                       {this.showRecordingUI ? (
                         renderVideoPreview()
@@ -1588,19 +1641,21 @@ export class ChatAPPModal {
                           {renderPlaceholderStatus()}
                         </div>
                       )}
-                      <div class="progress-container">
-                        <div class="progress-bar-container">
-                          <div
-                            class="progress-bar"
-                            style={{
-                              width: `${Math.max(0, this.currentQuestionNumber - 1) / this.totalQuestions * 100}%`
-                            }}
-                          ></div>
+                      {this.showProgressBar && (
+                        <div class="progress-container">
+                          <div class="progress-bar-container">
+                            <div
+                              class="progress-bar"
+                              style={{
+                                width: `${Math.max(0, this.currentQuestionNumber - 1) / this.totalQuestions * 100}%`
+                              }}
+                            ></div>
+                          </div>
+                          <div class="progress-text">
+                            已完成{Math.max(0, this.currentQuestionNumber - 1)}/{this.totalQuestions}
+                          </div>
                         </div>
-                        <div class="progress-text">
-                          已完成{Math.max(0, this.currentQuestionNumber - 1)}/{this.totalQuestions}
-                        </div>
-                      </div>
+                      )}
                     </div>
                     <div class="recording-controls">
                       {this.showRecordingUI ? (

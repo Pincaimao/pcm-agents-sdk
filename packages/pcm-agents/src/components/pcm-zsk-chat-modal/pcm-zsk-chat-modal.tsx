@@ -410,9 +410,10 @@ export class ChatKBModal {
       },
       onComplete: async () => {
         this.isLoading = false;
-
+        const latestAIMessage = this.currentStreamingMessage;
+        latestAIMessage.isStreaming = false;
         // 更新消息列表
-        this.messages = [...this.messages, this.currentStreamingMessage];
+        this.messages = [...this.messages, latestAIMessage];
         this.currentStreamingMessage = null;
 
       }
@@ -696,15 +697,34 @@ export class ChatKBModal {
     }
   };
 
-  // 开始录制音频
-  private async startAudioRecording() {
-    try {
-      // 请求麦克风权限
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: false
-      });
+  // 处理语音输入按钮点击
+  private handleVoiceInputClick = () => {
+    if (this.isRecordingAudio) {
+      this.stopAudioRecording();
+    } else {
+      // 直接在用户交互事件处理程序中请求权限
+      // 不使用 async/await，而是使用 Promise 链
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+          // 权限已获取，开始录音
+          this.startRecordingWithStream(stream);
+        })
+        .catch(error => {
+          console.error('麦克风权限请求失败:', error);
+          
+          // 根据错误类型提供更具体的提示
+          if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+            alert('麦克风访问被拒绝。\n\n在Mac上，请前往系统偏好设置 > 安全性与隐私 > 隐私 > 麦克风，确保您的浏览器已被允许访问麦克风。');
+          } else {
+            alert('无法访问麦克风，请确保已授予权限并且麦克风设备正常工作。');
+          }
+        });
+    }
+  };
 
+  // 新方法：使用已获取的媒体流开始录音
+  private startRecordingWithStream(stream: MediaStream) {
+    try {
       // 检测浏览器支持的音频MIME类型
       const mimeType = this.getSupportedAudioMimeType();
 
@@ -719,6 +739,8 @@ export class ChatKBModal {
         try {
           audioRecorder = new MediaRecorder(stream);
         } catch (recorderError) {
+          // 停止并释放媒体流
+          stream.getTracks().forEach(track => track.stop());
           console.error('无法创建音频录制器:', recorderError);
           alert('您的浏览器不支持音频录制功能');
           return;
@@ -742,7 +764,7 @@ export class ChatKBModal {
       audioRecorder.onstop = () => {
         // 停止并释放媒体流
         stream.getTracks().forEach(track => track.stop());
-
+        
         // 处理录制的音频
         this.processAudioRecording();
       };
@@ -762,22 +784,10 @@ export class ChatKBModal {
       }, 1000);
 
     } catch (error) {
-      console.error('无法访问麦克风:', error);
-      alert('无法访问麦克风，请确保已授予权限');
-    }
-  }
-
-  // 停止录制音频
-  private stopAudioRecording() {
-    if (this.audioRecorder && this.isRecordingAudio) {
-      this.audioRecorder.stop();
-      this.isRecordingAudio = false;
-
-      // 清理计时器
-      if (this.audioRecordingTimer) {
-        clearInterval(this.audioRecordingTimer);
-        this.audioRecordingTimer = null;
-      }
+      // 停止并释放媒体流
+      stream.getTracks().forEach(track => track.stop());
+      console.error('开始录音失败:', error);
+      alert('开始录音失败，请确保麦克风设备正常工作');
     }
   }
 
@@ -889,14 +899,19 @@ export class ChatKBModal {
     return '';
   }
 
-  // 处理语音输入按钮点击
-  private handleVoiceInputClick = () => {
-    if (this.isRecordingAudio) {
-      this.stopAudioRecording();
-    } else {
-      this.startAudioRecording();
+  // 停止录制音频
+  private stopAudioRecording() {
+    if (this.audioRecorder && this.isRecordingAudio) {
+      this.audioRecorder.stop();
+      this.isRecordingAudio = false;
+
+      // 清理计时器
+      if (this.audioRecordingTimer) {
+        clearInterval(this.audioRecordingTimer);
+        this.audioRecordingTimer = null;
+      }
     }
-  };
+  }
 
   // 添加处理推荐问题点击的方法
   private handleSuggestedQuestionClick = (question: string) => {
@@ -1060,7 +1075,7 @@ export class ChatKBModal {
       <div class="text-input-area">
         <textarea
           class="text-answer-input"
-          placeholder="请输入...(按回车发送，Ctrl+回车换行)"
+          placeholder="发消息"
           value={this.textAnswer}
           onInput={this.handleTextInputChange}
           onKeyDown={this.handleKeyDown}
@@ -1085,7 +1100,7 @@ export class ChatKBModal {
                     <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
                     <circle cx="12" cy="11" r="4" fill="red" />
                   </svg>
-                  <span class="recording-time">{this.audioRecordingTimeLeft}s</span>
+                  {/* <span class="recording-time">{this.audioRecordingTimeLeft}s</span> */}
                 </div>
               ) : this.isConvertingAudio ? (
                 <div class="converting-indicator">
@@ -1101,16 +1116,20 @@ export class ChatKBModal {
               )}
             </button>
           </div>
-          <button
+          <div
             class={{
-              'submit-text-button': true,
+              'send-button': true,
               'disabled': !this.textAnswer.trim() || this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.isRecordingAudio || this.isConvertingAudio
             }}
-            disabled={!this.textAnswer.trim() || this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.isRecordingAudio || this.isConvertingAudio}
-            onClick={this.submitTextAnswer}
+            onClick={() => {
+              if (!this.textAnswer.trim() || this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.isRecordingAudio || this.isConvertingAudio) {
+                return;
+              }
+              this.submitTextAnswer();
+            }}
           >
-            {this.isSubmittingText ? '发送中...' : '发送'}
-          </button>
+            <img src="https://pcm-pub-1351162788.cos.ap-guangzhou.myqcloud.com/sdk/image/i_send.png" alt="发送" />
+          </div>
         </div>
       </div>
     );

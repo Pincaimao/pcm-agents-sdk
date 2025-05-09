@@ -106,10 +106,8 @@ export class ChatMessageComponent {
     private renderUserMessage() {
         if (!this.message?.query?.trim()) return null;
 
-        const hasAvatar = !!this.userAvatar;
-        
         return (
-            <div class={{'user-message-container': true, 'has-avatar': hasAvatar}}>
+            <div class={{ 'user-message-container': true}}>
                 {this.userAvatar && (
                     <div class="avatar user-avatar">
                         <img src={this.userAvatar} alt="用户头像" />
@@ -130,63 +128,64 @@ export class ChatMessageComponent {
         // 只有在开始流式输出且还没有内容时才显示loading
         const showLoading = this.message.isStreaming && !this.message.answer;
         const htmlContent = this.message.answer ? marked(this.message.answer) : '';
-        const hasAvatar = !!this.assistantAvatar;
 
         return (
-            <div class={{'assistant-message-container': true, 'has-avatar': hasAvatar}}>
+            <div class={{ 'assistant-message-container': true}}>
                 {this.assistantAvatar && (
                     <div class="avatar assistant-avatar">
                         <img src={this.assistantAvatar} alt="助手头像" />
                     </div>
                 )}
-                <div class="message-bubble assistant-message">
-                    <div
-                        class="markdown-content markdown-body"
-                        innerHTML={showLoading ?
-                            `请稍等...` :
-                            htmlContent
-                        }
-                    ></div>
-                </div>
-                {!showLoading && this.message.answer && (
-                    <div class="message-actions">
-                        <button class="action-button" onClick={() => this.copyMessageContent()} title="复制内容">
-                            <span class="button-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                                </svg>
-                            </span>
-                            复制
-                        </button>
-                        {this.showFeedbackButtons && (
-                            <>
-                                <button 
-                                    class={`action-button icon-only ${this.feedbackStatus === 'like' ? 'active' : ''}`} 
-                                    title="赞"
-                                    onClick={() => this.handleLike()}
-                                >
-                                    <span class="button-icon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
-                                        </svg>
-                                    </span>
-                                </button>
-                                <button 
-                                    class={`action-button icon-only ${this.feedbackStatus === 'dislike' ? 'active' : ''}`} 
-                                    title="踩"
-                                    onClick={() => this.handleDislike()}
-                                >
-                                    <span class="button-icon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path>
-                                        </svg>
-                                    </span>
-                                </button>
-                            </>
-                        )}
+                <div class="message-bubble ">
+                    <div class="assistant-message">
+                        <div
+                            class="markdown-content markdown-body"
+                            innerHTML={showLoading ?
+                                `请稍等...` :
+                                htmlContent
+                            }
+                        ></div>
                     </div>
-                )}
+                    {!showLoading && this.message.answer && !this.message.isStreaming && (
+                        <div class="message-actions">
+                            <button class="action-button" onClick={() => this.copyMessageContent()} title="复制内容">
+                                <span class="button-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                    </svg>
+                                </span>
+                                复制
+                            </button>
+                            {this.showFeedbackButtons && (
+                                <>
+                                    <button
+                                        class={`action-button icon-only ${this.feedbackStatus === 'like' ? 'active' : ''}`}
+                                        title="赞"
+                                        onClick={() => this.handleLike()}
+                                    >
+                                        <span class="button-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                                            </svg>
+                                        </span>
+                                    </button>
+                                    <button
+                                        class={`action-button icon-only ${this.feedbackStatus === 'dislike' ? 'active' : ''}`}
+                                        title="踩"
+                                        onClick={() => this.handleDislike()}
+                                    >
+                                        <span class="button-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path>
+                                            </svg>
+                                        </span>
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
         );
     }
@@ -252,6 +251,16 @@ export class ChatMessageComponent {
     // 修改渲染输入数据的方法
     private renderInputs() {
         if (!this.message.inputs) return null;
+        
+        // 检查是否所有字段都为 null、undefined 或空字符串
+        const hasValidInput = Object.keys(this.message.inputs).some(key => {
+            const value = this.message.inputs[key];
+            return value !== null && value !== undefined && value !== '' && 
+                   !key.startsWith('hide_') && key !== 'answer';
+        });
+        
+        // 如果没有有效输入，返回 null
+        if (!hasValidInput) return null;
 
         return (
             <div class="inputs-container">
@@ -308,7 +317,7 @@ export class ChatMessageComponent {
     private async handleLike() {
         // 如果当前已经是点赞状态，则取消点赞
         const newStatus = this.feedbackStatus === 'like' ? null : 'like';
-        
+
         // 发送请求到服务器
         await this.submitFeedback(newStatus);
     }
@@ -319,7 +328,7 @@ export class ChatMessageComponent {
     private async handleDislike() {
         // 如果当前已经是点踩状态，则取消点踩
         const newStatus = this.feedbackStatus === 'dislike' ? null : 'dislike';
-        
+
         // 发送请求到服务器
         await this.submitFeedback(newStatus);
     }
@@ -349,7 +358,7 @@ export class ChatMessageComponent {
             if (result.success) {
                 // 更新本地状态
                 this.feedbackStatus = rating;
-                
+
                 // 更新消息对象中的反馈状态，创建新对象以确保引用变化
                 if (this.message && this.message.feedback) {
                     this.message = {
@@ -360,7 +369,7 @@ export class ChatMessageComponent {
                         }
                     };
                 }
-                
+
                 console.log('反馈提交成功');
             } else {
                 console.error('反馈提交失败:', result.message);

@@ -109,6 +109,11 @@ export class MnmsModal {
      */
     @Event() tokenInvalid: EventEmitter<void>;
 
+    /**
+     * 面试模式：text - 文本模式，video - 视频模式
+     */
+    @Prop() interviewMode: 'text' | 'video' = 'text';
+
     @State() selectedFile: File | null = null;
     @State() isUploading: boolean = false;
     @State() uploadedFileInfo: FileUploadResponse | null = null;
@@ -407,7 +412,8 @@ export class MnmsModal {
                                     file_url: this.uploadedFileInfo?.cos_key,
                                     job_info: this.customInputs?.job_info || this.jobDescription
                                 }}
-                                interviewMode="text"
+                                interviewMode={this.interviewMode}
+                                showProgressBar={false}
                                 onModalClosed={this.handleClose}
                                 onStreamComplete={this.handleStreamComplete}
                                 onConversationStart={this.handleConversationStart}

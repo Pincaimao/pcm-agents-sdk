@@ -76,6 +76,10 @@ export namespace Components {
          */
         "interviewMode": 'video' | 'text';
         /**
+          * 是否通过对话轮数控制结束
+         */
+        "isControlByQuestionNumber": boolean;
+        /**
           * 是否展示右上角的关闭按钮
          */
         "isNeedClose": boolean;
@@ -99,6 +103,10 @@ export namespace Components {
           * 模态框标题
          */
         "modalTitle": string;
+        /**
+          * 是否显示进度条 true: 显示进度条 false: 隐藏进度条
+         */
+        "showProgressBar": boolean;
         /**
           * SDK鉴权密钥
          */
@@ -632,6 +640,10 @@ export namespace Components {
          */
         "icon"?: string;
         /**
+          * 面试模式：text - 文本模式，video - 视频模式
+         */
+        "interviewMode": 'text' | 'video';
+        /**
           * 是否展示右上角的关闭按钮
          */
         "isNeedClose": boolean;
@@ -955,6 +967,7 @@ declare global {
   };
         "interviewComplete": {
     conversation_id: string;
+    current_question_number: number;
     total_questions: number;
   };
         "recordingError": {
@@ -1535,6 +1548,10 @@ declare namespace LocalJSX {
          */
         "interviewMode"?: 'video' | 'text';
         /**
+          * 是否通过对话轮数控制结束
+         */
+        "isControlByQuestionNumber"?: boolean;
+        /**
           * 是否展示右上角的关闭按钮
          */
         "isNeedClose"?: boolean;
@@ -1572,6 +1589,7 @@ declare namespace LocalJSX {
          */
         "onInterviewComplete"?: (event: PcmAppChatModalCustomEvent<{
     conversation_id: string;
+    current_question_number: number;
     total_questions: number;
   }>) => void;
         /**
@@ -1602,6 +1620,10 @@ declare namespace LocalJSX {
     message_id: string;
     id: string;
   }>) => void;
+        /**
+          * 是否显示进度条 true: 显示进度条 false: 隐藏进度条
+         */
+        "showProgressBar"?: boolean;
         /**
           * SDK鉴权密钥
          */
@@ -2377,6 +2399,10 @@ declare namespace LocalJSX {
           * 应用图标URL
          */
         "icon"?: string;
+        /**
+          * 面试模式：text - 文本模式，video - 视频模式
+         */
+        "interviewMode"?: 'text' | 'video';
         /**
           * 是否展示右上角的关闭按钮
          */

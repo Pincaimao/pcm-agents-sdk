@@ -26,13 +26,13 @@
 
 /* 添加消息气泡样式 */
 .message-bubble {
-  padding: 15px 10px;
-  max-width: 80%;
+  max-width: 85%;
   position: relative;
 }
 
 /* 用户消息气泡样式 */
 .user-message {
+  padding: 15px 10px;
   background: #f5f7ff;
   font-size: 14px;
   color: #1F2328;
@@ -41,6 +41,7 @@
 
 /* 助手消息气泡样式 */
 .assistant-message {
+  padding: 15px 10px;
   background-color: #fff;
   border-radius: .375rem;
   font-size: 14px;
@@ -1413,29 +1414,13 @@
 
 /* 基本的消息操作按钮位置 */
 .message-actions {
-  position: absolute;
-  bottom: -40px;
-  left: 0;
   display: flex;
   align-items: center;
   gap: 8px;
   transition: opacity 0.2s ease;
+  margin-top: 15px;
 }
 
-/* 用户消息的操作按钮位置 - 默认情况 */
-.user-message-container .message-actions {
-  right: 0;
-  left: auto;
-}
-
-/* 添加一个类，当有头像时应用 */
-.has-avatar.user-message-container .message-actions {
-  right: 40px;
-}
-
-.has-avatar.assistant-message-container .message-actions {
-  left: 40px;
-}
 
 .action-button {
   display: inline-flex;
