@@ -1436,6 +1436,15 @@ export class ChatAPPModal {
 
     // 渲染占位符状态信息
     const renderPlaceholderStatus = () => {
+      // 任务已完成
+      if (this.isTaskCompleted) {
+        return (
+          <div class="placeholder-status">
+            <p>面试已完成，感谢您的参与！</p>
+          </div>
+        );
+      }
+
       // 正在播放音频
       if (this.isPlayingAudio) {
         return (
