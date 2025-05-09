@@ -90,6 +90,8 @@
           <pcm-button id="open-mnms-chat-video" disabled>模拟面试（视频）</pcm-button>
         </div>
         <button id="open-hr-chat" disabled>打开金牌HR大赛</button>
+        <button id="open-video-chat" disabled>视频面试（一站式）</button>
+
       </div>
 
       <div style="margin: 20px;">
@@ -154,9 +156,9 @@
   </pcm-jd-modal>
 
 
-  <!-- <pcm-video-chat-modal id="pcm-video-chat-modal" modal-title="视频面试"
+  <pcm-video-chat-modal id="pcm-video-chat-modal" modal-title="视频面试（一站式）"
     icon="https://www.ylzhaopin.com/Public/Newhome/images/sidebar/tochat.png" conversation-id=""
-    resume-id="35677279421992960" fullscreen="true" enable-voice="false" total-questions="2"></pcm-video-chat-modal> -->
+    resume-id="35677279421992960" fullscreen="true" enable-voice="false" total-questions="2"></pcm-video-chat-modal>
 
   <pcm-hr-chat-modal id="pcm-hr-chat-modal" modal-title="金牌HR大赛"
     require-resume="false"
@@ -179,7 +181,7 @@
 
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDY3NjEwODh9.HShwBO9nVTt5f9pSYrfv5jSvA2XGZPHwcjk0wWd2kQA";
+    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDY4NDc0Mjh9.j9KO1nXgfNnhS_71tf_SXzD0Wzwe4M0rIWK01tb6RVI";
     let stream = null;
     const urlParams = new URLSearchParams(window.location.search);
       
@@ -208,6 +210,7 @@
       handleZskChatModal();
       handleJdModal();
       handlePcmCard();
+      handleVideoChatModal();
     });
 
     // 为所有组件设置共享的 token
@@ -224,7 +227,8 @@
         'pcm-hr-chat-modal',
         'pcm-zsk-chat-modal',
         'pcm-jd-modal',
-        'pcm-card'
+        'pcm-card',
+        'pcm-video-chat-modal'
       ];
 
       components.forEach(id => {
@@ -288,6 +292,9 @@
           showSuccess('设备和权限检查通过，可以开始聊天');
           if (document.getElementById('open-mnms-chat-video')) {
             document.getElementById('open-mnms-chat-video').disabled = false;
+          }
+          if (document.getElementById('open-video-chat')) {
+            document.getElementById('open-video-chat').disabled = false;
           }
           if (document.getElementById('open-hr-chat')) {
             document.getElementById('open-hr-chat').disabled = false;
@@ -790,6 +797,51 @@
         const targetModalId = document.getElementById('pcm-mnms-modal');
         targetModalId.isOpen = true;
 
+      });
+    };
+
+    // 视频面试（一站式）模态框处理
+    const handleVideoChatModal = () => {
+      const videoChatModal = document.getElementById('pcm-video-chat-modal');
+      const openVideoChatButton = document.getElementById('open-video-chat');
+
+      if (!videoChatModal || !openVideoChatButton) return;
+
+      // 设置事件监听
+      videoChatModal.addEventListener('modalClosed', () => {
+        console.log('视频面试窗口已关闭');
+        videoChatModal.isOpen = false;
+      });
+
+      videoChatModal.addEventListener('streamComplete', (event) => {
+        console.log('流式响应完成:', event.detail);
+      });
+
+      videoChatModal.addEventListener('conversationStart', (event) => {
+        console.log('会话开始:', event.detail);
+        videoChatModal.setAttribute('conversation-id', event.detail.conversation_id);
+      });
+
+      videoChatModal.addEventListener('interviewComplete', (event) => {
+        console.log('面试完成:', event.detail);
+        videoChatModal.isOpen = false;
+      });
+
+      videoChatModal.addEventListener('uploadSuccess', (event) => {
+        console.log('文件上传成功:', event.detail);
+      });
+
+      videoChatModal.addEventListener('tokenInvalid', () => {
+        console.log('SDK密钥验证失败');
+      });
+
+      // 打开视频面试按钮事件监听
+      openVideoChatButton.addEventListener('click', () => {
+        videoChatModal.isOpen = true;
+        if (stream) {
+          stream.getTracks().forEach(track => track.stop());
+          stream = null;
+        }
       });
     };
   </script>

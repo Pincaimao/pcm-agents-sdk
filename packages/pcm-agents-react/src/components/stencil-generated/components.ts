@@ -462,7 +462,6 @@ type PcmVideoChatModalEvents = {
     }>>,
     onInterviewComplete: EventName<CustomEvent<{
         conversation_id: string;
-        total_questions: number;
     }>>,
     onRecordingError: EventName<CustomEvent<{
         type: string;

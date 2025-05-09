@@ -116,15 +116,6 @@ export class VideoChatModal {
   // 添加一个新的私有属性来存储视频元素的引用
   private videoRef: HTMLVideoElement | null = null;
 
-  /**
-   * 总题目数量
-   */
-  @Prop() totalQuestions: number = 2;
-
-  /**
-   * 当前题目序号
-   */
-  @State() currentQuestionNumber: number = 0;
 
   /**
    * 面试是否已完成
@@ -136,7 +127,6 @@ export class VideoChatModal {
    */
   @Event() interviewComplete: EventEmitter<{
     conversation_id: string;
-    total_questions: number;
   }>;
 
   private readonly SCROLL_THRESHOLD = 30;
@@ -203,6 +193,9 @@ export class VideoChatModal {
    */
   @Prop() resumeId?: string;
 
+  // 添加新的状态属性来跟踪任务是否已完成
+  @State() isTaskCompleted: boolean = false;
+
   private handleClose = () => {
     this.stopRecording();
     this.modalClosed.emit();
@@ -219,8 +212,6 @@ export class VideoChatModal {
     // 如果消息为空但有文件，使用默认文本
     const queryText = message.trim();
 
-    // 检查是否是最后一题的"下一题"请求
-    const isLastQuestion = this.currentQuestionNumber >= this.totalQuestions;
 
     // 创建新的消息对象
     const newMessage: ChatMessage = {
@@ -242,20 +233,6 @@ export class VideoChatModal {
     // 滚动到底部
     this.scrollToBottom();
 
-    // 如果是最后一题，直接显示结束消息并完成面试
-    if (isLastQuestion) {
-      this.messages = [...this.messages, newMessage];
-      this.currentStreamingMessage = null;
-      this.isLoading = false;
-      this.isInterviewComplete = true;
-      await this.completeInterview(queryText, videoUrl);
-      this.interviewComplete.emit({
-        conversation_id: this.conversationId,
-        total_questions: this.totalQuestions
-      });
-      this.currentQuestionNumber++;
-      return;
-    }
 
     // 准备请求数据
     const requestData: any = {
@@ -292,6 +269,19 @@ export class VideoChatModal {
         if (data.event === 'node_finished' && data.data.inputs && data.data.inputs.LLMText) {
           llmText = data.data.inputs.LLMText;
           console.log('获取到 LLMText:', llmText);
+        }
+
+        // 添加对任务结束的判断
+        if (data.event === 'node_finished' && data.data.title && data.data.title.includes('聘才猫任务结束')) {
+          console.log('检测到任务结束事件:', data);
+          
+          // 设置标志，表示任务已结束
+          this.isTaskCompleted = true;
+          
+          // 触发面试完成事件
+          this.interviewComplete.emit({
+            conversation_id: this.conversationId,
+          });
         }
 
         if (data.event === 'message') {
@@ -343,8 +333,11 @@ export class VideoChatModal {
         this.messages = [...this.messages, this.currentStreamingMessage];
         this.currentStreamingMessage = null;
 
-        // 增加题目计数
-        this.currentQuestionNumber++;
+
+        // 如果任务已完成，不再执行后续的语音合成和录制
+        if (this.isTaskCompleted) {
+          return;
+        }
 
         if (latestAIMessage && latestAIMessage.answer) {
           // 优先使用 LLMText，如果没有则使用 answer
@@ -479,6 +472,7 @@ export class VideoChatModal {
 
   // 开始等待录制
   private startWaitingToRecord() {
+
     // 清除可能存在的计时器
     if (this.waitingTimer) {
       clearInterval(this.waitingTimer);
@@ -832,38 +826,6 @@ export class VideoChatModal {
     }
   }
 
-  /**
-   * 发送面试完成请求
-   */
-  private async completeInterview(queryText: string, videoUrl: string) {
-    if (!this.conversationId) return;
-    const requestData: any = {
-      response_mode: 'streaming',
-      conversation_id: this.conversationId,
-      query: queryText,
-      bot_id: "3022316191018903",
-      inputs: {
-        id: this.resumeId
-      }
-    };
-
-    // 如果有视频URL，添加到inputs中
-    if (videoUrl) {
-      requestData.inputs.video_url = videoUrl;
-    }
-
-    // 不使用 await，直接发送请求
-    sendSSERequest({
-      url: `/sdk/v1/chat/chat-messages`,
-      method: 'POST',
-      headers: {
-        'authorization': 'Bearer ' + this.token
-      },
-      data: requestData,
-    }).catch(error => {
-      console.error('发送面试完成请求失败:', error);
-    });
-  }
 
   // 添加TTS合成音频的方法
   private async synthesizeAudio(text: string): Promise<string> {
@@ -1116,20 +1078,7 @@ export class VideoChatModal {
                     </div>
                   )}
                 </div>
-                {/* 添加进度条和数字进度 */}
-                <div class="progress-container">
-                  <div class="progress-bar-container">
-                    <div
-                      class="progress-bar"
-                      style={{
-                        width: `${Math.max(0, this.currentQuestionNumber - 1) / this.totalQuestions * 100}%`
-                      }}
-                    ></div>
-                  </div>
-                  <div class="progress-text">
-                    已完成{Math.max(0, this.currentQuestionNumber - 1)}/{this.totalQuestions}
-                  </div>
-                </div>
+                
                 <div class="recording-controls">
                   {this.showRecordingUI ? (
                     <button

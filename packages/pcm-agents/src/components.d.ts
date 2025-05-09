@@ -775,10 +775,6 @@ export namespace Components {
          */
         "token": string;
         /**
-          * 总题目数量
-         */
-        "totalQuestions": number;
-        /**
           * 聊天框的页面层级
          */
         "zIndex"?: number;
@@ -1372,7 +1368,6 @@ declare global {
   };
         "interviewComplete": {
     conversation_id: string;
-    total_questions: number;
   };
         "recordingError": {
     type: string;
@@ -2605,7 +2600,6 @@ declare namespace LocalJSX {
          */
         "onInterviewComplete"?: (event: PcmVideoChatModalCustomEvent<{
     conversation_id: string;
-    total_questions: number;
   }>) => void;
         /**
           * 当点击模态框关闭时触发
@@ -2640,10 +2634,6 @@ declare namespace LocalJSX {
           * SDK鉴权密钥
          */
         "token": string;
-        /**
-          * 总题目数量
-         */
-        "totalQuestions"?: number;
         /**
           * 聊天框的页面层级
          */

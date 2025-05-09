@@ -20,7 +20,6 @@
 | `modalTitle`           | `modal-title`            | 模态框标题                           | `string`  | `'在线客服'`    |
 | `resumeId`             | `resume-id`              | 父组件传入的 简历id                     | `string`  | `undefined` |
 | `token` _(required)_   | `token`                  | SDK鉴权密钥                         | `string`  | `undefined` |
-| `totalQuestions`       | `total-questions`        | 总题目数量                           | `number`  | `2`         |
 | `zIndex`               | `z-index`                | 聊天框的页面层级                        | `number`  | `1000`      |
 
 
@@ -28,7 +27,7 @@
 
 | Event                   | Description | Type                                                                                                   |
 | ----------------------- | ----------- | ------------------------------------------------------------------------------------------------------ |
-| `interviewComplete`     | 当面试完成时触发    | `CustomEvent<{ conversation_id: string; total_questions: number; }>`                                   |
+| `interviewComplete`     | 当面试完成时触发    | `CustomEvent<{ conversation_id: string; }>`                                                            |
 | `modalClosed`           | 当点击模态框关闭时触发 | `CustomEvent<void>`                                                                                    |
 | `recordingError`        | 录制错误事件      | `CustomEvent<{ type: string; message: string; details?: any; }>`                                       |
 | `recordingStatusChange` | 录制状态变化事件    | `CustomEvent<{ status: "started" \| "stopped" \| "paused" \| "resumed" \| "failed"; details?: any; }>` |
