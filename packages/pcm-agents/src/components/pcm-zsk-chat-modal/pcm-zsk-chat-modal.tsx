@@ -573,7 +573,7 @@ export class ChatKBModal {
           await this.loadHistoryMessages();
         }
       } else {
-        alert('获取智能体详情失败，请稍后再试');
+        alert('获取智能体详情失败，请检查token和employeeId是否正确');
       }
     } catch (error) {
       console.error('获取智能体详情失败:', error);
