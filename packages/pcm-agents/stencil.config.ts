@@ -3,6 +3,7 @@ import { Config } from '@stencil/core';
 import { reactOutputTarget } from '@stencil/react-output-target';
 import { vueOutputTarget } from '@stencil/vue-output-target';
 import { readFileSync } from 'fs';
+import dotenvPlugin from 'rollup-plugin-dotenv';
 
 export const config: Config = {
   namespace: 'pcm-agents',
@@ -69,4 +70,7 @@ export const config: Config = {
       key: readFileSync('C:/Users/Administrator/Downloads/webarcx_com.key', 'utf8'),
     },
   },
+  plugins: [
+    dotenvPlugin()
+  ],
 };

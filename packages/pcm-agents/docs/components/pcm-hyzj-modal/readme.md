@@ -11,7 +11,7 @@
 | Property             | Attribute         | Description            | Type                    | Default     |
 | -------------------- | ----------------- | ---------------------- | ----------------------- | ----------- |
 | `conversationId`     | `conversation-id` | 会话ID，传入继续对话，否则创建新会话    | `string`                | `undefined` |
-| `customInputs`       | --                | 自定义输入参数                | `{ [x: string]: any; }` | `{}`        |
+| `customInputs`       | `custom-inputs`   | 自定义输入参数                | `{ [x: string]: any; }` | `{}`        |
 | `defaultQuery`       | `default-query`   | 默认查询文本                 | `string`                | `'请开始总结'`   |
 | `fullscreen`         | `fullscreen`      | 是否以全屏模式打开，移动端建议设置为true | `boolean`               | `false`     |
 | `icon`               | `icon`            | 应用图标URL                | `string`                | `undefined` |

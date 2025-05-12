@@ -7,7 +7,7 @@
 | Property                  | Attribute                  | Description                   | Type                    | Default     |
 | ------------------------- | -------------------------- | ----------------------------- | ----------------------- | ----------- |
 | `conversationId`          | `conversation-id`          | 会话ID，传入继续对话，否则创建新会话           | `string`                | `undefined` |
-| `customInputs`            | --                         | 自定义智能体inputs输入参数              | `{ [x: string]: any; }` | `{}`        |
+| `customInputs`            | `custom-inputs`            | 自定义智能体inputs输入参数              | `{ [x: string]: any; }` | `{}`        |
 | `employeeId` _(required)_ | `employee-id`              | 数字员工ID，从聘才猫开发平台创建数字员工后，点击导出获取 | `string`                | `undefined` |
 | `fullscreen`              | `fullscreen`               | 是否以全屏模式打开，移动端建议设置为true        | `boolean`               | `false`     |
 | `icon`                    | `icon`                     | 应用图标URL                       | `string`                | `undefined` |

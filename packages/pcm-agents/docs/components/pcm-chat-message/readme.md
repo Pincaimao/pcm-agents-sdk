@@ -8,7 +8,7 @@
 | --------------------- | ----------------------- | ----------- | ------------- | ----------- |
 | `assistantAvatar`     | `assistant-avatar`      | 助手头像URL     | `string`      | `undefined` |
 | `botId`               | `bot-id`                | 机器人ID       | `string`      | `undefined` |
-| `message`             | --                      | 消息数据        | `ChatMessage` | `undefined` |
+| `message`             | `message`               | 消息数据        | `ChatMessage` | `undefined` |
 | `showFeedbackButtons` | `show-feedback-buttons` | 是否显示点赞点踩按钮  | `boolean`     | `true`      |
 | `token`               | `token`                 | SDK鉴权密钥     | `string`      | `''`        |
 | `userAvatar`          | `user-avatar`           | 用户头像URL     | `string`      | `undefined` |
