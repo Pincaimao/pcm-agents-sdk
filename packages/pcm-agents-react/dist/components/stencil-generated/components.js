@@ -2,6 +2,8 @@
 import { createComponent } from '@stencil/react-output-target/runtime';
 import { MyComponent as MyComponentElement, defineCustomElement as defineMyComponent } from "pcm-agents/dist/components/my-component.js";
 import { PcmAppChatModal as PcmAppChatModalElement, defineCustomElement as definePcmAppChatModal } from "pcm-agents/dist/components/pcm-app-chat-modal.js";
+import { PcmButton as PcmButtonElement, defineCustomElement as definePcmButton } from "pcm-agents/dist/components/pcm-button.js";
+import { PcmCard as PcmCardElement, defineCustomElement as definePcmCard } from "pcm-agents/dist/components/pcm-card.js";
 import { PcmChatMessage as PcmChatMessageElement, defineCustomElement as definePcmChatMessage } from "pcm-agents/dist/components/pcm-chat-message.js";
 import { PcmChatModal as PcmChatModalElement, defineCustomElement as definePcmChatModal } from "pcm-agents/dist/components/pcm-chat-modal.js";
 import { PcmHrChatModal as PcmHrChatModalElement, defineCustomElement as definePcmHrChatModal } from "pcm-agents/dist/components/pcm-hr-chat-modal.js";
@@ -36,6 +38,20 @@ export const PcmAppChatModal = createComponent({
         onRecordingStatusChange: 'recordingStatusChange'
     },
     defineCustomElement: definePcmAppChatModal
+});
+export const PcmButton = createComponent({
+    tagName: 'pcm-button',
+    elementClass: PcmButtonElement,
+    react: React,
+    events: {},
+    defineCustomElement: definePcmButton
+});
+export const PcmCard = createComponent({
+    tagName: 'pcm-card',
+    elementClass: PcmCardElement,
+    react: React,
+    events: {},
+    defineCustomElement: definePcmCard
 });
 export const PcmChatMessage = createComponent({
     tagName: 'pcm-chat-message',
@@ -148,7 +164,8 @@ export const PcmMnmsModal = createComponent({
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
         onInterviewComplete: 'interviewComplete',
-        onTokenInvalid: 'tokenInvalid'
+        onTokenInvalid: 'tokenInvalid',
+        onRecordingError: 'recordingError'
     },
     defineCustomElement: definePcmMnmsModal
 });

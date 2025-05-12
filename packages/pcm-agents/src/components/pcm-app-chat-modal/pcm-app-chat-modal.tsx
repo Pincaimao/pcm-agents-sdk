@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element } from '@stencil/core';
-import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, API_DOMAIN, fetchAgentInfo } from '../../utils/utils';
+import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, fetchAgentInfo, synthesizeAudio } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
 import { 
   StreamCompleteEventData, 
@@ -449,12 +449,21 @@ export class ChatAPPModal {
       },
       onComplete: async () => {
         this.isLoading = false;
-
+        // 发送第一条消息后，清空 customInputs
+        setTimeout(() => {
+          if (this.customInputs) {
+            Object.keys(this.customInputs).forEach(key => {
+              delete this.customInputs[key];
+            });
+          }
+        }, 1000); // 给一些时间让第一条消息处理完成
+        
         // 获取最新的AI回复内容
         const latestAIMessage = this.currentStreamingMessage;
         latestAIMessage.isStreaming = false;
         // 更新消息列表
         this.messages = [...this.messages, latestAIMessage];
+        
         this.currentStreamingMessage = null;
 
         // 增加题目计数
@@ -469,8 +478,8 @@ export class ChatAPPModal {
           const textForSynthesis = llmText || latestAIMessage.answer;
 
           if (textForSynthesis && this.enableTTS) {
-            // 合成语音
-            const audioUrl = await this.synthesizeAudio(textForSynthesis);
+            // 使用工具函数合成语音
+            const audioUrl = await synthesizeAudio(textForSynthesis, this.token);
 
             if (this.enableVoice) {
               // 自动播放语音
@@ -604,6 +613,11 @@ export class ChatAPPModal {
 
   // 修改 componentWillLoad 生命周期方法
   componentWillLoad() {
+    // 确保 customInputs 是一个对象
+    if (!this.customInputs) {
+      this.customInputs = {};
+    }
+    
     // 如果没有设置助手头像，尝试获取智能体头像
     if (!this.assistantAvatar && this.botId) {
       this.fetchAgentLogo();
@@ -616,7 +630,9 @@ export class ChatAPPModal {
         setTimeout(() => this.loadHistoryMessages(), 0);
       } else {
         // 在下一个事件循环中发送初始消息，避免在componentWillLoad中进行异步操作
-        setTimeout(() => this.sendMessageToAPI(this.defaultQuery), 0);
+        setTimeout(() => {
+          this.sendMessageToAPI(this.defaultQuery);
+        }, 0);
       }
     }
   }
@@ -1006,31 +1022,6 @@ export class ChatAPPModal {
 
     } catch (error) {
       console.error('发送面试完成请求失败:', error);
-    }
-  }
-
-  // 添加TTS合成音频的方法
-  private async synthesizeAudio(text: string): Promise<string> {
-    try {
-      const response = await fetch(`${API_DOMAIN}/sdk/v1/tts/synthesize_audio`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'authorization': 'Bearer ' + this.token
-        },
-        body: JSON.stringify({ text })
-      });
-
-      if (!response.ok) {
-        throw new Error('语音合成失败');
-      }
-
-      // 获取音频数据并创建Blob URL
-      const audioBlob = await response.blob();
-      return URL.createObjectURL(audioBlob);
-    } catch (error) {
-      console.error('语音合成错误:', error);
-      throw error;
     }
   }
 

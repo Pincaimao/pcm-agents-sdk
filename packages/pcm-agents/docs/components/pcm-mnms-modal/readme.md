@@ -31,6 +31,7 @@
 | `conversationStart` | 新会话开始的回调，只会在一轮对话开始时触发一次 | `CustomEvent<ConversationStartEventData>` |
 | `interviewComplete` | 当聊天完成时触发                | `CustomEvent<InterviewCompleteEventData>` |
 | `modalClosed`       | 当点击模态框关闭时触发             | `CustomEvent<void>`                       |
+| `recordingError`    | 录制错误事件                  | `CustomEvent<RecordingErrorEventData>`    |
 | `streamComplete`    | 流式输出完成事件                | `CustomEvent<StreamCompleteEventData>`    |
 | `tokenInvalid`      | SDK密钥验证失败事件             | `CustomEvent<void>`                       |
 | `uploadSuccess`     | 上传成功事件                  | `CustomEvent<FileUploadResponse>`         |

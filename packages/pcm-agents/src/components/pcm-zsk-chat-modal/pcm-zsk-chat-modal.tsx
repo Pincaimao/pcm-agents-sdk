@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
-import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, verifyApiKey, uploadFileToBackend } from '../../utils/utils';
+import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
 import { ConversationStartEventData, StreamCompleteEventData } from '../../components';
 
@@ -199,6 +199,20 @@ export class ChatKBModal {
    * 预设问题列表
    */
   @State() quickQuestions: string[] = [];
+
+
+  
+  private tokenInvalidListener: () => void;
+
+  componentWillLoad() {
+      // 添加全局token无效事件监听器
+      this.tokenInvalidListener = () => {
+          this.tokenInvalid.emit();
+      };
+      document.addEventListener('pcm-token-invalid', this.tokenInvalidListener);
+  }
+
+
 
   private handleClose = () => {
     this.modalClosed.emit();
@@ -593,9 +607,6 @@ export class ChatKBModal {
         return;
       }
 
-      // 当模态框打开时，验证API密钥
-      this.verifyApiKey();
-
       // 获取智能体详情
       await this.fetchEmployeeDetails();
     }
@@ -604,6 +615,9 @@ export class ChatKBModal {
 
   // 修改 componentDidLoad 生命周期方法，确保组件卸载时释放资源
   disconnectedCallback() {
+    // 组件销毁时移除事件监听器
+    document.removeEventListener('pcm-token-invalid', this.tokenInvalidListener);
+
     // 移除滚动事件监听器
     const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
     if (chatHistory) {
@@ -620,23 +634,6 @@ export class ChatKBModal {
 
   }
 
-
-  /**
-    * 验证API密钥
-    */
-  private async verifyApiKey() {
-    try {
-      const isValid = await verifyApiKey(this.token);
-
-      if (!isValid) {
-        throw new Error('API密钥验证失败');
-      }
-    } catch (error) {
-      console.error('API密钥验证错误:', error);
-      // 通知父组件API密钥无效
-      this.tokenInvalid.emit();
-    }
-  }
 
   // 处理文本输入变化
   private handleTextInputChange = (event: Event) => {

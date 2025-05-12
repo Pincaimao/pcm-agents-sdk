@@ -181,7 +181,8 @@
 
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDcxMDU1Nzh9.St0XpNKnknIfabiAPdlCrHysoZwItBqfhIqXdWeWjLU";
+    const SHARED_TOKEN = "1eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc0NzEyNzk0Mn0.fa4-AFlpO4fioxklO_m5ygXqCdq7lfTEGmZwe8jbDWA";
+    const SHARED_TOKEN_NEW = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc0NzEyNzk0Mn0.fa4-AFlpO4fioxklO_m5ygXqCdq7lfTEGmZwe8jbDWA"
     let stream = null;
     const urlParams = new URLSearchParams(window.location.search);
       
@@ -398,6 +399,7 @@
 
       mnmsModal.addEventListener('tokenInvalid', () => {
         console.log('SDK密钥验证失败');
+        mnmsModal.setAttribute('token', SHARED_TOKEN_NEW);
       });
 
       // 打开聊天按钮事件监听
@@ -447,6 +449,7 @@
 
       mnmsModal.addEventListener('tokenInvalid', () => {
         console.log('SDK密钥验证失败');
+        mnmsModal.setAttribute('token', SHARED_TOKEN_NEW);
       });
 
       // 打开聊天按钮事件监听
@@ -485,6 +488,12 @@
       jlppModal.addEventListener('uploadSuccess', (event) => {
         console.log('文件上传成功:', event.detail);
       });
+      
+      // 添加token验证失败事件监听
+      jlppModal.addEventListener('tokenInvalid', () => {
+        console.log('SDK密钥验证失败');
+        jlppModal.setAttribute('token', SHARED_TOKEN_NEW);
+      });
 
       // 打开简历事件监听
       if (openJlpxButton) {
@@ -522,6 +531,12 @@
 
       zyghModal.addEventListener('planningComplete', (event) => {
         console.log('规划完成:', event.detail);
+      });
+      
+      // 添加token验证失败事件监听
+      zyghModal.addEventListener('tokenInvalid', () => {
+        console.log('SDK密钥验证失败');
+        zyghModal.setAttribute('token', SHARED_TOKEN_NEW);
       });
 
       // 打开职业规划助手按钮事件监听
@@ -569,6 +584,7 @@
 
       mnctModal.addEventListener('tokenInvalid', () => {
         console.log('SDK密钥验证失败');
+        mnctModal.setAttribute('token', SHARED_TOKEN_NEW);
       });
 
       // 打开聊天按钮事件监听
@@ -615,6 +631,7 @@
 
       msbgModal.addEventListener('tokenInvalid', () => {
         console.log('SDK密钥验证失败');
+        msbgModal.setAttribute('token', SHARED_TOKEN_NEW);
       });
 
       // 打开聊天按钮事件监听
@@ -653,17 +670,20 @@
         console.log('文件上传成功:', event.detail);
       });
 
-
       hyzjModal.addEventListener('planningComplete', (event) => {
         console.log('规划完成:', event.detail);
+      });
+      
+      // 添加token验证失败事件监听
+      hyzjModal.addEventListener('tokenInvalid', () => {
+        console.log('SDK密钥验证失败');
+        hyzjModal.setAttribute('token', SHARED_TOKEN_NEW);
       });
 
       // 打开按钮事件监听
       openHyzjButton.addEventListener('click', () => {
         hyzjModal.isOpen = true;
       });
-
-
     };
 
 
@@ -691,8 +711,15 @@
       htwsModal.addEventListener('uploadSuccess', (event) => {
         console.log('文件上传成功:', event.detail);
       });
+      
       htwsModal.addEventListener('planningComplete', (event) => {
         console.log('规划完成:', event.detail);
+      });
+      
+      // 添加token验证失败事件监听
+      htwsModal.addEventListener('tokenInvalid', () => {
+        console.log('SDK密钥验证失败');
+        htwsModal.setAttribute('token', SHARED_TOKEN_NEW);
       });
 
       // 打开按钮事件监听
@@ -736,6 +763,12 @@
       chatZSKModal.addEventListener('interviewComplete', (event) => {
         chatZSKModal.isOpen = false;
       });
+      
+      // 添加token验证失败事件监听
+      chatZSKModal.addEventListener('tokenInvalid', () => {
+        console.log('SDK密钥验证失败');
+        chatZSKModal.setAttribute('token', SHARED_TOKEN_NEW);
+      });
 
       // 打开聊天按钮事件监听
       openZSKChatButton.addEventListener('click', () => {
@@ -776,6 +809,7 @@
 
       jdModal.addEventListener('tokenInvalid', () => {
         console.log('SDK密钥验证失败');
+        jdModal.setAttribute('token', SHARED_TOKEN_NEW);
       });
 
       // 打开聊天按钮事件监听
@@ -792,12 +826,17 @@
     const handlePcmCard = () => {
       const pcmCard = document.getElementById('pcm-card');
       if (!pcmCard) return;
+      
+      // 添加token验证失败事件监听
+      pcmCard.addEventListener('tokenInvalid', () => {
+        console.log('SDK密钥验证失败');
+        pcmCard.setAttribute('token', SHARED_TOKEN_NEW);
+      });
 
       pcmCard.addEventListener('click', () => {
         const targetModalId = document.getElementById('pcm-mnms-modal-text');
         
         targetModalId.isOpen = true;
-
       });
     };
 
@@ -834,6 +873,7 @@
 
       videoChatModal.addEventListener('tokenInvalid', () => {
         console.log('SDK密钥验证失败');
+        videoChatModal.setAttribute('token', SHARED_TOKEN_NEW);
       });
 
       // 打开视频面试按钮事件监听

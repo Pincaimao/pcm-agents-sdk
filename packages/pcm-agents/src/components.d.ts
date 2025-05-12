@@ -1189,6 +1189,7 @@ declare global {
         "conversationStart": ConversationStartEventData;
         "interviewComplete": InterviewCompleteEventData;
         "tokenInvalid": void;
+        "recordingError": RecordingErrorEventData;
     }
     /**
      * 模拟面试
@@ -2169,6 +2170,10 @@ declare namespace LocalJSX {
           * 当点击模态框关闭时触发
          */
         "onModalClosed"?: (event: PcmMnmsModalCustomEvent<void>) => void;
+        /**
+          * 录制错误事件
+         */
+        "onRecordingError"?: (event: PcmMnmsModalCustomEvent<RecordingErrorEventData>) => void;
         /**
           * 流式输出完成事件
          */

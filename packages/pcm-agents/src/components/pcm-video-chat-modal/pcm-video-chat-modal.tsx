@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
-import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, API_DOMAIN } from '../../utils/utils';
+import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, synthesizeAudio } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
 import { InterviewCompleteEventData, StreamCompleteEventData } from '../../components';
 
@@ -339,7 +339,7 @@ export class VideoChatModal {
 
           if (textForSynthesis) {
             // 合成语音
-            const audioUrl = await this.synthesizeAudio(textForSynthesis);
+            const audioUrl = await synthesizeAudio(textForSynthesis, this.token);
 
             if (this.enableVoice) {
               // 自动播放语音
@@ -820,31 +820,6 @@ export class VideoChatModal {
     }
   }
 
-
-  // 添加TTS合成音频的方法
-  private async synthesizeAudio(text: string): Promise<string> {
-    try {
-      const response = await fetch(`${API_DOMAIN}/sdk/v1/tts/synthesize_audio`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'authorization': 'Bearer ' + this.token
-        },
-        body: JSON.stringify({ text })
-      });
-
-      if (!response.ok) {
-        throw new Error('语音合成失败');
-      }
-
-      // 获取音频数据并创建Blob URL
-      const audioBlob = await response.blob();
-      return URL.createObjectURL(audioBlob);
-    } catch (error) {
-      console.error('语音合成错误:', error);
-      throw error;
-    }
-  }
 
   // 播放音频的方法
   private playAudio(audioUrl: string): Promise<void> {

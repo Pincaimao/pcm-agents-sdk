@@ -97,6 +97,12 @@ export const sendSSERequest = async (config: SSERequestConfig): Promise<void> =>
       body: data ? JSON.stringify(data) : undefined
     });
 
+    // 检查是否为401错误（未授权）
+    if (response.status === 401) {
+      // 触发全局token无效事件
+      createTokenInvalidEvent();
+    }
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -173,6 +179,16 @@ export interface HttpResponse<T = any> {
   message?: string;
 }
 
+// 添加一个全局事件发射器用于处理401错误
+export const createTokenInvalidEvent = () => {
+  const event = new CustomEvent('pcm-token-invalid', {
+    bubbles: true,
+    composed: true,
+    detail: { timestamp: new Date().getTime() }
+  });
+  document.dispatchEvent(event);
+};
+
 /**
  * 发送HTTP请求
  * @param config 请求配置
@@ -223,6 +239,13 @@ export const sendHttpRequest = async <T = any>(config: HttpRequestConfig): Promi
     }
 
     const response = await fetch(requestUrl, requestConfig);
+    
+    // 检查是否为401错误（未授权）
+    if (response.status === 401) {
+      // 触发全局token无效事件
+      createTokenInvalidEvent();
+    }
+    
     const responseData: ApiResponse<T> = await response.json();
     
     // 调用 onMessage 回调
@@ -386,6 +409,42 @@ export const uploadFileToBackend = async (
     return response.data;
   } catch (error) {
     console.error('文件上传错误:', error);
+    throw error;
+  }
+};
+
+/**
+ * 合成语音音频
+ * @param text 要转换为语音的文本
+ * @param token API密钥
+ * @returns Promise<string> 返回音频的Blob URL
+ */
+export const synthesizeAudio = async (text: string, token: string): Promise<string> => {
+  try {
+    const response = await fetch(`${API_DOMAIN}/sdk/v1/tts/synthesize_audio`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({ text })
+    });
+
+    // 检查是否为401错误（未授权）
+    if (response.status === 401) {
+      // 触发全局token无效事件
+      createTokenInvalidEvent();
+    }
+
+    if (!response.ok) {
+      throw new Error('语音合成失败');
+    }
+
+    // 获取音频数据并创建Blob URL
+    const audioBlob = await response.blob();
+    return URL.createObjectURL(audioBlob);
+  } catch (error) {
+    console.error('语音合成错误:', error);
     throw error;
   }
 };

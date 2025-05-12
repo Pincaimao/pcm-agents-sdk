@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
-import { uploadFileToBackend, FileUploadResponse, verifyApiKey } from '../../utils/utils';
+import { uploadFileToBackend, FileUploadResponse } from '../../utils/utils';
 import { ConversationStartEventData, InterviewCompleteEventData, StreamCompleteEventData } from '../../components';
 
 /**
@@ -108,6 +108,24 @@ export class MnctModal {
     @State() jobDescription: string = '';
     @State() isSubmitting: boolean = false;
 
+
+    
+    private tokenInvalidListener: () => void;
+
+    componentWillLoad() {
+        // 添加全局token无效事件监听器
+        this.tokenInvalidListener = () => {
+            this.tokenInvalid.emit();
+        };
+        document.addEventListener('pcm-token-invalid', this.tokenInvalidListener);
+    }
+
+    disconnectedCallback() {
+        // 组件销毁时移除事件监听器
+        document.removeEventListener('pcm-token-invalid', this.tokenInvalidListener);
+    }
+
+    
     private handleClose = () => {
         this.isOpen = false;
         this.modalClosed.emit();
@@ -218,8 +236,6 @@ export class MnctModal {
             if (this.customInputs && this.customInputs.job_info) {
                 this.jobDescription = this.customInputs.job_info;
             }
-            // 当模态框打开时，验证API密钥
-            this.verifyApiKey();
             
             if (this.conversationId) {
                 // 如果有会话ID，直接显示聊天模态框
@@ -245,22 +261,6 @@ export class MnctModal {
         this.interviewComplete.emit(event.detail);
     };
 
-    /**
-     * 验证API密钥
-     */
-    private async verifyApiKey() {
-        try {
-            const isValid = await verifyApiKey(this.token);
-            
-            if (!isValid) {
-                throw new Error('API密钥验证失败');
-            }
-        } catch (error) {
-            console.error('API密钥验证错误:', error);
-            // 通知父组件API密钥无效
-            this.tokenInvalid.emit();
-        }
-    }
 
     render() {
         if (!this.isOpen) return null;
@@ -390,7 +390,7 @@ export class MnctModal {
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
                                 enableVoice={false}
-                                customInputs={this.conversationId ? undefined : {
+                                customInputs={this.conversationId ? {} : {
                                     ...this.customInputs,
                                     file_url: this.uploadedFileInfo?.cos_key,
                                     file_name: this.uploadedFileInfo?.file_name,
