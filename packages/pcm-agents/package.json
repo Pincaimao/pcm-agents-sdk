@@ -1,6 +1,6 @@
 {
   "name": "pcm-agents",
-  "version": "0.4.1",
+  "version": "0.4.3",
   "description": "Components of pcm-agents",
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
