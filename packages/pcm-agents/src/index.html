@@ -3,7 +3,8 @@
 
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover,maximum-scale=1.0,user-scalable=no">
+  <meta name="viewport"
+    content="width=device-width,initial-scale=1.0,viewport-fit=cover,maximum-scale=1.0,user-scalable=no">
   <title>聘才猫智能体组件展示</title>
 
   <script type="module" src="/build/pcm-agents.esm.js"></script>
@@ -125,12 +126,14 @@
     conversation-id="" fullscreen="true" default-query="请您提问">
   </pcm-mnct-modal>
 
-  <pcm-mnms-modal id="pcm-mnms-modal-video" modal-title="模拟面试（视频）" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
-    conversation-id="" fullscreen="false" interview-mode="video" default-query="请您提问">
+  <pcm-mnms-modal id="pcm-mnms-modal-video" modal-title="模拟面试（视频）"
+    icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id="" fullscreen="false"
+    interview-mode="video" default-query="请您提问">
   </pcm-mnms-modal>
 
-  <pcm-mnms-modal id="pcm-mnms-modal-text" modal-title="模拟面试（文字）" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
-    conversation-id="" fullscreen="false" interview-mode="text" default-query="请您提问">
+  <pcm-mnms-modal id="pcm-mnms-modal-text" modal-title="模拟面试（文字）"
+    icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id="" fullscreen="false"
+    interview-mode="text" default-query="请您提问">
   </pcm-mnms-modal>
 
   <pcm-jlpp-modal id="pcm-jlpp-modal" modal-title="简历匹配助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
@@ -160,15 +163,14 @@
     icon="https://www.ylzhaopin.com/Public/Newhome/images/sidebar/tochat.png" conversation-id=""
     resume-id="35677279421992960" fullscreen="true" enable-voice="false" total-questions="2"></pcm-video-chat-modal>
 
-  <pcm-hr-chat-modal id="pcm-hr-chat-modal" modal-title="金牌HR大赛"
-    require-resume="false"
+  <pcm-hr-chat-modal id="pcm-hr-chat-modal" modal-title="金牌HR大赛" require-resume="false"
     welcome-message="欢迎您参加长沙市人力资源和社会保障局组织的金牌HR大赛，接下来我们将采用数字人方式对您做交流，本次大赛预计需要10-30分钟，请在安静的环境下参与此次大赛。"
     icon="https://p3-pc.douyinpic.com/img/aweme-avatar/tos-cn-avt-0015_55cc4ce1aa0059074f4f9def520246dc~c5_300x300.jpeg"
-    conversation-id="" to-email="790002517@qq.com" display-content-status="true" fullscreen="true"
-    total-questions="2" enable-voice="false"></pcm-hr-chat-modal>
+    conversation-id="" to-email="790002517@qq.com" display-content-status="true" fullscreen="true" total-questions="2"
+    enable-voice="false"></pcm-hr-chat-modal>
 
 
-    <!-- <pcm-app-chat-modal
+  <!-- <pcm-app-chat-modal
       is-open="true"
       modal-title="JD生成"
       icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
@@ -181,16 +183,16 @@
 
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "1eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc0NzEyNzk0Mn0.fa4-AFlpO4fioxklO_m5ygXqCdq7lfTEGmZwe8jbDWA";
+    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc0NzE4NDc0OX0.wnkcae781GmRcSl9gi_94vYHx8JShVXyQCWwXgpyw1Y";
     const SHARED_TOKEN_NEW = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc0NzEyNzk0Mn0.fa4-AFlpO4fioxklO_m5ygXqCdq7lfTEGmZwe8jbDWA"
     let stream = null;
     const urlParams = new URLSearchParams(window.location.search);
-      
-      // 检查是否需要自动打开金牌HR大赛对话框
-      if (urlParams.get('openhr') === '1') {
-        const openhr = document.getElementById('openhr');
-        openhr.style.display = 'block';
-      }
+
+    // 检查是否需要自动打开金牌HR大赛对话框
+    if (urlParams.get('openhr') === '1') {
+      const openhr = document.getElementById('openhr');
+      openhr.style.display = 'block';
+    }
 
     document.addEventListener('DOMContentLoaded', function () {
       console.log('DOM 已加载，正在设置事件监听器...');
@@ -358,11 +360,38 @@
 
       // 打开聊天按钮事件监听
       openChatButton.addEventListener('click', () => {
-        chatModal.isOpen = true;
         // 停止媒体流，因为已经不需要了
         if (stream) {
           stream.getTracks().forEach(track => track.stop());
           stream = null;
+        }
+
+        // 检查是否已有会话ID
+        const conversationId = chatModal.getAttribute('conversation-id');
+
+        if (!conversationId || conversationId === '') {
+          // 没有会话ID时，弹出系统级输入框，要求用户输入邮箱
+          const userEmail = prompt('请输入您的邮箱地址，用于接收评选结果：');
+
+          // 验证邮箱格式
+          if (userEmail) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (emailRegex.test(userEmail)) {
+              // 设置邮箱到组件
+              chatModal.setAttribute('to-email', userEmail);
+              chatModal.isOpen = true;
+
+            } else {
+              alert('请输入有效的邮箱地址');
+            }
+          } else {
+            // 用户取消输入
+            console.log('用户取消了邮箱输入');
+          }
+        } else {
+          // 已有会话ID，直接打开聊天窗口
+          chatModal.isOpen = true;
+
         }
       });
     };
@@ -488,7 +517,7 @@
       jlppModal.addEventListener('uploadSuccess', (event) => {
         console.log('文件上传成功:', event.detail);
       });
-      
+
       // 添加token验证失败事件监听
       jlppModal.addEventListener('tokenInvalid', () => {
         console.log('SDK密钥验证失败');
@@ -532,7 +561,7 @@
       zyghModal.addEventListener('planningComplete', (event) => {
         console.log('规划完成:', event.detail);
       });
-      
+
       // 添加token验证失败事件监听
       zyghModal.addEventListener('tokenInvalid', () => {
         console.log('SDK密钥验证失败');
@@ -673,7 +702,7 @@
       hyzjModal.addEventListener('planningComplete', (event) => {
         console.log('规划完成:', event.detail);
       });
-      
+
       // 添加token验证失败事件监听
       hyzjModal.addEventListener('tokenInvalid', () => {
         console.log('SDK密钥验证失败');
@@ -711,11 +740,11 @@
       htwsModal.addEventListener('uploadSuccess', (event) => {
         console.log('文件上传成功:', event.detail);
       });
-      
+
       htwsModal.addEventListener('planningComplete', (event) => {
         console.log('规划完成:', event.detail);
       });
-      
+
       // 添加token验证失败事件监听
       htwsModal.addEventListener('tokenInvalid', () => {
         console.log('SDK密钥验证失败');
@@ -763,7 +792,7 @@
       chatZSKModal.addEventListener('interviewComplete', (event) => {
         chatZSKModal.isOpen = false;
       });
-      
+
       // 添加token验证失败事件监听
       chatZSKModal.addEventListener('tokenInvalid', () => {
         console.log('SDK密钥验证失败');
@@ -826,7 +855,7 @@
     const handlePcmCard = () => {
       const pcmCard = document.getElementById('pcm-card');
       if (!pcmCard) return;
-      
+
       // 添加token验证失败事件监听
       pcmCard.addEventListener('tokenInvalid', () => {
         console.log('SDK密钥验证失败');
@@ -835,7 +864,7 @@
 
       pcmCard.addEventListener('click', () => {
         const targetModalId = document.getElementById('pcm-mnms-modal-text');
-        
+
         targetModalId.isOpen = true;
       });
     };

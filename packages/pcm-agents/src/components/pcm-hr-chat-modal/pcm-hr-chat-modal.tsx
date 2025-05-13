@@ -152,10 +152,6 @@ export class ChatHRModal {
    */
   @State() currentQuestionNumber: number = 0;
 
-  /**
-   * 面试是否已完成
-   */
-  @State() isInterviewComplete: boolean = false;
 
   /**
    * 当面试完成时触发
@@ -335,8 +331,8 @@ export class ChatHRModal {
       this.messages = [...this.messages, newMessage];
       this.currentStreamingMessage = null;
       this.isLoading = false;
-      this.isInterviewComplete = true;
       await this.completeInterview();
+      this.currentQuestionNumber++;
       this.interviewComplete.emit({
         conversation_id: this.conversationId,
         total_questions: this.totalQuestions
@@ -439,12 +435,8 @@ export class ChatHRModal {
         this.messages = [...this.messages, this.currentStreamingMessage];
         this.currentStreamingMessage = null;
 
-        // 如果是初始消息或"下一题"消息，增加题目计数
-        if (message === "下一题" || this.currentQuestionNumber === 0) {
-          this.currentQuestionNumber++;
-        }
-        console.log(this.currentQuestionNumber);
-        console.log(message);
+        // 增加题目计数
+        this.currentQuestionNumber++;
 
         if (latestAIMessage && latestAIMessage.answer) {
           // 优先使用 LLMText，如果没有则使用 answer
