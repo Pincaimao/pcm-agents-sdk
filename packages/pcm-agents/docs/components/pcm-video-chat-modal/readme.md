@@ -32,6 +32,7 @@
 | `recordingError`        | 录制错误事件      | `CustomEvent<{ type: string; message: string; details?: any; }>`                                       |
 | `recordingStatusChange` | 录制状态变化事件    | `CustomEvent<{ status: "started" \| "stopped" \| "paused" \| "resumed" \| "failed"; details?: any; }>` |
 | `streamComplete`        |             | `CustomEvent<StreamCompleteEventData>`                                                                 |
+| `tokenInvalid`          | SDK密钥验证失败事件 | `CustomEvent<void>`                                                                                    |
 
 
 ## Dependencies

@@ -336,7 +336,8 @@ type PcmVideoChatModalEvents = {
     onRecordingStatusChange: EventName<CustomEvent<{
         status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
         details?: any;
-    }>>
+    }>>,
+    onTokenInvalid: EventName<CustomEvent<void>>
 };
 
 export const PcmVideoChatModal: StencilReactComponent<PcmVideoChatModalElement, PcmVideoChatModalEvents> = /*@__PURE__*/ createComponent<PcmVideoChatModalElement, PcmVideoChatModalEvents>({
@@ -349,7 +350,8 @@ export const PcmVideoChatModal: StencilReactComponent<PcmVideoChatModalElement, 
         onStreamComplete: 'streamComplete',
         onInterviewComplete: 'interviewComplete',
         onRecordingError: 'recordingError',
-        onRecordingStatusChange: 'recordingStatusChange'
+        onRecordingStatusChange: 'recordingStatusChange',
+        onTokenInvalid: 'tokenInvalid'
     } as PcmVideoChatModalEvents,
     defineCustomElement: definePcmVideoChatModal
 });

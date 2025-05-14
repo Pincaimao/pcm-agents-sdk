@@ -306,6 +306,10 @@ export namespace Components {
     }
     interface PcmHrChatModal {
         /**
+          * 回调地址，用于接收报告的通知（toEmail和callbackUrl不能同时为空，举例：https://www.example.com/callback）
+         */
+        "callbackUrl": string;
+        /**
           * 会话ID，传入继续对话，否则创建新会话
          */
         "conversationId"?: string;
@@ -358,7 +362,7 @@ export namespace Components {
          */
         "requireResume": boolean;
         /**
-          * 接收报告的邮箱地址
+          * 接收报告的邮箱地址（toEmail和callbackUrl不能同时为空）
          */
         "toEmail": string;
         /**
@@ -1246,6 +1250,7 @@ declare global {
     status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
     details?: any;
   };
+        "tokenInvalid": void;
     }
     interface HTMLPcmVideoChatModalElement extends Components.PcmVideoChatModal, HTMLStencilElement {
         addEventListener<K extends keyof HTMLPcmVideoChatModalElementEventMap>(type: K, listener: (this: HTMLPcmVideoChatModalElement, ev: PcmVideoChatModalCustomEvent<HTMLPcmVideoChatModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -1654,6 +1659,10 @@ declare namespace LocalJSX {
     }
     interface PcmHrChatModal {
         /**
+          * 回调地址，用于接收报告的通知（toEmail和callbackUrl不能同时为空，举例：https://www.example.com/callback）
+         */
+        "callbackUrl"?: string;
+        /**
           * 会话ID，传入继续对话，否则创建新会话
          */
         "conversationId"?: string;
@@ -1737,7 +1746,7 @@ declare namespace LocalJSX {
          */
         "requireResume"?: boolean;
         /**
-          * 接收报告的邮箱地址
+          * 接收报告的邮箱地址（toEmail和callbackUrl不能同时为空）
          */
         "toEmail"?: string;
         /**
@@ -2341,6 +2350,10 @@ declare namespace LocalJSX {
     details?: any;
   }>) => void;
         "onStreamComplete"?: (event: PcmVideoChatModalCustomEvent<StreamCompleteEventData1>) => void;
+        /**
+          * SDK密钥验证失败事件
+         */
+        "onTokenInvalid"?: (event: PcmVideoChatModalCustomEvent<void>) => void;
         /**
           * 父组件传入的 简历id
          */

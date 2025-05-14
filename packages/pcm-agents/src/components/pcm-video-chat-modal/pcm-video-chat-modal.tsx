@@ -169,6 +169,12 @@ export class VideoChatModal {
     details?: any;
   }>;
 
+
+  /**
+     * SDK密钥验证失败事件
+     */
+  @Event() tokenInvalid: EventEmitter<void>;
+
   /**
    * 是否自动播放语音问题
    */
@@ -189,6 +195,18 @@ export class VideoChatModal {
 
   // 添加新的状态属性来跟踪任务是否已完成
   @State() isTaskCompleted: boolean = false;
+
+
+  private tokenInvalidListener: () => void;
+
+  componentWillLoad() {
+      // 添加全局token无效事件监听器
+      this.tokenInvalidListener = () => {
+          this.tokenInvalid.emit();
+      };
+      document.addEventListener('pcm-token-invalid', this.tokenInvalidListener);
+  }
+
 
   private handleClose = () => {
     this.stopRecording();
@@ -857,6 +875,7 @@ export class VideoChatModal {
 
   // 修改 componentDidLoad 生命周期方法，确保组件卸载时释放资源
   disconnectedCallback() {
+    document.removeEventListener('pcm-token-invalid', this.tokenInvalidListener);
     // 释放音频资源
     if (this.audioElement) {
       this.audioElement.pause();

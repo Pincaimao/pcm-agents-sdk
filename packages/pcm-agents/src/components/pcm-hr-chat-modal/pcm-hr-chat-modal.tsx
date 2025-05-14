@@ -174,9 +174,14 @@ export class ChatHRModal {
   @State() showCountdownWarning: boolean = false;
 
   /**
-   * 接收报告的邮箱地址
+   * 接收报告的邮箱地址（toEmail和callbackUrl不能同时为空）
    */
   @Prop() toEmail: string = '';
+
+  /**
+   * 回调地址，用于接收报告的通知（toEmail和callbackUrl不能同时为空，举例：https://www.example.com/callback）
+   */
+  @Prop() callbackUrl: string = '';
 
   /**
    * 是否以全屏模式打开，移动端建议设置为true
@@ -351,8 +356,11 @@ export class ChatHRModal {
       job_info: this.selectedJobCategory,
       dimensional_info: this.selectedDimensions.join(','),
       email: this.toEmail,
+      callback_url: this.callbackUrl,
       display_content_status: this.displayContentStatus ? "1" : "0"
     };
+    
+    
     // 如果有上传的文件，添加到inputs参数
     if (this.uploadedFileInfo.length > 0) {
       const fileUrls = this.uploadedFileInfo.map(fileInfo => fileInfo.cos_key).join(',');
