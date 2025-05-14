@@ -1,6 +1,14 @@
 
-<!-- Auto Generated Below -->
 
+组件版本：
+
+pcm-agents@0.4.4
+
+pcm-agents-react@0.1.9
+
+pcm-agents-vue@0.2.1
+
+ 
 
 ## Properties
 
@@ -54,4 +62,4 @@ graph TD;
 
 ----------------------------------------------
 
-*Built with [StencilJS](https://stenciljs.com/)*
+

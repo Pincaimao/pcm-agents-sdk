@@ -203,12 +203,6 @@ export class ChatAPPModal {
   @Prop() enableVoice: boolean = false;
 
   /**
-   * 是否显示题干内容
-   */
-  @Prop() displayContentStatus: boolean = true;
-
-
-  /**
    * 面试模式
    * video: 视频面试模式
    * text: 文字面试模式
@@ -269,6 +263,16 @@ export class ChatAPPModal {
   @State() isTaskCompleted: boolean = false;
 
   private tokenInvalidListener: () => void;
+
+  /**
+   * 是否显示复制按钮
+   */
+  @Prop() showCopyButton: boolean = true;
+
+  /**
+   * 是否显示点赞点踩按钮
+   */
+  @Prop() showFeedbackButtons: boolean = true;
 
   private handleClose = () => {
     this.stopRecording();
@@ -1590,6 +1594,8 @@ export class ChatAPPModal {
                         token={this.token}
                         userAvatar={this.userAvatar}
                         assistantAvatar={effectiveAssistantAvatar}
+                        showCopyButton={this.showCopyButton}
+                        showFeedbackButtons={this.showFeedbackButtons}
                         onMessageChange={(event) => {
                           const updatedMessages = this.messages.map(msg =>
                             msg.id === message.id ? { ...msg, ...event.detail } : msg
@@ -1607,6 +1613,8 @@ export class ChatAPPModal {
                         message={this.currentStreamingMessage}
                         userAvatar={this.userAvatar}
                         assistantAvatar={effectiveAssistantAvatar}
+                        showCopyButton={this.showCopyButton}
+                        showFeedbackButtons={this.showFeedbackButtons}
                       ></pcm-chat-message>
                     </div>
                   )}

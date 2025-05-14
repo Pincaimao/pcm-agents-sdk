@@ -11,8 +11,7 @@
 | `conversationId`            | `conversation-id`               | 会话ID，传入继续对话，否则创建新会话                   | `string`                | `undefined`                                                |
 | `countdownWarningTime`      | `countdown-warning-time`        | 录制倒计时提醒时间（秒） 当剩余时间小于此值时，显示倒计时警告       | `number`                | `30`                                                       |
 | `customInputs`              | `custom-inputs`                 | 自定义智能体inputs输入参数                      | `{ [x: string]: any; }` | `{}`                                                       |
-| `defaultQuery`              | `default-query`                 | 默认查询文本                                | `string`                | `''`                                                       |
-| `displayContentStatus`      | `display-content-status`        | 是否显示题干内容 1: 显示题干内容 0: 不显示题干内容         | `string`                | `"1"`                                                      |
+| `defaultQuery`              | `default-query`                 | 默认发送文本                                | `string`                | `'你好！聘才猫'`                                                 |
 | `enableTTS`                 | `enable-t-t-s`                  | 是否启用语音播报功能 true: 启用语音合成 false: 禁用语音合成 | `boolean`               | `false`                                                    |
 | `enableVoice`               | `enable-voice`                  | 是否自动播放语音问题                            | `boolean`               | `false`                                                    |
 | `fullscreen`                | `fullscreen`                    | 是否以全屏模式打开，移动端建议设置为true                | `boolean`               | `false`                                                    |
@@ -25,6 +24,8 @@
 | `maxAudioRecordingTime`     | `max-audio-recording-time`      | 语音录制最大时长（秒）                           | `number`                | `60`                                                       |
 | `maxRecordingTime`          | `max-recording-time`            | 视频录制最大时长（秒）                           | `number`                | `120`                                                      |
 | `modalTitle`                | `modal-title`                   | 模态框标题                                 | `string`                | `'在线客服'`                                                   |
+| `showCopyButton`            | `show-copy-button`              | 是否显示复制按钮                              | `boolean`               | `true`                                                     |
+| `showFeedbackButtons`       | `show-feedback-buttons`         | 是否显示点赞点踩按钮                            | `boolean`               | `true`                                                     |
 | `showProgressBar`           | `show-progress-bar`             | 是否显示进度条 true: 显示进度条 false: 隐藏进度条      | `boolean`               | `true`                                                     |
 | `token` _(required)_        | `token`                         | SDK鉴权密钥                               | `string`                | `undefined`                                                |
 | `totalQuestions`            | `total-questions`               | 控制对话轮数                                | `number`                | `10`                                                       |
@@ -42,12 +43,14 @@
 | `recordingError`        | 录制错误事件                  | `CustomEvent<RecordingErrorEventData>`        |
 | `recordingStatusChange` | 录制状态变化事件                | `CustomEvent<RecordingStatusChangeEventData>` |
 | `streamComplete`        | 一轮对话结束时的回调              | `CustomEvent<StreamCompleteEventData>`        |
+| `tokenInvalid`          | SDK密钥验证失败事件             | `CustomEvent<void>`                           |
 
 
 ## Dependencies
 
 ### Used by
 
+ - [pcm-1zhanshi-mnms-modal](../pcm-1zhanshi-mnms-modal)
  - [pcm-htws-modal](../pcm-htws-modal)
  - [pcm-hyzj-modal](../pcm-hyzj-modal)
  - [pcm-jd-modal](../pcm-jd-modal)
@@ -65,6 +68,7 @@
 ```mermaid
 graph TD;
   pcm-app-chat-modal --> pcm-chat-message
+  pcm-1zhanshi-mnms-modal --> pcm-app-chat-modal
   pcm-htws-modal --> pcm-app-chat-modal
   pcm-hyzj-modal --> pcm-app-chat-modal
   pcm-jd-modal --> pcm-app-chat-modal

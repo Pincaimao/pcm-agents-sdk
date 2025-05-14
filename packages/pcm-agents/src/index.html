@@ -131,7 +131,8 @@
     interview-mode="video" default-query="请您提问">
   </pcm-mnms-modal>
 
-  <pcm-mnms-modal id="pcm-mnms-modal-text" modal-title="模拟面试（文字）"
+  <pcm-mnms-modal id="pcm-mnms-modal-text" modal-title="模拟面试（文字）" show-copy-button="false"
+    show-feedback-buttons="false"
     icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id="" fullscreen="false"
     interview-mode="text" default-query="请您提问">
   </pcm-mnms-modal>
@@ -161,7 +162,7 @@
 
   <pcm-1zhanshi-mnms-modal id="pcm-video-chat-modal" modal-title="视频面试（一站式）"
     icon="https://www.ylzhaopin.com/Public/Newhome/images/sidebar/tochat.png" conversation-id=""
-    botId="3022316191018903"  fullscreen="false" interview-mode="video" default-query="请您提问"></pcm-1zhanshi-mnms-modal>
+     fullscreen="false" interview-mode="video" default-query="请您提问"></pcm-1zhanshi-mnms-modal>
 
 
   <pcm-hr-chat-modal id="pcm-hr-chat-modal" modal-title="金牌HR大赛" require-resume="false"
@@ -184,7 +185,7 @@
 
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDcyMTUzNTF9.wuEDcHfrqXfk3qIet93ScRm1c60SNrzwArd8gfe--CY";
+    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc0NzMwMTc3OH0.Jz4BCaQS-IRYAMYh-sKwt2hHm6oqQ_HhglL0pToHgSI";
     const SHARED_TOKEN_NEW = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc0NzEyNzk0Mn0.fa4-AFlpO4fioxklO_m5ygXqCdq7lfTEGmZwe8jbDWA"
     let stream = null;
     const urlParams = new URLSearchParams(window.location.search);

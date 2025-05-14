@@ -112,6 +112,16 @@ export class MnmsModal {
      */
     @Event() recordingError: EventEmitter<RecordingErrorEventData>;
 
+    /**
+     * 是否显示复制按钮
+     */
+    @Prop() showCopyButton: boolean = true;
+
+    /**
+     * 是否显示点赞点踩按钮
+     */
+    @Prop() showFeedbackButtons: boolean = true;
+
     @State() selectedFile: File | null = null;
     @State() isUploading: boolean = false;
     @State() uploadedFileInfo: FileUploadResponse | null = null;
@@ -412,6 +422,8 @@ export class MnmsModal {
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
                                 enableVoice={false}
+                                showCopyButton={this.showCopyButton}
+                                showFeedbackButtons={this.showFeedbackButtons}
                                 customInputs={this.conversationId ? {} : {
                                     ...this.customInputs,
                                     file_url: this.uploadedFileInfo?.cos_key,

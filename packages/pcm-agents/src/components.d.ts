@@ -109,10 +109,6 @@ export namespace Components {
          */
         "defaultQuery": string;
         /**
-          * 是否显示题干内容
-         */
-        "displayContentStatus": boolean;
-        /**
           * 是否启用语音播报功能 true: 启用语音合成 false: 禁用语音合成
          */
         "enableTTS": boolean;
@@ -160,6 +156,14 @@ export namespace Components {
           * 模态框标题
          */
         "modalTitle": string;
+        /**
+          * 是否显示复制按钮
+         */
+        "showCopyButton": boolean;
+        /**
+          * 是否显示点赞点踩按钮
+         */
+        "showFeedbackButtons": boolean;
         /**
           * 是否显示进度条 true: 显示进度条 false: 隐藏进度条
          */
@@ -298,6 +302,10 @@ export namespace Components {
           * 消息数据
          */
         "message": ChatMessage;
+        /**
+          * 是否显示复制按钮
+         */
+        "showCopyButton": boolean;
         /**
           * 是否显示点赞点踩按钮
          */
@@ -720,6 +728,14 @@ export namespace Components {
           * 模态框标题
          */
         "modalTitle": string;
+        /**
+          * 是否显示复制按钮
+         */
+        "showCopyButton": boolean;
+        /**
+          * 是否显示点赞点踩按钮
+         */
+        "showFeedbackButtons": boolean;
         /**
           * SDK鉴权密钥
          */
@@ -1443,10 +1459,6 @@ declare namespace LocalJSX {
          */
         "defaultQuery"?: string;
         /**
-          * 是否显示题干内容
-         */
-        "displayContentStatus"?: boolean;
-        /**
           * 是否启用语音播报功能 true: 启用语音合成 false: 禁用语音合成
          */
         "enableTTS"?: boolean;
@@ -1522,6 +1534,14 @@ declare namespace LocalJSX {
           * SDK密钥验证失败事件
          */
         "onTokenInvalid"?: (event: PcmAppChatModalCustomEvent<void>) => void;
+        /**
+          * 是否显示复制按钮
+         */
+        "showCopyButton"?: boolean;
+        /**
+          * 是否显示点赞点踩按钮
+         */
+        "showFeedbackButtons"?: boolean;
         /**
           * 是否显示进度条 true: 显示进度条 false: 隐藏进度条
          */
@@ -1664,6 +1684,10 @@ declare namespace LocalJSX {
           * 消息变更事件
          */
         "onMessageChange"?: (event: PcmChatMessageCustomEvent<Partial<ChatMessage>>) => void;
+        /**
+          * 是否显示复制按钮
+         */
+        "showCopyButton"?: boolean;
         /**
           * 是否显示点赞点踩按钮
          */
@@ -2274,6 +2298,14 @@ declare namespace LocalJSX {
           * 上传成功事件
          */
         "onUploadSuccess"?: (event: PcmMnmsModalCustomEvent<FileUploadResponse>) => void;
+        /**
+          * 是否显示复制按钮
+         */
+        "showCopyButton"?: boolean;
+        /**
+          * 是否显示点赞点踩按钮
+         */
+        "showFeedbackButtons"?: boolean;
         /**
           * SDK鉴权密钥
          */

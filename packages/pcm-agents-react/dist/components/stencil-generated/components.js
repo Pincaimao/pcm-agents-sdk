@@ -1,6 +1,7 @@
 'use client';
 import { createComponent } from '@stencil/react-output-target/runtime';
 import { MyComponent as MyComponentElement, defineCustomElement as defineMyComponent } from "pcm-agents/dist/components/my-component.js";
+import { Pcm1zhanshiMnmsModal as Pcm1zhanshiMnmsModalElement, defineCustomElement as definePcm1zhanshiMnmsModal } from "pcm-agents/dist/components/pcm-1zhanshi-mnms-modal.js";
 import { PcmAppChatModal as PcmAppChatModalElement, defineCustomElement as definePcmAppChatModal } from "pcm-agents/dist/components/pcm-app-chat-modal.js";
 import { PcmButton as PcmButtonElement, defineCustomElement as definePcmButton } from "pcm-agents/dist/components/pcm-button.js";
 import { PcmCard as PcmCardElement, defineCustomElement as definePcmCard } from "pcm-agents/dist/components/pcm-card.js";
@@ -14,7 +15,6 @@ import { PcmJlppModal as PcmJlppModalElement, defineCustomElement as definePcmJl
 import { PcmMnctModal as PcmMnctModalElement, defineCustomElement as definePcmMnctModal } from "pcm-agents/dist/components/pcm-mnct-modal.js";
 import { PcmMnmsModal as PcmMnmsModalElement, defineCustomElement as definePcmMnmsModal } from "pcm-agents/dist/components/pcm-mnms-modal.js";
 import { PcmMsbgModal as PcmMsbgModalElement, defineCustomElement as definePcmMsbgModal } from "pcm-agents/dist/components/pcm-msbg-modal.js";
-import { PcmVideoChatModal as PcmVideoChatModalElement, defineCustomElement as definePcmVideoChatModal } from "pcm-agents/dist/components/pcm-video-chat-modal.js";
 import { PcmZskChatModal as PcmZskChatModalElement, defineCustomElement as definePcmZskChatModal } from "pcm-agents/dist/components/pcm-zsk-chat-modal.js";
 import { PcmZyghModal as PcmZyghModalElement, defineCustomElement as definePcmZyghModal } from "pcm-agents/dist/components/pcm-zygh-modal.js";
 import React from 'react';
@@ -24,6 +24,21 @@ export const MyComponent = createComponent({
     react: React,
     events: {},
     defineCustomElement: defineMyComponent
+});
+export const Pcm1zhanshiMnmsModal = createComponent({
+    tagName: 'pcm-1zhanshi-mnms-modal',
+    elementClass: Pcm1zhanshiMnmsModalElement,
+    react: React,
+    events: {
+        onModalClosed: 'modalClosed',
+        onUploadSuccess: 'uploadSuccess',
+        onStreamComplete: 'streamComplete',
+        onConversationStart: 'conversationStart',
+        onInterviewComplete: 'interviewComplete',
+        onTokenInvalid: 'tokenInvalid',
+        onRecordingError: 'recordingError'
+    },
+    defineCustomElement: definePcm1zhanshiMnmsModal
 });
 export const PcmAppChatModal = createComponent({
     tagName: 'pcm-app-chat-modal',
@@ -35,7 +50,8 @@ export const PcmAppChatModal = createComponent({
         onConversationStart: 'conversationStart',
         onInterviewComplete: 'interviewComplete',
         onRecordingError: 'recordingError',
-        onRecordingStatusChange: 'recordingStatusChange'
+        onRecordingStatusChange: 'recordingStatusChange',
+        onTokenInvalid: 'tokenInvalid'
     },
     defineCustomElement: definePcmAppChatModal
 });
@@ -81,7 +97,8 @@ export const PcmHrChatModal = createComponent({
         onConversationStart: 'conversationStart',
         onInterviewComplete: 'interviewComplete',
         onRecordingError: 'recordingError',
-        onRecordingStatusChange: 'recordingStatusChange'
+        onRecordingStatusChange: 'recordingStatusChange',
+        onTokenInvalid: 'tokenInvalid'
     },
     defineCustomElement: definePcmHrChatModal
 });
@@ -182,19 +199,6 @@ export const PcmMsbgModal = createComponent({
         onTokenInvalid: 'tokenInvalid'
     },
     defineCustomElement: definePcmMsbgModal
-});
-export const PcmVideoChatModal = createComponent({
-    tagName: 'pcm-video-chat-modal',
-    elementClass: PcmVideoChatModalElement,
-    react: React,
-    events: {
-        onModalClosed: 'modalClosed',
-        onStreamComplete: 'streamComplete',
-        onInterviewComplete: 'interviewComplete',
-        onRecordingError: 'recordingError',
-        onRecordingStatusChange: 'recordingStatusChange'
-    },
-    defineCustomElement: definePcmVideoChatModal
 });
 export const PcmZskChatModal = createComponent({
     tagName: 'pcm-zsk-chat-modal',

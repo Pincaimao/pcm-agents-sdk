@@ -104,7 +104,7 @@ export const sendSSERequest = async (config: SSERequestConfig): Promise<void> =>
     }
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      console.error(`HTTP error! status: ${response.status}`);
     }
 
     const reader = response.body?.getReader();
