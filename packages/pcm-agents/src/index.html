@@ -91,7 +91,7 @@
           <pcm-button id="open-mnms-chat-video" disabled>模拟面试（视频）</pcm-button>
         </div>
         <button id="open-hr-chat" disabled>打开金牌HR大赛</button>
-        <button id="open-video-chat" disabled>视频面试（一站式）</button>
+        <button id="open-video-chat">视频面试（一站式）</button>
 
       </div>
 
@@ -159,9 +159,10 @@
   </pcm-jd-modal>
 
 
-  <pcm-video-chat-modal id="pcm-video-chat-modal" modal-title="视频面试（一站式）"
+  <pcm-1zhanshi-mnms-modal id="pcm-video-chat-modal" modal-title="视频面试（一站式）"
     icon="https://www.ylzhaopin.com/Public/Newhome/images/sidebar/tochat.png" conversation-id=""
-    resume-id="35677279421992960" fullscreen="true" enable-voice="false" total-questions="2"></pcm-video-chat-modal>
+    botId="3022316191018903"  fullscreen="false" interview-mode="video" default-query="请您提问"></pcm-1zhanshi-mnms-modal>
+
 
   <pcm-hr-chat-modal id="pcm-hr-chat-modal" modal-title="金牌HR大赛" require-resume="false"
     welcome-message="欢迎您参加长沙市人力资源和社会保障局组织的金牌HR大赛，接下来我们将采用数字人方式对您做交流，本次大赛预计需要10-30分钟，请在安静的环境下参与此次大赛。"
@@ -893,7 +894,7 @@
 
       videoChatModal.addEventListener('interviewComplete', (event) => {
         console.log('面试完成:', event.detail);
-        videoChatModal.isOpen = false;
+        
       });
 
       videoChatModal.addEventListener('uploadSuccess', (event) => {
@@ -913,6 +914,9 @@
           stream = null;
         }
       });
+      videoChatModal.customInputs = {
+        id: "35677279421992960"
+      };
     };
   </script>
 </body>

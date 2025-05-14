@@ -261,6 +261,11 @@ export class MnctModal {
         this.interviewComplete.emit(event.detail);
     };
 
+    // 添加 handleTokenInvalid 方法
+    private handleTokenInvalid = () => {
+        // 转发 token 无效事件
+        this.tokenInvalid.emit();
+    };
 
     render() {
         if (!this.isOpen) return null;
@@ -401,6 +406,7 @@ export class MnctModal {
                                 onStreamComplete={this.handleStreamComplete}
                                 onConversationStart={this.handleConversationStart}
                                 onInterviewComplete={this.handleInterviewComplete}
+                                onTokenInvalid={this.handleTokenInvalid}
                             ></pcm-app-chat-modal>
                         </div>
                     )}

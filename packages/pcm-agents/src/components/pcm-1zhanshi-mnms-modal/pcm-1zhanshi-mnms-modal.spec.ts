@@ -1,19 +1,19 @@
 import { newSpecPage } from '@stencil/core/testing';
-import { VideoChatModal } from './pcm-video-chat-modal';
+import { ZhanshiMnmsModal } from './pcm-1zhanshi-mnms-modal';
 
-describe('pcm-video-chat-modal', () => {
+describe('pcm-1zhanshi-mnms-modal', () => {
   it('renders when isOpen is true', async () => {
     const { root } = await newSpecPage({
-      components: [VideoChatModal],
-      html: '<pcm-video-chat-modal is-open="true"></pcm-video-chat-modal>',
+      components: [ZhanshiMnmsModal],
+      html: '<pcm-1zhanshi-mnms-modal is-open="true"></pcm-1zhanshi-mnms-modal>',
     });
     expect(root).toBeTruthy();
   });
 
   it('does not render when isOpen is false', async () => {
     const { root } = await newSpecPage({
-      components: [VideoChatModal],
-      html: '<pcm-video-chat-modal is-open="false"></pcm-video-chat-modal>',
+      components: [ZhanshiMnmsModal],
+      html: '<pcm-1zhanshi-mnms-modal is-open="false"></pcm-1zhanshi-mnms-modal>',
     });
     const modalOverlay = root.shadowRoot.querySelector('.modal-overlay');
     expect(modalOverlay).toBeFalsy();

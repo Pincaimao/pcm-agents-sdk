@@ -1,9 +1,9 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element } from '@stencil/core';
 import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, fetchAgentInfo, synthesizeAudio } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
-import { 
-  StreamCompleteEventData, 
-  ConversationStartEventData, 
+import {
+  StreamCompleteEventData,
+  ConversationStartEventData,
   InterviewCompleteEventData,
   RecordingErrorEventData,
   RecordingStatusChangeEventData
@@ -100,17 +100,12 @@ export class ChatAPPModal {
    */
   @Event() conversationStart: EventEmitter<ConversationStartEventData>;
 
-  @State() selectedFile: File | null = null;
   @State() isUploading: boolean = false;
-  @State() uploadedFileInfo: { cos_key: string, filename: string, ext: string, presigned_url: string }[] = [];
 
   /**
-   * 默认查询文本
+   * 默认发送文本
    */
-  @Prop() defaultQuery: string = '';
-
-  // 添加新的状态
-  @State() showInitialUpload: boolean = false;
+  @Prop() defaultQuery: string = '你好！聘才猫';
 
 
   /**
@@ -191,6 +186,11 @@ export class ChatAPPModal {
   @Event() recordingStatusChange: EventEmitter<RecordingStatusChangeEventData>;
 
   /**
+     * SDK密钥验证失败事件
+     */
+  @Event() tokenInvalid: EventEmitter<void>;
+
+  /**
  * 是否启用语音播报功能
  * true: 启用语音合成
  * false: 禁用语音合成
@@ -204,10 +204,8 @@ export class ChatAPPModal {
 
   /**
    * 是否显示题干内容
-   * 1: 显示题干内容
-   * 0: 不显示题干内容
    */
-  @Prop() displayContentStatus: string = "1";
+  @Prop() displayContentStatus: boolean = true;
 
 
   /**
@@ -270,6 +268,8 @@ export class ChatAPPModal {
   // 添加新的状态属性来跟踪任务是否已完成
   @State() isTaskCompleted: boolean = false;
 
+  private tokenInvalidListener: () => void;
+
   private handleClose = () => {
     this.stopRecording();
     this.modalClosed.emit();
@@ -292,7 +292,7 @@ export class ChatAPPModal {
   private async sendMessageToAPI(message: string, videoUrl?: string) {
     this.isLoading = true;
     let answer = '';
-    let llmText = ''; // 添加变量存储 LLMText
+    let llmText = '';
 
     const now = new Date();
     const time = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
@@ -364,7 +364,7 @@ export class ChatAPPModal {
     }
 
     await sendSSERequest({
-      url: `/sdk/v1/chat/chat-messages`,
+      url: '/sdk/v1/chat/chat-messages',
       method: 'POST',
       headers: {
         'authorization': 'Bearer ' + this.token
@@ -457,13 +457,13 @@ export class ChatAPPModal {
             });
           }
         }, 1000); // 给一些时间让第一条消息处理完成
-        
+
         // 获取最新的AI回复内容
         const latestAIMessage = this.currentStreamingMessage;
         latestAIMessage.isStreaming = false;
         // 更新消息列表
         this.messages = [...this.messages, latestAIMessage];
-        
+
         this.currentStreamingMessage = null;
 
         // 增加题目计数
@@ -536,7 +536,7 @@ export class ChatAPPModal {
   }
 
 
-  // 修改 loadHistoryMessages 方法
+  // 修改加载历史消息的方法
   private async loadHistoryMessages() {
     if (!this.conversationId) return;
 
@@ -587,17 +587,16 @@ export class ChatAPPModal {
         });
 
         this.messages = formattedMessages;
-
-        requestAnimationFrame(() => {
-          this.shouldAutoScroll = true;
-          this.scrollToBottom();
-        });
       }
     } catch (error) {
       console.error('加载历史消息失败:', error);
       alert(error instanceof Error ? error.message : '加载历史消息失败，请刷新重试');
     } finally {
       this.isLoadingHistory = false;
+      requestAnimationFrame(() => {
+        this.shouldAutoScroll = true;
+        this.scrollToBottom();
+      });
     }
   }
 
@@ -613,16 +612,23 @@ export class ChatAPPModal {
 
   // 修改 componentWillLoad 生命周期方法
   componentWillLoad() {
+    // 添加全局token无效事件监听器
+    this.tokenInvalidListener = () => {
+      this.tokenInvalid.emit();
+    };
+    document.addEventListener('pcm-token-invalid', this.tokenInvalidListener);
+
     // 确保 customInputs 是一个对象
     if (!this.customInputs) {
       this.customInputs = {};
     }
-    
+
     // 如果没有设置助手头像，尝试获取智能体头像
     if (!this.assistantAvatar && this.botId) {
       this.fetchAgentLogo();
     }
-
+    console.log(this.isOpen);
+    
     // 如果组件加载时已经是打开状态，则直接开始对话
     if (this.isOpen) {
       if (this.conversationId) {
@@ -969,12 +975,13 @@ export class ChatAPPModal {
       }, {
         'tags': 'other'
       });
-
+      // 使用 cos_key 作为视频标识符
       // 调用音频转文字API
       const transcriptionText = await this.convertAudioToText(fileInfo.cos_key);
 
       // 发送"下一题"请求，可以附带转录文本
-      this.sendMessageToAPI(transcriptionText || "下一题");
+      this.sendMessageToAPI(transcriptionText || "下一题", fileInfo.cos_key);
+
     } catch (error) {
       console.error('视频上传或处理错误:', error);
       // 通知父组件视频上传失败
@@ -1061,6 +1068,7 @@ export class ChatAPPModal {
 
   // 修改 componentDidLoad 生命周期方法，确保组件卸载时释放资源
   disconnectedCallback() {
+    document.removeEventListener('pcm-token-invalid', this.tokenInvalidListener);
     // 移除滚动事件监听器
     const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
     if (chatHistory) {

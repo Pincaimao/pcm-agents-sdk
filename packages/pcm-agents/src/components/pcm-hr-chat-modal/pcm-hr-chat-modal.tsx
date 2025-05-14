@@ -99,7 +99,7 @@ export class ChatHRModal {
   @State() uploadedFileInfo: FileUploadResponse[] = [];
 
   /**
-   * 默认查询文本
+   * 首次对话提问文本
    */
   @Prop() defaultQuery: string = '请开始出题';
 
@@ -134,7 +134,6 @@ export class ChatHRModal {
   @State() showRecordingUI: boolean = false;
   @State() recordingTimer: any = null;
   @State() recordingStartTime: number = 0;
-  @State() recordingMaxTime: number = 120; // 最大录制时间（秒）
   @State() waitingToRecord: boolean = false;
   @State() waitingTimer: any = null;
   @State() waitingTimeLeft: number = 10; // 等待时间（秒）
@@ -218,6 +217,12 @@ export class ChatHRModal {
     details?: any;
   }>;
 
+
+  /**
+     * SDK密钥验证失败事件
+     */
+  @Event() tokenInvalid: EventEmitter<void>;
+
   /**
    * 是否自动播放语音问题
    */
@@ -227,6 +232,16 @@ export class ChatHRModal {
    * 是否显示题干内容
    */
   @Prop() displayContentStatus: boolean = true;
+
+  private tokenInvalidListener: () => void;
+
+  componentWillLoad() {
+    // 添加全局token无效事件监听器
+    this.tokenInvalidListener = () => {
+      this.tokenInvalid.emit();
+    };
+    document.addEventListener('pcm-token-invalid', this.tokenInvalidListener);
+  }
 
 
   private handleClose = () => {
@@ -288,7 +303,7 @@ export class ChatHRModal {
   private async sendMessageToAPI(message: string) {
     this.isLoading = true;
     let answer = '';
-    let llmText = ''; // 添加变量存储 LLMText
+    let llmText = '';
 
     const now = new Date();
     const time = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
@@ -359,8 +374,8 @@ export class ChatHRModal {
       callback_url: this.callbackUrl,
       display_content_status: this.displayContentStatus ? "1" : "0"
     };
-    
-    
+
+
     // 如果有上传的文件，添加到inputs参数
     if (this.uploadedFileInfo.length > 0) {
       const fileUrls = this.uploadedFileInfo.map(fileInfo => fileInfo.cos_key).join(',');
@@ -1046,6 +1061,7 @@ export class ChatHRModal {
 
   // 修改 componentDidLoad 生命周期方法，确保组件卸载时释放资源
   disconnectedCallback() {
+    document.removeEventListener('pcm-token-invalid', this.tokenInvalidListener);
     // 释放音频资源
     if (this.audioElement) {
       this.audioElement.pause();

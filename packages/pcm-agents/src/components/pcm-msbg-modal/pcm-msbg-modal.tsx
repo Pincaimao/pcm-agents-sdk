@@ -261,6 +261,12 @@ export class MsbgModal {
         this.interviewComplete.emit(event.detail);
     };
 
+    // 添加 handleTokenInvalid 方法
+    private handleTokenInvalid = () => {
+        // 转发 token 无效事件
+        this.tokenInvalid.emit();
+    };
+
    
 
     render() {
@@ -383,8 +389,8 @@ export class MsbgModal {
                                 modalTitle={this.modalTitle}
                                 icon={this.icon}
                                 token={this.token}
-                                isShowHeader={this.isShowHeader} // 不显示内部的标题栏，因为外部已有
-                                isNeedClose={this.isShowHeader} // 不显示内部的关闭按钮，因为外部已有
+                                isShowHeader={this.isShowHeader} 
+                                isNeedClose={this.isShowHeader} 
                                 zIndex={this.zIndex}
                                 fullscreen={this.fullscreen}
                                 botId="3022316191018877"
@@ -402,6 +408,7 @@ export class MsbgModal {
                                 onStreamComplete={this.handleStreamComplete}
                                 onConversationStart={this.handleConversationStart}
                                 onInterviewComplete={this.handleInterviewComplete}
+                                onTokenInvalid={this.handleTokenInvalid}
                             ></pcm-app-chat-modal>
                         </div>
                     )}

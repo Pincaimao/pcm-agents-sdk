@@ -444,6 +444,12 @@ export class PcmJdModal {
         this.interviewComplete.emit(event.detail);
     };
 
+    // 添加 handleTokenInvalid 方法
+    private handleTokenInvalid = () => {
+        // 转发 token 无效事件
+        this.tokenInvalid.emit();
+    };
+
     // 渲染标签组
     private renderTagGroup(title: string, options: { text: string, value: string }[], category: 'salary' | 'benefits' | 'education') {
         return (
@@ -708,8 +714,8 @@ export class PcmJdModal {
                                 modalTitle={this.modalTitle}
                                 icon={this.icon}
                                 token={this.token}
-                                isShowHeader={this.isShowHeader} // 不显示内部的标题栏，因为外部已有
-                                isNeedClose={this.isShowHeader} // 不显示内部的关闭按钮，因为外部已有
+                                isShowHeader={this.isShowHeader} 
+                                isNeedClose={this.isShowHeader} 
                                 zIndex={this.zIndex}
                                 fullscreen={this.fullscreen}
                                 botId="3022316191018873"
@@ -725,6 +731,7 @@ export class PcmJdModal {
                                 onStreamComplete={this.handleStreamComplete}
                                 onConversationStart={this.handleConversationStart}
                                 onInterviewComplete={this.handleInterviewComplete}
+                                onTokenInvalid={this.handleTokenInvalid}
                             ></pcm-app-chat-modal>
                         </div>
                     )}

@@ -278,6 +278,12 @@ export class MnmsModal {
         this.recordingError.emit(event.detail);
     };
 
+    // 添加 handleTokenInvalid 方法
+    private handleTokenInvalid = () => {
+        // 转发 token 无效事件
+        this.tokenInvalid.emit();
+    };
+
     render() {
         if (!this.isOpen) return null;
 
@@ -419,6 +425,7 @@ export class MnmsModal {
                                 onConversationStart={this.handleConversationStart}
                                 onInterviewComplete={this.handleInterviewComplete}
                                 onRecordingError={this.handleRecordingError}
+                                onTokenInvalid={this.handleTokenInvalid}
                             ></pcm-app-chat-modal>
                         </div>
                     )}
