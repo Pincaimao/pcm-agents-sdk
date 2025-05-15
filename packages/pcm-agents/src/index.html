@@ -88,7 +88,7 @@
         </div>
 
         <div class="pcm-button">
-          <pcm-button id="open-mnms-chat-video" disabled>模拟面试（视频）</pcm-button>
+          <pcm-button id="open-mnms-chat-video">模拟面试（视频）</pcm-button>
         </div>
         <button id="open-hr-chat" disabled>打开金牌HR大赛</button>
         <button id="open-video-chat">视频面试（一站式）</button>
@@ -96,8 +96,8 @@
       </div>
 
       <div style="margin: 20px;">
-        <pcm-card bot-id="3022316191018884" show-chat-tag="true" id="pcm-card">
-        </pcm-card>
+        <!-- <pcm-card bot-id="3022316191018884" show-chat-tag="true" id="pcm-card">
+        </pcm-card> -->
       </div>
 
       <div class="demo-controls">
@@ -141,7 +141,7 @@
     conversation-id="" fullscreen="false" default-query="请您提问"></pcm-jlpp-modal>
 
   <pcm-zygh-modal id="pcm-zygh-modal" modal-title="职业规划助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
-    conversation-id="" file-preview-mode="drawer" fullscreen="false" default-query="请您提问"></pcm-zygh-modal>
+    conversation-id="266601b7-3024-4e6c-9f40-b0e3ef0aff75" file-preview-mode="drawer" fullscreen="false" default-query="请您提问"></pcm-zygh-modal>
 
   <pcm-hyzj-modal id="pcm-hyzj-modal" modal-title="会议总结助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
     conversation-id="" fullscreen="false" default-query="请您提问"></pcm-hyzj-modal>
@@ -185,8 +185,8 @@
 
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDczNjQ5MzJ9.6SgYKziMGL0Se8hDG8mENdP5ha2-FyuPHnWulNEQKj0";
-    const SHARED_TOKEN_NEW = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc0NzEyNzk0Mn0.fa4-AFlpO4fioxklO_m5ygXqCdq7lfTEGmZwe8jbDWA"
+    const SHARED_TOKEN = "11eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDczNjQ5MzJ9.6SgYKziMGL0Se8hDG8mENdP5ha2-FyuPHnWulNEQKj0";
+    const SHARED_TOKEN_NEW = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDczNjQ5MzJ9.6SgYKziMGL0Se8hDG8mENdP5ha2-FyuPHnWulNEQKj0"
     let stream = null;
     const urlParams = new URLSearchParams(window.location.search);
 
@@ -433,6 +433,10 @@
         mnmsModal.setAttribute('token', SHARED_TOKEN_NEW);
       });
 
+      mnmsModal.addEventListener('someErrorEvent', (event) => {
+        console.log('错误事件:', event.detail);
+      });
+
       // 打开聊天按钮事件监听
       openChatButton.addEventListener('click', () => {
         mnmsModal.isOpen = true;
@@ -483,6 +487,10 @@
         mnmsModal.setAttribute('token', SHARED_TOKEN_NEW);
       });
 
+      mnmsModal.addEventListener('someErrorEvent', (event) => {
+        console.log('错误事件:', event.detail);
+      });
+
       // 打开聊天按钮事件监听
       openChatButton.addEventListener('click', () => {
         mnmsModal.isOpen = true;
@@ -524,6 +532,10 @@
       jlppModal.addEventListener('tokenInvalid', () => {
         console.log('SDK密钥验证失败');
         jlppModal.setAttribute('token', SHARED_TOKEN_NEW);
+      });
+
+      jlppModal.addEventListener('someErrorEvent', (event) => {
+        console.log('错误事件:', event.detail);
       });
 
       // 打开简历事件监听
@@ -568,6 +580,10 @@
       zyghModal.addEventListener('tokenInvalid', () => {
         console.log('SDK密钥验证失败');
         zyghModal.setAttribute('token', SHARED_TOKEN_NEW);
+      });
+
+      zyghModal.addEventListener('someErrorEvent', (event) => {
+        console.log('错误事件:', event.detail);
       });
 
       // 打开职业规划助手按钮事件监听
@@ -618,6 +634,10 @@
         mnctModal.setAttribute('token', SHARED_TOKEN_NEW);
       });
 
+      mnctModal.addEventListener('someErrorEvent', (event) => {
+        console.log('错误事件:', event.detail);
+      });
+
       // 打开聊天按钮事件监听
       openMnctButton.addEventListener('click', () => {
         mnctModal.isOpen = true;
@@ -663,6 +683,10 @@
       msbgModal.addEventListener('tokenInvalid', () => {
         console.log('SDK密钥验证失败');
         msbgModal.setAttribute('token', SHARED_TOKEN_NEW);
+      });
+
+      msbgModal.addEventListener('someErrorEvent', (event) => {
+        console.log('错误事件:', event.detail);
       });
 
       // 打开聊天按钮事件监听
@@ -711,6 +735,10 @@
         hyzjModal.setAttribute('token', SHARED_TOKEN_NEW);
       });
 
+      hyzjModal.addEventListener('someErrorEvent', (event) => {
+        console.log('错误事件:', event.detail);
+      });
+
       // 打开按钮事件监听
       openHyzjButton.addEventListener('click', () => {
         hyzjModal.isOpen = true;
@@ -751,6 +779,10 @@
       htwsModal.addEventListener('tokenInvalid', () => {
         console.log('SDK密钥验证失败');
         htwsModal.setAttribute('token', SHARED_TOKEN_NEW);
+      });
+
+      htwsModal.addEventListener('someErrorEvent', (event) => {
+        console.log('错误事件:', event.detail);
       });
 
       // 打开按钮事件监听
@@ -801,6 +833,10 @@
         chatZSKModal.setAttribute('token', SHARED_TOKEN_NEW);
       });
 
+      chatZSKModal.addEventListener('someErrorEvent', (event) => {
+        console.log('错误事件:', event.detail);
+      });
+
       // 打开聊天按钮事件监听
       openZSKChatButton.addEventListener('click', () => {
         chatZSKModal.isOpen = true;
@@ -841,6 +877,10 @@
       jdModal.addEventListener('tokenInvalid', () => {
         console.log('SDK密钥验证失败');
         jdModal.setAttribute('token', SHARED_TOKEN_NEW);
+      });
+
+      jdModal.addEventListener('someErrorEvent', (event) => {
+        console.log('错误事件:', event.detail);
       });
 
       // 打开聊天按钮事件监听
@@ -905,6 +945,10 @@
       videoChatModal.addEventListener('tokenInvalid', () => {
         console.log('SDK密钥验证失败');
         videoChatModal.setAttribute('token', SHARED_TOKEN_NEW);
+      });
+
+      videoChatModal.addEventListener('someErrorEvent', (event) => {
+        console.log('错误事件:', event.detail);
       });
 
       // 打开视频面试按钮事件监听

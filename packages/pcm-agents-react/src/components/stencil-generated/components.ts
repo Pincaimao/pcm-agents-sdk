@@ -9,14 +9,13 @@
 
 import type { EventName, StencilReactComponent } from '@stencil/react-output-target/runtime';
 import { createComponent } from '@stencil/react-output-target/runtime';
-import { type CareerPlanType, type ChatMessage, type ConversationStartEventData, type FileUploadResponse, type InterviewCompleteEventData, type Pcm1zhanshiMnmsModalCustomEvent, type PcmAppChatModalCustomEvent, type PcmChatMessageCustomEvent, type PcmChatModalCustomEvent, type PcmHrChatModalCustomEvent, type PcmHtwsModalCustomEvent, type PcmHyzjModalCustomEvent, type PcmJdModalCustomEvent, type PcmJlppModalCustomEvent, type PcmMnctModalCustomEvent, type PcmMnmsModalCustomEvent, type PcmMsbgModalCustomEvent, type PcmZskChatModalCustomEvent, type PcmZyghModalCustomEvent, type RecordingErrorEventData, type RecordingStatusChangeEventData, type StreamCompleteEventData } from "pcm-agents";
+import { type CareerPlanType, type ChatMessage, type ConversationStartEventData, type ErrorEventDetail, type FileUploadResponse, type InterviewCompleteEventData, type Pcm1zhanshiMnmsModalCustomEvent, type PcmAppChatModalCustomEvent, type PcmChatMessageCustomEvent, type PcmHrChatModalCustomEvent, type PcmHtwsModalCustomEvent, type PcmHyzjModalCustomEvent, type PcmJdModalCustomEvent, type PcmJlppModalCustomEvent, type PcmMnctModalCustomEvent, type PcmMnmsModalCustomEvent, type PcmMsbgModalCustomEvent, type PcmZskChatModalCustomEvent, type PcmZyghModalCustomEvent, type RecordingErrorEventData, type RecordingStatusChangeEventData, type StreamCompleteEventData } from "pcm-agents";
 import { MyComponent as MyComponentElement, defineCustomElement as defineMyComponent } from "pcm-agents/dist/components/my-component.js";
 import { Pcm1zhanshiMnmsModal as Pcm1zhanshiMnmsModalElement, defineCustomElement as definePcm1zhanshiMnmsModal } from "pcm-agents/dist/components/pcm-1zhanshi-mnms-modal.js";
 import { PcmAppChatModal as PcmAppChatModalElement, defineCustomElement as definePcmAppChatModal } from "pcm-agents/dist/components/pcm-app-chat-modal.js";
 import { PcmButton as PcmButtonElement, defineCustomElement as definePcmButton } from "pcm-agents/dist/components/pcm-button.js";
 import { PcmCard as PcmCardElement, defineCustomElement as definePcmCard } from "pcm-agents/dist/components/pcm-card.js";
 import { PcmChatMessage as PcmChatMessageElement, defineCustomElement as definePcmChatMessage } from "pcm-agents/dist/components/pcm-chat-message.js";
-import { PcmChatModal as PcmChatModalElement, defineCustomElement as definePcmChatModal } from "pcm-agents/dist/components/pcm-chat-modal.js";
 import { PcmDrawer as PcmDrawerElement, defineCustomElement as definePcmDrawer } from "pcm-agents/dist/components/pcm-drawer.js";
 import { PcmHrChatModal as PcmHrChatModalElement, defineCustomElement as definePcmHrChatModal } from "pcm-agents/dist/components/pcm-hr-chat-modal.js";
 import { PcmHtwsModal as PcmHtwsModalElement, defineCustomElement as definePcmHtwsModal } from "pcm-agents/dist/components/pcm-htws-modal.js";
@@ -48,6 +47,7 @@ type Pcm1zhanshiMnmsModalEvents = {
     onConversationStart: EventName<Pcm1zhanshiMnmsModalCustomEvent<ConversationStartEventData>>,
     onInterviewComplete: EventName<Pcm1zhanshiMnmsModalCustomEvent<InterviewCompleteEventData>>,
     onTokenInvalid: EventName<CustomEvent<void>>,
+    onSomeErrorEvent: EventName<Pcm1zhanshiMnmsModalCustomEvent<ErrorEventDetail>>,
     onRecordingError: EventName<Pcm1zhanshiMnmsModalCustomEvent<RecordingErrorEventData>>
 };
 
@@ -63,6 +63,7 @@ export const Pcm1zhanshiMnmsModal: StencilReactComponent<Pcm1zhanshiMnmsModalEle
         onConversationStart: 'conversationStart',
         onInterviewComplete: 'interviewComplete',
         onTokenInvalid: 'tokenInvalid',
+        onSomeErrorEvent: 'someErrorEvent',
         onRecordingError: 'recordingError'
     } as Pcm1zhanshiMnmsModalEvents,
     defineCustomElement: definePcm1zhanshiMnmsModal
@@ -139,25 +140,6 @@ export const PcmChatMessage: StencilReactComponent<PcmChatMessageElement, PcmCha
     defineCustomElement: definePcmChatMessage
 });
 
-type PcmChatModalEvents = {
-    onMessageSent: EventName<CustomEvent<string>>,
-    onModalClosed: EventName<CustomEvent<void>>,
-    onStreamComplete: EventName<PcmChatModalCustomEvent<StreamCompleteEventData>>
-};
-
-export const PcmChatModal: StencilReactComponent<PcmChatModalElement, PcmChatModalEvents> = /*@__PURE__*/ createComponent<PcmChatModalElement, PcmChatModalEvents>({
-    tagName: 'pcm-chat-modal',
-    elementClass: PcmChatModalElement,
-    // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
-    react: React,
-    events: {
-        onMessageSent: 'messageSent',
-        onModalClosed: 'modalClosed',
-        onStreamComplete: 'streamComplete'
-    } as PcmChatModalEvents,
-    defineCustomElement: definePcmChatModal
-});
-
 type PcmDrawerEvents = {
     onClosed: EventName<CustomEvent<void>>,
     onAfterOpen: EventName<CustomEvent<void>>,
@@ -217,7 +199,8 @@ type PcmHtwsModalEvents = {
     onStreamComplete: EventName<PcmHtwsModalCustomEvent<StreamCompleteEventData>>,
     onConversationStart: EventName<PcmHtwsModalCustomEvent<ConversationStartEventData>>,
     onInterviewComplete: EventName<PcmHtwsModalCustomEvent<InterviewCompleteEventData>>,
-    onTokenInvalid: EventName<CustomEvent<void>>
+    onTokenInvalid: EventName<CustomEvent<void>>,
+    onSomeErrorEvent: EventName<PcmHtwsModalCustomEvent<ErrorEventDetail>>
 };
 
 export const PcmHtwsModal: StencilReactComponent<PcmHtwsModalElement, PcmHtwsModalEvents> = /*@__PURE__*/ createComponent<PcmHtwsModalElement, PcmHtwsModalEvents>({
@@ -231,7 +214,8 @@ export const PcmHtwsModal: StencilReactComponent<PcmHtwsModalElement, PcmHtwsMod
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
         onInterviewComplete: 'interviewComplete',
-        onTokenInvalid: 'tokenInvalid'
+        onTokenInvalid: 'tokenInvalid',
+        onSomeErrorEvent: 'someErrorEvent'
     } as PcmHtwsModalEvents,
     defineCustomElement: definePcmHtwsModal
 });
@@ -242,7 +226,8 @@ type PcmHyzjModalEvents = {
     onStreamComplete: EventName<PcmHyzjModalCustomEvent<StreamCompleteEventData>>,
     onConversationStart: EventName<PcmHyzjModalCustomEvent<ConversationStartEventData>>,
     onInterviewComplete: EventName<PcmHyzjModalCustomEvent<InterviewCompleteEventData>>,
-    onTokenInvalid: EventName<CustomEvent<void>>
+    onTokenInvalid: EventName<CustomEvent<void>>,
+    onSomeErrorEvent: EventName<PcmHyzjModalCustomEvent<ErrorEventDetail>>
 };
 
 export const PcmHyzjModal: StencilReactComponent<PcmHyzjModalElement, PcmHyzjModalEvents> = /*@__PURE__*/ createComponent<PcmHyzjModalElement, PcmHyzjModalEvents>({
@@ -256,7 +241,8 @@ export const PcmHyzjModal: StencilReactComponent<PcmHyzjModalElement, PcmHyzjMod
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
         onInterviewComplete: 'interviewComplete',
-        onTokenInvalid: 'tokenInvalid'
+        onTokenInvalid: 'tokenInvalid',
+        onSomeErrorEvent: 'someErrorEvent'
     } as PcmHyzjModalEvents,
     defineCustomElement: definePcmHyzjModal
 });
@@ -266,7 +252,8 @@ type PcmJdModalEvents = {
     onStreamComplete: EventName<PcmJdModalCustomEvent<StreamCompleteEventData>>,
     onConversationStart: EventName<PcmJdModalCustomEvent<ConversationStartEventData>>,
     onInterviewComplete: EventName<PcmJdModalCustomEvent<InterviewCompleteEventData>>,
-    onTokenInvalid: EventName<CustomEvent<void>>
+    onTokenInvalid: EventName<CustomEvent<void>>,
+    onSomeErrorEvent: EventName<PcmJdModalCustomEvent<ErrorEventDetail>>
 };
 
 export const PcmJdModal: StencilReactComponent<PcmJdModalElement, PcmJdModalEvents> = /*@__PURE__*/ createComponent<PcmJdModalElement, PcmJdModalEvents>({
@@ -279,7 +266,8 @@ export const PcmJdModal: StencilReactComponent<PcmJdModalElement, PcmJdModalEven
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
         onInterviewComplete: 'interviewComplete',
-        onTokenInvalid: 'tokenInvalid'
+        onTokenInvalid: 'tokenInvalid',
+        onSomeErrorEvent: 'someErrorEvent'
     } as PcmJdModalEvents,
     defineCustomElement: definePcmJdModal
 });
@@ -290,7 +278,8 @@ type PcmJlppModalEvents = {
     onStreamComplete: EventName<PcmJlppModalCustomEvent<StreamCompleteEventData>>,
     onConversationStart: EventName<PcmJlppModalCustomEvent<ConversationStartEventData>>,
     onInterviewComplete: EventName<PcmJlppModalCustomEvent<InterviewCompleteEventData>>,
-    onTokenInvalid: EventName<CustomEvent<void>>
+    onTokenInvalid: EventName<CustomEvent<void>>,
+    onSomeErrorEvent: EventName<PcmJlppModalCustomEvent<ErrorEventDetail>>
 };
 
 export const PcmJlppModal: StencilReactComponent<PcmJlppModalElement, PcmJlppModalEvents> = /*@__PURE__*/ createComponent<PcmJlppModalElement, PcmJlppModalEvents>({
@@ -304,7 +293,8 @@ export const PcmJlppModal: StencilReactComponent<PcmJlppModalElement, PcmJlppMod
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
         onInterviewComplete: 'interviewComplete',
-        onTokenInvalid: 'tokenInvalid'
+        onTokenInvalid: 'tokenInvalid',
+        onSomeErrorEvent: 'someErrorEvent'
     } as PcmJlppModalEvents,
     defineCustomElement: definePcmJlppModal
 });
@@ -315,7 +305,8 @@ type PcmMnctModalEvents = {
     onStreamComplete: EventName<PcmMnctModalCustomEvent<StreamCompleteEventData>>,
     onConversationStart: EventName<PcmMnctModalCustomEvent<ConversationStartEventData>>,
     onInterviewComplete: EventName<PcmMnctModalCustomEvent<InterviewCompleteEventData>>,
-    onTokenInvalid: EventName<CustomEvent<void>>
+    onTokenInvalid: EventName<CustomEvent<void>>,
+    onSomeErrorEvent: EventName<PcmMnctModalCustomEvent<ErrorEventDetail>>
 };
 
 export const PcmMnctModal: StencilReactComponent<PcmMnctModalElement, PcmMnctModalEvents> = /*@__PURE__*/ createComponent<PcmMnctModalElement, PcmMnctModalEvents>({
@@ -329,7 +320,8 @@ export const PcmMnctModal: StencilReactComponent<PcmMnctModalElement, PcmMnctMod
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
         onInterviewComplete: 'interviewComplete',
-        onTokenInvalid: 'tokenInvalid'
+        onTokenInvalid: 'tokenInvalid',
+        onSomeErrorEvent: 'someErrorEvent'
     } as PcmMnctModalEvents,
     defineCustomElement: definePcmMnctModal
 });
@@ -341,6 +333,7 @@ type PcmMnmsModalEvents = {
     onConversationStart: EventName<PcmMnmsModalCustomEvent<ConversationStartEventData>>,
     onInterviewComplete: EventName<PcmMnmsModalCustomEvent<InterviewCompleteEventData>>,
     onTokenInvalid: EventName<CustomEvent<void>>,
+    onSomeErrorEvent: EventName<PcmMnmsModalCustomEvent<ErrorEventDetail>>,
     onRecordingError: EventName<PcmMnmsModalCustomEvent<RecordingErrorEventData>>
 };
 
@@ -356,6 +349,7 @@ export const PcmMnmsModal: StencilReactComponent<PcmMnmsModalElement, PcmMnmsMod
         onConversationStart: 'conversationStart',
         onInterviewComplete: 'interviewComplete',
         onTokenInvalid: 'tokenInvalid',
+        onSomeErrorEvent: 'someErrorEvent',
         onRecordingError: 'recordingError'
     } as PcmMnmsModalEvents,
     defineCustomElement: definePcmMnmsModal
@@ -367,7 +361,8 @@ type PcmMsbgModalEvents = {
     onStreamComplete: EventName<PcmMsbgModalCustomEvent<StreamCompleteEventData>>,
     onConversationStart: EventName<PcmMsbgModalCustomEvent<ConversationStartEventData>>,
     onInterviewComplete: EventName<PcmMsbgModalCustomEvent<InterviewCompleteEventData>>,
-    onTokenInvalid: EventName<CustomEvent<void>>
+    onTokenInvalid: EventName<CustomEvent<void>>,
+    onSomeErrorEvent: EventName<PcmMsbgModalCustomEvent<ErrorEventDetail>>
 };
 
 export const PcmMsbgModal: StencilReactComponent<PcmMsbgModalElement, PcmMsbgModalEvents> = /*@__PURE__*/ createComponent<PcmMsbgModalElement, PcmMsbgModalEvents>({
@@ -381,7 +376,8 @@ export const PcmMsbgModal: StencilReactComponent<PcmMsbgModalElement, PcmMsbgMod
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
         onInterviewComplete: 'interviewComplete',
-        onTokenInvalid: 'tokenInvalid'
+        onTokenInvalid: 'tokenInvalid',
+        onSomeErrorEvent: 'someErrorEvent'
     } as PcmMsbgModalEvents,
     defineCustomElement: definePcmMsbgModal
 });
@@ -416,7 +412,8 @@ type PcmZyghModalEvents = {
         conversation_id: string;
         type: CareerPlanType;
     }>>,
-    onTokenInvalid: EventName<CustomEvent<void>>
+    onTokenInvalid: EventName<CustomEvent<void>>,
+    onSomeErrorEvent: EventName<PcmZyghModalCustomEvent<ErrorEventDetail>>
 };
 
 export const PcmZyghModal: StencilReactComponent<PcmZyghModalElement, PcmZyghModalEvents> = /*@__PURE__*/ createComponent<PcmZyghModalElement, PcmZyghModalEvents>({
@@ -430,7 +427,8 @@ export const PcmZyghModal: StencilReactComponent<PcmZyghModalElement, PcmZyghMod
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
         onPlanningComplete: 'planningComplete',
-        onTokenInvalid: 'tokenInvalid'
+        onTokenInvalid: 'tokenInvalid',
+        onSomeErrorEvent: 'someErrorEvent'
     } as PcmZyghModalEvents,
     defineCustomElement: definePcmZyghModal
 });

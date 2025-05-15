@@ -9,6 +9,7 @@ import {
   RecordingStatusChangeEventData
 } from '../../interfaces/events';
 import { marked } from 'marked';
+import { ErrorEventBus } from '../../utils/error-event';
 
 @Component({
   tag: 'pcm-app-chat-modal',
@@ -314,6 +315,12 @@ export class ChatAPPModal {
         this.agentLogo = agentInfo.logo;
       }
     } catch (error) {
+      ErrorEventBus.emitError({
+        source: 'pcm-app-chat-modal[fetchAgentLogo]',
+        error: error,
+        message: '获取智能体信息失败',
+        type: 'network'
+      });
       console.error('获取智能体信息失败:', error);
     }
   }
@@ -466,7 +473,12 @@ export class ChatAPPModal {
       },
       onError: (error) => {
         console.error('发生错误:', error);
-        alert(error instanceof Error ? error.message : '消息发送失败，请稍后再试');
+        ErrorEventBus.emitError({
+          source: 'pcm-app-chat-modal[sendMessageToAPI]',
+          error: error,
+          message: '消息发送失败，请稍后再试',
+          type: 'network'
+        });
         this.messages = [...this.messages, {
           ...newMessage,
           answer: '抱歉，发生了错误，请稍后再试。',
@@ -619,7 +631,12 @@ export class ChatAPPModal {
       }
     } catch (error) {
       console.error('加载历史消息失败:', error);
-      alert(error instanceof Error ? error.message : '加载历史消息失败，请刷新重试');
+      ErrorEventBus.emitError({
+        source: 'pcm-app-chat-modal[loadHistoryMessages]',
+        error: error,
+        message: '加载历史消息失败，请刷新重试',
+        type: 'network'
+      });
     } finally {
       this.isLoadingHistory = false;
       requestAnimationFrame(() => {
@@ -852,11 +869,11 @@ export class ChatAPPModal {
 
     } catch (error) {
       console.error('无法访问摄像头或麦克风:', error);
-      // 通知父组件无法访问媒体设备
-      this.recordingError.emit({
-        type: 'media_access_failed',
+      ErrorEventBus.emitError({
+        source: 'pcm-app-chat-modal[startRecording]',
+        error: error,
         message: '无法访问摄像头或麦克风，请确保已授予权限',
-        details: error
+        type: 'network'
       });
       this.showRecordingUI = false;
     }
@@ -873,6 +890,12 @@ export class ChatAPPModal {
           videoElement.srcObject = stream;
           videoElement.play().catch(err => {
             console.error('视频播放失败:', err);
+            ErrorEventBus.emitError({
+              source: 'pcm-app-chat-modal[setupVideoPreview]',
+              error: err,
+              message: '视频播放失败',
+              type: 'ui'
+            });
           });
         } catch (e) {
           console.warn('设置srcObject失败，尝试替代方法:', e);
@@ -889,6 +912,12 @@ export class ChatAPPModal {
             };
           } catch (urlError) {
             console.error('创建对象URL失败:', urlError);
+            ErrorEventBus.emitError({
+              source: 'pcm-app-chat-modal[setupVideoPreview]',
+              error: urlError,
+              message: '创建对象URL失败',
+              type: 'network'
+            });
           }
         }
       } else {
@@ -978,6 +1007,12 @@ export class ChatAPPModal {
       }
     } catch (error) {
       console.error('音频转文字错误:', error);
+      ErrorEventBus.emitError({
+        source: 'pcm-app-chat-modal[convertAudioToText]',
+        error: error,
+        message: '音频转文字错误',
+        type: 'network'
+      });
       return null;
     }
   }
@@ -1012,11 +1047,11 @@ export class ChatAPPModal {
 
     } catch (error) {
       console.error('视频上传或处理错误:', error);
-      // 通知父组件视频上传失败
-      this.recordingError.emit({
-        type: 'upload_failed',
+      ErrorEventBus.emitError({
+        source: 'pcm-app-chat-modal[uploadRecordedVideo]',
+        error: error,
         message: '视频上传或处理失败',
-        details: error
+        type: 'network'
       });
     } finally {
       this.isUploadingVideo = false; // 上传完成后重置状态
@@ -1053,6 +1088,12 @@ export class ChatAPPModal {
         data: requestData
       }).catch(error => {
         console.error('发送面试完成请求失败:', error);
+        ErrorEventBus.emitError({
+          source: 'pcm-app-chat-modal[completeInterview]',
+          error: error,
+          message: '发送面试完成请求失败',
+          type: 'network'
+        });
       });
 
     } catch (error) {
@@ -1080,6 +1121,12 @@ export class ChatAPPModal {
 
       this.audioElement.onerror = () => {
         console.error('音频播放错误');
+        ErrorEventBus.emitError({
+          source: 'pcm-app-chat-modal[playAudio]',
+          error: '音频播放错误',
+          message: '音频播放错误',
+          type: 'ui'
+        });
         this.isPlayingAudio = false;
         this.audioUrl = null;
         resolve();
@@ -1087,6 +1134,12 @@ export class ChatAPPModal {
 
       this.audioElement.play().catch(error => {
         console.error('音频播放失败:', error);
+        ErrorEventBus.emitError({
+          source: 'pcm-app-chat-modal[playAudio]',
+          error: error,
+          message: '音频播放失败',
+          type: 'ui'
+        });
         this.isPlayingAudio = false;
         this.audioUrl = null;
         resolve();
@@ -1195,7 +1248,12 @@ export class ChatAPPModal {
       await this.sendMessageToAPI(textToSend);
     } catch (error) {
       console.error('提交文本回答失败:', error);
-      alert('提交回答失败，请重试');
+      ErrorEventBus.emitError({
+        source: 'pcm-app-chat-modal[submitTextAnswer]',
+        error: error,
+        message: '提交文本回答失败',
+        type: 'network'
+      });
     } finally {
       this.isSubmittingText = false;
     }
@@ -1215,13 +1273,12 @@ export class ChatAPPModal {
         })
         .catch(error => {
           console.error('麦克风权限请求失败:', error);
-
-          // 根据错误类型提供更具体的提示
-          if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-            alert('麦克风访问被拒绝。\n\n在Mac上，请前往系统偏好设置 > 安全性与隐私 > 隐私 > 麦克风，确保您的浏览器已被允许访问麦克风。');
-          } else {
-            alert('无法访问麦克风，请确保已授予权限并且麦克风设备正常工作。');
-          }
+          ErrorEventBus.emitError({
+            source: 'pcm-app-chat-modal[handleVoiceInputClick]',
+            error: error,
+            message: '麦克风权限请求失败',
+            type: 'ui'
+          });
         });
     }
   };
@@ -1246,7 +1303,12 @@ export class ChatAPPModal {
           // 停止并释放媒体流
           stream.getTracks().forEach(track => track.stop());
           console.error('无法创建音频录制器:', recorderError);
-          alert('您的浏览器不支持音频录制功能');
+          ErrorEventBus.emitError({
+            source: 'pcm-app-chat-modal[startRecordingWithStream]',
+            error: recorderError,
+            message: '无法创建音频录制器',
+            type: 'ui'
+          });
           return;
         }
       }
@@ -1291,7 +1353,12 @@ export class ChatAPPModal {
       // 停止并释放媒体流
       stream.getTracks().forEach(track => track.stop());
       console.error('开始录音失败:', error);
-      alert('开始录音失败，请确保麦克风设备正常工作');
+      ErrorEventBus.emitError({
+        source: 'pcm-app-chat-modal[startRecordingWithStream]',
+        error: error,
+        message: '开始录音失败，请确保麦克风设备正常工作',
+        type: 'ui'
+      });
     }
   }
 
@@ -1360,7 +1427,12 @@ export class ChatAPPModal {
       }
     } catch (error) {
       console.error('处理音频录制失败:', error);
-      alert('语音识别失败，请重试');
+      ErrorEventBus.emitError({
+        source: 'pcm-app-chat-modal[processAudioRecording]',
+        error: error,
+        message: '语音识别失败，请重试',
+        type: 'ui'
+      });
     } finally {
       this.isConvertingAudio = false;
       this.audioChunks = [];

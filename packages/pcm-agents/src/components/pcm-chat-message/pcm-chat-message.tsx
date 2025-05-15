@@ -3,6 +3,7 @@ import { marked } from 'marked';
 import extendedTables from 'marked-extended-tables';
 import { ChatMessage } from '../../interfaces/chat';
 import { sendHttpRequest } from '../../utils/utils';
+import { ErrorEventBus } from '../../utils/error-event';
 
 @Component({
     tag: 'pcm-chat-message',
@@ -101,7 +102,13 @@ export class ChatMessageComponent {
                     alert('内容已复制到剪贴板');
                 })
                 .catch(err => {
-                    alert('复制失败');
+                    // 使用全局事件总线发送错误
+                    ErrorEventBus.emitError({
+                        source: 'pcm-chat-message[copyMessageContent]',
+                        error: err,
+                        message: '复制内容失败',
+                        type: 'ui'
+                    });
                     console.error('复制失败:', err);
                 });
         }
@@ -225,6 +232,12 @@ export class ChatMessageComponent {
             }
             return null;
         } catch (error) {
+            ErrorEventBus.emitError({
+                source: 'pcm-chat-message[getCosPreviewUrl]',
+                error,
+                message: '获取预览URL失败',
+                type: 'network'
+            });
             console.error('获取预览URL失败:', error);
             return null;
         }
@@ -255,6 +268,12 @@ export class ChatMessageComponent {
             }
         } else {
             console.error('无法获取预览URL');
+            ErrorEventBus.emitError({
+                source: 'pcm-chat-message[handleFileClick]',
+                error: '无法获取预览URL',
+                message: '无法获取预览URL',
+                type: 'network'
+            });
         }
     }
 
@@ -369,6 +388,12 @@ export class ChatMessageComponent {
     private async submitFeedback(rating: 'like' | 'dislike' | null) {
         if (!this.message.id) {
             console.error('消息ID不存在，无法提交反馈');
+            ErrorEventBus.emitError({
+                source: 'pcm-chat-message[submitFeedback]',
+                error: '消息ID不存在，无法提交反馈',
+                message: '消息ID不存在，无法提交反馈',
+                type: 'ui'
+            });
             return;
         }
 

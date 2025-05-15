@@ -1,6 +1,7 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
-import { uploadFileToBackend, FileUploadResponse } from '../../utils/utils';
+import { uploadFileToBackend, FileUploadResponse, verifyApiKey } from '../../utils/utils';
 import { ConversationStartEventData, InterviewCompleteEventData, StreamCompleteEventData } from '../../components';
+import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
 
 /**
  * 劳动合同卫士
@@ -98,6 +99,11 @@ export class HtwsModal {
     @Event() tokenInvalid: EventEmitter<void>;
 
     /**
+     * 错误事件
+     */
+    @Event() someErrorEvent: EventEmitter<ErrorEventDetail>;
+
+    /**
      * 附件预览模式
      * 'drawer': 在右侧抽屉中预览
      * 'window': 在新窗口中打开
@@ -122,20 +128,30 @@ export class HtwsModal {
 
     
     private tokenInvalidListener: () => void;
+    private removeErrorListener: () => void;
 
     componentWillLoad() {
         // 添加全局token无效事件监听器
         this.tokenInvalidListener = () => {
             this.tokenInvalid.emit();
         };
+
+        // 添加全局错误监听
+        this.removeErrorListener = ErrorEventBus.addErrorListener((errorDetail) => {
+            this.someErrorEvent.emit(errorDetail);
+        });
+       
         document.addEventListener('pcm-token-invalid', this.tokenInvalidListener);
     }
 
     disconnectedCallback() {
         // 组件销毁时移除事件监听器
         document.removeEventListener('pcm-token-invalid', this.tokenInvalidListener);
+        // 移除错误监听器
+        if (this.removeErrorListener) {
+            this.removeErrorListener();
+        }
     }
-
 
     private handleClose = () => {
         this.isOpen = false;
@@ -181,7 +197,12 @@ export class HtwsModal {
         } catch (error) {
             console.error('文件上传错误:', error);
             this.clearSelectedFile();
-            alert(error instanceof Error ? error.message : '文件上传失败，请重试');
+            ErrorEventBus.emitError({
+                source: 'pcm-htws-modal[uploadFile]',
+                error: error,
+                message: '文件上传失败，请重试',
+                type: 'ui'
+            });
         } finally {
             this.isUploading = false;
         }
@@ -227,14 +248,19 @@ export class HtwsModal {
             this.showChatModal = true;
         } catch (error) {
             console.error('开始分析时出错:', error);
-            alert('开始分析时出错，请重试');
+            ErrorEventBus.emitError({
+                source: 'pcm-htws-modal[handleStartInterview]',
+                error: error,
+                message: '开始分析时出错，请重试',
+                type: 'ui'
+            });
         } finally {
             this.isSubmitting = false;
         }
     };
 
     @Watch('isOpen')
-    handleIsOpenChange(newValue: boolean) {
+    async handleIsOpenChange(newValue: boolean) {
         if (!newValue) {
             // 重置状态
             this.clearSelectedFile();
@@ -247,6 +273,7 @@ export class HtwsModal {
                 this.inputMode = 'free';
                 this.freeInputText = this.customInputs.input;
             }
+            await verifyApiKey(this.token);
 
             if (this.conversationId) {
                 // 如果有会话ID，直接显示聊天模态框
@@ -271,11 +298,6 @@ export class HtwsModal {
         this.interviewComplete.emit(event.detail);
     };
 
-    // 添加 handleTokenInvalid 方法
-    private handleTokenInvalid = () => {
-        // 转发 token 无效事件
-        this.tokenInvalid.emit();
-    };
 
     render() {
         if (!this.isOpen) return null;
@@ -443,7 +465,6 @@ export class HtwsModal {
                                 onStreamComplete={this.handleStreamComplete}
                                 onConversationStart={this.handleConversationStart}
                                 onInterviewComplete={this.handleInterviewComplete}
-                                onTokenInvalid={this.handleTokenInvalid}
                             ></pcm-app-chat-modal>
                         </div>
                     )}

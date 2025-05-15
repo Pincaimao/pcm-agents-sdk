@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
-import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend } from '../../utils/utils';
+import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, verifyApiKey } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
 import { ConversationStartEventData, StreamCompleteEventData } from '../../components';
 
@@ -211,7 +211,6 @@ export class ChatKBModal {
       };
       document.addEventListener('pcm-token-invalid', this.tokenInvalidListener);
   }
-
 
 
   private handleClose = () => {
@@ -606,6 +605,7 @@ export class ChatKBModal {
         setTimeout(() => alert('请提供有效的数字员工ID'), 0);
         return;
       }
+      await verifyApiKey(this.token);
 
       // 获取智能体详情
       await this.fetchEmployeeDetails();
