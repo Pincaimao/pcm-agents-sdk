@@ -1,6 +1,7 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
-import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, FileUploadResponse, API_DOMAIN } from '../../utils/utils';
+import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, FileUploadResponse, synthesizeAudio } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
+import { ConversationStartEventData, InterviewCompleteEventData, StreamCompleteEventData } from '../../components';
 
 @Component({
   tag: 'pcm-hr-chat-modal',
@@ -11,12 +12,12 @@ export class ChatHRModal {
   /**
    * 模态框标题
    */
-  @Prop() modalTitle: string = '在线客服';
+  @Prop() modalTitle: string = '金牌HR大赛';
 
   /**
    * SDK鉴权密钥
    */
-  @Prop({ attribute: 'token' }) token: string = '';
+  @Prop({ attribute: 'token' }) token!: string;
 
   /**
    * 是否显示聊天模态框
@@ -83,22 +84,24 @@ export class ChatHRModal {
   // 使用 @Element 装饰器获取组件的 host 元素
   @Element() hostElement: HTMLElement;
 
-  // 添加新的 Event
-  @Event() streamComplete: EventEmitter<{
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  }>;
+  /**
+   * 一轮对话结束时的回调
+   */
+  @Event() streamComplete: EventEmitter<StreamCompleteEventData>;
+
+  /**
+   * 新会话开始的回调，只会在一轮对话开始时触发一次
+   */
+  @Event() conversationStart: EventEmitter<ConversationStartEventData>;
 
   @State() selectedFile: File | null = null;
   @State() isUploading: boolean = false;
   @State() uploadedFileInfo: FileUploadResponse[] = [];
 
   /**
-   * 默认查询文本
+   * 首次对话提问文本
    */
-  @Prop() defaultQuery: string = '';
+  @Prop() defaultQuery: string = '请开始出题';
 
   // 添加新的状态
   @State() showInitialUpload: boolean = true;
@@ -131,7 +134,6 @@ export class ChatHRModal {
   @State() showRecordingUI: boolean = false;
   @State() recordingTimer: any = null;
   @State() recordingStartTime: number = 0;
-  @State() recordingMaxTime: number = 120; // 最大录制时间（秒）
   @State() waitingToRecord: boolean = false;
   @State() waitingTimer: any = null;
   @State() waitingTimeLeft: number = 10; // 等待时间（秒）
@@ -149,18 +151,11 @@ export class ChatHRModal {
    */
   @State() currentQuestionNumber: number = 0;
 
-  /**
-   * 面试是否已完成
-   */
-  @State() isInterviewComplete: boolean = false;
 
   /**
    * 当面试完成时触发
    */
-  @Event() interviewComplete: EventEmitter<{
-    conversation_id: string;
-    total_questions: number;
-  }>;
+  @Event() interviewComplete: EventEmitter<InterviewCompleteEventData>;
 
   private readonly SCROLL_THRESHOLD = 30;
 
@@ -178,9 +173,14 @@ export class ChatHRModal {
   @State() showCountdownWarning: boolean = false;
 
   /**
-   * 接收报告的邮箱地址
+   * 接收报告的邮箱地址（toEmail和callbackUrl不能同时为空）
    */
   @Prop() toEmail: string = '';
+
+  /**
+   * 回调地址，用于接收报告的通知（toEmail和callbackUrl不能同时为空，举例：https://www.example.com/callback）
+   */
+  @Prop() callbackUrl: string = '';
 
   /**
    * 是否以全屏模式打开，移动端建议设置为true
@@ -217,8 +217,14 @@ export class ChatHRModal {
     details?: any;
   }>;
 
+
   /**
-   * 是否播放语音问题
+     * SDK密钥验证失败事件
+     */
+  @Event() tokenInvalid: EventEmitter<void>;
+
+  /**
+   * 是否自动播放语音问题
    */
   @Prop() enableVoice: boolean = true;
 
@@ -227,10 +233,16 @@ export class ChatHRModal {
    */
   @Prop() displayContentStatus: boolean = true;
 
-  /**
-   * 用户ID
-   */
-  @Prop() userId: string = '';
+  private tokenInvalidListener: () => void;
+
+  componentWillLoad() {
+    // 添加全局token无效事件监听器
+    this.tokenInvalidListener = () => {
+      this.tokenInvalid.emit();
+    };
+    document.addEventListener('pcm-token-invalid', this.tokenInvalidListener);
+  }
+
 
   private handleClose = () => {
     this.stopRecording();
@@ -246,14 +258,16 @@ export class ChatHRModal {
 
   private async uploadFile() {
     if (!this.selectedFile || this.uploadedFileInfo.length > 0) return;
-    
+
     this.isUploading = true;
-    
+
     try {
       const result = await uploadFileToBackend(this.selectedFile, {
         'authorization': 'Bearer ' + this.token
+      }, {
+        'tags': 'resume'
       });
-      
+
       if (result) {
         this.uploadedFileInfo = [{
           cos_key: result.cos_key,
@@ -289,7 +303,7 @@ export class ChatHRModal {
   private async sendMessageToAPI(message: string) {
     this.isLoading = true;
     let answer = '';
-    let llmText = ''; // 添加变量存储 LLMText
+    let llmText = '';
 
     const now = new Date();
     const time = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
@@ -337,8 +351,8 @@ export class ChatHRModal {
       this.messages = [...this.messages, newMessage];
       this.currentStreamingMessage = null;
       this.isLoading = false;
-      this.isInterviewComplete = true;
       await this.completeInterview();
+      this.currentQuestionNumber++;
       this.interviewComplete.emit({
         conversation_id: this.conversationId,
         total_questions: this.totalQuestions
@@ -351,15 +365,17 @@ export class ChatHRModal {
       response_mode: 'streaming',
       conversation_id: this.conversationId,
       query: queryText,
-      user: this.userId, // 使用传入的 userId
       bot_id: "3022316191018880"
     };
     requestData.inputs = {
       job_info: this.selectedJobCategory,
       dimensional_info: this.selectedDimensions.join(','),
       email: this.toEmail,
+      callback_url: this.callbackUrl,
       display_content_status: this.displayContentStatus ? "1" : "0"
     };
+
+
     // 如果有上传的文件，添加到inputs参数
     if (this.uploadedFileInfo.length > 0) {
       const fileUrls = this.uploadedFileInfo.map(fileInfo => fileInfo.cos_key).join(',');
@@ -379,7 +395,12 @@ export class ChatHRModal {
 
         if (data.conversation_id && !this.conversationId) {
           this.conversationId = data.conversation_id;
-          this.updateUrlWithConversationId(data.conversation_id);
+          this.conversationStart.emit({
+            conversation_id: data.conversation_id,
+            event: data.event,
+            message_id: data.message_id,
+            id: data.id,
+          });
         }
 
         // 检查是否有 node_finished 事件和 LLMText
@@ -437,20 +458,16 @@ export class ChatHRModal {
         this.messages = [...this.messages, this.currentStreamingMessage];
         this.currentStreamingMessage = null;
 
-        // 如果是初始消息或"下一题"消息，增加题目计数
-        if (message === "下一题" || this.currentQuestionNumber === 0) {
-          this.currentQuestionNumber++;
-        }
-        console.log(this.currentQuestionNumber);
-        console.log(message);
+        // 增加题目计数
+        this.currentQuestionNumber++;
 
         if (latestAIMessage && latestAIMessage.answer) {
           // 优先使用 LLMText，如果没有则使用 answer
           const textForSynthesis = llmText || latestAIMessage.answer;
-          
+
           if (textForSynthesis) {
             // 合成语音
-            const audioUrl = await this.synthesizeAudio(textForSynthesis);
+            const audioUrl = await synthesizeAudio(textForSynthesis, this.token);
 
             if (this.enableVoice) {
               // 自动播放语音
@@ -468,7 +485,7 @@ export class ChatHRModal {
     });
   }
 
-  // 修改保存答案的方法
+  // 保存答案的方法
   private async saveAnswer(conversationId: string, question: string, answer: string) {
     try {
       await sendHttpRequest({
@@ -479,7 +496,6 @@ export class ChatHRModal {
         },
         data: {
           conversation_id: conversationId,
-          user: this.userId,
           question: question,
           answer: answer
         },
@@ -517,15 +533,6 @@ export class ChatHRModal {
       if (chatHistory) {
         chatHistory.scrollTop = chatHistory.scrollHeight;
       }
-    }
-  }
-
-  private updateUrlWithConversationId(conversationId: string) {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (!urlParams.get('conversation_id')) {
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.set('conversation_id', conversationId);
-      window.history.replaceState({}, '', newUrl);
     }
   }
 
@@ -588,7 +595,7 @@ export class ChatHRModal {
     if (newValue) {
       if (this.conversationId) {
         await this.loadHistoryMessages();
-      } 
+      }
     }
   }
 
@@ -935,15 +942,17 @@ export class ChatHRModal {
       // 根据Blob类型确定文件扩展名
       const fileExtension = this.recordedBlob.type.includes('webm') ? 'webm' : 'mp4';
       const fileName = `answer.${fileExtension}`;
-      
+
       // 创建File对象
       const videoFile = new File([this.recordedBlob], fileName, { type: this.recordedBlob.type });
-      
+
       // 使用uploadFileToBackend上传视频
       const result = await uploadFileToBackend(videoFile, {
         'authorization': 'Bearer ' + this.token
+      }, {
+        'tags': 'other'
       });
-      
+
       if (result) {
         // 使用 FileUploadResponse 类型的字段
         await this.saveVideoAnswer(result.cos_key);
@@ -982,7 +991,6 @@ export class ChatHRModal {
         },
         data: {
           conversation_id: this.conversationId,
-          user: this.userId,
           question: lastAIMessage.answer,
           file_url: cosKey
         },
@@ -1016,30 +1024,6 @@ export class ChatHRModal {
     }
   }
 
-  // 添加TTS合成音频的方法
-  private async synthesizeAudio(text: string): Promise<string> {
-    try {
-      const response = await fetch(`${API_DOMAIN}/sdk/v1/tts/synthesize_audio`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'authorization': 'Bearer ' + this.token
-        },
-        body: JSON.stringify({ text })
-      });
-
-      if (!response.ok) {
-        throw new Error('语音合成失败');
-      }
-
-      // 获取音频数据并创建Blob URL
-      const audioBlob = await response.blob();
-      return URL.createObjectURL(audioBlob);
-    } catch (error) {
-      console.error('语音合成错误:', error);
-      throw error;
-    }
-  }
 
   // 播放音频的方法
   private playAudio(audioUrl: string): Promise<void> {
@@ -1077,6 +1061,7 @@ export class ChatHRModal {
 
   // 修改 componentDidLoad 生命周期方法，确保组件卸载时释放资源
   disconnectedCallback() {
+    document.removeEventListener('pcm-token-invalid', this.tokenInvalidListener);
     // 释放音频资源
     if (this.audioElement) {
       this.audioElement.pause();
@@ -1195,7 +1180,7 @@ export class ChatHRModal {
           </div>
         );
       }
-      
+
       // 添加默认状态
       return (
         <div class="placeholder-status default-status">
@@ -1230,8 +1215,11 @@ export class ChatHRModal {
                     <h3>开始前，请上传您的简历</h3>
                     <div class="upload-area" onClick={this.handleUploadClick}>
                       {this.selectedFile ? (
-                        <div class="file-info">
-                          <span>{this.selectedFile.name}</span>
+                        <div class="file-item">
+                          <div class="file-item-content">
+                            <span class="file-icon">📝</span>
+                            <span class="file-name">{this.selectedFile.name}</span>
+                          </div>
                           <button class="remove-file" onClick={(e) => {
                             e.stopPropagation();
                             this.clearSelectedFile();
@@ -1239,10 +1227,8 @@ export class ChatHRModal {
                         </div>
                       ) : (
                         <div class="upload-placeholder">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="48" height="48">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m0-16l-4 4m4-4l4 4" />
-                          </svg>
-                          <p>点击上传简历</p>
+                          <img src='https://pub.pincaimao.com/static/web/images/home/i_upload.png'></img>
+                          <p class='upload-text'>点击上传简历</p>
                           <p class="upload-hint">支持 txt、 markdown、 pdf、 docx、  md 格式</p>
                         </div>
                       )}
@@ -1319,6 +1305,7 @@ export class ChatHRModal {
                     {this.messages.map((message) => (
                       <div id={`message_${message.id}`} key={message.id}>
                         <pcm-chat-message
+                          token={this.token}
                           message={message}
                           onMessageChange={(event) => {
                             const updatedMessages = this.messages.map(msg =>
@@ -1332,6 +1319,7 @@ export class ChatHRModal {
                     {this.currentStreamingMessage && (
                       <div id={`message_${this.currentStreamingMessage.id}`}>
                         <pcm-chat-message
+                          token={this.token}
                           message={this.currentStreamingMessage}
                         ></pcm-chat-message>
                       </div>
@@ -1359,10 +1347,10 @@ export class ChatHRModal {
                   {/* 添加进度条和数字进度 */}
                   <div class="progress-container">
                     <div class="progress-bar-container">
-                      <div 
-                        class="progress-bar" 
-                        style={{ 
-                          width: `${Math.max(0, this.currentQuestionNumber - 1) / this.totalQuestions * 100}%` 
+                      <div
+                        class="progress-bar"
+                        style={{
+                          width: `${Math.max(0, this.currentQuestionNumber - 1) / this.totalQuestions * 100}%`
                         }}
                       ></div>
                     </div>
@@ -1394,7 +1382,7 @@ export class ChatHRModal {
                               </div>
                             );
                           }
-                          
+
                           // 其他状态下显示禁用的"完成回答"按钮
                           return (
                             <button class="stop-recording-button disabled" disabled>
@@ -1405,8 +1393,8 @@ export class ChatHRModal {
                       </div>
                     )}
                   </div>
-                  
-                  
+
+
                 </div>
               </div>
             </div>

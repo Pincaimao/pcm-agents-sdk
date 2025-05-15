@@ -1,0 +1,95 @@
+/* 输入模式切换 */
+.input-mode-toggle {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+}
+  
+.input-mode-toggle span {
+    color: #333;
+    margin-right: 12px;
+}
+  
+.toggle-button {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    color: #2E6EDF;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px 8px;
+}
+  
+.toggle-button svg {
+    margin-right: 4px;
+}
+
+/* 自由输入模式 */
+.free-input {
+    width: 100%;
+}
+
+.textarea-container {
+    margin-bottom: 16px;
+}
+
+.textarea-container label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+.textarea-container textarea {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    resize: vertical;
+    background-color: #f9f9f9;
+    min-height: 150px;
+    width: 100%;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    max-width: 100%;
+    box-sizing: border-box;
+    word-wrap: break-word;
+}
+
+.textarea-container textarea:focus {
+    outline: none;
+    border-color: #2E6EDF;
+    box-shadow: 0 0 0 2px rgba(46, 110, 223, 0.2);
+}
+
+.required {
+    color: #f56c6c;
+}
+
+.input-guide {
+    background-color: #f5f7fa;
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    max-width: 100%;
+    box-sizing: border-box;
+    word-wrap: break-word;
+}
+
+.guide-title {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.guide-content {
+    color: #666;
+    font-size: 13px;
+    max-width: 100%;
+    word-wrap: break-word;
+}
+
+.guide-content div {
+    margin-bottom: 4px;
+}
+

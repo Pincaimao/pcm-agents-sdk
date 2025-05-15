@@ -10,41 +10,44 @@
 
 .user-message-container {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  margin-bottom: 8px;
+  flex-direction: row-reverse;
+  align-items: flex-start;
+  margin-bottom: 15px;
+  position: relative;
 }
 
 .assistant-message-container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: flex-start;
-  margin-bottom: 8px;
+  margin-bottom: 15px;
+  position: relative;
 }
 
 /* 添加消息气泡样式 */
 .message-bubble {
-  padding: 7px 18px;
-  max-width: 80%;
+  max-width: 85%;
   position: relative;
 }
 
 /* 用户消息气泡样式 */
 .user-message {
-  background-image: linear-gradient(100deg, #4A9FFF 0%, #1058FF 100%);
-  font-weight: 600;
-font-size: 14px;
-color: #FFFFFF;
-  border-radius: 14px 0 14px 14px;
+  padding: 15px 10px;
+  background: #f5f7ff;
+  font-size: 14px;
+  color: #1F2328;
+  border-radius: .375rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 /* 助手消息气泡样式 */
 .assistant-message {
-  background-color: #0000000f;
-  border-radius: 0 14px 14px 14px;
-  font-weight: 600;
+  padding: 15px 10px;
+  background-color: #fff;
+  border-radius: .375rem;
   font-size: 14px;
-  color: #00000099;
+  color: #1F2328;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .message-time {
@@ -115,6 +118,7 @@ color: #FFFFFF;
 
 .input-view {
   margin-top: 8px;
+  margin-bottom: 10px;
   padding-bottom: 10px;
   border: 1px solid #e9ecef;
   border-radius: 6px;
@@ -123,13 +127,39 @@ color: #FFFFFF;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.input-label {
-  padding: 8px 12px;
+
+.input-label-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
   background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  padding: 8px 12px;
+}
+
+.copy-input-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8c8c8c;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+  margin-left: 5px;
+}
+
+.copy-input-button:hover {
+  opacity: 1;
+  color: #1677ff;
+}
+
+.input-label {
   font-size: 13px;
   font-weight: 600;
   color: #495057;
-  border-bottom: 1px solid #e9ecef;
 }
 
 .input-value {
@@ -1384,73 +1414,290 @@ color: #FFFFFF;
   min-height: 52px;
 }
 
+/* 基本的消息操作按钮位置 */
 .message-actions {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  opacity: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   transition: opacity 0.2s ease;
+  margin-top: 15px;
 }
 
-.assistant-message:hover .message-actions {
-  opacity: 1;
-}
 
-.copy-button {
-  background: none;
-  border: none;
+.action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  padding: 4px 15px;
+  font-size: 14px;
+  height: 32px;
+  background-color: white;
   cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  color: #6e6e80;
+  color: rgba(0, 0, 0, 0.88);
+  transition: all 0.2s;
+}
+
+.action-button:hover {
+  color: #1677ff;
+  border-color: #1677ff;
+}
+
+.action-button.primary {
+  color: #1677ff;
+  border-color: #1677ff;
+}
+
+.action-button.primary:hover {
+  color: #4096ff;
+  border-color: #4096ff;
+}
+
+.action-button.icon-only {
+  padding: 4px 8px;
+  margin-right: 9px;
+}
+
+.button-icon {
+  margin-right: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.copy-button:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-  color: #000;
-}
-
-.copy-button svg {
-  width: 16px;
-  height: 16px;
+.icon-only .button-icon {
+  margin-right: 0;
 }
 
 .file-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
 }
 
 .file-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 80px;
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 4px;
-    transition: background-color 0.3s;
-    margin: 5px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+  margin: 5px 10px;
 }
 
 .file-item:hover {
-    background-color: rgba(0, 0, 0, 0.04);
+  background-color: rgba(0, 0, 0, 0.04);
 }
 
 .file-icon {
-    margin-bottom: 4px;
+  margin-bottom: 4px;
 }
 
 .file-name {
-    font-size: 12px;
-    text-align: center;
-    width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: #8B4513;
+  font-size: 12px;
+  text-align: center;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #8B4513;
+}
+
+.action-button.active {
+  color: #1677ff;
+  background-color: rgba(22, 119, 255, 0.1);
+}
+
+.action-button.active .button-icon svg {
+  stroke: #1677ff;
+}
+
+.inputs-container {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+
+.file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: #f5f5f5;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.file-item:hover {
+  background-color: #e8e8e8;
+}
+
+.file-icon {
+  margin-right: 8px;
+}
+
+.file-name {
+  font-size: 14px;
+  color: #333;
+  word-break: break-word;
+}
+
+.input-view {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid #e8e8e8;
+}
+
+.input-label-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.input-label {
+  font-weight: 500;
+  color: #333;
+}
+
+.input-value {
+  color: #666;
+  line-height: 1.5;
+  word-break: break-word;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.copy-input-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #1677ff;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.copy-input-button:hover {
+  background-color: rgba(22, 119, 255, 0.1);
+}
+
+.input-metadata {
+  font-size: 14px;
+  color: #666;
+  padding: 4px 0;
+}
+
+/* 文件卡片样式 */
+.file-card {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background: linear-gradient(150deg, #2a6ee933, #0000 50%) 0 0 / 200px 100px no-repeat, #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border: 1px solid #e8e8e8;
+  margin-top: 8px;
+}
+
+.file-card:hover {
+  background-color: #f0f0f0;
+}
+
+.file-card-icon {
+  margin-right: 12px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: #0d75fb;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-card-icon img {
+  width: 40px;
+  height: 40px;
+}
+
+.file-card-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.file-card-type {
+  font-size: 14px;
+  color: #8c8c8c;
+  margin-bottom: 4px;
+}
+
+.file-card-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+
+/* 复制按钮样式 */
+.copy-card-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #8c8c8c;
+  padding: 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  transition: color 0.2s;
+}
+
+.copy-card-button:hover {
+  color: #1677ff;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+
+.user-avatar {
+  margin-left: 8px;
+}
+
+.assistant-avatar {
+  margin-right: 8px;
 }

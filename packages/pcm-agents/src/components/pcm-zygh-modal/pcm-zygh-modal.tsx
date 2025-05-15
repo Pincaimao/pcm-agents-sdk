@@ -1,5 +1,10 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
-import { uploadFileToBackend, FileUploadResponse, sendHttpRequest } from '../../utils/utils';
+import { uploadFileToBackend, FileUploadResponse } from '../../utils/utils';
+import { ConversationStartEventData, StreamCompleteEventData } from '../../components';
+
+/**
+ * 职业规划助手
+ */
 
 /**
  * 职业规划类型枚举
@@ -8,7 +13,7 @@ export type CareerPlanType = '长期规划' | '转行建议' | '晋升路径';
 
 @Component({
     tag: 'pcm-zygh-modal',
-    styleUrls: ['pcm-zygh-modal.css','../../global/global.css'],
+    styleUrls: ['../../global/global.css', 'pcm-zygh-modal.css'],
     shadow: true,
 })
 export class ZyghModal {
@@ -20,7 +25,7 @@ export class ZyghModal {
     /**
      * SDK鉴权密钥
      */
-    @Prop({ attribute: 'token' }) token: string = '';
+    @Prop({ attribute: 'token' }) token!: string;
 
     /**
      * 是否显示聊天模态框
@@ -60,7 +65,7 @@ export class ZyghModal {
     /**
      * 默认查询文本
      */
-    @Prop() defaultQuery: string = '';
+    @Prop() defaultQuery: string = '请开始规划';
 
     /**
      * 是否以全屏模式打开，移动端建议设置为true
@@ -69,13 +74,9 @@ export class ZyghModal {
 
 
     /**
-     * 自定义输入参数，传入plan_type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"
-     * 例如：   
-     * zyghModal.customInputs = {
-     *      plan_type: "转行建议"
-     * };
+     * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"
      */
-    @Prop() customInputs: { [key: string]: any } = {};
+    @Prop() customInputs: Record<string, any> = {};
 
     /**
      * 上传成功事件
@@ -85,29 +86,19 @@ export class ZyghModal {
     /**
      * 流式输出完成事件
      */
-    @Event() streamComplete: EventEmitter<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>;
+    @Event() streamComplete: EventEmitter<StreamCompleteEventData>;
 
     /**
      * 新会话开始的回调，只会在一轮对话开始时触发一次
      */
-    @Event() conversationStart: EventEmitter<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>;
+    @Event() conversationStart: EventEmitter<ConversationStartEventData>;
 
     /**
      * 当聊天完成时触发
      */
     @Event() planningComplete: EventEmitter<{
         conversation_id: string;
-        plan_type: CareerPlanType;
+        type: CareerPlanType;
     }>;
 
     /**
@@ -121,10 +112,6 @@ export class ZyghModal {
     @State() showChatModal: boolean = false;
     @State() isSubmitting: boolean = false;
     @State() selectedPlanType: CareerPlanType = '长期规划';
-
-    // 添加新的状态来控制过渡动画
-    @State() isTransitioning: boolean = false;
-    @State() transitionTimer: any = null;
 
     // 使用 @Element 装饰器获取组件的 host 元素
     @Element() hostElement: HTMLElement;
@@ -167,8 +154,10 @@ export class ZyghModal {
         try {
             const result = await uploadFileToBackend(this.selectedFile, {
                 'authorization': 'Bearer ' + this.token
+            }, {
+                'tags': 'resume'
             });
-            
+
             this.uploadedFileInfo = result;
             this.uploadSuccess.emit(result);
         } catch (error) {
@@ -201,7 +190,7 @@ export class ZyghModal {
             // console.log('传递的customInputs:', {
             //     ...this.customInputs,
             //     file_url: this.uploadedFileInfo.cos_key,
-            //     plan_type: this.selectedPlanType
+            //     type: this.selectedPlanType
             // });
 
             // 直接显示聊天模态框
@@ -220,16 +209,12 @@ export class ZyghModal {
             // 重置状态
             this.clearSelectedFile();
             this.showChatModal = false;
-            
-            // 清除可能存在的计时器
-            if (this.transitionTimer) {
-                clearTimeout(this.transitionTimer);
-                this.transitionTimer = null;
-            }
+
         } else {
-            // 当模态框打开时，验证API密钥
-            this.verifyApiKey();
-            
+            if (this.customInputs && this.customInputs.type) {
+                this.selectedPlanType = this.customInputs.type;
+            }
+
             if (this.conversationId) {
                 // 如果有会话ID，直接显示聊天模态框
                 this.showChatModal = true;
@@ -237,41 +222,10 @@ export class ZyghModal {
         }
     }
 
-    /**
-     * 验证API密钥
-     */
-    private async verifyApiKey() {
-        if (!this.token) {
-            this.tokenInvalid.emit();
-            return;
-        }
-        
-        try {
-            const response = await sendHttpRequest({
-                url: '/sdk/v1/user',
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${this.token}`
-                }
-            });
-
-            if (!response.success) {
-                throw new Error(response.message || 'API密钥验证失败');
-            }
-            
-            // 验证成功，继续正常流程
-        } catch (error) {
-            console.error('API密钥验证错误:', error);
-            // 通知父组件API密钥无效
-            this.tokenInvalid.emit();
-        }
-    }
-
+   
     componentWillLoad() {
-        // 检查 customInputs 中是否有 plan_type
-        if (this.customInputs && this.customInputs.plan_type) {
-            this.selectedPlanType = this.customInputs.plan_type;
-        }
+        // 检查 customInputs 中是否有 type
+
     }
 
     // 处理流式输出完成事件
@@ -289,8 +243,14 @@ export class ZyghModal {
     private handlePlanningComplete = (event: CustomEvent) => {
         this.planningComplete.emit({
             ...event.detail,
-            plan_type: this.selectedPlanType
+            type: this.selectedPlanType
         });
+    };
+
+    // 添加 handleTokenInvalid 方法
+    private handleTokenInvalid = () => {
+        // 转发 token 无效事件
+        this.tokenInvalid.emit();
     };
 
     render() {
@@ -305,7 +265,7 @@ export class ZyghModal {
             'fullscreen': this.fullscreen,
             'pc-layout': true,
         };
-        
+
         const overlayClass = {
             'modal-overlay': true,
             'fullscreen-overlay': this.fullscreen
@@ -336,26 +296,26 @@ export class ZyghModal {
                     {/* 输入界面 - 仅在不显示聊天模态框且没有会话ID时显示 */}
                     {!this.showChatModal && !this.conversationId && (
                         <div class="input-container">
-                            
+
                             {/* 规划类型选择 */}
                             <div class="plan-type-section">
                                 <label>选择规划类型</label>
                                 <div class="plan-type-options">
-                                    <div 
+                                    <div
                                         class={`plan-type-option ${this.selectedPlanType === '长期规划' ? 'selected' : ''}`}
                                         onClick={() => this.handlePlanTypeChange('长期规划')}
                                     >
                                         <div class="option-icon">📈</div>
                                         <div class="option-label">长期规划</div>
                                     </div>
-                                    <div 
+                                    <div
                                         class={`plan-type-option ${this.selectedPlanType === '转行建议' ? 'selected' : ''}`}
                                         onClick={() => this.handlePlanTypeChange('转行建议')}
                                     >
                                         <div class="option-icon">🔄</div>
                                         <div class="option-label">转行建议</div>
                                     </div>
-                                    <div 
+                                    <div
                                         class={`plan-type-option ${this.selectedPlanType === '晋升路径' ? 'selected' : ''}`}
                                         onClick={() => this.handlePlanTypeChange('晋升路径')}
                                     >
@@ -364,14 +324,17 @@ export class ZyghModal {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             {/* 简历上传区域 */}
                             <div class="resume-upload-section">
                                 <label>上传简历</label>
                                 <div class="upload-area" onClick={this.handleUploadClick}>
                                     {this.selectedFile ? (
-                                        <div class="file-info">
-                                            <span>{this.selectedFile.name}</span>
+                                        <div class="file-item">
+                                            <div class="file-item-content">
+                                                <span class="file-icon">📝</span>
+                                                <span class="file-name">{this.selectedFile.name}</span>
+                                            </div>
                                             <button class="remove-file" onClick={(e) => {
                                                 e.stopPropagation();
                                                 this.clearSelectedFile();
@@ -379,10 +342,8 @@ export class ZyghModal {
                                         </div>
                                     ) : (
                                         <div class="upload-placeholder">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="48" height="48">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m0-16l-4 4m4-4l4 4" />
-                                            </svg>
-                                            <p>点击上传简历</p>
+                                            <img src='https://pub.pincaimao.com/static/web/images/home/i_upload.png'></img>
+                                            <p class='upload-text'>点击上传简历</p>
                                             <p class="upload-hint">支持 txt、markdown、pdf、docx、doc、md 格式</p>
                                         </div>
                                     )}
@@ -415,23 +376,24 @@ export class ZyghModal {
 
                     {/* 聊天界面 - 在显示聊天模态框时显示 */}
                     {this.showChatModal && (
-                        <div class="chat-modal-container">
+                        <div>
                             <pcm-app-chat-modal
                                 isOpen={true}
                                 modalTitle={this.modalTitle}
                                 icon={this.icon}
                                 token={this.token}
-                                isShowHeader={this.isShowHeader} 
-                                isNeedClose={this.isShowHeader} 
+                                isShowHeader={this.isShowHeader}
+                                isNeedClose={this.isShowHeader}
                                 zIndex={this.zIndex}
                                 botId="3022316191018898"
                                 fullscreen={this.fullscreen}
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
                                 enableVoice={false}
-                                customInputs={this.conversationId ? undefined : {
+                                customInputs={this.conversationId ? {} : {
                                     ...this.customInputs,
                                     file_url: this.uploadedFileInfo?.cos_key,
+                                    file_name: this.uploadedFileInfo?.file_name,
                                     type: this.selectedPlanType
                                 }}
                                 interviewMode="text"
@@ -439,6 +401,7 @@ export class ZyghModal {
                                 onStreamComplete={this.handleStreamComplete}
                                 onConversationStart={this.handleConversationStart}
                                 onInterviewComplete={this.handlePlanningComplete}
+                                onTokenInvalid={this.handleTokenInvalid}
                             ></pcm-app-chat-modal>
                         </div>
                     )}

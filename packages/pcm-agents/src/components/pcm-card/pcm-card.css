@@ -1,0 +1,260 @@
+:host {
+  display: block;
+}
+
+/* 加载和错误状态样式 */
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  width: 100%;
+  color: #86909C;
+  font-size: 14px;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #1677FF;
+  border-radius: 50%;
+  margin-bottom: 12px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-icon {
+  width: 32px;
+  height: 32px;
+  background-color: #FFF0F0;
+  color: #F53F3F;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+.error-message {
+  color: #86909C;
+  max-width: 80%;
+}
+
+.card-container {
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border: 1px solid #E5E6EB;
+  position: relative;
+  height: 100%;
+  min-width: 300px;
+}
+
+.card-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 21, 41, 0.08);
+}
+
+.card-header {
+  display: flex;
+  width: 100%;
+  padding-bottom: 16px;
+  gap: 12px;
+}
+
+.card-icon {
+  width: 64px;
+  height: 64px;
+  margin-right: 12px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 2px;
+  background-color: #f8f9fa;
+}
+
+.card-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.card-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+}
+
+.title-wrapper {
+  flex: 1;
+  margin-right: 8px;
+  overflow: hidden;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1D2129;
+  line-height: 24px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  width: 100%;
+}
+
+.chat-tag {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 8px;
+  background-color: #F2F7E8;
+  color: #56961F;
+  font-size: 12px;
+  border-radius: 4px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.author-row {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.author-avatar {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin-right: 4px;
+  background-color: #f8f9fa;
+  overflow: hidden;
+}
+
+.author-name {
+  font-size: 12px;
+  color: #86909C;
+}
+
+.card-description {
+  font-size: 12px;
+  color: #86909C;
+  margin-top: 8px;
+  line-height: 18px;
+  height: 54px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: pre-line;
+  word-break: break-word;
+}
+
+.card-footer {
+  padding-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #E5E6EB;
+}
+
+.stats-container {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
+  color: #86909C;
+}
+
+.stat-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.user-icon {
+  /* 为图标添加SVG背景 */
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' focusable='false' aria-hidden='true'%3E%3Cpath d='M12 14c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6Zm0-10C9.8 4 8 5.8 8 8s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4Z' fill='currentColor'%3E%3C/path%3E%3Cpath d='M21.9 20.6c-.1-.2-2.3-5.6-9.9-5.6-7.6 0-9.8 5.4-9.9 5.6-.2.5 0 1.1.6 1.3.5.2 1.1 0 1.3-.5 0-.2 1.8-4.4 8-4.4s8 4.2 8.1 4.4c.2.5.8.8 1.3.5.5-.2.7-.8.5-1.3Z' fill='currentColor'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.star-icon {
+  /* 为图标添加SVG背景 */
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' focusable='false' aria-hidden='true'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M12 5.03 9.57 9.1c-.17.3-.46.5-.8.55l-4.3.79 3 3.46c.22.26.32.6.28.93l-.62 4.46 4.41-1.9c.3-.12.63-.12.92 0l4.4 1.9-.6-4.46c-.05-.34.05-.67.27-.93l3-3.46-4.3-.79a1.17 1.17 0 0 1-.8-.55L12 5.03Zm-1-2.46a1.16 1.16 0 0 1 2 0l3.03 5.07 5.51 1c.89.17 1.26 1.24.68 1.92l-3.8 4.4.77 5.71c.13.9-.78 1.6-1.61 1.23L12 19.5l-5.58 2.4a1.17 1.17 0 0 1-1.61-1.23l.78-5.7-3.8-4.4a1.17 1.17 0 0 1 .67-1.92l5.51-1L11 2.56Z' fill='currentColor'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.video-icon {
+  /* 为图标添加SVG背景 */
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' focusable='false' aria-hidden='true'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M4 2a2 2 0 0 0-2 2v16c0 1.1.9 2 2 2h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4Zm0 2h16v16H4V4Zm5.5 3.13A1 1 0 0 0 8 8v8a1 1 0 0 0 1.5.87l7-4a1 1 0 0 0 0-1.74l-7-4ZM13.98 12 10 14.28V9.72L13.98 12Z' fill='currentColor'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.stat-value {
+  font-size: 12px;
+}
+
+.use-button {
+  font-size: 12px;
+  color: #86909C;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.use-button:hover {
+  color: #1677FF;
+}
+
+/* 响应式样式 */
+@media screen and (max-width: 768px) {
+  .card-container {
+    padding: 12px;
+  }
+  
+  .card-header {
+    gap: 8px;
+    padding-bottom: 12px;
+  }
+  
+  .card-icon {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .card-title {
+    font-size: 16px;
+    line-height: 20px;
+  }
+  
+  .card-description {
+    font-size: 12px;
+    line-height: 16px;
+    height: 48px;
+  }
+} 

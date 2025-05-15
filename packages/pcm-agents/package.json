@@ -1,6 +1,6 @@
 {
   "name": "pcm-agents",
-  "version": "0.3.3",
+  "version": "0.4.4",
   "description": "Components of pcm-agents",
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
@@ -36,7 +36,8 @@
     "loader/"
   ],
   "scripts": {
-    "build": "stencil build",
+    "build": "stencil build --prod",
+    "upload": "node checkApiDomain.cjs && stencil build --prod && npm publish && node uploadToCOS.cjs",
     "dev": "stencil build --dev --watch --serve",
     "test": "stencil test --spec --e2e",
     "test.watch": "stencil test --spec --e2e --watchAll",
@@ -45,7 +46,7 @@
   "devDependencies": {
     "@stencil/core": "^4.27.1",
     "@types/jest": "^29.5.14",
-    "@types/node": "^22.13.5",
+    "@types/node": "^22.13.10",
     "jest": "^29.7.0",
     "jest-cli": "^29.7.0",
     "puppeteer": "^24.3.0"
@@ -55,7 +56,10 @@
     "@stencil/react-output-target": "^0.8.2",
     "@stencil/vue-output-target": "^0.10.7",
     "@types/marked": "^5.0.2",
+    "cos-nodejs-sdk-v5": "^2.14.7",
+    "dotenv": "^16.5.0",
     "marked": "^9.1.5",
-    "marked-extended-tables": "^2.0.1"
+    "marked-extended-tables": "^2.0.1",
+    "rollup-plugin-dotenv": "^0.5.1"
   }
 }

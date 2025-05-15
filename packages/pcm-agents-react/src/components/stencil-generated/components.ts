@@ -9,15 +9,23 @@
 
 import type { EventName, StencilReactComponent } from '@stencil/react-output-target/runtime';
 import { createComponent } from '@stencil/react-output-target/runtime';
-import { type CareerPlanType, type ChatMessage, type FileUploadResponse, type PcmChatMessageCustomEvent, type PcmJlppModalCustomEvent, type PcmMnmsModalCustomEvent, type PcmZyghModalCustomEvent } from "pcm-agents";
+import { type CareerPlanType, type ChatMessage, type ConversationStartEventData, type FileUploadResponse, type InterviewCompleteEventData, type Pcm1zhanshiMnmsModalCustomEvent, type PcmAppChatModalCustomEvent, type PcmChatMessageCustomEvent, type PcmChatModalCustomEvent, type PcmHrChatModalCustomEvent, type PcmHtwsModalCustomEvent, type PcmHyzjModalCustomEvent, type PcmJdModalCustomEvent, type PcmJlppModalCustomEvent, type PcmMnctModalCustomEvent, type PcmMnmsModalCustomEvent, type PcmMsbgModalCustomEvent, type PcmZskChatModalCustomEvent, type PcmZyghModalCustomEvent, type RecordingErrorEventData, type RecordingStatusChangeEventData, type StreamCompleteEventData } from "pcm-agents";
 import { MyComponent as MyComponentElement, defineCustomElement as defineMyComponent } from "pcm-agents/dist/components/my-component.js";
+import { Pcm1zhanshiMnmsModal as Pcm1zhanshiMnmsModalElement, defineCustomElement as definePcm1zhanshiMnmsModal } from "pcm-agents/dist/components/pcm-1zhanshi-mnms-modal.js";
 import { PcmAppChatModal as PcmAppChatModalElement, defineCustomElement as definePcmAppChatModal } from "pcm-agents/dist/components/pcm-app-chat-modal.js";
+import { PcmButton as PcmButtonElement, defineCustomElement as definePcmButton } from "pcm-agents/dist/components/pcm-button.js";
+import { PcmCard as PcmCardElement, defineCustomElement as definePcmCard } from "pcm-agents/dist/components/pcm-card.js";
 import { PcmChatMessage as PcmChatMessageElement, defineCustomElement as definePcmChatMessage } from "pcm-agents/dist/components/pcm-chat-message.js";
 import { PcmChatModal as PcmChatModalElement, defineCustomElement as definePcmChatModal } from "pcm-agents/dist/components/pcm-chat-modal.js";
 import { PcmHrChatModal as PcmHrChatModalElement, defineCustomElement as definePcmHrChatModal } from "pcm-agents/dist/components/pcm-hr-chat-modal.js";
+import { PcmHtwsModal as PcmHtwsModalElement, defineCustomElement as definePcmHtwsModal } from "pcm-agents/dist/components/pcm-htws-modal.js";
+import { PcmHyzjModal as PcmHyzjModalElement, defineCustomElement as definePcmHyzjModal } from "pcm-agents/dist/components/pcm-hyzj-modal.js";
+import { PcmJdModal as PcmJdModalElement, defineCustomElement as definePcmJdModal } from "pcm-agents/dist/components/pcm-jd-modal.js";
 import { PcmJlppModal as PcmJlppModalElement, defineCustomElement as definePcmJlppModal } from "pcm-agents/dist/components/pcm-jlpp-modal.js";
+import { PcmMnctModal as PcmMnctModalElement, defineCustomElement as definePcmMnctModal } from "pcm-agents/dist/components/pcm-mnct-modal.js";
 import { PcmMnmsModal as PcmMnmsModalElement, defineCustomElement as definePcmMnmsModal } from "pcm-agents/dist/components/pcm-mnms-modal.js";
-import { PcmVideoChatModal as PcmVideoChatModalElement, defineCustomElement as definePcmVideoChatModal } from "pcm-agents/dist/components/pcm-video-chat-modal.js";
+import { PcmMsbgModal as PcmMsbgModalElement, defineCustomElement as definePcmMsbgModal } from "pcm-agents/dist/components/pcm-msbg-modal.js";
+import { PcmZskChatModal as PcmZskChatModalElement, defineCustomElement as definePcmZskChatModal } from "pcm-agents/dist/components/pcm-zsk-chat-modal.js";
 import { PcmZyghModal as PcmZyghModalElement, defineCustomElement as definePcmZyghModal } from "pcm-agents/dist/components/pcm-zygh-modal.js";
 import React from 'react';
 
@@ -32,33 +40,41 @@ export const MyComponent: StencilReactComponent<MyComponentElement, MyComponentE
     defineCustomElement: defineMyComponent
 });
 
+type Pcm1zhanshiMnmsModalEvents = {
+    onModalClosed: EventName<CustomEvent<void>>,
+    onUploadSuccess: EventName<Pcm1zhanshiMnmsModalCustomEvent<FileUploadResponse>>,
+    onStreamComplete: EventName<Pcm1zhanshiMnmsModalCustomEvent<StreamCompleteEventData>>,
+    onConversationStart: EventName<Pcm1zhanshiMnmsModalCustomEvent<ConversationStartEventData>>,
+    onInterviewComplete: EventName<Pcm1zhanshiMnmsModalCustomEvent<InterviewCompleteEventData>>,
+    onTokenInvalid: EventName<CustomEvent<void>>,
+    onRecordingError: EventName<Pcm1zhanshiMnmsModalCustomEvent<RecordingErrorEventData>>
+};
+
+export const Pcm1zhanshiMnmsModal: StencilReactComponent<Pcm1zhanshiMnmsModalElement, Pcm1zhanshiMnmsModalEvents> = /*@__PURE__*/ createComponent<Pcm1zhanshiMnmsModalElement, Pcm1zhanshiMnmsModalEvents>({
+    tagName: 'pcm-1zhanshi-mnms-modal',
+    elementClass: Pcm1zhanshiMnmsModalElement,
+    // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
+    react: React,
+    events: {
+        onModalClosed: 'modalClosed',
+        onUploadSuccess: 'uploadSuccess',
+        onStreamComplete: 'streamComplete',
+        onConversationStart: 'conversationStart',
+        onInterviewComplete: 'interviewComplete',
+        onTokenInvalid: 'tokenInvalid',
+        onRecordingError: 'recordingError'
+    } as Pcm1zhanshiMnmsModalEvents,
+    defineCustomElement: definePcm1zhanshiMnmsModal
+});
+
 type PcmAppChatModalEvents = {
     onModalClosed: EventName<CustomEvent<void>>,
-    onStreamComplete: EventName<CustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>>,
-    onConversationStart: EventName<CustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>>,
-    onInterviewComplete: EventName<CustomEvent<{
-        conversation_id: string;
-        total_questions: number;
-    }>>,
-    onRecordingError: EventName<CustomEvent<{
-        type: string;
-        message: string;
-        details?: any;
-    }>>,
-    onRecordingStatusChange: EventName<CustomEvent<{
-        status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
-        details?: any;
-    }>>
+    onStreamComplete: EventName<PcmAppChatModalCustomEvent<StreamCompleteEventData>>,
+    onConversationStart: EventName<PcmAppChatModalCustomEvent<ConversationStartEventData>>,
+    onInterviewComplete: EventName<PcmAppChatModalCustomEvent<InterviewCompleteEventData>>,
+    onRecordingError: EventName<PcmAppChatModalCustomEvent<RecordingErrorEventData>>,
+    onRecordingStatusChange: EventName<PcmAppChatModalCustomEvent<RecordingStatusChangeEventData>>,
+    onTokenInvalid: EventName<CustomEvent<void>>
 };
 
 export const PcmAppChatModal: StencilReactComponent<PcmAppChatModalElement, PcmAppChatModalEvents> = /*@__PURE__*/ createComponent<PcmAppChatModalElement, PcmAppChatModalEvents>({
@@ -72,9 +88,32 @@ export const PcmAppChatModal: StencilReactComponent<PcmAppChatModalElement, PcmA
         onConversationStart: 'conversationStart',
         onInterviewComplete: 'interviewComplete',
         onRecordingError: 'recordingError',
-        onRecordingStatusChange: 'recordingStatusChange'
+        onRecordingStatusChange: 'recordingStatusChange',
+        onTokenInvalid: 'tokenInvalid'
     } as PcmAppChatModalEvents,
     defineCustomElement: definePcmAppChatModal
+});
+
+type PcmButtonEvents = NonNullable<unknown>;
+
+export const PcmButton: StencilReactComponent<PcmButtonElement, PcmButtonEvents> = /*@__PURE__*/ createComponent<PcmButtonElement, PcmButtonEvents>({
+    tagName: 'pcm-button',
+    elementClass: PcmButtonElement,
+    // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
+    react: React,
+    events: {} as PcmButtonEvents,
+    defineCustomElement: definePcmButton
+});
+
+type PcmCardEvents = NonNullable<unknown>;
+
+export const PcmCard: StencilReactComponent<PcmCardElement, PcmCardEvents> = /*@__PURE__*/ createComponent<PcmCardElement, PcmCardEvents>({
+    tagName: 'pcm-card',
+    elementClass: PcmCardElement,
+    // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
+    react: React,
+    events: {} as PcmCardEvents,
+    defineCustomElement: definePcmCard
 });
 
 type PcmChatMessageEvents = { onMessageChange: EventName<PcmChatMessageCustomEvent<Partial<ChatMessage>>> };
@@ -91,12 +130,7 @@ export const PcmChatMessage: StencilReactComponent<PcmChatMessageElement, PcmCha
 type PcmChatModalEvents = {
     onMessageSent: EventName<CustomEvent<string>>,
     onModalClosed: EventName<CustomEvent<void>>,
-    onStreamComplete: EventName<CustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>>
+    onStreamComplete: EventName<PcmChatModalCustomEvent<StreamCompleteEventData>>
 };
 
 export const PcmChatModal: StencilReactComponent<PcmChatModalElement, PcmChatModalEvents> = /*@__PURE__*/ createComponent<PcmChatModalElement, PcmChatModalEvents>({
@@ -114,16 +148,9 @@ export const PcmChatModal: StencilReactComponent<PcmChatModalElement, PcmChatMod
 
 type PcmHrChatModalEvents = {
     onModalClosed: EventName<CustomEvent<void>>,
-    onStreamComplete: EventName<CustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>>,
-    onInterviewComplete: EventName<CustomEvent<{
-        conversation_id: string;
-        total_questions: number;
-    }>>,
+    onStreamComplete: EventName<PcmHrChatModalCustomEvent<StreamCompleteEventData>>,
+    onConversationStart: EventName<PcmHrChatModalCustomEvent<ConversationStartEventData>>,
+    onInterviewComplete: EventName<PcmHrChatModalCustomEvent<InterviewCompleteEventData>>,
     onRecordingError: EventName<CustomEvent<{
         type: string;
         message: string;
@@ -132,7 +159,8 @@ type PcmHrChatModalEvents = {
     onRecordingStatusChange: EventName<CustomEvent<{
         status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
         details?: any;
-    }>>
+    }>>,
+    onTokenInvalid: EventName<CustomEvent<void>>
 };
 
 export const PcmHrChatModal: StencilReactComponent<PcmHrChatModalElement, PcmHrChatModalEvents> = /*@__PURE__*/ createComponent<PcmHrChatModalElement, PcmHrChatModalEvents>({
@@ -143,32 +171,94 @@ export const PcmHrChatModal: StencilReactComponent<PcmHrChatModalElement, PcmHrC
     events: {
         onModalClosed: 'modalClosed',
         onStreamComplete: 'streamComplete',
+        onConversationStart: 'conversationStart',
         onInterviewComplete: 'interviewComplete',
         onRecordingError: 'recordingError',
-        onRecordingStatusChange: 'recordingStatusChange'
+        onRecordingStatusChange: 'recordingStatusChange',
+        onTokenInvalid: 'tokenInvalid'
     } as PcmHrChatModalEvents,
     defineCustomElement: definePcmHrChatModal
+});
+
+type PcmHtwsModalEvents = {
+    onModalClosed: EventName<CustomEvent<void>>,
+    onUploadSuccess: EventName<PcmHtwsModalCustomEvent<FileUploadResponse>>,
+    onStreamComplete: EventName<PcmHtwsModalCustomEvent<StreamCompleteEventData>>,
+    onConversationStart: EventName<PcmHtwsModalCustomEvent<ConversationStartEventData>>,
+    onInterviewComplete: EventName<PcmHtwsModalCustomEvent<InterviewCompleteEventData>>,
+    onTokenInvalid: EventName<CustomEvent<void>>
+};
+
+export const PcmHtwsModal: StencilReactComponent<PcmHtwsModalElement, PcmHtwsModalEvents> = /*@__PURE__*/ createComponent<PcmHtwsModalElement, PcmHtwsModalEvents>({
+    tagName: 'pcm-htws-modal',
+    elementClass: PcmHtwsModalElement,
+    // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
+    react: React,
+    events: {
+        onModalClosed: 'modalClosed',
+        onUploadSuccess: 'uploadSuccess',
+        onStreamComplete: 'streamComplete',
+        onConversationStart: 'conversationStart',
+        onInterviewComplete: 'interviewComplete',
+        onTokenInvalid: 'tokenInvalid'
+    } as PcmHtwsModalEvents,
+    defineCustomElement: definePcmHtwsModal
+});
+
+type PcmHyzjModalEvents = {
+    onModalClosed: EventName<CustomEvent<void>>,
+    onUploadSuccess: EventName<PcmHyzjModalCustomEvent<FileUploadResponse>>,
+    onStreamComplete: EventName<PcmHyzjModalCustomEvent<StreamCompleteEventData>>,
+    onConversationStart: EventName<PcmHyzjModalCustomEvent<ConversationStartEventData>>,
+    onInterviewComplete: EventName<PcmHyzjModalCustomEvent<InterviewCompleteEventData>>,
+    onTokenInvalid: EventName<CustomEvent<void>>
+};
+
+export const PcmHyzjModal: StencilReactComponent<PcmHyzjModalElement, PcmHyzjModalEvents> = /*@__PURE__*/ createComponent<PcmHyzjModalElement, PcmHyzjModalEvents>({
+    tagName: 'pcm-hyzj-modal',
+    elementClass: PcmHyzjModalElement,
+    // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
+    react: React,
+    events: {
+        onModalClosed: 'modalClosed',
+        onUploadSuccess: 'uploadSuccess',
+        onStreamComplete: 'streamComplete',
+        onConversationStart: 'conversationStart',
+        onInterviewComplete: 'interviewComplete',
+        onTokenInvalid: 'tokenInvalid'
+    } as PcmHyzjModalEvents,
+    defineCustomElement: definePcmHyzjModal
+});
+
+type PcmJdModalEvents = {
+    onModalClosed: EventName<CustomEvent<void>>,
+    onStreamComplete: EventName<PcmJdModalCustomEvent<StreamCompleteEventData>>,
+    onConversationStart: EventName<PcmJdModalCustomEvent<ConversationStartEventData>>,
+    onInterviewComplete: EventName<PcmJdModalCustomEvent<InterviewCompleteEventData>>,
+    onTokenInvalid: EventName<CustomEvent<void>>
+};
+
+export const PcmJdModal: StencilReactComponent<PcmJdModalElement, PcmJdModalEvents> = /*@__PURE__*/ createComponent<PcmJdModalElement, PcmJdModalEvents>({
+    tagName: 'pcm-jd-modal',
+    elementClass: PcmJdModalElement,
+    // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
+    react: React,
+    events: {
+        onModalClosed: 'modalClosed',
+        onStreamComplete: 'streamComplete',
+        onConversationStart: 'conversationStart',
+        onInterviewComplete: 'interviewComplete',
+        onTokenInvalid: 'tokenInvalid'
+    } as PcmJdModalEvents,
+    defineCustomElement: definePcmJdModal
 });
 
 type PcmJlppModalEvents = {
     onModalClosed: EventName<CustomEvent<void>>,
     onUploadSuccess: EventName<PcmJlppModalCustomEvent<FileUploadResponse>>,
-    onStreamComplete: EventName<CustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>>,
-    onConversationStart: EventName<CustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>>,
-    onInterviewComplete: EventName<CustomEvent<{
-        conversation_id: string;
-        total_questions: number;
-    }>>,
+    onStreamComplete: EventName<PcmJlppModalCustomEvent<StreamCompleteEventData>>,
+    onConversationStart: EventName<PcmJlppModalCustomEvent<ConversationStartEventData>>,
+    onInterviewComplete: EventName<PcmJlppModalCustomEvent<InterviewCompleteEventData>>,
     onTokenInvalid: EventName<CustomEvent<void>>
 };
 
@@ -188,26 +278,39 @@ export const PcmJlppModal: StencilReactComponent<PcmJlppModalElement, PcmJlppMod
     defineCustomElement: definePcmJlppModal
 });
 
+type PcmMnctModalEvents = {
+    onModalClosed: EventName<CustomEvent<void>>,
+    onUploadSuccess: EventName<PcmMnctModalCustomEvent<FileUploadResponse>>,
+    onStreamComplete: EventName<PcmMnctModalCustomEvent<StreamCompleteEventData>>,
+    onConversationStart: EventName<PcmMnctModalCustomEvent<ConversationStartEventData>>,
+    onInterviewComplete: EventName<PcmMnctModalCustomEvent<InterviewCompleteEventData>>,
+    onTokenInvalid: EventName<CustomEvent<void>>
+};
+
+export const PcmMnctModal: StencilReactComponent<PcmMnctModalElement, PcmMnctModalEvents> = /*@__PURE__*/ createComponent<PcmMnctModalElement, PcmMnctModalEvents>({
+    tagName: 'pcm-mnct-modal',
+    elementClass: PcmMnctModalElement,
+    // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
+    react: React,
+    events: {
+        onModalClosed: 'modalClosed',
+        onUploadSuccess: 'uploadSuccess',
+        onStreamComplete: 'streamComplete',
+        onConversationStart: 'conversationStart',
+        onInterviewComplete: 'interviewComplete',
+        onTokenInvalid: 'tokenInvalid'
+    } as PcmMnctModalEvents,
+    defineCustomElement: definePcmMnctModal
+});
+
 type PcmMnmsModalEvents = {
     onModalClosed: EventName<CustomEvent<void>>,
     onUploadSuccess: EventName<PcmMnmsModalCustomEvent<FileUploadResponse>>,
-    onStreamComplete: EventName<CustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>>,
-    onConversationStart: EventName<CustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>>,
-    onInterviewComplete: EventName<CustomEvent<{
-        conversation_id: string;
-        total_questions: number;
-    }>>,
-    onTokenInvalid: EventName<CustomEvent<void>>
+    onStreamComplete: EventName<PcmMnmsModalCustomEvent<StreamCompleteEventData>>,
+    onConversationStart: EventName<PcmMnmsModalCustomEvent<ConversationStartEventData>>,
+    onInterviewComplete: EventName<PcmMnmsModalCustomEvent<InterviewCompleteEventData>>,
+    onTokenInvalid: EventName<CustomEvent<void>>,
+    onRecordingError: EventName<PcmMnmsModalCustomEvent<RecordingErrorEventData>>
 };
 
 export const PcmMnmsModal: StencilReactComponent<PcmMnmsModalElement, PcmMnmsModalEvents> = /*@__PURE__*/ createComponent<PcmMnmsModalElement, PcmMnmsModalEvents>({
@@ -221,67 +324,66 @@ export const PcmMnmsModal: StencilReactComponent<PcmMnmsModalElement, PcmMnmsMod
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
         onInterviewComplete: 'interviewComplete',
-        onTokenInvalid: 'tokenInvalid'
+        onTokenInvalid: 'tokenInvalid',
+        onRecordingError: 'recordingError'
     } as PcmMnmsModalEvents,
     defineCustomElement: definePcmMnmsModal
 });
 
-type PcmVideoChatModalEvents = {
+type PcmMsbgModalEvents = {
     onModalClosed: EventName<CustomEvent<void>>,
-    onStreamComplete: EventName<CustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>>,
-    onInterviewComplete: EventName<CustomEvent<{
-        conversation_id: string;
-        total_questions: number;
-    }>>,
-    onRecordingError: EventName<CustomEvent<{
-        type: string;
-        message: string;
-        details?: any;
-    }>>,
-    onRecordingStatusChange: EventName<CustomEvent<{
-        status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
-        details?: any;
-    }>>
+    onUploadSuccess: EventName<PcmMsbgModalCustomEvent<FileUploadResponse>>,
+    onStreamComplete: EventName<PcmMsbgModalCustomEvent<StreamCompleteEventData>>,
+    onConversationStart: EventName<PcmMsbgModalCustomEvent<ConversationStartEventData>>,
+    onInterviewComplete: EventName<PcmMsbgModalCustomEvent<InterviewCompleteEventData>>,
+    onTokenInvalid: EventName<CustomEvent<void>>
 };
 
-export const PcmVideoChatModal: StencilReactComponent<PcmVideoChatModalElement, PcmVideoChatModalEvents> = /*@__PURE__*/ createComponent<PcmVideoChatModalElement, PcmVideoChatModalEvents>({
-    tagName: 'pcm-video-chat-modal',
-    elementClass: PcmVideoChatModalElement,
+export const PcmMsbgModal: StencilReactComponent<PcmMsbgModalElement, PcmMsbgModalEvents> = /*@__PURE__*/ createComponent<PcmMsbgModalElement, PcmMsbgModalEvents>({
+    tagName: 'pcm-msbg-modal',
+    elementClass: PcmMsbgModalElement,
+    // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
+    react: React,
+    events: {
+        onModalClosed: 'modalClosed',
+        onUploadSuccess: 'uploadSuccess',
+        onStreamComplete: 'streamComplete',
+        onConversationStart: 'conversationStart',
+        onInterviewComplete: 'interviewComplete',
+        onTokenInvalid: 'tokenInvalid'
+    } as PcmMsbgModalEvents,
+    defineCustomElement: definePcmMsbgModal
+});
+
+type PcmZskChatModalEvents = {
+    onModalClosed: EventName<CustomEvent<void>>,
+    onStreamComplete: EventName<PcmZskChatModalCustomEvent<StreamCompleteEventData>>,
+    onConversationStart: EventName<PcmZskChatModalCustomEvent<ConversationStartEventData>>,
+    onTokenInvalid: EventName<CustomEvent<void>>
+};
+
+export const PcmZskChatModal: StencilReactComponent<PcmZskChatModalElement, PcmZskChatModalEvents> = /*@__PURE__*/ createComponent<PcmZskChatModalElement, PcmZskChatModalEvents>({
+    tagName: 'pcm-zsk-chat-modal',
+    elementClass: PcmZskChatModalElement,
     // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
     react: React,
     events: {
         onModalClosed: 'modalClosed',
         onStreamComplete: 'streamComplete',
-        onInterviewComplete: 'interviewComplete',
-        onRecordingError: 'recordingError',
-        onRecordingStatusChange: 'recordingStatusChange'
-    } as PcmVideoChatModalEvents,
-    defineCustomElement: definePcmVideoChatModal
+        onConversationStart: 'conversationStart',
+        onTokenInvalid: 'tokenInvalid'
+    } as PcmZskChatModalEvents,
+    defineCustomElement: definePcmZskChatModal
 });
 
 type PcmZyghModalEvents = {
     onModalClosed: EventName<CustomEvent<void>>,
     onUploadSuccess: EventName<PcmZyghModalCustomEvent<FileUploadResponse>>,
-    onStreamComplete: EventName<CustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>>,
-    onConversationStart: EventName<CustomEvent<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>>,
+    onStreamComplete: EventName<PcmZyghModalCustomEvent<StreamCompleteEventData>>,
+    onConversationStart: EventName<PcmZyghModalCustomEvent<ConversationStartEventData>>,
     onPlanningComplete: EventName<PcmZyghModalCustomEvent<{
         conversation_id: string;
-        plan_type: CareerPlanType;
+        type: CareerPlanType;
     }>>,
     onTokenInvalid: EventName<CustomEvent<void>>
 };

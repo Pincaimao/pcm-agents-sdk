@@ -9,6 +9,7 @@ Naming Conventions and Code Style:
 - Internal private properties and methods use underscore prefix (e.g., `_privateMethod()`)
 - Keep code concise, with each function and method focused on a single responsibility
 - Use meaningful variable and function names, avoiding abbreviations unless widely accepted
+- When generating styles, please refer to `packages\pcm-agents\src\global\global.css`
 
 TypeScript Usage:
 - Provide explicit type annotations for all properties, methods, and function parameters

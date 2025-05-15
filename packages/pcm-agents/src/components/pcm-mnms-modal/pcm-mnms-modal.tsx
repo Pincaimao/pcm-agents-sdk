@@ -1,5 +1,15 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
-import { uploadFileToBackend, FileUploadResponse, sendHttpRequest } from '../../utils/utils';
+import { uploadFileToBackend, FileUploadResponse } from '../../utils/utils';
+import { 
+  StreamCompleteEventData, 
+  ConversationStartEventData, 
+  InterviewCompleteEventData,
+  RecordingErrorEventData,
+} from '../../interfaces/events';
+
+/**
+ * 模拟面试
+ */
 
 @Component({
     tag: 'pcm-mnms-modal',
@@ -15,7 +25,7 @@ export class MnmsModal {
     /**
      * SDK鉴权密钥
      */
-    @Prop({ attribute: 'token' }) token: string = '';
+    @Prop({ attribute: 'token' }) token!: string;
 
     /**
      * 是否显示聊天模态框
@@ -55,7 +65,7 @@ export class MnmsModal {
     /**
      * 默认查询文本
      */
-    @Prop() defaultQuery: string = '';
+    @Prop() defaultQuery: string = '请开始模拟面试';
 
     /**
      * 是否以全屏模式打开，移动端建议设置为true
@@ -63,9 +73,9 @@ export class MnmsModal {
     @Prop() fullscreen: boolean = false;
 
     /**
-     * 自定义输入参数，传入job_info时，会隐藏JD输入区域
+     * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
      */
-    @Prop() customInputs: { [key: string]: any } = {};
+    @Prop() customInputs: Record<string, any> = {};
 
     /**
      * 上传成功事件
@@ -75,50 +85,68 @@ export class MnmsModal {
     /**
      * 流式输出完成事件
      */
-    @Event() streamComplete: EventEmitter<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>;
+    @Event() streamComplete: EventEmitter<StreamCompleteEventData>;
 
     /**
      * 新会话开始的回调，只会在一轮对话开始时触发一次
      */
-    @Event() conversationStart: EventEmitter<{
-        conversation_id: string;
-        event: string;
-        message_id: string;
-        id: string;
-    }>;
+    @Event() conversationStart: EventEmitter<ConversationStartEventData>;
 
     /**
      * 当聊天完成时触发
      */
-    @Event() interviewComplete: EventEmitter<{
-        conversation_id: string;
-        total_questions: number;
-    }>;
+    @Event() interviewComplete: EventEmitter<InterviewCompleteEventData>;
 
     /**
      * SDK密钥验证失败事件
      */
     @Event() tokenInvalid: EventEmitter<void>;
 
+    /**
+     * 面试模式：text - 文本模式，video - 视频模式
+     */
+    @Prop() interviewMode: 'text' | 'video' = 'text';
+
+    /**
+     * 录制错误事件
+     */
+    @Event() recordingError: EventEmitter<RecordingErrorEventData>;
+
+    /**
+     * 是否显示复制按钮
+     */
+    @Prop() showCopyButton: boolean = true;
+
+    /**
+     * 是否显示点赞点踩按钮
+     */
+    @Prop() showFeedbackButtons: boolean = true;
+
     @State() selectedFile: File | null = null;
     @State() isUploading: boolean = false;
     @State() uploadedFileInfo: FileUploadResponse | null = null;
     @State() showChatModal: boolean = false;
-
-    // 添加新的状态来控制过渡动画
-    @State() isTransitioning: boolean = false;
-    @State() transitionTimer: any = null;
 
     // 使用 @Element 装饰器获取组件的 host 元素
     @Element() hostElement: HTMLElement;
 
     @State() jobDescription: string = '';
     @State() isSubmitting: boolean = false;
+
+    private tokenInvalidListener: () => void;
+
+    componentWillLoad() {
+        // 添加全局token无效事件监听器
+        this.tokenInvalidListener = () => {
+            this.tokenInvalid.emit();
+        };
+        document.addEventListener('pcm-token-invalid', this.tokenInvalidListener);
+    }
+
+    disconnectedCallback() {
+        // 组件销毁时移除事件监听器
+        document.removeEventListener('pcm-token-invalid', this.tokenInvalidListener);
+    }
 
     private handleClose = () => {
         this.isOpen = false;
@@ -155,6 +183,8 @@ export class MnmsModal {
             // 使用 uploadFileToBackend 工具函数上传文件
             const result = await uploadFileToBackend(this.selectedFile, {
                 'authorization': 'Bearer ' + this.token
+            }, {
+                'tags': 'resume'
             });
 
             this.uploadedFileInfo = result;
@@ -224,15 +254,11 @@ export class MnmsModal {
             this.showChatModal = false;
             this.jobDescription = '';
 
-            // 清除可能存在的计时器
-            if (this.transitionTimer) {
-                clearTimeout(this.transitionTimer);
-                this.transitionTimer = null;
-            }
         } else {
-            // 当模态框打开时，验证API密钥
-            this.verifyApiKey();
-            
+            if (this.customInputs && this.customInputs.job_info) {
+                this.jobDescription = this.customInputs.job_info;
+            }
+
             if (this.conversationId) {
                 // 如果有会话ID，直接显示聊天模态框
                 this.showChatModal = true;
@@ -240,12 +266,6 @@ export class MnmsModal {
         }
     }
 
-    componentWillLoad() {
-        // 检查 customInputs 中是否有 job_info
-        if (this.customInputs && this.customInputs.job_info) {
-            this.jobDescription = this.customInputs.job_info;
-        }
-    }
 
     // 处理流式输出完成事件
     private handleStreamComplete = (event: CustomEvent) => {
@@ -263,35 +283,16 @@ export class MnmsModal {
         this.interviewComplete.emit(event.detail);
     };
 
-    /**
-     * 验证API密钥
-     */
-    private async verifyApiKey() {
-        if (!this.token) {
-            this.tokenInvalid.emit();
-            return;
-        }
-        
-        try {
-            const response = await sendHttpRequest({
-                url: '/sdk/v1/user',
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${this.token}`
-                }
-            });
 
-            if (!response.success) {
-                throw new Error(response.message || 'API密钥验证失败');
-            }
-            
-            // 验证成功，继续正常流程
-        } catch (error) {
-            console.error('API密钥验证错误:', error);
-            // 通知父组件API密钥无效
-            this.tokenInvalid.emit();
-        }
-    }
+    private handleRecordingError = (event: CustomEvent) => {
+        this.recordingError.emit(event.detail);
+    };
+
+    // 添加 handleTokenInvalid 方法
+    private handleTokenInvalid = () => {
+        // 转发 token 无效事件
+        this.tokenInvalid.emit();
+    };
 
     render() {
         if (!this.isOpen) return null;
@@ -345,7 +346,7 @@ export class MnmsModal {
                             {!hideJdInput && (
                                 <div class="jd-input-section">
                                     <label htmlFor="job-description">请输入职位描述 (JD)</label>
-                                    <textarea 
+                                    <textarea
                                         id="job-description"
                                         class="job-description-textarea"
                                         placeholder="请输入职位描述，包括职责、要求等信息..."
@@ -355,14 +356,17 @@ export class MnmsModal {
                                     ></textarea>
                                 </div>
                             )}
-                            
+
                             {/* 简历上传区域 */}
                             <div class="resume-upload-section">
                                 <label>上传简历</label>
                                 <div class="upload-area" onClick={this.handleUploadClick}>
                                     {this.selectedFile ? (
-                                        <div class="file-info">
-                                            <span>{this.selectedFile.name}</span>
+                                        <div class="file-item">
+                                            <div class="file-item-content">
+                                                <span class="file-icon">📝</span>
+                                                <span class="file-name">{this.selectedFile.name}</span>
+                                            </div>
                                             <button class="remove-file" onClick={(e) => {
                                                 e.stopPropagation();
                                                 this.clearSelectedFile();
@@ -370,10 +374,8 @@ export class MnmsModal {
                                         </div>
                                     ) : (
                                         <div class="upload-placeholder">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="48" height="48">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m0-16l-4 4m4-4l4 4" />
-                                            </svg>
-                                            <p>点击上传简历</p>
+                                            <img src='https://pub.pincaimao.com/static/web/images/home/i_upload.png'></img>
+                                            <p class='upload-text'>点击上传简历</p>
                                             <p class="upload-hint">支持 txt、markdown、pdf、docx、doc、md 格式</p>
                                         </div>
                                     )}
@@ -406,30 +408,36 @@ export class MnmsModal {
 
                     {/* 聊天界面 - 在显示聊天模态框时显示 */}
                     {this.showChatModal && (
-                        <div class="chat-modal-container">
+                        <div >
                             <pcm-app-chat-modal
                                 isOpen={true}
                                 modalTitle={this.modalTitle}
                                 icon={this.icon}
                                 token={this.token}
-                                isShowHeader={this.isShowHeader} // 不显示内部的标题栏，因为外部已有
-                                isNeedClose={this.isShowHeader} // 不显示内部的关闭按钮，因为外部已有
+                                isShowHeader={this.isShowHeader}
+                                isNeedClose={this.isShowHeader}
                                 zIndex={this.zIndex}
                                 fullscreen={this.fullscreen}
                                 botId="3022316191018884"
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
                                 enableVoice={false}
-                                customInputs={this.conversationId ? undefined : {
+                                showCopyButton={this.showCopyButton}
+                                showFeedbackButtons={this.showFeedbackButtons}
+                                customInputs={this.conversationId ? {} : {
                                     ...this.customInputs,
                                     file_url: this.uploadedFileInfo?.cos_key,
+                                    file_name: this.uploadedFileInfo?.file_name,
                                     job_info: this.customInputs?.job_info || this.jobDescription
                                 }}
-                                interviewMode="text"
+                                interviewMode={this.interviewMode}
+                                showProgressBar={false}
                                 onModalClosed={this.handleClose}
                                 onStreamComplete={this.handleStreamComplete}
                                 onConversationStart={this.handleConversationStart}
                                 onInterviewComplete={this.handleInterviewComplete}
+                                onRecordingError={this.handleRecordingError}
+                                onTokenInvalid={this.handleTokenInvalid}
                             ></pcm-app-chat-modal>
                         </div>
                     )}

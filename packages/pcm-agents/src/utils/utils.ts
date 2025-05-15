@@ -1,10 +1,7 @@
-/**
- * API域名配置
- */
-// export const API_DOMAIN = 'http://192.168.17.194:8000';
-// export const API_DOMAIN = 'https://tagents.ylzhaopin.com/agents/api';
-export const API_DOMAIN = 'https://www.pincaimao.com/agents/api';
+// 导入环境变量
+import { API_DOMAIN } from './env';
 
+export { API_DOMAIN };
 
 export function format(first?: string, middle?: string, last?: string): string {
   return (first || '') + (middle ? ` ${middle}` : '') + (last ? ` ${last}` : '');
@@ -100,8 +97,14 @@ export const sendSSERequest = async (config: SSERequestConfig): Promise<void> =>
       body: data ? JSON.stringify(data) : undefined
     });
 
+    // 检查是否为401错误（未授权）
+    if (response.status === 401) {
+      // 触发全局token无效事件
+      createTokenInvalidEvent();
+    }
+
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      console.error(`HTTP error! status: ${response.status}`);
     }
 
     const reader = response.body?.getReader();
@@ -176,6 +179,16 @@ export interface HttpResponse<T = any> {
   message?: string;
 }
 
+// 添加一个全局事件发射器用于处理401错误
+export const createTokenInvalidEvent = () => {
+  const event = new CustomEvent('pcm-token-invalid', {
+    bubbles: true,
+    composed: true,
+    detail: { timestamp: new Date().getTime() }
+  });
+  document.dispatchEvent(event);
+};
+
 /**
  * 发送HTTP请求
  * @param config 请求配置
@@ -226,6 +239,13 @@ export const sendHttpRequest = async <T = any>(config: HttpRequestConfig): Promi
     }
 
     const response = await fetch(requestUrl, requestConfig);
+    
+    // 检查是否为401错误（未授权）
+    if (response.status === 401) {
+      // 触发全局token无效事件
+      createTokenInvalidEvent();
+    }
+    
     const responseData: ApiResponse<T> = await response.json();
     
     // 调用 onMessage 回调
@@ -275,7 +295,62 @@ export const sendHttpRequest = async <T = any>(config: HttpRequestConfig): Promi
   }
 };
 
+/**
+ * 验证API密钥
+ * @param token API密钥
+ * @returns Promise<boolean> 验证是否成功
+ */
+export const verifyApiKey = async (token: string): Promise<boolean> => {
+  if (!token) {
+    return false;
+  }
+  
+  try {
+    const response = await sendHttpRequest({
+      url: '/sdk/v1/user',
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
 
+    return response.success;
+  } catch (error) {
+    console.error('API密钥验证错误:', error);
+    return false;
+  }
+};
+
+/**
+ * 获取智能体信息
+ * @param token API密钥
+ * @param botId 智能体ID
+ * @returns Promise<any> 智能体信息数据
+ */
+export const fetchAgentInfo = async (token: string, botId: string): Promise<any> => {
+  if (!token || !botId) {
+    throw new Error('API密钥和智能体ID不能为空');
+  }
+  
+  try {
+    const response = await sendHttpRequest({
+      url: `/sdk/v1/agent/${botId}/info`,
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.success) {
+      throw new Error(response.message || '获取智能体信息失败');
+    }
+    
+    return response.data;
+  } catch (error) {
+    console.error('获取智能体信息失败:', error);
+    throw error;
+  }
+};
 
 /**
  * 文件上传响应数据接口
@@ -296,18 +371,29 @@ export interface FileUploadResponse {
 /**
  * 通过后端API上传文件
  * @param file 要上传的文件
+ * @param params 可选的额外参数
  * @param headers 可选的请求头
  * @returns Promise 包含上传结果
  */
 export const uploadFileToBackend = async (
   file: File,
-  headers?: Record<string, string>
+  headers?: Record<string, string>,
+  params?: Record<string, any>
 ): Promise<FileUploadResponse> => {
   const formData = new FormData();
   formData.append('file', file);
   
+  // 添加额外参数到 formData
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, String(value));
+      }
+    });
+  }
+  
   try {
-    const response = await sendHttpRequest<{cos_key: string, file_name: string, file_size: string,presigned_url: string, ext: string}>({
+    const response = await sendHttpRequest<{cos_key: string, file_name: string, file_size: string, presigned_url: string, ext: string}>({
       url: '/sdk/v1/files/upload',
       method: 'POST',
       headers: {
@@ -323,6 +409,42 @@ export const uploadFileToBackend = async (
     return response.data;
   } catch (error) {
     console.error('文件上传错误:', error);
+    throw error;
+  }
+};
+
+/**
+ * 合成语音音频
+ * @param text 要转换为语音的文本
+ * @param token API密钥
+ * @returns Promise<string> 返回音频的Blob URL
+ */
+export const synthesizeAudio = async (text: string, token: string): Promise<string> => {
+  try {
+    const response = await fetch(`${API_DOMAIN}/sdk/v1/tts/synthesize_audio`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({ text })
+    });
+
+    // 检查是否为401错误（未授权）
+    if (response.status === 401) {
+      // 触发全局token无效事件
+      createTokenInvalidEvent();
+    }
+
+    if (!response.ok) {
+      throw new Error('语音合成失败');
+    }
+
+    // 获取音频数据并创建Blob URL
+    const audioBlob = await response.blob();
+    return URL.createObjectURL(audioBlob);
+  } catch (error) {
+    console.error('语音合成错误:', error);
     throw error;
   }
 };

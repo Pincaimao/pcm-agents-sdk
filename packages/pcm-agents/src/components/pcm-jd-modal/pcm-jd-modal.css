@@ -1,0 +1,313 @@
+/* 输入模式切换 */
+.input-mode-toggle {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+}
+  
+.input-mode-toggle span {
+    color: #333;
+    margin-right: 12px;
+}
+  
+.toggle-button {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    color: #2E6EDF;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px 8px;
+}
+  
+.toggle-button svg {
+    margin-right: 4px;
+}
+  
+.toggle-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+  
+/* 结构化输入模式 */
+.structured-input {
+    width: 100%;
+}
+  
+.job-name-input {
+    margin-bottom: 20px;
+}
+  
+.job-name-input label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+  
+.job-name-input input {
+    width: 95%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #f9f9f9;
+}
+
+.job-name-input input:focus {
+    outline: none;
+    border-color: #2E6EDF;
+    box-shadow: 0 0 0 2px rgba(46, 110, 223, 0.2);
+}
+
+.required {
+    color: #f56c6c;
+}
+
+/* 按钮容器 */
+.button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+    gap: 12px;
+    max-width: 100%;
+    box-sizing: border-box;
+    flex-wrap: wrap;
+}
+
+
+.next-button {
+    background-color: #2E6EDF;
+    color: white;
+}
+
+.next-button:hover {
+    background-color: #2457b8;
+}
+
+.next-button:disabled {
+    background-color: #a0c0e8;
+    cursor: not-allowed;
+}
+
+.prev-button {
+    background-color: #f0f0f0 !important;
+    color: #333 !important;
+}
+
+.prev-button:hover {
+    background-color: #e0e0e0;
+}
+
+/* 标签选择 */
+.tag-selection {
+    width: 100%;
+}
+
+.tag-selection-content {
+    width: 100%;
+}
+
+.section-title {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 12px;
+    font-size: 16px;
+}
+
+.ai-tags-section, .basic-tags-section {
+    margin-bottom: 24px;
+}
+
+.tag-group {
+    margin-bottom: 16px;
+}
+
+.tag-title {
+    color: #555;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.tag-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 4px;
+    background-color: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    color: #333;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    max-width: 100%;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tag:hover {
+    background-color: #e8e8e8;
+}
+
+.tag-selected {
+    background-color: #e6f0ff;
+    border-color: #2E6EDF;
+    color: #2E6EDF;
+}
+
+/* 加载状态 */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 0;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin: 20px 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(46, 110, 223, 0.2);
+    border-radius: 50%;
+    border-top-color: #2E6EDF;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-text {
+    text-align: center;
+    color: #333;
+    font-weight: 500;
+}
+
+.loading-subtext {
+    color: #888;
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+/* 自由输入模式 */
+.free-input {
+    width: 100%;
+}
+
+.textarea-container {
+    margin-bottom: 16px;
+}
+
+.textarea-container label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+.textarea-container textarea {
+  border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    resize: vertical;
+    background-color: #f9f9f9;
+    min-height: 150px;
+    width: 100%;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    max-width: 100%;
+    box-sizing: border-box;
+    word-wrap: break-word;
+}
+
+.textarea-container textarea:focus {
+    outline: none;
+    border-color: #2E6EDF;
+    box-shadow: 0 0 0 2px rgba(46, 110, 223, 0.2);
+}
+
+.input-guide {
+    background-color: #f5f7fa;
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    max-width: 100%;
+    box-sizing: border-box;
+    word-wrap: break-word;
+}
+
+.guide-title {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.guide-content {
+    color: #666;
+    font-size: 13px;
+    max-width: 100%;
+    word-wrap: break-word;
+}
+
+.guide-content div {
+    margin-bottom: 4px;
+}
+
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    
+    .tag-container {
+        gap: 7px;
+    }
+    
+    .tag {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .button-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .next-button, .prev-button, .submit-button {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+    
+    .tag {
+        max-width: calc(50% - 8px);
+    }
+}
+
+.tag-selection, 
+.tag-selection-content,
+.ai-tags-section, 
+.basic-tags-section,
+.structured-input,
+.free-input {
+    max-width: 100%;
+    box-sizing: border-box;
+}

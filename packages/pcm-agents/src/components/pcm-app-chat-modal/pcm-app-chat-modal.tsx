@@ -1,6 +1,13 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element } from '@stencil/core';
-import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, API_DOMAIN } from '../../utils/utils';
+import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, fetchAgentInfo, synthesizeAudio } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
+import {
+  StreamCompleteEventData,
+  ConversationStartEventData,
+  InterviewCompleteEventData,
+  RecordingErrorEventData,
+  RecordingStatusChangeEventData
+} from '../../interfaces/events';
 
 @Component({
   tag: 'pcm-app-chat-modal',
@@ -16,7 +23,7 @@ export class ChatAPPModal {
   /**
    * SDK鉴权密钥
    */
-  @Prop({ attribute: 'token' }) token: string = '';
+  @Prop({ attribute: 'token' }) token!: string;
 
   /**
    * 是否显示聊天模态框
@@ -86,73 +93,20 @@ export class ChatAPPModal {
   /**
    * 一轮对话结束时的回调
    */
-  @Event() streamComplete: EventEmitter<{
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  }>;
+  @Event() streamComplete: EventEmitter<StreamCompleteEventData>;
 
   /**
    * 新会话开始的回调，只会在一轮对话开始时触发一次
    */
-  @Event() conversationStart: EventEmitter<{
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  }>;
+  @Event() conversationStart: EventEmitter<ConversationStartEventData>;
 
-  @State() selectedFile: File | null = null;
   @State() isUploading: boolean = false;
-  @State() uploadedFileInfo: { cos_key: string, filename: string, ext: string, presigned_url: string }[] = [];
 
   /**
-   * 默认查询文本
+   * 默认发送文本
    */
-  @Prop() defaultQuery: string = '';
+  @Prop() defaultQuery: string = '你好！聘才猫';
 
-  // 添加新的状态
-  @State() showInitialUpload: boolean = false;
-
-
-  // 添加视频录制相关状态
-  @State() isRecording: boolean = false;
-  @State() recordingStream: MediaStream | null = null;
-  @State() recordedBlob: Blob | null = null;
-  @State() mediaRecorder: MediaRecorder | null = null;
-  @State() recordingTimeLeft: number = 0;
-  @State() showRecordingUI: boolean = false;
-  @State() recordingTimer: any = null;
-  @State() recordingStartTime: number = 0;
-  @State() recordingMaxTime: number = 120; // 最大录制时间（秒）
-  @State() waitingToRecord: boolean = false;
-  @State() waitingTimer: any = null;
-  @State() waitingTimeLeft: number = 10; // 等待时间（秒）
-
-  // 添加一个新的私有属性来存储视频元素的引用
-  private videoRef: HTMLVideoElement | null = null;
-
-  /**
-   * 控制对话轮数
-   */
-  @Prop() totalQuestions: number = 2;
-
-  /**
-   * 当前轮数
-   */
-  @State() currentQuestionNumber: number = 0;
-
-
-  /**
-   * 当聊天完成时触发
-   */
-  @Event() interviewComplete: EventEmitter<{
-    conversation_id: string;
-    total_questions: number;
-  }>;
-
-  private readonly SCROLL_THRESHOLD = 30;
 
   /**
    * 视频录制最大时长（秒）
@@ -164,6 +118,47 @@ export class ChatAPPModal {
    * 当剩余时间小于此值时，显示倒计时警告
    */
   @Prop() countdownWarningTime: number = 30;
+
+  // 添加视频录制相关状态
+  @State() isRecording: boolean = false;
+  @State() recordingStream: MediaStream | null = null;
+  @State() recordedBlob: Blob | null = null;
+  @State() mediaRecorder: MediaRecorder | null = null;
+  @State() recordingTimeLeft: number = 0;
+  @State() showRecordingUI: boolean = false;
+  @State() recordingTimer: any = null;
+  @State() recordingStartTime: number = 0;
+  @State() waitingToRecord: boolean = false;
+  @State() waitingTimer: any = null;
+  @State() waitingTimeLeft: number = 10; // 等待时间（秒）
+
+  // 添加一个新的私有属性来存储视频元素的引用
+  private videoRef: HTMLVideoElement | null = null;
+
+  /**
+   * 是否通过对话轮数控制结束
+   */
+  @Prop() isControlByQuestionNumber: boolean = false;
+
+  /**
+   * 控制对话轮数
+   */
+  @Prop() totalQuestions: number = 10;
+
+  /**
+   * 当前轮数
+   */
+  @State() currentQuestionNumber: number = 0;
+
+
+  /**
+   * 当聊天完成时触发
+   */
+  @Event() interviewComplete: EventEmitter<InterviewCompleteEventData>;
+
+  private readonly SCROLL_THRESHOLD = 30;
+
+
 
   @State() showCountdownWarning: boolean = false;
 
@@ -183,39 +178,29 @@ export class ChatAPPModal {
   /**
    * 录制错误事件
    */
-  @Event() recordingError: EventEmitter<{
-    type: string;
-    message: string;
-    details?: any;
-  }>;
+  @Event() recordingError: EventEmitter<RecordingErrorEventData>;
 
   /**
    * 录制状态变化事件
    */
-  @Event() recordingStatusChange: EventEmitter<{
-    status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
-    details?: any;
-  }>;
+  @Event() recordingStatusChange: EventEmitter<RecordingStatusChangeEventData>;
 
-    /**
-   * 是否启用语音播报功能
-   * true: 启用语音合成
-   * false: 禁用语音合成
-   */
-    @Prop() enableTTS: boolean = false;
+  /**
+     * SDK密钥验证失败事件
+     */
+  @Event() tokenInvalid: EventEmitter<void>;
+
+  /**
+ * 是否启用语音播报功能
+ * true: 启用语音合成
+ * false: 禁用语音合成
+ */
+  @Prop() enableTTS: boolean = false;
 
   /**
    * 是否自动播放语音问题
    */
   @Prop() enableVoice: boolean = false;
-
-  /**
-   * 是否显示题干内容
-   * 1: 显示题干内容
-   * 0: 不显示题干内容
-   */
-  @Prop() displayContentStatus: string = "1";
-
 
   /**
    * 面试模式
@@ -238,18 +223,80 @@ export class ChatAPPModal {
    */
   @Prop() botId?: string;
 
+  // 添加语音输入相关状态
+  @State() isRecordingAudio: boolean = false;
+  @State() audioRecorder: MediaRecorder | null = null;
+  @State() audioChunks: BlobPart[] = [];
+  @State() isConvertingAudio: boolean = false;
+  @State() audioRecordingTimeLeft: number = 60; // 最大录音时间（秒）
+  @State() audioRecordingTimer: any = null;
+  @State() audioRecordingStartTime: number = 0;
 
+  /**
+   * 语音录制最大时长（秒）
+   */
+  @Prop() maxAudioRecordingTime: number = 60;
+
+  /**
+   * 用户头像URL
+   */
+  @Prop() userAvatar?: string = "https://pub.pincaimao.com/static/common/i_pcm_logo.png";
+
+  /**
+   * 助手头像URL
+   */
+  @Prop() assistantAvatar?: string;
+
+  /**
+   * 智能体头像URL（从后端获取）
+   */
+  @State() agentLogo: string = '';
+
+  /**
+   * 是否显示进度条
+   * true: 显示进度条
+   * false: 隐藏进度条
+   */
+  @Prop() showProgressBar: boolean = true;
+
+  // 添加新的状态属性来跟踪任务是否已完成
+  @State() isTaskCompleted: boolean = false;
+
+  private tokenInvalidListener: () => void;
+
+  /**
+   * 是否显示复制按钮
+   */
+  @Prop() showCopyButton: boolean = true;
+
+  /**
+   * 是否显示点赞点踩按钮
+   */
+  @Prop() showFeedbackButtons: boolean = true;
 
   private handleClose = () => {
     this.stopRecording();
     this.modalClosed.emit();
   };
 
+  // 添加获取智能体信息的方法
+  private async fetchAgentLogo() {
+    if (!this.botId || !this.token) return;
+
+    try {
+      const agentInfo = await fetchAgentInfo(this.token, this.botId);
+      if (agentInfo && agentInfo.logo) {
+        this.agentLogo = agentInfo.logo;
+      }
+    } catch (error) {
+      console.error('获取智能体信息失败:', error);
+    }
+  }
 
   private async sendMessageToAPI(message: string, videoUrl?: string) {
     this.isLoading = true;
     let answer = '';
-    let llmText = ''; // 添加变量存储 LLMText
+    let llmText = '';
 
     const now = new Date();
     const time = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
@@ -260,17 +307,24 @@ export class ChatAPPModal {
     // 检查是否是最后一题
     const isLastQuestion = this.currentQuestionNumber >= this.totalQuestions;
 
-    // 创建新的消息对象
+    // 创建新的消息对象，统一对齐消息结构
     const newMessage: ChatMessage = {
-      id: `temp-${Date.now()}`,  // 消息唯一标识
-      time: time,                // 消息时间
-      query: queryText,          // 用户输入的消息内容
-      answer: '',
-      isStreaming: true,        // 是否正在流式输出
+      id: `temp-${Date.now()}`,  // 临时ID，将被服务器返回的ID替换
       conversation_id: this.conversationId,  // 会话ID
-      inputs: this.customInputs,               // 输入参数
-      status: "normal",         // 消息状态
-      error: null              // 错误信息
+      parent_message_id: "00000000-0000-0000-0000-000000000000", // 默认父消息ID
+      inputs: this.customInputs || {},  // 输入参数
+      query: queryText,  // 用户输入的消息内容
+      answer: '',  // 初始为空
+      message_files: [],  // 消息附件
+      feedback: {},  // 反馈
+      retriever_resources: [],  // 检索资源
+      created_at: Math.floor(Date.now() / 1000).toString(),  // 创建时间
+      agent_thoughts: [],  // 代理思考过程
+      status: "normal",  // 消息状态
+      error: null,  // 错误信息
+      // 添加组件内部使用的字段
+      time: time,  // 消息时间（显示用）
+      isStreaming: true  // 是否正在流式输出
     };
 
     // 设置当前流式消息
@@ -281,13 +335,14 @@ export class ChatAPPModal {
     this.scrollToBottom();
 
     // 如果是最后一题，直接显示结束消息并完成面试
-    if (isLastQuestion) {
+    if (isLastQuestion && this.isControlByQuestionNumber) {
       this.messages = [...this.messages, newMessage];
       this.currentStreamingMessage = null;
       this.isLoading = false;
       await this.completeInterview();
       this.interviewComplete.emit({
         conversation_id: this.conversationId,
+        current_question_number: this.currentQuestionNumber,
         total_questions: this.totalQuestions
       });
       return;
@@ -313,14 +368,14 @@ export class ChatAPPModal {
     }
 
     await sendSSERequest({
-      url: `/sdk/v1/chat/chat-messages`,
+      url: '/sdk/v1/chat/chat-messages',
       method: 'POST',
       headers: {
         'authorization': 'Bearer ' + this.token
       },
       data: requestData,
       onMessage: (data) => {
-        // console.log('收到Stream数据:', data);
+        console.log('收到Stream数据:', data);
 
         if (data.conversation_id && !this.conversationId) {
           this.conversationId = data.conversation_id;
@@ -337,6 +392,21 @@ export class ChatAPPModal {
           llmText = data.data.inputs.LLMText;
         }
 
+        // 添加对任务结束的判断
+        if (data.event === 'node_finished' && data.data.title && data.data.title.includes('聘才猫任务结束')) {
+          console.log('检测到任务结束事件:', data);
+
+          // 设置标志，表示任务已结束
+          this.isTaskCompleted = true;
+
+          // 触发面试完成事件
+          this.interviewComplete.emit({
+            conversation_id: this.conversationId,
+            current_question_number: this.currentQuestionNumber,
+            total_questions: this.totalQuestions
+          });
+        }
+
         if (data.event === 'message') {
           const inputMessage: UserInputMessageType = { message: message };
           convertWorkflowStreamNodeToMessageRound('message', inputMessage, data);
@@ -344,10 +414,16 @@ export class ChatAPPModal {
           if (data.event === 'agent_message' || data.event === 'message') {
             if (data.answer) {
               answer += data.answer;
+              // 更新消息时保持完整的消息结构
               const updatedMessage: ChatMessage = {
                 ...this.currentStreamingMessage,
                 answer,
-                isStreaming: true
+                id: data.message_id || this.currentStreamingMessage.id,
+                isStreaming: true,
+                // 如果服务器返回了其他字段，也更新它们
+                parent_message_id: data.parent_message_id || this.currentStreamingMessage.parent_message_id,
+                retriever_resources: data.retriever_resources || this.currentStreamingMessage.retriever_resources,
+                agent_thoughts: data.agent_thoughts || this.currentStreamingMessage.agent_thoughts
               };
               this.currentStreamingMessage = updatedMessage;
               this.scrollToBottom();
@@ -377,17 +453,28 @@ export class ChatAPPModal {
       },
       onComplete: async () => {
         this.isLoading = false;
+        // 发送第一条消息后，清空 customInputs
+        setTimeout(() => {
+          if (this.customInputs) {
+            Object.keys(this.customInputs).forEach(key => {
+              delete this.customInputs[key];
+            });
+          }
+        }, 1000); // 给一些时间让第一条消息处理完成
 
         // 获取最新的AI回复内容
         const latestAIMessage = this.currentStreamingMessage;
-
+        latestAIMessage.isStreaming = false;
         // 更新消息列表
-        this.messages = [...this.messages, this.currentStreamingMessage];
+        this.messages = [...this.messages, latestAIMessage];
+
         this.currentStreamingMessage = null;
 
-        // 如果是初始消息或"下一题"消息，增加题目计数
-        if (message === "下一题" || this.currentQuestionNumber === 0) {
-          this.currentQuestionNumber++;
+        // 增加题目计数
+        this.currentQuestionNumber++;
+
+        if (this.isTaskCompleted) {
+          return;
         }
 
         if (latestAIMessage && latestAIMessage.answer) {
@@ -395,8 +482,8 @@ export class ChatAPPModal {
           const textForSynthesis = llmText || latestAIMessage.answer;
 
           if (textForSynthesis && this.enableTTS) {
-            // 合成语音
-            const audioUrl = await this.synthesizeAudio(textForSynthesis);
+            // 使用工具函数合成语音
+            const audioUrl = await synthesizeAudio(textForSynthesis, this.token);
 
             if (this.enableVoice) {
               // 自动播放语音
@@ -453,7 +540,7 @@ export class ChatAPPModal {
   }
 
 
-  // 修改 loadHistoryMessages 方法
+  // 修改加载历史消息的方法
   private async loadHistoryMessages() {
     if (!this.conversationId) return;
 
@@ -477,34 +564,43 @@ export class ChatAPPModal {
       if (result.success && result.data) {
         const historyData = result.data.data || [];
         const formattedMessages: ChatMessage[] = historyData.map(msg => {
-          const time = new Date(msg.created_at * 1000);
+          const time = new Date(parseInt(msg.created_at) * 1000);
           const hours = time.getHours().toString().padStart(2, '0');
           const minutes = time.getMinutes().toString().padStart(2, '0');
           const timeStr = `${hours}:${minutes}`;
 
-          // 创建新的消息对象，不包含 inputs 字段
-          const { inputs, ...msgWithoutInputs } = msg;
-
+          // 创建完整的消息对象，保持统一结构
           return {
-            ...msgWithoutInputs,
+            id: msg.id,
+            conversation_id: msg.conversation_id,
+            parent_message_id: msg.parent_message_id || "00000000-0000-0000-0000-000000000000",
+            inputs: msg.inputs || {},
+            query: msg.query || "",
+            answer: msg.answer || "",
+            message_files: msg.message_files || [],
+            feedback: msg.feedback || {},
+            retriever_resources: msg.retriever_resources || [],
+            created_at: msg.created_at,
+            agent_thoughts: msg.agent_thoughts || [],
+            status: msg.status || "normal",
+            error: msg.error,
+            // 组件内部使用的字段
             time: timeStr,
-            isStreaming: false,
-            status: msg.status === 'error' ? 'error' : 'normal' as const
+            isStreaming: false
           };
         });
 
         this.messages = formattedMessages;
-        
-        requestAnimationFrame(() => {
-          this.shouldAutoScroll = true;
-          this.scrollToBottom();
-        });
       }
     } catch (error) {
       console.error('加载历史消息失败:', error);
       alert(error instanceof Error ? error.message : '加载历史消息失败，请刷新重试');
     } finally {
       this.isLoadingHistory = false;
+      requestAnimationFrame(() => {
+        this.shouldAutoScroll = true;
+        this.scrollToBottom();
+      });
     }
   }
 
@@ -518,9 +614,25 @@ export class ChatAPPModal {
     }
   }
 
-  // 添加 componentWillLoad 生命周期方法
+  // 修改 componentWillLoad 生命周期方法
   componentWillLoad() {
+    // 添加全局token无效事件监听器
+    this.tokenInvalidListener = () => {
+      this.tokenInvalid.emit();
+    };
+    document.addEventListener('pcm-token-invalid', this.tokenInvalidListener);
 
+    // 确保 customInputs 是一个对象
+    if (!this.customInputs) {
+      this.customInputs = {};
+    }
+
+    // 如果没有设置助手头像，尝试获取智能体头像
+    if (!this.assistantAvatar && this.botId) {
+      this.fetchAgentLogo();
+    }
+    console.log(this.isOpen);
+    
     // 如果组件加载时已经是打开状态，则直接开始对话
     if (this.isOpen) {
       if (this.conversationId) {
@@ -528,7 +640,9 @@ export class ChatAPPModal {
         setTimeout(() => this.loadHistoryMessages(), 0);
       } else {
         // 在下一个事件循环中发送初始消息，避免在componentWillLoad中进行异步操作
-        setTimeout(() => this.sendMessageToAPI(this.defaultQuery), 0);
+        setTimeout(() => {
+          this.sendMessageToAPI(this.defaultQuery);
+        }, 0);
       }
     }
   }
@@ -831,7 +945,7 @@ export class ChatAPPModal {
           cos_key: cosKey
         }
       });
-      
+
       if (result.success && result.data && result.data.text) {
         return result.data.text;
       } else {
@@ -858,17 +972,20 @@ export class ChatAPPModal {
 
       // 创建File对象
       const file = new File([this.recordedBlob], fileName, { type: this.recordedBlob.type });
-      
+
       // 使用uploadFileToBackend上传文件
       const fileInfo = await uploadFileToBackend(file, {
         'authorization': 'Bearer ' + this.token
+      }, {
+        'tags': 'other'
       });
-      
+      // 使用 cos_key 作为视频标识符
       // 调用音频转文字API
       const transcriptionText = await this.convertAudioToText(fileInfo.cos_key);
 
       // 发送"下一题"请求，可以附带转录文本
-      this.sendMessageToAPI(transcriptionText || "下一题");
+      this.sendMessageToAPI(transcriptionText || "下一题", fileInfo.cos_key);
+
     } catch (error) {
       console.error('视频上传或处理错误:', error);
       // 通知父组件视频上传失败
@@ -919,31 +1036,6 @@ export class ChatAPPModal {
     }
   }
 
-  // 添加TTS合成音频的方法
-  private async synthesizeAudio(text: string): Promise<string> {
-    try {
-      const response = await fetch(`${API_DOMAIN}/sdk/v1/tts/synthesize_audio`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'authorization': 'Bearer ' + this.token
-        },
-        body: JSON.stringify({ text })
-      });
-
-      if (!response.ok) {
-        throw new Error('语音合成失败');
-      }
-
-      // 获取音频数据并创建Blob URL
-      const audioBlob = await response.blob();
-      return URL.createObjectURL(audioBlob);
-    } catch (error) {
-      console.error('语音合成错误:', error);
-      throw error;
-    }
-  }
-
   // 播放音频的方法
   private playAudio(audioUrl: string): Promise<void> {
     return new Promise((resolve) => {
@@ -980,6 +1072,7 @@ export class ChatAPPModal {
 
   // 修改 componentDidLoad 生命周期方法，确保组件卸载时释放资源
   disconnectedCallback() {
+    document.removeEventListener('pcm-token-invalid', this.tokenInvalidListener);
     // 移除滚动事件监听器
     const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
     if (chatHistory) {
@@ -1010,8 +1103,17 @@ export class ChatAPPModal {
       this.recordingTimer = null;
     }
 
+    // 清理音频录制计时器
+    if (this.audioRecordingTimer) {
+      clearInterval(this.audioRecordingTimer);
+      this.audioRecordingTimer = null;
+    }
+
     // 停止录制
     this.stopRecording();
+
+    // 停止音频录制
+    this.stopAudioRecording();
   }
 
   // 修改手动播放音频的方法
@@ -1061,10 +1163,10 @@ export class ChatAPPModal {
     try {
       // 保存当前输入内容
       const textToSend = this.textAnswer;
-      
+
       // 立即清空文本输入
       this.textAnswer = '';
-      
+
       // 发送用户输入的文本作为查询
       await this.sendMessageToAPI(textToSend);
     } catch (error) {
@@ -1074,6 +1176,222 @@ export class ChatAPPModal {
       this.isSubmittingText = false;
     }
   };
+
+  // 处理语音输入按钮点击
+  private handleVoiceInputClick = () => {
+    if (this.isRecordingAudio) {
+      this.stopAudioRecording();
+    } else {
+      // 直接在用户交互事件处理程序中请求权限
+      // 不使用 async/await，而是使用 Promise 链
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+          // 权限已获取，开始录音
+          this.startRecordingWithStream(stream);
+        })
+        .catch(error => {
+          console.error('麦克风权限请求失败:', error);
+
+          // 根据错误类型提供更具体的提示
+          if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+            alert('麦克风访问被拒绝。\n\n在Mac上，请前往系统偏好设置 > 安全性与隐私 > 隐私 > 麦克风，确保您的浏览器已被允许访问麦克风。');
+          } else {
+            alert('无法访问麦克风，请确保已授予权限并且麦克风设备正常工作。');
+          }
+        });
+    }
+  };
+
+  // 新方法：使用已获取的媒体流开始录音
+  private startRecordingWithStream(stream: MediaStream) {
+    try {
+      // 检测浏览器支持的音频MIME类型
+      const mimeType = this.getSupportedAudioMimeType();
+
+      // 创建MediaRecorder实例
+      let audioRecorder;
+      try {
+        audioRecorder = new MediaRecorder(stream, {
+          mimeType: mimeType
+        });
+      } catch (e) {
+        console.warn('指定的音频MIME类型不受支持，使用默认设置:', e);
+        try {
+          audioRecorder = new MediaRecorder(stream);
+        } catch (recorderError) {
+          // 停止并释放媒体流
+          stream.getTracks().forEach(track => track.stop());
+          console.error('无法创建音频录制器:', recorderError);
+          alert('您的浏览器不支持音频录制功能');
+          return;
+        }
+      }
+
+      this.audioRecorder = audioRecorder;
+      this.audioChunks = [];
+      this.isRecordingAudio = true;
+      this.audioRecordingStartTime = Date.now();
+      this.audioRecordingTimeLeft = this.maxAudioRecordingTime;
+
+      // 设置数据可用事件处理
+      audioRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          this.audioChunks.push(event.data);
+        }
+      };
+
+      // 设置录制停止事件处理
+      audioRecorder.onstop = () => {
+        // 停止并释放媒体流
+        stream.getTracks().forEach(track => track.stop());
+
+        // 处理录制的音频
+        this.processAudioRecording();
+      };
+
+      // 开始录制
+      audioRecorder.start(100); // 每100毫秒获取一次数据
+
+      // 设置录制计时器
+      this.audioRecordingTimer = setInterval(() => {
+        const elapsedTime = Math.floor((Date.now() - this.audioRecordingStartTime) / 1000);
+        this.audioRecordingTimeLeft = Math.max(0, this.maxAudioRecordingTime - elapsedTime);
+
+        // 时间到自动停止录制
+        if (this.audioRecordingTimeLeft <= 0) {
+          this.stopAudioRecording();
+        }
+      }, 1000);
+
+    } catch (error) {
+      // 停止并释放媒体流
+      stream.getTracks().forEach(track => track.stop());
+      console.error('开始录音失败:', error);
+      alert('开始录音失败，请确保麦克风设备正常工作');
+    }
+  }
+
+  // 处理录制的音频
+  private async processAudioRecording() {
+    if (this.audioChunks.length === 0) {
+      console.warn('没有录制到音频数据');
+      return;
+    }
+
+    try {
+      this.isConvertingAudio = true;
+
+      // 创建音频Blob
+      const audioType = this.getSupportedAudioMimeType() || 'audio/webm';
+      const audioBlob = new Blob(this.audioChunks, { type: audioType });
+
+      if (audioBlob.size === 0) {
+        console.warn('录制的音频为空');
+        this.isConvertingAudio = false;
+        return;
+      }
+
+      // 创建File对象
+      const fileExtension = audioType.includes('webm') ? 'webm' : 'mp3';
+      const fileName = `audio_input.${fileExtension}`;
+      const audioFile = new File([audioBlob], fileName, { type: audioType });
+
+      // 上传音频文件
+      const fileInfo = await uploadFileToBackend(audioFile, {
+        'authorization': 'Bearer ' + this.token
+      }, {
+        'tags': 'audio'
+      });
+
+      // 调用音频转文字API
+      const transcriptionText = await this.convertAudioToText(fileInfo.cos_key);
+
+      // 将转录文本追加到文本框，而不是替换
+      if (transcriptionText) {
+        // 保存当前光标位置
+        const textArea = this.hostElement.shadowRoot?.querySelector('.text-answer-input') as HTMLTextAreaElement;
+        const cursorPosition = textArea?.selectionStart || this.textAnswer.length;
+
+        // 在光标位置插入识别的文本
+        const beforeCursor = this.textAnswer.substring(0, cursorPosition);
+        const afterCursor = this.textAnswer.substring(cursorPosition);
+
+        // 如果当前文本不为空且不以空格结尾，添加一个空格
+        const spacer = (beforeCursor.length > 0 && !beforeCursor.endsWith(' ')) ? ' ' : '';
+
+        // 更新文本
+        this.textAnswer = beforeCursor + spacer + transcriptionText + afterCursor;
+
+        // 设置新的光标位置
+        setTimeout(() => {
+          if (textArea) {
+            const newPosition = cursorPosition + spacer.length + transcriptionText.length;
+            textArea.focus();
+            textArea.setSelectionRange(newPosition, newPosition);
+          }
+        }, 0);
+      } else {
+        console.warn('未能识别语音内容');
+        alert('未能识别语音内容，请重试或直接输入文字');
+      }
+    } catch (error) {
+      console.error('处理音频录制失败:', error);
+      alert('语音识别失败，请重试');
+    } finally {
+      this.isConvertingAudio = false;
+      this.audioChunks = [];
+    }
+  }
+
+  // 获取支持的音频MIME类型
+  private getSupportedAudioMimeType(): string {
+    // 按优先级排列的音频MIME类型列表
+    const mimeTypes = [
+      'audio/webm;codecs=opus',
+      'audio/webm',
+      'audio/mp4',
+      'audio/ogg;codecs=opus',
+      'audio/ogg',
+      ''  // 空字符串表示使用浏览器默认值
+    ];
+
+    // 检查MediaRecorder是否可用
+    if (!window.MediaRecorder) {
+      console.warn('MediaRecorder API不可用');
+      return '';
+    }
+
+    // 检查每种MIME类型是否受支持
+    for (const type of mimeTypes) {
+      if (!type) return ''; // 如果是空字符串，直接返回
+
+      try {
+        if (MediaRecorder.isTypeSupported(type)) {
+          return type;
+        }
+      } catch (e) {
+        console.warn(`检查音频MIME类型支持时出错 ${type}:`, e);
+      }
+    }
+
+    // 如果没有找到支持的类型，返回空字符串
+    console.warn('没有找到支持的音频MIME类型，将使用浏览器默认值');
+    return '';
+  }
+
+  // 停止录制音频
+  private stopAudioRecording() {
+    if (this.audioRecorder && this.isRecordingAudio) {
+      this.audioRecorder.stop();
+      this.isRecordingAudio = false;
+
+      // 清理计时器
+      if (this.audioRecordingTimer) {
+        clearInterval(this.audioRecordingTimer);
+        this.audioRecordingTimer = null;
+      }
+    }
+  }
 
   render() {
     if (!this.isOpen) return null;
@@ -1121,6 +1439,15 @@ export class ChatAPPModal {
 
     // 渲染占位符状态信息
     const renderPlaceholderStatus = () => {
+      // 任务已完成
+      if (this.isTaskCompleted) {
+        return (
+          <div class="placeholder-status">
+            <p>面试已完成，感谢您的参与！</p>
+          </div>
+        );
+      }
+
       // 正在播放音频
       if (this.isPlayingAudio) {
         return (
@@ -1170,38 +1497,68 @@ export class ChatAPPModal {
       <div class="text-input-area">
         <textarea
           class="text-answer-input"
-          placeholder="请输入...(按回车发送，Ctrl+回车换行)"
+          placeholder="发消息"
           value={this.textAnswer}
           onInput={this.handleTextInputChange}
           onKeyDown={this.handleKeyDown}
-          disabled={this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.waitingToRecord || this.isPlayingAudio}
+          disabled={this.isRecordingAudio || this.isConvertingAudio}
         ></textarea>
         <div class="input-toolbar">
           <div class="toolbar-actions">
-            {/* <button class="toolbar-button" title="表情" disabled>
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-6c.78 2.34 2.72 4 5 4s4.22-1.66 5-4H7zm1.5-5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm7 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3z" />
-              </svg>
+            <button
+              class={{
+                'toolbar-button': true,
+                'recording': this.isRecordingAudio,
+                'converting': this.isConvertingAudio
+              }}
+              title={this.isRecordingAudio ? '点击停止录音' : this.isConvertingAudio ? '正在识别语音...' : '语音输入'}
+              onClick={this.handleVoiceInputClick}
+              disabled={this.isConvertingAudio || this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.waitingToRecord || this.isPlayingAudio}
+            >
+              {this.isRecordingAudio ? (
+                <div>
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
+                    <circle cx="12" cy="11" r="4" fill="red" />
+                  </svg>
+                  {/* <span class="recording-time">{this.audioRecordingTimeLeft}s</span> */}
+                </div>
+              ) : this.isConvertingAudio ? (
+                <div class="converting-indicator">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z" />
+                  </svg>
+                </div>
+              ) : (
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                  <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+                  <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
+                </svg>
+              )}
             </button>
-            <button class="toolbar-button" title="图片" disabled>
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4.86 8.86l-3 3.87L9 13.14 6 17h12l-3.86-5.14z" />
-              </svg>
-            </button> */}
           </div>
-          <button
+          <div
             class={{
-              'submit-text-button': true,
-              'disabled': !this.textAnswer.trim() || this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.waitingToRecord || this.isPlayingAudio
+              'send-button': true,
+              'disabled': !this.textAnswer.trim() || this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.waitingToRecord || this.isPlayingAudio || this.isRecordingAudio || this.isConvertingAudio
             }}
-            disabled={!this.textAnswer.trim() || this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.waitingToRecord || this.isPlayingAudio}
-            onClick={this.submitTextAnswer}
+            onClick={() => {
+              if (!this.textAnswer.trim() || this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.waitingToRecord || this.isPlayingAudio || this.isRecordingAudio || this.isConvertingAudio) {
+                return;
+              }
+              this.submitTextAnswer();
+            }}
           >
-            {this.isSubmittingText ? '发送中...' : '发送'}
-          </button>
+            <img src="https://pcm-pub-1351162788.cos.ap-guangzhou.myqcloud.com/sdk/image/i_send.png" alt="发送" />
+          </div>
         </div>
       </div>
     );
+
+
+    // 确定要使用的助手头像
+    const effectiveAssistantAvatar = this.assistantAvatar || this.agentLogo;
 
     return (
       <div class={overlayClass} style={modalStyle}>
@@ -1220,7 +1577,7 @@ export class ChatAPPModal {
             </div>
           )}
 
-          <div style={{ height: '100%' }}>
+          <div class="chat-container">
             <div class="chat-history" onScroll={this.handleScroll}>
               {this.isLoadingHistory ? (
                 <div class="loading-container">
@@ -1232,7 +1589,13 @@ export class ChatAPPModal {
                   {this.messages.map((message) => (
                     <div id={`message_${message.id}`} key={message.id}>
                       <pcm-chat-message
+                        botId={this.botId}
                         message={message}
+                        token={this.token}
+                        userAvatar={this.userAvatar}
+                        assistantAvatar={effectiveAssistantAvatar}
+                        showCopyButton={this.showCopyButton}
+                        showFeedbackButtons={this.showFeedbackButtons}
                         onMessageChange={(event) => {
                           const updatedMessages = this.messages.map(msg =>
                             msg.id === message.id ? { ...msg, ...event.detail } : msg
@@ -1245,7 +1608,13 @@ export class ChatAPPModal {
                   {this.currentStreamingMessage && (
                     <div id={`message_${this.currentStreamingMessage.id}`}>
                       <pcm-chat-message
+                        botId={this.botId}
+                        token={this.token}
                         message={this.currentStreamingMessage}
+                        userAvatar={this.userAvatar}
+                        assistantAvatar={effectiveAssistantAvatar}
+                        showCopyButton={this.showCopyButton}
+                        showFeedbackButtons={this.showFeedbackButtons}
                       ></pcm-chat-message>
                     </div>
                   )}
@@ -1266,7 +1635,7 @@ export class ChatAPPModal {
                   )
                 }
                 {this.interviewMode === 'video' && (
-                  <div style={{ width: '100%', display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+                  <div class="video-container">
                     <div class="video-area">
                       {this.showRecordingUI ? (
                         renderVideoPreview()
@@ -1275,19 +1644,21 @@ export class ChatAPPModal {
                           {renderPlaceholderStatus()}
                         </div>
                       )}
-                      <div class="progress-container">
-                        <div class="progress-bar-container">
-                          <div
-                            class="progress-bar"
-                            style={{
-                              width: `${Math.max(0, this.currentQuestionNumber - 1) / this.totalQuestions * 100}%`
-                            }}
-                          ></div>
+                      {this.showProgressBar && (
+                        <div class="progress-container">
+                          <div class="progress-bar-container">
+                            <div
+                              class="progress-bar"
+                              style={{
+                                width: `${Math.max(0, this.currentQuestionNumber - 1) / this.totalQuestions * 100}%`
+                              }}
+                            ></div>
+                          </div>
+                          <div class="progress-text">
+                            已完成{Math.max(0, this.currentQuestionNumber - 1)}/{this.totalQuestions}
+                          </div>
                         </div>
-                        <div class="progress-text">
-                          已完成{Math.max(0, this.currentQuestionNumber - 1)}/{this.totalQuestions}
-                        </div>
-                      </div>
+                      )}
                     </div>
                     <div class="recording-controls">
                       {this.showRecordingUI ? (

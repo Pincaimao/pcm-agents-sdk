@@ -1,6 +1,7 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
 import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, FileUploadResponse } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
+import { StreamCompleteEventData } from '../../components';
 
 @Component({
   tag: 'pcm-chat-modal',
@@ -99,12 +100,7 @@ export class ChatModal {
   @Element() hostElement: HTMLElement;
 
   // 添加新的 Event
-  @Event() streamComplete: EventEmitter<{
-    conversation_id: string;
-    event: string;
-    message_id: string;
-    id: string;
-  }>;
+  @Event() streamComplete: EventEmitter<StreamCompleteEventData>;
 
   @State() suggestedQuestions: string[] = [];
   @State() suggestedQuestionsLoading: boolean = false;
