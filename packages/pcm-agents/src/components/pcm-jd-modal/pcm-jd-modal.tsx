@@ -93,6 +93,13 @@ export class PcmJdModal {
      */
     @Event() tokenInvalid: EventEmitter<void>;
 
+    /**
+     * 附件预览模式
+     * 'drawer': 在右侧抽屉中预览
+     * 'window': 在新窗口中打开
+     */
+    @Prop() filePreviewMode: 'drawer' | 'window' = 'window';
+
     @State() showChatModal: boolean = false;
 
     // 使用 @Element 装饰器获取组件的 host 元素
@@ -722,6 +729,7 @@ export class PcmJdModal {
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
                                 enableVoice={false}
+                                filePreviewMode={this.filePreviewMode}
                                 customInputs={this.conversationId ? {} : {
                                     ...this.customInputs,
                                     job_info: this.customInputs?.job_info || this.jobDescription

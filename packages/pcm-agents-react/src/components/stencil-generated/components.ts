@@ -17,6 +17,7 @@ import { PcmButton as PcmButtonElement, defineCustomElement as definePcmButton }
 import { PcmCard as PcmCardElement, defineCustomElement as definePcmCard } from "pcm-agents/dist/components/pcm-card.js";
 import { PcmChatMessage as PcmChatMessageElement, defineCustomElement as definePcmChatMessage } from "pcm-agents/dist/components/pcm-chat-message.js";
 import { PcmChatModal as PcmChatModalElement, defineCustomElement as definePcmChatModal } from "pcm-agents/dist/components/pcm-chat-modal.js";
+import { PcmDrawer as PcmDrawerElement, defineCustomElement as definePcmDrawer } from "pcm-agents/dist/components/pcm-drawer.js";
 import { PcmHrChatModal as PcmHrChatModalElement, defineCustomElement as definePcmHrChatModal } from "pcm-agents/dist/components/pcm-hr-chat-modal.js";
 import { PcmHtwsModal as PcmHtwsModalElement, defineCustomElement as definePcmHtwsModal } from "pcm-agents/dist/components/pcm-htws-modal.js";
 import { PcmHyzjModal as PcmHyzjModalElement, defineCustomElement as definePcmHyzjModal } from "pcm-agents/dist/components/pcm-hyzj-modal.js";
@@ -116,14 +117,25 @@ export const PcmCard: StencilReactComponent<PcmCardElement, PcmCardEvents> = /*@
     defineCustomElement: definePcmCard
 });
 
-type PcmChatMessageEvents = { onMessageChange: EventName<PcmChatMessageCustomEvent<Partial<ChatMessage>>> };
+type PcmChatMessageEvents = {
+    onMessageChange: EventName<PcmChatMessageCustomEvent<Partial<ChatMessage>>>,
+    onFilePreviewRequest: EventName<CustomEvent<{
+        url?: string,
+        fileName: string,
+        content?: string,
+        contentType: 'file' | 'markdown' | 'text'
+    }>>
+};
 
 export const PcmChatMessage: StencilReactComponent<PcmChatMessageElement, PcmChatMessageEvents> = /*@__PURE__*/ createComponent<PcmChatMessageElement, PcmChatMessageEvents>({
     tagName: 'pcm-chat-message',
     elementClass: PcmChatMessageElement,
     // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
     react: React,
-    events: { onMessageChange: 'messageChange' } as PcmChatMessageEvents,
+    events: {
+        onMessageChange: 'messageChange',
+        onFilePreviewRequest: 'filePreviewRequest'
+    } as PcmChatMessageEvents,
     defineCustomElement: definePcmChatMessage
 });
 
@@ -144,6 +156,25 @@ export const PcmChatModal: StencilReactComponent<PcmChatModalElement, PcmChatMod
         onStreamComplete: 'streamComplete'
     } as PcmChatModalEvents,
     defineCustomElement: definePcmChatModal
+});
+
+type PcmDrawerEvents = {
+    onClosed: EventName<CustomEvent<void>>,
+    onAfterOpen: EventName<CustomEvent<void>>,
+    onAfterClose: EventName<CustomEvent<void>>
+};
+
+export const PcmDrawer: StencilReactComponent<PcmDrawerElement, PcmDrawerEvents> = /*@__PURE__*/ createComponent<PcmDrawerElement, PcmDrawerEvents>({
+    tagName: 'pcm-drawer',
+    elementClass: PcmDrawerElement,
+    // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
+    react: React,
+    events: {
+        onClosed: 'closed',
+        onAfterOpen: 'afterOpen',
+        onAfterClose: 'afterClose'
+    } as PcmDrawerEvents,
+    defineCustomElement: definePcmDrawer
 });
 
 type PcmHrChatModalEvents = {

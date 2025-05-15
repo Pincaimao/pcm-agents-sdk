@@ -117,6 +117,10 @@ export namespace Components {
          */
         "enableVoice": boolean;
         /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode": 'drawer' | 'window';
+        /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen": boolean;
@@ -299,6 +303,10 @@ export namespace Components {
          */
         "botId"?: string;
         /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode": 'drawer' | 'window';
+        /**
           * 消息数据
          */
         "message": ChatMessage;
@@ -364,6 +372,52 @@ export namespace Components {
           * 聊天框的页面层级
          */
         "zIndex"?: number;
+    }
+    /**
+     * 抽屉组件
+     * 从屏幕边缘滑出的浮层面板，类似 Ant Design 的 Drawer 组件
+     */
+    interface PcmDrawer {
+        /**
+          * 是否显示关闭按钮
+         */
+        "closable": boolean;
+        /**
+          * 关闭抽屉
+         */
+        "close": () => Promise<void>;
+        /**
+          * 抽屉标题
+         */
+        "drawerTitle": string;
+        /**
+          * 高度，在 placement 为 top 或 bottom 时使用
+         */
+        "height": string;
+        /**
+          * 抽屉是否可见
+         */
+        "isOpen": boolean;
+        /**
+          * 是否显示蒙层
+         */
+        "mask": boolean;
+        /**
+          * 点击蒙层是否允许关闭
+         */
+        "maskClosable": boolean;
+        /**
+          * 打开抽屉
+         */
+        "open": () => Promise<void>;
+        /**
+          * 宽度，可以是像素值或百分比
+         */
+        "width": string;
+        /**
+          * 设置 z-index
+         */
+        "zIndex": number;
     }
     interface PcmHrChatModal {
         /**
@@ -456,6 +510,10 @@ export namespace Components {
          */
         "defaultQuery": string;
         /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode": 'drawer' | 'window';
+        /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen": boolean;
@@ -504,6 +562,10 @@ export namespace Components {
           * 默认查询文本
          */
         "defaultQuery": string;
+        /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode": 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
@@ -554,6 +616,10 @@ export namespace Components {
          */
         "defaultQuery": string;
         /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode": 'drawer' | 'window';
+        /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen": boolean;
@@ -602,6 +668,10 @@ export namespace Components {
           * 默认查询文本
          */
         "defaultQuery": string;
+        /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode": 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
@@ -652,6 +722,10 @@ export namespace Components {
          */
         "defaultQuery": string;
         /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode": 'drawer' | 'window';
+        /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen": boolean;
@@ -700,6 +774,10 @@ export namespace Components {
           * 默认查询文本
          */
         "defaultQuery": string;
+        /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode": 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
@@ -761,6 +839,10 @@ export namespace Components {
           * 默认查询文本
          */
         "defaultQuery": string;
+        /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode": 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
@@ -866,6 +948,10 @@ export namespace Components {
          */
         "defaultQuery": string;
         /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode": 'drawer' | 'window';
+        /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen": boolean;
@@ -914,6 +1000,10 @@ export interface PcmChatMessageCustomEvent<T> extends CustomEvent<T> {
 export interface PcmChatModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmChatModalElement;
+}
+export interface PcmDrawerCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLPcmDrawerElement;
 }
 export interface PcmHrChatModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -1033,6 +1123,12 @@ declare global {
     };
     interface HTMLPcmChatMessageElementEventMap {
         "messageChange": Partial<ChatMessage>;
+        "filePreviewRequest": {
+        url?: string,
+        fileName: string,
+        content?: string,
+        contentType: 'file' | 'markdown' | 'text'
+    };
     }
     interface HTMLPcmChatMessageElement extends Components.PcmChatMessage, HTMLStencilElement {
         addEventListener<K extends keyof HTMLPcmChatMessageElementEventMap>(type: K, listener: (this: HTMLPcmChatMessageElement, ev: PcmChatMessageCustomEvent<HTMLPcmChatMessageElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -1066,6 +1162,29 @@ declare global {
     var HTMLPcmChatModalElement: {
         prototype: HTMLPcmChatModalElement;
         new (): HTMLPcmChatModalElement;
+    };
+    interface HTMLPcmDrawerElementEventMap {
+        "closed": void;
+        "afterOpen": void;
+        "afterClose": void;
+    }
+    /**
+     * 抽屉组件
+     * 从屏幕边缘滑出的浮层面板，类似 Ant Design 的 Drawer 组件
+     */
+    interface HTMLPcmDrawerElement extends Components.PcmDrawer, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLPcmDrawerElementEventMap>(type: K, listener: (this: HTMLPcmDrawerElement, ev: PcmDrawerCustomEvent<HTMLPcmDrawerElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLPcmDrawerElementEventMap>(type: K, listener: (this: HTMLPcmDrawerElement, ev: PcmDrawerCustomEvent<HTMLPcmDrawerElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLPcmDrawerElement: {
+        prototype: HTMLPcmDrawerElement;
+        new (): HTMLPcmDrawerElement;
     };
     interface HTMLPcmHrChatModalElementEventMap {
         "modalClosed": void;
@@ -1325,6 +1444,7 @@ declare global {
         "pcm-card": HTMLPcmCardElement;
         "pcm-chat-message": HTMLPcmChatMessageElement;
         "pcm-chat-modal": HTMLPcmChatModalElement;
+        "pcm-drawer": HTMLPcmDrawerElement;
         "pcm-hr-chat-modal": HTMLPcmHrChatModalElement;
         "pcm-htws-modal": HTMLPcmHtwsModalElement;
         "pcm-hyzj-modal": HTMLPcmHyzjModalElement;
@@ -1466,6 +1586,10 @@ declare namespace LocalJSX {
           * 是否自动播放语音问题
          */
         "enableVoice"?: boolean;
+        /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode"?: 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
@@ -1677,9 +1801,19 @@ declare namespace LocalJSX {
          */
         "botId"?: string;
         /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode"?: 'drawer' | 'window';
+        /**
           * 消息数据
          */
         "message"?: ChatMessage;
+        "onFilePreviewRequest"?: (event: PcmChatMessageCustomEvent<{
+        url?: string,
+        fileName: string,
+        content?: string,
+        contentType: 'file' | 'markdown' | 'text'
+    }>) => void;
         /**
           * 消息变更事件
          */
@@ -1753,6 +1887,56 @@ declare namespace LocalJSX {
         "onStreamComplete"?: (event: PcmChatModalCustomEvent<StreamCompleteEventData1>) => void;
         /**
           * 聊天框的页面层级
+         */
+        "zIndex"?: number;
+    }
+    /**
+     * 抽屉组件
+     * 从屏幕边缘滑出的浮层面板，类似 Ant Design 的 Drawer 组件
+     */
+    interface PcmDrawer {
+        /**
+          * 是否显示关闭按钮
+         */
+        "closable"?: boolean;
+        /**
+          * 抽屉标题
+         */
+        "drawerTitle"?: string;
+        /**
+          * 高度，在 placement 为 top 或 bottom 时使用
+         */
+        "height"?: string;
+        /**
+          * 抽屉是否可见
+         */
+        "isOpen"?: boolean;
+        /**
+          * 是否显示蒙层
+         */
+        "mask"?: boolean;
+        /**
+          * 点击蒙层是否允许关闭
+         */
+        "maskClosable"?: boolean;
+        /**
+          * 抽屉关闭后的回调
+         */
+        "onAfterClose"?: (event: PcmDrawerCustomEvent<void>) => void;
+        /**
+          * 抽屉打开后的回调
+         */
+        "onAfterOpen"?: (event: PcmDrawerCustomEvent<void>) => void;
+        /**
+          * 抽屉关闭后的回调
+         */
+        "onClosed"?: (event: PcmDrawerCustomEvent<void>) => void;
+        /**
+          * 宽度，可以是像素值或百分比
+         */
+        "width"?: string;
+        /**
+          * 设置 z-index
          */
         "zIndex"?: number;
     }
@@ -1882,6 +2066,10 @@ declare namespace LocalJSX {
          */
         "defaultQuery"?: string;
         /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode"?: 'drawer' | 'window';
+        /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen"?: boolean;
@@ -1954,6 +2142,10 @@ declare namespace LocalJSX {
           * 默认查询文本
          */
         "defaultQuery"?: string;
+        /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode"?: 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
@@ -2028,6 +2220,10 @@ declare namespace LocalJSX {
          */
         "defaultQuery"?: string;
         /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode"?: 'drawer' | 'window';
+        /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen"?: boolean;
@@ -2096,6 +2292,10 @@ declare namespace LocalJSX {
           * 默认查询文本
          */
         "defaultQuery"?: string;
+        /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode"?: 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
@@ -2170,6 +2370,10 @@ declare namespace LocalJSX {
          */
         "defaultQuery"?: string;
         /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode"?: 'drawer' | 'window';
+        /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen"?: boolean;
@@ -2242,6 +2446,10 @@ declare namespace LocalJSX {
           * 默认查询文本
          */
         "defaultQuery"?: string;
+        /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode"?: 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
@@ -2331,6 +2539,10 @@ declare namespace LocalJSX {
           * 默认查询文本
          */
         "defaultQuery"?: string;
+        /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode"?: 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
@@ -2476,6 +2688,10 @@ declare namespace LocalJSX {
          */
         "defaultQuery"?: string;
         /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode"?: 'drawer' | 'window';
+        /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen"?: boolean;
@@ -2543,6 +2759,7 @@ declare namespace LocalJSX {
         "pcm-card": PcmCard;
         "pcm-chat-message": PcmChatMessage;
         "pcm-chat-modal": PcmChatModal;
+        "pcm-drawer": PcmDrawer;
         "pcm-hr-chat-modal": PcmHrChatModal;
         "pcm-htws-modal": PcmHtwsModal;
         "pcm-hyzj-modal": PcmHyzjModal;
@@ -2577,6 +2794,11 @@ declare module "@stencil/core" {
             "pcm-card": LocalJSX.PcmCard & JSXBase.HTMLAttributes<HTMLPcmCardElement>;
             "pcm-chat-message": LocalJSX.PcmChatMessage & JSXBase.HTMLAttributes<HTMLPcmChatMessageElement>;
             "pcm-chat-modal": LocalJSX.PcmChatModal & JSXBase.HTMLAttributes<HTMLPcmChatModalElement>;
+            /**
+             * 抽屉组件
+             * 从屏幕边缘滑出的浮层面板，类似 Ant Design 的 Drawer 组件
+             */
+            "pcm-drawer": LocalJSX.PcmDrawer & JSXBase.HTMLAttributes<HTMLPcmDrawerElement>;
             "pcm-hr-chat-modal": LocalJSX.PcmHrChatModal & JSXBase.HTMLAttributes<HTMLPcmHrChatModalElement>;
             /**
              * 劳动合同卫士

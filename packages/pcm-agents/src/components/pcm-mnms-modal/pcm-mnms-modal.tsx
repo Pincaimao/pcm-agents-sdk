@@ -103,6 +103,13 @@ export class MnmsModal {
     @Event() tokenInvalid: EventEmitter<void>;
 
     /**
+     * 附件预览模式
+     * 'drawer': 在右侧抽屉中预览
+     * 'window': 在新窗口中打开
+     */
+    @Prop() filePreviewMode: 'drawer' | 'window' = 'window';
+
+    /**
      * 面试模式：text - 文本模式，video - 视频模式
      */
     @Prop() interviewMode: 'text' | 'video' = 'text';
@@ -422,6 +429,7 @@ export class MnmsModal {
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
                                 enableVoice={false}
+                                filePreviewMode={this.filePreviewMode}
                                 showCopyButton={this.showCopyButton}
                                 showFeedbackButtons={this.showFeedbackButtons}
                                 customInputs={this.conversationId ? {} : {

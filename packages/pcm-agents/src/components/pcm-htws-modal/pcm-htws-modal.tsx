@@ -97,6 +97,13 @@ export class HtwsModal {
      */
     @Event() tokenInvalid: EventEmitter<void>;
 
+    /**
+     * 附件预览模式
+     * 'drawer': 在右侧抽屉中预览
+     * 'window': 在新窗口中打开
+     */
+    @Prop() filePreviewMode: 'drawer' | 'window' = 'window';
+
     @State() selectedFile: File | null = null;
     @State() isUploading: boolean = false;
     @State() uploadedFileInfo: FileUploadResponse | null = null;
@@ -425,6 +432,7 @@ export class HtwsModal {
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
                                 enableVoice={false}
+                                filePreviewMode={this.filePreviewMode}
                                 customInputs={this.conversationId ? {} : {
                                     ...this.customInputs,
                                     file_url: this.inputMode === 'upload' ? this.uploadedFileInfo?.cos_key : undefined,

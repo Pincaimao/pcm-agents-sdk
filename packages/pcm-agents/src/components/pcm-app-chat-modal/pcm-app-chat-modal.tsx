@@ -8,10 +8,11 @@ import {
   RecordingErrorEventData,
   RecordingStatusChangeEventData
 } from '../../interfaces/events';
+import { marked } from 'marked';
 
 @Component({
   tag: 'pcm-app-chat-modal',
-  styleUrl: 'pcm-app-chat-modal.css',
+  styleUrls: ['pcm-app-chat-modal.css','../../global/markdown.css', ],
   shadow: true,
 })
 export class ChatAPPModal {
@@ -273,6 +274,30 @@ export class ChatAPPModal {
    * 是否显示点赞点踩按钮
    */
   @Prop() showFeedbackButtons: boolean = true;
+
+  /**
+   * 附件预览模式
+   * 'drawer': 在右侧抽屉中预览
+   * 'window': 在新窗口中打开
+   */
+  @Prop() filePreviewMode: 'drawer' | 'window' = 'window';
+
+  // 添加新的状态来管理抽屉
+  @State() isDrawerOpen: boolean = false;
+  @State() previewUrl: string = '';
+  @State() previewFileName: string = '';
+
+  // 添加内容类型状态
+  @State() previewContentType: 'file' | 'markdown' | 'text' = 'file';
+  @State() previewContent: string = '';
+
+  constructor() {
+    // 配置 marked 选项
+    marked.setOptions({
+        breaks: true,
+        gfm: true
+    });
+}
 
   private handleClose = () => {
     this.stopRecording();
@@ -606,7 +631,6 @@ export class ChatAPPModal {
 
   // 修改 componentDidLoad 生命周期方法
   componentDidLoad() {
-
     // 添加滚动事件监听器
     const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
     if (chatHistory) {
@@ -1393,6 +1417,22 @@ export class ChatAPPModal {
     }
   }
 
+  // 修改事件处理方法
+  private handleFilePreviewRequest = (event: CustomEvent<{
+    url?: string, 
+    fileName: string, 
+    content?: string,
+    contentType: 'file' | 'markdown' | 'text'
+  }>) => {
+    const { url, fileName, content, contentType } = event.detail;
+    
+    this.previewFileName = fileName || '内容预览';
+    this.previewContentType = contentType;
+    this.previewUrl = url;
+    this.previewContent = content || '';
+    this.isDrawerOpen = true;
+  };
+
   render() {
     if (!this.isOpen) return null;
 
@@ -1596,6 +1636,8 @@ export class ChatAPPModal {
                         assistantAvatar={effectiveAssistantAvatar}
                         showCopyButton={this.showCopyButton}
                         showFeedbackButtons={this.showFeedbackButtons}
+                        filePreviewMode={this.filePreviewMode}
+                        onFilePreviewRequest={this.handleFilePreviewRequest}
                         onMessageChange={(event) => {
                           const updatedMessages = this.messages.map(msg =>
                             msg.id === message.id ? { ...msg, ...event.detail } : msg
@@ -1615,6 +1657,8 @@ export class ChatAPPModal {
                         assistantAvatar={effectiveAssistantAvatar}
                         showCopyButton={this.showCopyButton}
                         showFeedbackButtons={this.showFeedbackButtons}
+                        filePreviewMode={this.filePreviewMode}
+                        onFilePreviewRequest={this.handleFilePreviewRequest}
                       ></pcm-chat-message>
                     </div>
                   )}
@@ -1700,6 +1744,41 @@ export class ChatAPPModal {
               </div>
             </div>
           </div>
+
+          {/* 添加预览抽屉 */}
+          <pcm-drawer
+            isOpen={this.isDrawerOpen}
+            drawerTitle={this.previewFileName}
+            width="80%"
+            zIndex={this.zIndex + 10}
+            onClosed={() => {
+              this.isDrawerOpen = false;
+              this.previewUrl = '';
+              this.previewContent = '';
+            }}
+          >
+            {this.previewContentType === 'file' && this.previewUrl && (
+              <div class="file-preview-container">
+                <iframe 
+                  src={this.previewUrl} 
+                  frameborder="0" 
+                  width="100%" 
+                  height="100%"
+                  style={{ border: 'none', height: 'calc(100vh - 120px)' }}
+                ></iframe>
+              </div>
+            )}
+            
+            {this.previewContentType === 'markdown' && this.previewContent && (
+              <div class="markdown-preview-container markdown-body" innerHTML={marked(this.previewContent)}></div>
+            )}
+            
+            {this.previewContentType === 'text' && this.previewContent && (
+              <div class="text-preview-container">
+                <pre>{this.previewContent}</pre>
+              </div>
+            )}
+          </pcm-drawer>
         </div>
       </div>
     );
