@@ -212,12 +212,12 @@ export class ChatKBModal {
   }
 
   componentWillLoad() {
-    
+
     // 将 zIndex 存入配置缓存
     if (this.zIndex) {
       configStore.setItem('modal-zIndex', this.zIndex);
-    } 
-    
+    }
+
     // 添加全局token无效事件监听器
     this.tokenInvalidListener = () => {
       this.tokenInvalid.emit();
@@ -997,8 +997,11 @@ export class ChatKBModal {
 
     // 渲染推荐问题组件
     const renderSuggestedQuestions = () => {
+
       // 只有当没有正在流式输出的消息时才显示推荐问题
-      if (this.currentStreamingMessage) return null;
+      if (!this.customInputs.show_suggested_questions && !this.currentStreamingMessage) {
+        return null;
+      }
 
       if (this.suggestedQuestionsLoading) {
         return (

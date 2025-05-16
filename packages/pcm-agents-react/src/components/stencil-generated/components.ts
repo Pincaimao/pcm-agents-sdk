@@ -95,14 +95,14 @@ export const PcmButton: StencilReactComponent<PcmButtonElement, PcmButtonEvents>
     defineCustomElement: definePcmButton
 });
 
-type PcmCardEvents = NonNullable<unknown>;
+type PcmCardEvents = { onTokenInvalid: EventName<CustomEvent<void>> };
 
 export const PcmCard: StencilReactComponent<PcmCardElement, PcmCardEvents> = /*@__PURE__*/ createComponent<PcmCardElement, PcmCardEvents>({
     tagName: 'pcm-card',
     elementClass: PcmCardElement,
     // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
     react: React,
-    events: {} as PcmCardEvents,
+    events: { onTokenInvalid: 'tokenInvalid' } as PcmCardEvents,
     defineCustomElement: definePcmCard
 });
 

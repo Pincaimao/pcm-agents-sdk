@@ -18,7 +18,6 @@
 | `mask`         | `mask`          | 是否显示蒙层                            | `boolean` | `true`    |
 | `maskClosable` | `mask-closable` | 点击蒙层是否允许关闭                        | `boolean` | `true`    |
 | `width`        | `width`         | 宽度，可以是像素值或百分比                     | `string`  | `'378px'` |
-| `zIndex`       | `z-index`       | 设置 z-index                        | `number`  | `1000`    |
 
 
 ## Events

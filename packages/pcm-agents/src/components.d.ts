@@ -923,6 +923,10 @@ export interface PcmAppChatModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmAppChatModalElement;
 }
+export interface PcmCardCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLPcmCardElement;
+}
 export interface PcmChatMessageCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmChatMessageElement;
@@ -1032,11 +1036,22 @@ declare global {
         prototype: HTMLPcmButtonElement;
         new (): HTMLPcmButtonElement;
     };
+    interface HTMLPcmCardElementEventMap {
+        "tokenInvalid": void;
+    }
     /**
      * 智能体卡片组件
      * 用于展示各业务功能入口，点击后根据回调打开对应的模态框
      */
     interface HTMLPcmCardElement extends Components.PcmCard, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLPcmCardElementEventMap>(type: K, listener: (this: HTMLPcmCardElement, ev: PcmCardCustomEvent<HTMLPcmCardElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLPcmCardElementEventMap>(type: K, listener: (this: HTMLPcmCardElement, ev: PcmCardCustomEvent<HTMLPcmCardElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
     var HTMLPcmCardElement: {
         prototype: HTMLPcmCardElement;
@@ -1676,6 +1691,10 @@ declare namespace LocalJSX {
           * 自定义卡片图标URL
          */
         "iconUrl"?: string;
+        /**
+          * SDK密钥验证失败事件
+         */
+        "onTokenInvalid"?: (event: PcmCardCustomEvent<void>) => void;
         /**
           * 是否显示右侧对话标签
          */

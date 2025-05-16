@@ -31,7 +31,7 @@
 | `token`                     | `token`                         | SDK鉴权密钥                                     | `string`                | `undefined`                                                |
 | `totalQuestions`            | `total-questions`               | 控制对话轮数                                      | `number`                | `10`                                                       |
 | `userAvatar`                | `user-avatar`                   | 用户头像URL                                     | `string`                | `"https://pub.pincaimao.com/static/common/i_pcm_logo.png"` |
-| `zIndex`                    | `z-index`                       | 聊天框的页面层级                                    | `number`                | `1000`                                                     |
+| `zIndex`                    | `z-index`                       | 聊天框的页面层级                                    | `number`                | `undefined`                                                |
 
 
 ## Events

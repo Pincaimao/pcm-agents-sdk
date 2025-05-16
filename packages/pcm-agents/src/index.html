@@ -186,8 +186,8 @@
 
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "11eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDczNjQ5MzJ9.6SgYKziMGL0Se8hDG8mENdP5ha2-FyuPHnWulNEQKj0";
-    const SHARED_TOKEN_NEW = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDc0NDk5ODF9.kwFtt8Uw-m-KWHuy8zFrM799SpGwwBfmQ_tbcsMfzuc"
+    const SHARED_TOKEN = "e111yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc0NzQ3MzE2MH0.EtLh7Lm04HCVr_z0ET4EaXemCPzmVfCn0HMc5t3a7AI";
+    const SHARED_TOKEN_NEW = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc0NzQ3NTYwOH0.XBV18mYi6M5pbXA5_9-p0ALCQFTD0uSdhzppcyruHOU"
     let stream = null;
     const urlParams = new URLSearchParams(window.location.search);
 
@@ -353,6 +353,11 @@
       chatModal.addEventListener('conversationStart', (event) => {
         console.log('会话开始:', event.detail);
         chatModal.setAttribute('conversation-id', event.detail.conversation_id);
+      });
+
+      chatModal.addEventListener('tokenInvalid', () => {
+        console.log('SDK密钥验证失败');
+        chatModal.setAttribute('token', SHARED_TOKEN_NEW);
       });
 
       chatModal.addEventListener('interviewComplete', (event) => {
