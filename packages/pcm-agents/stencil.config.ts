@@ -7,6 +7,9 @@ import dotenvPlugin from 'rollup-plugin-dotenv';
 
 export const config: Config = {
   namespace: 'pcm-agents',
+  extras:{
+    enableImportInjection:true,
+  },
   outputTargets: [
     {
       type: 'dist',
