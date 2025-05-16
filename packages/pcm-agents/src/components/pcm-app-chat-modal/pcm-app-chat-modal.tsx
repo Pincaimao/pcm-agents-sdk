@@ -1,4 +1,4 @@
-import { Component, Prop, h, State, Event, EventEmitter, Element } from '@stencil/core';
+import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
 import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, fetchAgentInfo, synthesizeAudio } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
 import {
@@ -10,6 +10,7 @@ import {
 } from '../../interfaces/events';
 import { marked } from 'marked';
 import { ErrorEventBus } from '../../utils/error-event';
+import { authStore } from '../../../store/auth.store'; // 导入 authStore
 
 @Component({
   tag: 'pcm-app-chat-modal',
@@ -25,7 +26,7 @@ export class ChatAPPModal {
   /**
    * SDK鉴权密钥
    */
-  @Prop({ attribute: 'token' }) token!: string;
+  @Prop({ attribute: 'token' }) token?: string;
 
   /**
    * 是否显示聊天模态框
@@ -292,6 +293,14 @@ export class ChatAPPModal {
   @State() previewContentType: 'file' | 'markdown' | 'text' = 'file';
   @State() previewContent: string = '';
 
+  @Watch('token')
+  handleTokenChange(newToken: string) {
+    // 当传入的 token 变化时，更新 authStore 中的 token
+    if (newToken && newToken !== authStore.getToken()) {
+      authStore.setToken(newToken);
+    }
+  }
+
   constructor() {
     // 配置 marked 选项
     marked.setOptions({
@@ -307,10 +316,11 @@ export class ChatAPPModal {
 
   // 添加获取智能体信息的方法
   private async fetchAgentLogo() {
-    if (!this.botId || !this.token) return;
+    if (!this.botId) return;
 
     try {
-      const agentInfo = await fetchAgentInfo(this.token, this.botId);
+      const agentInfo = await fetchAgentInfo(this.botId);
+      
       if (agentInfo && agentInfo.logo) {
         this.agentLogo = agentInfo.logo;
       }
@@ -402,9 +412,6 @@ export class ChatAPPModal {
     await sendSSERequest({
       url: '/sdk/v1/chat/chat-messages',
       method: 'POST',
-      headers: {
-        'authorization': 'Bearer ' + this.token
-      },
       data: requestData,
       onMessage: (data) => {
         console.log('收到Stream数据:', data);
@@ -520,7 +527,7 @@ export class ChatAPPModal {
 
           if (textForSynthesis && this.enableTTS) {
             // 使用工具函数合成语音
-            const audioUrl = await synthesizeAudio(textForSynthesis, this.token);
+            const audioUrl = await synthesizeAudio(textForSynthesis);
 
             if (this.enableVoice) {
               // 自动播放语音
@@ -588,9 +595,6 @@ export class ChatAPPModal {
       const result = await sendHttpRequest({
         url: '/sdk/v1/chat/messages',
         method: 'GET',
-        headers: {
-          'authorization': 'Bearer ' + this.token
-        },
         data: {
           conversation_id: this.conversationId,
           bot_id: this.botId,
@@ -667,12 +671,12 @@ export class ChatAPPModal {
     if (!this.customInputs) {
       this.customInputs = {};
     }
-
+    
     // 如果没有设置助手头像，尝试获取智能体头像
     if (!this.assistantAvatar && this.botId) {
+      
       this.fetchAgentLogo();
     }
-    console.log(this.isOpen);
     
     // 如果组件加载时已经是打开状态，则直接开始对话
     if (this.isOpen) {
@@ -991,9 +995,6 @@ export class ChatAPPModal {
       const result = await sendHttpRequest<{ text: string }>({
         url: '/sdk/v1/tts/audio_to_text',
         method: 'POST',
-        headers: {
-          'authorization': 'Bearer ' + this.token
-        },
         data: {
           cos_key: cosKey
         }
@@ -1034,7 +1035,7 @@ export class ChatAPPModal {
 
       // 使用uploadFileToBackend上传文件
       const fileInfo = await uploadFileToBackend(file, {
-        'authorization': 'Bearer ' + this.token
+        
       }, {
         'tags': 'other'
       });
@@ -1082,9 +1083,6 @@ export class ChatAPPModal {
       sendHttpRequest({
         url: '/sdk/v1/chat/chat-messages',
         method: 'POST',
-        headers: {
-          'authorization': 'Bearer ' + this.token
-        },
         data: requestData
       }).catch(error => {
         console.error('发送面试完成请求失败:', error);
@@ -1389,7 +1387,7 @@ export class ChatAPPModal {
 
       // 上传音频文件
       const fileInfo = await uploadFileToBackend(audioFile, {
-        'authorization': 'Bearer ' + this.token
+       
       }, {
         'tags': 'audio'
       });
@@ -1703,7 +1701,6 @@ export class ChatAPPModal {
                       <pcm-chat-message
                         botId={this.botId}
                         message={message}
-                        token={this.token}
                         userAvatar={this.userAvatar}
                         assistantAvatar={effectiveAssistantAvatar}
                         showCopyButton={this.showCopyButton}
@@ -1723,7 +1720,6 @@ export class ChatAPPModal {
                     <div id={`message_${this.currentStreamingMessage.id}`}>
                       <pcm-chat-message
                         botId={this.botId}
-                        token={this.token}
                         message={this.currentStreamingMessage}
                         userAvatar={this.userAvatar}
                         assistantAvatar={effectiveAssistantAvatar}

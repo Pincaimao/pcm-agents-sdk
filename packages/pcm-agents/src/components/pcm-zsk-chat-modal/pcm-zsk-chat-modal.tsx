@@ -2,6 +2,7 @@ import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '
 import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, verifyApiKey } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
 import { ConversationStartEventData, StreamCompleteEventData } from '../../components';
+import { authStore } from '../../../store/auth.store';
 
 /**
  * 知识库问答助手
@@ -145,9 +146,12 @@ export class ChatKBModal {
   @State() isSubmittingText: boolean = false;
 
   /**
-   * 自定义智能体inputs输入参数
+   * 自定义智能体inputs输入参数:
+   * 1. show_suggested_questions: 是否显示推荐问题
    */
-  @Prop() customInputs: Record<string, any> = {};
+  @Prop() customInputs: Record<string, any> = {
+    show_suggested_questions: false,
+  };
 
 
   // 添加推荐问题和引用文档状态
@@ -160,10 +164,6 @@ export class ChatKBModal {
    */
   @Prop() showReferences: boolean = true;
 
-  /**
-   * 是否显示推荐问题
-   */
-  @Prop() showSuggestedQuestions: boolean = false;
 
   /**
    * 数字员工ID，从聘才猫开发平台创建数字员工后，点击导出获取
@@ -200,16 +200,22 @@ export class ChatKBModal {
    */
   @State() quickQuestions: string[] = [];
 
-
-  
   private tokenInvalidListener: () => void;
 
+  @Watch('token')
+  handleTokenChange(newToken: string) {
+    // 当传入的 token 变化时，更新 authStore 中的 token
+    if (newToken && newToken !== authStore.getToken()) {
+      authStore.setToken(newToken);
+    }
+  }
+
   componentWillLoad() {
-      // 添加全局token无效事件监听器
-      this.tokenInvalidListener = () => {
-          this.tokenInvalid.emit();
-      };
-      document.addEventListener('pcm-token-invalid', this.tokenInvalidListener);
+    // 添加全局token无效事件监听器
+    this.tokenInvalidListener = () => {
+      this.tokenInvalid.emit();
+    };
+    document.addEventListener('pcm-token-invalid', this.tokenInvalidListener);
   }
 
 
@@ -276,15 +282,12 @@ export class ChatKBModal {
     // 合并基本输入参数和自定义输入参数
     requestData.inputs = {
       // 合并自定义输入参数
-      ...this.customInputs
+      ...this.customInputs,
     };
 
     await sendSSERequest({
       url: `/sdk/v1/knowledge/chat/chat-messages`,
       method: 'POST',
-      headers: {
-        'authorization': 'Bearer ' + this.token
-      },
       data: requestData,
       onMessage: (data) => {
         console.log('收到Stream数据:', data);
@@ -468,9 +471,6 @@ export class ChatKBModal {
       const result = await sendHttpRequest({
         url: '/sdk/v1/knowledge/chat/conversation-history',
         method: 'GET',
-        headers: {
-          'authorization': 'Bearer ' + this.token
-        },
         data: {
           conversation_id: this.conversationId,
         }
@@ -535,9 +535,6 @@ export class ChatKBModal {
       const result = await sendHttpRequest<{ text: string }>({
         url: '/sdk/v1/tts/audio_to_text',
         method: 'POST',
-        headers: {
-          'authorization': 'Bearer ' + this.token
-        },
         data: {
           cos_key: cosKey
         }
@@ -566,9 +563,6 @@ export class ChatKBModal {
       const result = await sendHttpRequest({
         url: `/sdk/v1/knowledge/chat/employee/${this.employeeId}`,
         method: 'GET',
-        headers: {
-          'authorization': 'Bearer ' + this.token
-        }
       });
       if (result.success && result.data) {
         this.employeeDetails = result.data;
@@ -699,7 +693,7 @@ export class ChatKBModal {
         })
         .catch(error => {
           console.error('麦克风权限请求失败:', error);
-          
+
           // 根据错误类型提供更具体的提示
           if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
             alert('麦克风访问被拒绝。\n\n在Mac上，请前往系统偏好设置 > 安全性与隐私 > 隐私 > 麦克风，确保您的浏览器已被允许访问麦克风。');
@@ -752,7 +746,7 @@ export class ChatKBModal {
       audioRecorder.onstop = () => {
         // 停止并释放媒体流
         stream.getTracks().forEach(track => track.stop());
-        
+
         // 处理录制的音频
         this.processAudioRecording();
       };
@@ -806,7 +800,6 @@ export class ChatKBModal {
 
       // 上传音频文件
       const fileInfo = await uploadFileToBackend(audioFile, {
-        'authorization': 'Bearer ' + this.token
       }, {
         'tags': 'audio'
       });
@@ -924,9 +917,6 @@ export class ChatKBModal {
       const result = await sendHttpRequest({
         url: `/sdk/v1/files/${docId}/info`,
         method: 'GET',
-        headers: {
-          'authorization': `Bearer ${this.token}`
-        },
       });
 
 
@@ -965,7 +955,8 @@ export class ChatKBModal {
 
     // 修改渲染引用文档组件的方法
     const renderReferences = () => {
-      if (!this.showReferences || this.currentRefs.length === 0) return null;
+      // 只有当没有正在流式输出的消息且有引用文档时才显示
+      if (!this.showReferences || this.currentRefs.length === 0 || this.currentStreamingMessage) return null;
 
       return (
         <div class="references-section">
@@ -999,7 +990,8 @@ export class ChatKBModal {
 
     // 渲染推荐问题组件
     const renderSuggestedQuestions = () => {
-      if (!this.showSuggestedQuestions) return null;
+      // 只有当没有正在流式输出的消息时才显示推荐问题
+      if (this.currentStreamingMessage) return null;
 
       if (this.suggestedQuestionsLoading) {
         return (
@@ -1034,8 +1026,8 @@ export class ChatKBModal {
 
     // 渲染预设问题组件
     const renderQuickQuestions = () => {
-      // 只有在没有会话ID且有预设问题时才显示
-      if (this.conversationId || this.quickQuestions.length === 0) return null;
+      // 只有在没有会话ID且有预设问题且没有正在流式输出的消息时才显示
+      if (this.conversationId || this.quickQuestions.length === 0 || this.currentStreamingMessage) return null;
 
       return (
         <div class="suggested-questions">
@@ -1153,7 +1145,6 @@ export class ChatKBModal {
                       <pcm-chat-message
                         message={message}
                         showFeedbackButtons={false}
-                        token={this.token}
                         onMessageChange={(event) => {
                           const updatedMessages = this.messages.map(msg =>
                             msg.id === message.id ? { ...msg, ...event.detail } : msg
@@ -1166,7 +1157,6 @@ export class ChatKBModal {
                   {this.currentStreamingMessage && (
                     <div id={`message_${this.currentStreamingMessage.id}`}>
                       <pcm-chat-message
-                        token={this.token}
                         message={this.currentStreamingMessage}
                         showFeedbackButtons={false}
                       ></pcm-chat-message>

@@ -1,7 +1,8 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
-import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, FileUploadResponse, synthesizeAudio } from '../../utils/utils';
+import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, FileUploadResponse, synthesizeAudio, verifyApiKey } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
 import { ConversationStartEventData, InterviewCompleteEventData, StreamCompleteEventData } from '../../components';
+import { authStore } from '../../../store/auth.store';
 
 @Component({
   tag: 'pcm-hr-chat-modal',
@@ -235,6 +236,14 @@ export class ChatHRModal {
 
   private tokenInvalidListener: () => void;
 
+  @Watch('token')
+  handleTokenChange(newToken: string) {
+      // 当传入的 token 变化时，更新 authStore 中的 token
+      if (newToken && newToken !== authStore.getToken()) {
+          authStore.setToken(newToken);
+      }
+  }
+
   componentWillLoad() {
     // 添加全局token无效事件监听器
     this.tokenInvalidListener = () => {
@@ -263,7 +272,6 @@ export class ChatHRModal {
 
     try {
       const result = await uploadFileToBackend(this.selectedFile, {
-        'authorization': 'Bearer ' + this.token
       }, {
         'tags': 'resume'
       });
@@ -386,9 +394,6 @@ export class ChatHRModal {
     await sendSSERequest({
       url: '/sdk/v1/chat/chat-messages',
       method: 'POST',
-      headers: {
-        'authorization': 'Bearer ' + this.token
-      },
       data: requestData,
       onMessage: (data) => {
         console.log('收到Stream数据:', data);
@@ -467,7 +472,7 @@ export class ChatHRModal {
 
           if (textForSynthesis) {
             // 合成语音
-            const audioUrl = await synthesizeAudio(textForSynthesis, this.token);
+            const audioUrl = await synthesizeAudio(textForSynthesis);
 
             if (this.enableVoice) {
               // 自动播放语音
@@ -491,9 +496,6 @@ export class ChatHRModal {
       await sendHttpRequest({
         url: '/sdk/v1/hr_competition/answer',
         method: 'POST',
-        headers: {
-          'authorization': 'Bearer ' + this.token
-        },
         data: {
           conversation_id: conversationId,
           question: question,
@@ -547,9 +549,6 @@ export class ChatHRModal {
       const response = await sendHttpRequest({
         url: '/sdk/v1/chat/messages',
         method: 'GET',
-        headers: {
-          'authorization': 'Bearer ' + this.token
-        },
         data: {
           conversation_id: this.conversationId,
           bot_id: "3022316191018880",
@@ -593,6 +592,7 @@ export class ChatHRModal {
   @Watch('isOpen')
   async handleIsOpenChange(newValue: boolean) {
     if (newValue) {
+      await verifyApiKey(this.token);
       if (this.conversationId) {
         await this.loadHistoryMessages();
       }
@@ -948,7 +948,6 @@ export class ChatHRModal {
 
       // 使用uploadFileToBackend上传视频
       const result = await uploadFileToBackend(videoFile, {
-        'authorization': 'Bearer ' + this.token
       }, {
         'tags': 'other'
       });
@@ -986,9 +985,6 @@ export class ChatHRModal {
       await sendHttpRequest({
         url: '/sdk/v1/hr_competition/answer',
         method: 'POST',
-        headers: {
-          'authorization': 'Bearer ' + this.token
-        },
         data: {
           conversation_id: this.conversationId,
           question: lastAIMessage.answer,
@@ -1015,9 +1011,6 @@ export class ChatHRModal {
       await sendHttpRequest({
         url: `/sdk/v1/hr_competition/${this.conversationId}/end`,
         method: 'POST',
-        headers: {
-          'authorization': 'Bearer ' + this.token
-        },
       });
     } catch (error) {
       console.error('发送面试完成请求失败:', error);
@@ -1305,7 +1298,6 @@ export class ChatHRModal {
                     {this.messages.map((message) => (
                       <div id={`message_${message.id}`} key={message.id}>
                         <pcm-chat-message
-                          token={this.token}
                           message={message}
                           onMessageChange={(event) => {
                             const updatedMessages = this.messages.map(msg =>
@@ -1319,7 +1311,6 @@ export class ChatHRModal {
                     {this.currentStreamingMessage && (
                       <div id={`message_${this.currentStreamingMessage.id}`}>
                         <pcm-chat-message
-                          token={this.token}
                           message={this.currentStreamingMessage}
                         ></pcm-chat-message>
                       </div>

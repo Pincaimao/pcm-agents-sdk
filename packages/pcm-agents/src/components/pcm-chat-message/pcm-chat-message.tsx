@@ -17,11 +17,6 @@ export class ChatMessageComponent {
     @Prop() message: ChatMessage;
 
     /**
-     * SDK鉴权密钥
-     */
-    @Prop({ attribute: 'token' }) token: string = '';
-
-    /**
      * 是否显示点赞点踩按钮 
      */
     @Prop() showFeedbackButtons: boolean = true;
@@ -216,15 +211,10 @@ export class ChatMessageComponent {
             const result = await sendHttpRequest<{ file_url: string }>({
                 url: '/sdk/v1/files/presigned-url',
                 method: 'GET',
-                headers: {
-                    'authorization': `Bearer ${this.token}`
-                },
                 params: {
                     cos_key: cosKey
                 }
             });
-
-            console.log(result);
 
             if (result.success && result.data?.file_url) {
                 const baseUrl = result.data.file_url;
@@ -401,9 +391,6 @@ export class ChatMessageComponent {
             const result = await sendHttpRequest({
                 url: `/sdk/v1/chat/messages/${this.message.id}/feedbacks`,
                 method: 'POST',
-                headers: {
-                    'authorization': `Bearer ${this.token}`
-                },
                 data: {
                     rating,
                     bot_id: this.botId,

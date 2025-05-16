@@ -7,6 +7,7 @@ import {
     RecordingErrorEventData,
 } from '../../interfaces/events';
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
+import { authStore } from '../../../store/auth.store';
 
 /**
  * 模拟面试
@@ -150,6 +151,14 @@ export class MnmsModal {
     private tokenInvalidListener: () => void;
     private removeErrorListener: () => void;
 
+    @Watch('token')
+    handleTokenChange(newToken: string) {
+        // 当传入的 token 变化时，更新 authStore 中的 token
+        if (newToken && newToken !== authStore.getToken()) {
+            authStore.setToken(newToken);
+        }
+    }
+
     componentWillLoad() {
         // 添加全局token无效事件监听器
         this.tokenInvalidListener = () => {
@@ -207,7 +216,6 @@ export class MnmsModal {
         try {
             // 使用 uploadFileToBackend 工具函数上传文件
             const result = await uploadFileToBackend(this.selectedFile, {
-                'authorization': 'Bearer ' + this.token
             }, {
                 'tags': 'resume'
             });
@@ -333,7 +341,6 @@ export class MnmsModal {
             zIndex: String(this.zIndex)
         };
 
-        console.log('showChatModal:', this.showChatModal);
 
         const containerClass = {
             'modal-container': true,
@@ -346,10 +353,8 @@ export class MnmsModal {
             'fullscreen-overlay': this.fullscreen
         };
 
-        // 检查是否有会话ID，如果有则直接显示聊天模态框
-        if (this.conversationId && !this.showChatModal) {
-            this.showChatModal = true;
-        }
+        // 显示加载状态
+        const isLoading = this.conversationId && !this.showChatModal;
 
         // 修正这里的逻辑，确保当 customInputs.job_info 存在时，hideJdInput 为 true
         const hideJdInput = Boolean(this.customInputs && this.customInputs.job_info);
@@ -438,6 +443,14 @@ export class MnmsModal {
                         </div>
                     )}
 
+                     {/* 加载状态 - 在有会话ID但聊天模态框尚未显示时展示 */}
+                     {isLoading && (
+                        <div class="loading-container">
+                            <div class="loading-spinner"></div>
+                            <p class="loading-text">正在加载对话...</p>
+                        </div>
+                    )}
+
                     {/* 聊天界面 - 在显示聊天模态框时显示 */}
                     {this.showChatModal && (
                         <div >
@@ -445,7 +458,6 @@ export class MnmsModal {
                                 isOpen={true}
                                 modalTitle={this.modalTitle}
                                 icon={this.icon}
-                                token={this.token}
                                 isShowHeader={this.isShowHeader}
                                 isNeedClose={this.isShowHeader}
                                 zIndex={this.zIndex}

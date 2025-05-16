@@ -52,7 +52,6 @@
     min-width: 320px;
 }
 
-
 /* 响应式布局 */
 @media screen and (max-width: 768px) {
     .pc-layout {
@@ -365,3 +364,35 @@
     color: #1890ff;
     text-decoration: underline;
 }
+
+/* 添加加载状态的样式 */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 2rem;
+  }
+  
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: var(--pcm-primary-color, #1890ff);
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+  
+  .loading-text {
+    font-size: 16px;
+    color: var(--pcm-text-color, #333);
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  

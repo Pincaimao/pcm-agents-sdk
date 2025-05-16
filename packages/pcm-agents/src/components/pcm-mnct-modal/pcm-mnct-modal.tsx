@@ -2,6 +2,7 @@ import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '
 import { uploadFileToBackend, FileUploadResponse, verifyApiKey } from '../../utils/utils';
 import { ConversationStartEventData, InterviewCompleteEventData, StreamCompleteEventData } from '../../components';
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
+import { authStore } from '../../../store/auth.store';
 
 /**
  * 模拟出题大师
@@ -98,10 +99,10 @@ export class MnctModal {
      */
     @Event() tokenInvalid: EventEmitter<void>;
 
-     /**
-     * 错误事件
-     */
-     @Event() someErrorEvent: EventEmitter<ErrorEventDetail>;
+    /**
+    * 错误事件
+    */
+    @Event() someErrorEvent: EventEmitter<ErrorEventDetail>;
 
     /**
      * 附件预览模式
@@ -121,17 +122,25 @@ export class MnctModal {
     @State() jobDescription: string = '';
     @State() isSubmitting: boolean = false;
 
-    
+
     private tokenInvalidListener: () => void;
     private removeErrorListener: () => void;
+
+    @Watch('token')
+    handleTokenChange(newToken: string) {
+        // 当传入的 token 变化时，更新 authStore 中的 token
+        if (newToken && newToken !== authStore.getToken()) {
+            authStore.setToken(newToken);
+        }
+    }
 
     componentWillLoad() {
         // 添加全局token无效事件监听器
         this.tokenInvalidListener = () => {
             this.tokenInvalid.emit();
         };
-         // 添加全局错误监听
-         this.removeErrorListener = ErrorEventBus.addErrorListener((errorDetail) => {
+        // 添加全局错误监听
+        this.removeErrorListener = ErrorEventBus.addErrorListener((errorDetail) => {
             this.someErrorEvent.emit(errorDetail);
         });
         document.addEventListener('pcm-token-invalid', this.tokenInvalidListener);
@@ -146,7 +155,7 @@ export class MnctModal {
         }
     }
 
-    
+
     private handleClose = () => {
         this.isOpen = false;
         this.modalClosed.emit();
@@ -181,7 +190,6 @@ export class MnctModal {
         try {
             // 使用 uploadFileToBackend 工具函数上传文件
             const result = await uploadFileToBackend(this.selectedFile, {
-                'authorization': 'Bearer ' + this.token
             }, {
                 'tags': 'resume'
             });
@@ -262,14 +270,14 @@ export class MnctModal {
             this.clearSelectedFile();
             this.showChatModal = false;
             this.jobDescription = '';
-         
+
         } else {
             if (this.customInputs && this.customInputs.job_info) {
                 this.jobDescription = this.customInputs.job_info;
             }
 
             await verifyApiKey(this.token);
-            
+
             if (this.conversationId) {
                 // 如果有会话ID，直接显示聊天模态框
                 this.showChatModal = true;
@@ -302,7 +310,6 @@ export class MnctModal {
             zIndex: String(this.zIndex)
         };
 
-        console.log('showChatModal:', this.showChatModal);
 
         const containerClass = {
             'modal-container': true,
@@ -315,10 +322,8 @@ export class MnctModal {
             'fullscreen-overlay': this.fullscreen
         };
 
-        // 检查是否有会话ID，如果有则直接显示聊天模态框
-        if (this.conversationId && !this.showChatModal) {
-            this.showChatModal = true;
-        }
+        // 显示加载状态
+        const isLoading = this.conversationId && !this.showChatModal;
 
         // 修正这里的逻辑，确保当 customInputs.job_info 存在时，hideJdInput 为 true
         const hideJdInput = Boolean(this.customInputs && this.customInputs.job_info);
@@ -347,7 +352,7 @@ export class MnctModal {
                             {!hideJdInput && (
                                 <div class="jd-input-section">
                                     <label htmlFor="job-description">请输入职位描述 (JD)</label>
-                                    <textarea 
+                                    <textarea
                                         id="job-description"
                                         class="job-description-textarea"
                                         placeholder="请输入职位描述，包括职责、要求等信息..."
@@ -357,7 +362,7 @@ export class MnctModal {
                                     ></textarea>
                                 </div>
                             )}
-                            
+
                             {/* 简历上传区域 */}
                             <div class="resume-upload-section">
                                 <label>上传简历</label>
@@ -407,15 +412,22 @@ export class MnctModal {
                         </div>
                     )}
 
+                    {/* 加载状态 - 在有会话ID但聊天模态框尚未显示时展示 */}
+                    {isLoading && (
+                        <div class="loading-container">
+                            <div class="loading-spinner"></div>
+                            <p class="loading-text">正在加载对话...</p>
+                        </div>
+                    )}
+
                     {/* 聊天界面 - 在显示聊天模态框时显示 */}
                     {this.showChatModal && (
-                        <div >
+                        <div>
                             <pcm-app-chat-modal
                                 isOpen={true}
                                 modalTitle={this.modalTitle}
                                 icon={this.icon}
-                                token={this.token}
-                                isShowHeader={this.isShowHeader} 
+                                isShowHeader={this.isShowHeader}
                                 isNeedClose={this.isShowHeader}
                                 zIndex={this.zIndex}
                                 fullscreen={this.fullscreen}

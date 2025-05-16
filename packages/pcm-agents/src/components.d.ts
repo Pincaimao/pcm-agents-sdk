@@ -18,20 +18,6 @@ export { ChatMessage } from "./interfaces/chat";
 export { ConversationStartEventData as ConversationStartEventData1, ErrorEventDetail as ErrorEventDetail1, InterviewCompleteEventData as InterviewCompleteEventData1, StreamCompleteEventData as StreamCompleteEventData1 } from "./components";
 export { CareerPlanType } from "./components/pcm-zygh-modal/pcm-zygh-modal";
 export namespace Components {
-    interface MyComponent {
-        /**
-          * The first name
-         */
-        "first": string;
-        /**
-          * The last name
-         */
-        "last": string;
-        /**
-          * The middle name
-         */
-        "middle": string;
-    }
     /**
      * 模拟面试
      */
@@ -177,7 +163,7 @@ export namespace Components {
         /**
           * SDK鉴权密钥
          */
-        "token": string;
+        "token"?: string;
         /**
           * 控制对话轮数
          */
@@ -320,10 +306,6 @@ export namespace Components {
           * 是否显示点赞点踩按钮
          */
         "showFeedbackButtons": boolean;
-        /**
-          * SDK鉴权密钥
-         */
-        "token": string;
         /**
           * 用户头像URL
          */
@@ -838,7 +820,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义智能体inputs输入参数
+          * 自定义智能体inputs输入参数: 1. show_suggested_questions: 是否显示推荐问题
          */
         "customInputs": Record<string, any>;
         /**
@@ -877,10 +859,6 @@ export namespace Components {
           * 是否显示引用文档
          */
         "showReferences": boolean;
-        /**
-          * 是否显示推荐问题
-         */
-        "showSuggestedQuestions": boolean;
         /**
           * SDK鉴权密钥
          */
@@ -998,12 +976,6 @@ export interface PcmZyghModalCustomEvent<T> extends CustomEvent<T> {
     target: HTMLPcmZyghModalElement;
 }
 declare global {
-    interface HTMLMyComponentElement extends Components.MyComponent, HTMLStencilElement {
-    }
-    var HTMLMyComponentElement: {
-        prototype: HTMLMyComponentElement;
-        new (): HTMLMyComponentElement;
-    };
     interface HTMLPcm1zhanshiMnmsModalElementEventMap {
         "modalClosed": void;
         "uploadSuccess": FileUploadResponse;
@@ -1379,7 +1351,6 @@ declare global {
         new (): HTMLPcmZyghModalElement;
     };
     interface HTMLElementTagNameMap {
-        "my-component": HTMLMyComponentElement;
         "pcm-1zhanshi-mnms-modal": HTMLPcm1zhanshiMnmsModalElement;
         "pcm-app-chat-modal": HTMLPcmAppChatModalElement;
         "pcm-button": HTMLPcmButtonElement;
@@ -1399,20 +1370,6 @@ declare global {
     }
 }
 declare namespace LocalJSX {
-    interface MyComponent {
-        /**
-          * The first name
-         */
-        "first"?: string;
-        /**
-          * The last name
-         */
-        "last"?: string;
-        /**
-          * The middle name
-         */
-        "middle"?: string;
-    }
     /**
      * 模拟面试
      */
@@ -1618,7 +1575,7 @@ declare namespace LocalJSX {
         /**
           * SDK鉴权密钥
          */
-        "token": string;
+        "token"?: string;
         /**
           * 控制对话轮数
          */
@@ -1771,10 +1728,6 @@ declare namespace LocalJSX {
           * 是否显示点赞点踩按钮
          */
         "showFeedbackButtons"?: boolean;
-        /**
-          * SDK鉴权密钥
-         */
-        "token"?: string;
         /**
           * 用户头像URL
          */
@@ -2524,7 +2477,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义智能体inputs输入参数
+          * 自定义智能体inputs输入参数: 1. show_suggested_questions: 是否显示推荐问题
          */
         "customInputs"?: Record<string, any>;
         /**
@@ -2579,10 +2532,6 @@ declare namespace LocalJSX {
           * 是否显示引用文档
          */
         "showReferences"?: boolean;
-        /**
-          * 是否显示推荐问题
-         */
-        "showSuggestedQuestions"?: boolean;
         /**
           * SDK鉴权密钥
          */
@@ -2674,7 +2623,6 @@ declare namespace LocalJSX {
         "zIndex"?: number;
     }
     interface IntrinsicElements {
-        "my-component": MyComponent;
         "pcm-1zhanshi-mnms-modal": Pcm1zhanshiMnmsModal;
         "pcm-app-chat-modal": PcmAppChatModal;
         "pcm-button": PcmButton;
@@ -2697,7 +2645,6 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
-            "my-component": LocalJSX.MyComponent & JSXBase.HTMLAttributes<HTMLMyComponentElement>;
             /**
              * 模拟面试
              */

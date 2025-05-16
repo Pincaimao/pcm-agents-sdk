@@ -2,6 +2,7 @@ import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '
 import { uploadFileToBackend, FileUploadResponse, verifyApiKey } from '../../utils/utils';
 import { ConversationStartEventData, StreamCompleteEventData } from '../../components';
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
+import { authStore } from '../../../store/auth.store'; // 导入 authStore
 
 /**
  * 职业规划助手
@@ -125,11 +126,20 @@ export class ZyghModal {
 
     // 使用 @Element 装饰器获取组件的 host 元素
     @Element() hostElement: HTMLElement;
-    
+
     private tokenInvalidListener: () => void;
     private removeErrorListener: () => void;
 
+    @Watch('token')
+    handleTokenChange(newToken: string) {
+        // 当传入的 token 变化时，更新 authStore 中的 token
+        if (newToken && newToken !== authStore.getToken()) {
+            authStore.setToken(newToken);
+        }
+    }
+
     componentWillLoad() {
+
         // 添加全局token无效事件监听器
         this.tokenInvalidListener = () => {
             this.tokenInvalid.emit();
@@ -187,7 +197,6 @@ export class ZyghModal {
 
         try {
             const result = await uploadFileToBackend(this.selectedFile, {
-                'authorization': 'Bearer ' + this.token
             }, {
                 'tags': 'resume'
             });
@@ -255,8 +264,7 @@ export class ZyghModal {
             }
 
             await verifyApiKey(this.token);
-            console.log('ss');
-            
+
             if (this.conversationId) {
                 // 如果有会话ID，直接显示聊天模态框
                 this.showChatModal = true;
@@ -302,12 +310,9 @@ export class ZyghModal {
             'modal-overlay': true,
             'fullscreen-overlay': this.fullscreen
         };
-        
-        // 检查是否有会话ID，如果有则直接显示聊天模态框
-        //TODO: 需要优化，设置转圈圈等待
-        // if (this.conversationId && !this.showChatModal) {
-        //     this.showChatModal = true;
-        // }
+
+        // 显示加载状态
+        const isLoading = this.conversationId && !this.showChatModal;
 
         return (
             <div class={overlayClass} style={modalStyle}>
@@ -325,6 +330,7 @@ export class ZyghModal {
                             )}
                         </div>
                     )}
+
 
                     {/* 输入界面 - 仅在不显示聊天模态框且没有会话ID时显示 */}
                     {!this.showChatModal && !this.conversationId && (
@@ -407,6 +413,14 @@ export class ZyghModal {
                         </div>
                     )}
 
+                    {/* 加载状态 - 在有会话ID但聊天模态框尚未显示时展示 */}
+                    {isLoading && (
+                        <div class="loading-container">
+                            <div class="loading-spinner"></div>
+                            <p class="loading-text">正在加载对话...</p>
+                        </div>
+                    )}
+
                     {/* 聊天界面 - 在显示聊天模态框时显示 */}
                     {this.showChatModal && (
                         <div>
@@ -414,7 +428,6 @@ export class ZyghModal {
                                 isOpen={true}
                                 modalTitle={this.modalTitle}
                                 icon={this.icon}
-                                token={this.token}
                                 isShowHeader={this.isShowHeader}
                                 isNeedClose={this.isShowHeader}
                                 zIndex={this.zIndex}

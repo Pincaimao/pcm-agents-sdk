@@ -2,6 +2,7 @@ import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '
 import { uploadFileToBackend, FileUploadResponse, verifyApiKey } from '../../utils/utils';
 import { ConversationStartEventData, InterviewCompleteEventData, StreamCompleteEventData } from '../../components';
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
+import { authStore } from '../../../store/auth.store';
 
 /**
  * 会议总结助手
@@ -124,6 +125,14 @@ export class HyzjModal {
     private tokenInvalidListener: () => void;
     private removeErrorListener: () => void;
 
+    @Watch('token')
+    handleTokenChange(newToken: string) {
+        // 当传入的 token 变化时，更新 authStore 中的 token
+        if (newToken && newToken !== authStore.getToken()) {
+            authStore.setToken(newToken);
+        }
+    }
+
     componentWillLoad() {
         // 添加全局token无效事件监听器
         this.tokenInvalidListener = () => {
@@ -183,7 +192,6 @@ export class HyzjModal {
         try {
             // 使用 uploadFileToBackend 工具函数上传文件
             const result = await uploadFileToBackend(this.selectedFile, {
-                'authorization': 'Bearer ' + this.token
             }, {
                 'tags': 'other'
             });
@@ -277,7 +285,6 @@ export class HyzjModal {
             zIndex: String(this.zIndex)
         };
 
-        console.log('showChatModal:', this.showChatModal);
 
         const containerClass = {
             'modal-container': true,
@@ -290,10 +297,8 @@ export class HyzjModal {
             'fullscreen-overlay': this.fullscreen
         };
 
-        // 检查是否有会话ID，如果有则直接显示聊天模态框
-        if (this.conversationId && !this.showChatModal) {
-            this.showChatModal = true;
-        }
+       // 显示加载状态
+       const isLoading = this.conversationId && !this.showChatModal;
 
         return (
             <div class={overlayClass} style={modalStyle}>
@@ -364,6 +369,14 @@ export class HyzjModal {
                         </div>
                     )}
 
+                     {/* 加载状态 - 在有会话ID但聊天模态框尚未显示时展示 */}
+                     {isLoading && (
+                        <div class="loading-container">
+                            <div class="loading-spinner"></div>
+                            <p class="loading-text">正在加载对话...</p>
+                        </div>
+                    )}
+
                     {/* 聊天界面 - 在显示聊天模态框时显示 */}
                     {this.showChatModal && (
                         <div >
@@ -371,7 +384,6 @@ export class HyzjModal {
                                 isOpen={true}
                                 modalTitle={this.modalTitle}
                                 icon={this.icon}
-                                token={this.token}
                                 isShowHeader={this.isShowHeader} // 不显示内部的标题栏，因为外部已有
                                 isNeedClose={this.isShowHeader} // 不显示内部的关闭按钮，因为外部已有
                                 zIndex={this.zIndex}
@@ -383,7 +395,8 @@ export class HyzjModal {
                                 filePreviewMode={this.filePreviewMode}
                                 customInputs={this.conversationId ? {} : {
                                     ...this.customInputs,
-                                    file_url: this.uploadedFileInfo?.cos_key
+                                    file_url: this.uploadedFileInfo?.cos_key,
+                                    file_name: this.uploadedFileInfo?.file_name
                                 }}
                                 interviewMode="text"
                                 onModalClosed={this.handleClose}
