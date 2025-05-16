@@ -352,10 +352,6 @@ export namespace Components {
           * 宽度，可以是像素值或百分比
          */
         "width": string;
-        /**
-          * 设置 z-index
-         */
-        "zIndex": number;
     }
     interface PcmHrChatModal {
         /**
@@ -1778,10 +1774,6 @@ declare namespace LocalJSX {
           * 宽度，可以是像素值或百分比
          */
         "width"?: string;
-        /**
-          * 设置 z-index
-         */
-        "zIndex"?: number;
     }
     interface PcmHrChatModal {
         /**

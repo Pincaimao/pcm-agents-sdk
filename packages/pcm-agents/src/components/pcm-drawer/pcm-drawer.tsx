@@ -1,4 +1,5 @@
-import { Component, Prop, h, Event, EventEmitter, Watch, Method, Element } from '@stencil/core';
+import { Component, Prop, h, Event, EventEmitter, Watch, Method, Element, State } from '@stencil/core';
+import { configStore } from '../../../store/config.store';
 
 /**
  * 抽屉组件
@@ -31,11 +32,6 @@ export class PcmDrawer {
   @Prop() height: string = '378px';
 
   /**
-   * 设置 z-index
-   */
-  @Prop() zIndex: number = 1000;
-
-  /**
    * 是否显示关闭按钮
    */
   @Prop() closable: boolean = true;
@@ -66,6 +62,8 @@ export class PcmDrawer {
   @Event() afterClose: EventEmitter<void>;
 
   @Element() hostElement: HTMLElement;
+
+  @State() zIndex: number = 1000;
 
   private bodyOverflowBeforeOpen: string = '';
   private transitionEndHandler: () => void;
@@ -113,6 +111,14 @@ export class PcmDrawer {
         };
         drawer.addEventListener('transitionend', this.transitionEndHandler, { once: true });
       }
+    }
+  }
+
+  componentWillLoad() {
+    // 尝试从缓存中读取 zIndex
+    const cachedZIndex = configStore.getItem<number>('modal-zIndex');
+    if (cachedZIndex) {
+      this.zIndex = cachedZIndex;
     }
   }
 

@@ -3,6 +3,7 @@ import { uploadFileToBackend, FileUploadResponse, verifyApiKey } from '../../uti
 import { ConversationStartEventData, InterviewCompleteEventData, StreamCompleteEventData } from '../../components';
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store';
+import { configStore } from '../../../store/config.store';
 
 /**
  * 模拟出题大师
@@ -135,6 +136,12 @@ export class MnctModal {
     }
 
     componentWillLoad() {
+
+        // 将 zIndex 存入配置缓存
+        if (this.zIndex) {
+            configStore.setItem('modal-zIndex', this.zIndex);
+        }
+
         // 添加全局token无效事件监听器
         this.tokenInvalidListener = () => {
             this.tokenInvalid.emit();
@@ -429,7 +436,6 @@ export class MnctModal {
                                 icon={this.icon}
                                 isShowHeader={this.isShowHeader}
                                 isNeedClose={this.isShowHeader}
-                                zIndex={this.zIndex}
                                 fullscreen={this.fullscreen}
                                 botId="3022316191018876"
                                 conversationId={this.conversationId}

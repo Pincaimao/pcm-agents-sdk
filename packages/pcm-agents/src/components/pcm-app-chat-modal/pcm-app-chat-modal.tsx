@@ -11,10 +11,11 @@ import {
 import { marked } from 'marked';
 import { ErrorEventBus } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store'; // 导入 authStore
+import { configStore } from '../../../store/config.store';
 
 @Component({
   tag: 'pcm-app-chat-modal',
-  styleUrls: ['pcm-app-chat-modal.css','../../global/markdown.css', ],
+  styleUrls: ['pcm-app-chat-modal.css', '../../global/markdown.css',],
   shadow: true,
 })
 export class ChatAPPModal {
@@ -52,7 +53,7 @@ export class ChatAPPModal {
   /**
    * 聊天框的页面层级
    */
-  @Prop() zIndex?: number = 1000;
+  @Prop({ mutable: true }) zIndex?: number;
 
   /**
    * 是否展示顶部标题栏
@@ -304,10 +305,10 @@ export class ChatAPPModal {
   constructor() {
     // 配置 marked 选项
     marked.setOptions({
-        breaks: true,
-        gfm: true
+      breaks: true,
+      gfm: true
     });
-}
+  }
 
   private handleClose = () => {
     this.stopRecording();
@@ -320,7 +321,7 @@ export class ChatAPPModal {
 
     try {
       const agentInfo = await fetchAgentInfo(this.botId);
-      
+
       if (agentInfo && agentInfo.logo) {
         this.agentLogo = agentInfo.logo;
       }
@@ -661,6 +662,20 @@ export class ChatAPPModal {
 
   // 修改 componentWillLoad 生命周期方法
   componentWillLoad() {
+    // 将 zIndex 存入配置缓存
+    if (this.zIndex) {
+      configStore.setItem('modal-zIndex', this.zIndex);
+    } else {
+      // 如果没有提供 zIndex，尝试从缓存中读取
+      const cachedZIndex = configStore.getItem<number>('modal-zIndex');
+      if (cachedZIndex) {
+        this.zIndex = cachedZIndex;
+      } else {
+        this.zIndex = 1000;
+        configStore.setItem('modal-zIndex', 1000);
+      }
+    }
+
     // 添加全局token无效事件监听器
     this.tokenInvalidListener = () => {
       this.tokenInvalid.emit();
@@ -671,13 +686,13 @@ export class ChatAPPModal {
     if (!this.customInputs) {
       this.customInputs = {};
     }
-    
+
     // 如果没有设置助手头像，尝试获取智能体头像
     if (!this.assistantAvatar && this.botId) {
-      
+
       this.fetchAgentLogo();
     }
-    
+
     // 如果组件加载时已经是打开状态，则直接开始对话
     if (this.isOpen) {
       if (this.conversationId) {
@@ -1035,7 +1050,7 @@ export class ChatAPPModal {
 
       // 使用uploadFileToBackend上传文件
       const fileInfo = await uploadFileToBackend(file, {
-        
+
       }, {
         'tags': 'other'
       });
@@ -1387,7 +1402,7 @@ export class ChatAPPModal {
 
       // 上传音频文件
       const fileInfo = await uploadFileToBackend(audioFile, {
-       
+
       }, {
         'tags': 'audio'
       });
@@ -1489,13 +1504,13 @@ export class ChatAPPModal {
 
   // 修改事件处理方法
   private handleFilePreviewRequest = (event: CustomEvent<{
-    url?: string, 
-    fileName: string, 
+    url?: string,
+    fileName: string,
     content?: string,
     contentType: 'file' | 'markdown' | 'text'
   }>) => {
     const { url, fileName, content, contentType } = event.detail;
-    
+
     this.previewFileName = fileName || '内容预览';
     this.previewContentType = contentType;
     this.previewUrl = url;
@@ -1818,7 +1833,6 @@ export class ChatAPPModal {
             isOpen={this.isDrawerOpen}
             drawerTitle={this.previewFileName}
             width="80%"
-            zIndex={this.zIndex + 10}
             onClosed={() => {
               this.isDrawerOpen = false;
               this.previewUrl = '';
@@ -1827,20 +1841,20 @@ export class ChatAPPModal {
           >
             {this.previewContentType === 'file' && this.previewUrl && (
               <div class="file-preview-container">
-                <iframe 
-                  src={this.previewUrl} 
-                  frameborder="0" 
-                  width="100%" 
+                <iframe
+                  src={this.previewUrl}
+                  frameborder="0"
+                  width="100%"
                   height="100%"
                   style={{ border: 'none', height: 'calc(100vh - 120px)' }}
                 ></iframe>
               </div>
             )}
-            
+
             {this.previewContentType === 'markdown' && this.previewContent && (
               <div class="markdown-preview-container markdown-body" innerHTML={marked(this.previewContent)}></div>
             )}
-            
+
             {this.previewContentType === 'text' && this.previewContent && (
               <div class="text-preview-container">
                 <pre>{this.previewContent}</pre>

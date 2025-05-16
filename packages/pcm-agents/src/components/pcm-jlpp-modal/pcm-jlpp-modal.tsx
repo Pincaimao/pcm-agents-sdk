@@ -3,6 +3,7 @@ import { uploadFileToBackend, FileUploadResponse, verifyApiKey } from '../../uti
 import { ConversationStartEventData, ErrorEventDetail, InterviewCompleteEventData, StreamCompleteEventData } from '../../components';
 import { ErrorEventBus } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store';
+import { configStore } from '../../../store/config.store';
 
 /**
  * 简历匹配
@@ -135,6 +136,12 @@ export class JlppModal {
     }
 
     componentWillLoad() {
+
+        // 将 zIndex 存入配置缓存
+        if (this.zIndex) {
+            configStore.setItem('modal-zIndex', this.zIndex);
+        }
+        
         // 添加全局token无效事件监听器
         this.tokenInvalidListener = () => {
             this.tokenInvalid.emit();
@@ -428,7 +435,6 @@ export class JlppModal {
                                 icon={this.icon}
                                 isShowHeader={this.isShowHeader}
                                 isNeedClose={this.isShowHeader}
-                                zIndex={this.zIndex}
                                 fullscreen={this.fullscreen}
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}

@@ -3,6 +3,7 @@ import { uploadFileToBackend, FileUploadResponse, verifyApiKey } from '../../uti
 import { ConversationStartEventData, InterviewCompleteEventData, StreamCompleteEventData } from '../../components';
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store';
+import { configStore } from '../../../store/config.store';
 
 /**
  * 会议总结助手
@@ -134,6 +135,13 @@ export class HyzjModal {
     }
 
     componentWillLoad() {
+
+        // 将 zIndex 存入配置缓存
+        if (this.zIndex) {
+            configStore.setItem('modal-zIndex', this.zIndex);
+        }
+
+
         // 添加全局token无效事件监听器
         this.tokenInvalidListener = () => {
             this.tokenInvalid.emit();
@@ -386,7 +394,6 @@ export class HyzjModal {
                                 icon={this.icon}
                                 isShowHeader={this.isShowHeader} // 不显示内部的标题栏，因为外部已有
                                 isNeedClose={this.isShowHeader} // 不显示内部的关闭按钮，因为外部已有
-                                zIndex={this.zIndex}
                                 fullscreen={this.fullscreen}
                                 botId="3022316191018885"
                                 conversationId={this.conversationId}

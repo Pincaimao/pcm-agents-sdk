@@ -3,6 +3,7 @@ import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSER
 import { ChatMessage } from '../../interfaces/chat';
 import { ConversationStartEventData, StreamCompleteEventData } from '../../components';
 import { authStore } from '../../../store/auth.store';
+import { configStore } from '../../../store/config.store';
 
 /**
  * 知识库问答助手
@@ -211,6 +212,12 @@ export class ChatKBModal {
   }
 
   componentWillLoad() {
+    
+    // 将 zIndex 存入配置缓存
+    if (this.zIndex) {
+      configStore.setItem('modal-zIndex', this.zIndex);
+    } 
+    
     // 添加全局token无效事件监听器
     this.tokenInvalidListener = () => {
       this.tokenInvalid.emit();

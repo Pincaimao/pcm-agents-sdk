@@ -3,6 +3,7 @@ import { uploadFileToBackend, FileUploadResponse, verifyApiKey } from '../../uti
 import { ConversationStartEventData, StreamCompleteEventData } from '../../components';
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store'; // 导入 authStore
+import { configStore } from '../../../store/config.store';
 
 /**
  * 职业规划助手
@@ -139,6 +140,11 @@ export class ZyghModal {
     }
 
     componentWillLoad() {
+
+        // 将 zIndex 存入配置缓存
+        if (this.zIndex) {
+            configStore.setItem('modal-zIndex', this.zIndex);
+        }
 
         // 添加全局token无效事件监听器
         this.tokenInvalidListener = () => {
@@ -430,7 +436,6 @@ export class ZyghModal {
                                 icon={this.icon}
                                 isShowHeader={this.isShowHeader}
                                 isNeedClose={this.isShowHeader}
-                                zIndex={this.zIndex}
                                 botId="3022316191018898"
                                 fullscreen={this.fullscreen}
                                 conversationId={this.conversationId}

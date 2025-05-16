@@ -8,6 +8,7 @@ import {
 } from '../../interfaces/events';
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store';
+import { configStore } from '../../../store/config.store';
 
 /**
  * 模拟面试
@@ -160,6 +161,12 @@ export class MnmsModal {
     }
 
     componentWillLoad() {
+
+        // 将 zIndex 存入配置缓存
+        if (this.zIndex) {
+            configStore.setItem('modal-zIndex', this.zIndex);
+        }
+
         // 添加全局token无效事件监听器
         this.tokenInvalidListener = () => {
             this.tokenInvalid.emit();
@@ -443,8 +450,8 @@ export class MnmsModal {
                         </div>
                     )}
 
-                     {/* 加载状态 - 在有会话ID但聊天模态框尚未显示时展示 */}
-                     {isLoading && (
+                    {/* 加载状态 - 在有会话ID但聊天模态框尚未显示时展示 */}
+                    {isLoading && (
                         <div class="loading-container">
                             <div class="loading-spinner"></div>
                             <p class="loading-text">正在加载对话...</p>
@@ -460,7 +467,6 @@ export class MnmsModal {
                                 icon={this.icon}
                                 isShowHeader={this.isShowHeader}
                                 isNeedClose={this.isShowHeader}
-                                zIndex={this.zIndex}
                                 fullscreen={this.fullscreen}
                                 botId="3022316191018884"
                                 conversationId={this.conversationId}
