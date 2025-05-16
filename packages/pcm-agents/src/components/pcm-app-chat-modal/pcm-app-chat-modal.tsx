@@ -1072,7 +1072,7 @@ export class ChatAPPModal {
       const requestData: any = {
         response_mode: 'streaming',
         conversation_id: this.conversationId,
-        query: "面试完成",
+        query: "我已经回答完毕，请结束面试",
         inputs: {
           // 合并自定义输入参数
           ...this.customInputs

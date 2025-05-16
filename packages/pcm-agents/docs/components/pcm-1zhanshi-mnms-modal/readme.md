@@ -32,6 +32,7 @@
 | `interviewComplete` | 当聊天完成时触发                | `CustomEvent<InterviewCompleteEventData>` |
 | `modalClosed`       | 当点击模态框关闭时触发             | `CustomEvent<void>`                       |
 | `recordingError`    | 录制错误事件                  | `CustomEvent<RecordingErrorEventData>`    |
+| `someErrorEvent`    | 错误事件                    | `CustomEvent<ErrorEventDetail>`           |
 | `streamComplete`    | 流式输出完成事件                | `CustomEvent<StreamCompleteEventData>`    |
 | `tokenInvalid`      | SDK密钥验证失败事件             | `CustomEvent<void>`                       |
 | `uploadSuccess`     | 上传成功事件                  | `CustomEvent<FileUploadResponse>`         |
@@ -48,6 +49,7 @@
 graph TD;
   pcm-1zhanshi-mnms-modal --> pcm-app-chat-modal
   pcm-app-chat-modal --> pcm-chat-message
+  pcm-app-chat-modal --> pcm-drawer
   style pcm-1zhanshi-mnms-modal fill:#f9f,stroke:#333,stroke-width:4px
 ```
 
