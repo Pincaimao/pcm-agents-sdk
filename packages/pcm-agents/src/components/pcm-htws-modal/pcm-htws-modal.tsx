@@ -73,7 +73,7 @@ export class HtwsModal {
     /**
      * 自定义输入参数，传入customInputs.input时，会自动切换到自由输入模式
      */
-    @Prop() customInputs: Record<string, any> = {};
+    @Prop() customInputs: Record<string, string> = {};
 
     /**
      * 上传成功事件

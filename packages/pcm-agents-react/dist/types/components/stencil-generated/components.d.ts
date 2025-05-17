@@ -151,6 +151,7 @@ type PcmZskChatModalEvents = {
     onStreamComplete: EventName<PcmZskChatModalCustomEvent<StreamCompleteEventData>>;
     onConversationStart: EventName<PcmZskChatModalCustomEvent<ConversationStartEventData>>;
     onTokenInvalid: EventName<CustomEvent<void>>;
+    onClearConversation: EventName<CustomEvent<string>>;
 };
 export declare const PcmZskChatModal: StencilReactComponent<PcmZskChatModalElement, PcmZskChatModalEvents>;
 type PcmZyghModalEvents = {

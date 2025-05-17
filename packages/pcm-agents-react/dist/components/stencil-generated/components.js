@@ -211,7 +211,8 @@ export const PcmZskChatModal = createComponent({
         onModalClosed: 'modalClosed',
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
-        onTokenInvalid: 'tokenInvalid'
+        onTokenInvalid: 'tokenInvalid',
+        onClearConversation: 'clearConversation'
     },
     defineCustomElement: definePcmZskChatModal
 });

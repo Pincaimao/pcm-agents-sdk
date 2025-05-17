@@ -73,7 +73,7 @@ export class HyzjModal {
     /**
      * 自定义输入参数
      */
-    @Prop() customInputs: Record<string, any> = {};
+    @Prop() customInputs: Record<string, string> = {};
 
     /**
      * 上传成功事件

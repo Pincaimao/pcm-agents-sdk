@@ -29,7 +29,7 @@ export namespace Components {
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
          */
-        "customInputs": Record<string, any>;
+        "customInputs": Record<string, string>;
         /**
           * 默认查询文本
          */
@@ -91,7 +91,7 @@ export namespace Components {
         /**
           * 自定义智能体inputs输入参数
          */
-        "customInputs": Record<string, any>;
+        "customInputs": Record<string, string>;
         /**
           * 默认发送文本
          */
@@ -438,7 +438,7 @@ export namespace Components {
         /**
           * 自定义输入参数，传入customInputs.input时，会自动切换到自由输入模式
          */
-        "customInputs": Record<string, any>;
+        "customInputs": Record<string, string>;
         /**
           * 默认查询文本
          */
@@ -491,7 +491,7 @@ export namespace Components {
         /**
           * 自定义输入参数
          */
-        "customInputs": Record<string, any>;
+        "customInputs": Record<string, string>;
         /**
           * 默认查询文本
          */
@@ -544,7 +544,7 @@ export namespace Components {
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
          */
-        "customInputs": Record<string, any>;
+        "customInputs": Record<string, string>;
         /**
           * 默认查询文本
          */
@@ -597,7 +597,7 @@ export namespace Components {
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
          */
-        "customInputs": Record<string, any>;
+        "customInputs": Record<string, string>;
         /**
           * 默认查询文本
          */
@@ -650,7 +650,7 @@ export namespace Components {
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
          */
-        "customInputs": Record<string, any>;
+        "customInputs": Record<string, string>;
         /**
           * 默认查询文本
          */
@@ -701,9 +701,9 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域 传入customInputs.file_url时，会隐藏简历上传区域 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。
          */
-        "customInputs": Record<string, any>;
+        "customInputs": Record<string, string>;
         /**
           * 默认查询文本
          */
@@ -768,7 +768,7 @@ export namespace Components {
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
          */
-        "customInputs": { [key: string]: any };
+        "customInputs": Record<string, string>;
         /**
           * 默认查询文本
          */
@@ -872,7 +872,7 @@ export namespace Components {
         /**
           * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"
          */
-        "customInputs": Record<string, any>;
+        "customInputs": Record<string, string>;
         /**
           * 默认查询文本
          */
@@ -1393,7 +1393,7 @@ declare namespace LocalJSX {
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
          */
-        "customInputs"?: Record<string, any>;
+        "customInputs"?: Record<string, string>;
         /**
           * 默认查询文本
          */
@@ -1487,7 +1487,7 @@ declare namespace LocalJSX {
         /**
           * 自定义智能体inputs输入参数
          */
-        "customInputs"?: Record<string, any>;
+        "customInputs"?: Record<string, string>;
         /**
           * 默认发送文本
          */
@@ -1915,7 +1915,7 @@ declare namespace LocalJSX {
         /**
           * 自定义输入参数，传入customInputs.input时，会自动切换到自由输入模式
          */
-        "customInputs"?: Record<string, any>;
+        "customInputs"?: Record<string, string>;
         /**
           * 默认查询文本
          */
@@ -1996,7 +1996,7 @@ declare namespace LocalJSX {
         /**
           * 自定义输入参数
          */
-        "customInputs"?: Record<string, any>;
+        "customInputs"?: Record<string, string>;
         /**
           * 默认查询文本
          */
@@ -2077,7 +2077,7 @@ declare namespace LocalJSX {
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
          */
-        "customInputs"?: Record<string, any>;
+        "customInputs"?: Record<string, string>;
         /**
           * 默认查询文本
          */
@@ -2154,7 +2154,7 @@ declare namespace LocalJSX {
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
          */
-        "customInputs"?: Record<string, any>;
+        "customInputs"?: Record<string, string>;
         /**
           * 默认查询文本
          */
@@ -2235,7 +2235,7 @@ declare namespace LocalJSX {
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
          */
-        "customInputs"?: Record<string, any>;
+        "customInputs"?: Record<string, string>;
         /**
           * 默认查询文本
          */
@@ -2314,9 +2314,9 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域 传入customInputs.file_url时，会隐藏简历上传区域 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。
          */
-        "customInputs"?: Record<string, any>;
+        "customInputs"?: Record<string, string>;
         /**
           * 默认查询文本
          */
@@ -2413,7 +2413,7 @@ declare namespace LocalJSX {
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
          */
-        "customInputs"?: { [key: string]: any };
+        "customInputs"?: Record<string, string>;
         /**
           * 默认查询文本
          */
@@ -2565,7 +2565,7 @@ declare namespace LocalJSX {
         /**
           * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"
          */
-        "customInputs"?: Record<string, any>;
+        "customInputs"?: Record<string, string>;
         /**
           * 默认查询文本
          */

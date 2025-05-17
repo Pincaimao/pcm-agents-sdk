@@ -76,7 +76,7 @@ export class ZyghModal {
     /**
      * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"
      */
-    @Prop() customInputs: Record<string, any> = {};
+    @Prop() customInputs: Record<string, string> = {};
 
     /**
      * 上传成功事件
@@ -269,7 +269,11 @@ export class ZyghModal {
 
         } else {
             if (this.customInputs && this.customInputs.type) {
-                this.selectedPlanType = this.customInputs.type;
+                // 检查是否是有效的 CareerPlanType 值
+                const type = this.customInputs.type;
+                if (type === '长期规划' || type === '转行建议' || type === '晋升路径') {
+                    this.selectedPlanType = type;
+                }
             }
 
             await verifyApiKey(this.token);

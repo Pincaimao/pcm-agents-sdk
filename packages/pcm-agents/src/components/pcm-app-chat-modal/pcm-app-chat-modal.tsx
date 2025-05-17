@@ -220,7 +220,7 @@ export class ChatAPPModal {
   /**
    * 自定义智能体inputs输入参数
    */
-  @Prop() customInputs: Record<string, any> = {};
+  @Prop() customInputs: Record<string, string> = {};
 
   /**
    * 机器人ID

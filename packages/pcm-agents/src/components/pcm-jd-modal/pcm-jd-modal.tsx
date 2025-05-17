@@ -74,7 +74,7 @@ export class PcmJdModal {
      * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
      * 
      */
-    @Prop() customInputs: Record<string, any> = {};
+    @Prop() customInputs: Record<string, string> = {};
 
     /**
      * 流式输出完成事件

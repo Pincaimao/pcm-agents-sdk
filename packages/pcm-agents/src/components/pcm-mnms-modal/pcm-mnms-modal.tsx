@@ -76,11 +76,11 @@ export class MnmsModal {
     @Prop() fullscreen: boolean = false;
 
     /**
-     * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
-     * 传入customInputs.file_url时，会隐藏简历上传区域
-     * 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天
+     * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br>
+     * 传入customInputs.file_url时，会隐藏简历上传区域。<br>
+     * 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。
      */
-    @Prop() customInputs: Record<string, any> = {};
+    @Prop() customInputs: Record<string, string> = {};
 
     /**
      * 上传成功事件
