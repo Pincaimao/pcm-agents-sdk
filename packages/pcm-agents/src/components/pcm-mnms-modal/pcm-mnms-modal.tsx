@@ -311,8 +311,8 @@ export class MnmsModal {
 
             await verifyApiKey(this.token);
 
-            if (this.conversationId) {
-                // 如果有会话ID，直接显示聊天模态框
+            // 如果同时有 file_url 和 job_info，或者有会话ID，直接显示聊天模态框
+            if ((this.customInputs?.file_url && this.customInputs?.job_info) || this.conversationId) {
                 this.showChatModal = true;
             }
         }
@@ -365,6 +365,12 @@ export class MnmsModal {
 
         // 修正这里的逻辑，确保当 customInputs.job_info 存在时，hideJdInput 为 true
         const hideJdInput = Boolean(this.customInputs && this.customInputs.job_info);
+        
+        // 判断是否隐藏简历上传区域
+        const hideResumeUpload = Boolean(this.customInputs && this.customInputs.file_url);
+        
+        // 判断是否同时提供了file_url和job_info
+        const hasFileAndJob = Boolean(this.customInputs?.file_url && this.customInputs?.job_info);
 
         return (
             <div class={overlayClass} style={modalStyle}>
@@ -383,8 +389,8 @@ export class MnmsModal {
                         </div>
                     )}
 
-                    {/* 上传界面 - 仅在不显示聊天模态框且没有会话ID时显示 */}
-                    {!this.showChatModal && !this.conversationId && (
+                    {/* 上传界面 - 仅在不显示聊天模态框且没有会话ID且没有同时提供file_url和job_info时显示 */}
+                    {!this.showChatModal && !this.conversationId && !hasFileAndJob && (
                         <div class="input-container">
                             {/* JD输入区域 - 仅在没有customInputs.job_info时显示 */}
                             {!hideJdInput && (
@@ -401,34 +407,36 @@ export class MnmsModal {
                                 </div>
                             )}
 
-                            {/* 简历上传区域 */}
-                            <div class="resume-upload-section">
-                                <label>上传简历</label>
-                                <div class="upload-area" onClick={this.handleUploadClick}>
-                                    {this.selectedFile ? (
-                                        <div class="file-item">
-                                            <div class="file-item-content">
-                                                <span class="file-icon">📝</span>
-                                                <span class="file-name">{this.selectedFile.name}</span>
+                            {/* 简历上传区域 - 仅在没有customInputs.file_url时显示 */}
+                            {!hideResumeUpload && (
+                                <div class="resume-upload-section">
+                                    <label>上传简历</label>
+                                    <div class="upload-area" onClick={this.handleUploadClick}>
+                                        {this.selectedFile ? (
+                                            <div class="file-item">
+                                                <div class="file-item-content">
+                                                    <span class="file-icon">📝</span>
+                                                    <span class="file-name">{this.selectedFile.name}</span>
+                                                </div>
+                                                <button class="remove-file" onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    this.clearSelectedFile();
+                                                }}>×</button>
                                             </div>
-                                            <button class="remove-file" onClick={(e) => {
-                                                e.stopPropagation();
-                                                this.clearSelectedFile();
-                                            }}>×</button>
-                                        </div>
-                                    ) : (
-                                        <div class="upload-placeholder">
-                                            <img src='https://pub.pincaimao.com/static/web/images/home/i_upload.png'></img>
-                                            <p class='upload-text'>点击上传简历</p>
-                                            <p class="upload-hint">支持 txt、markdown、pdf、docx、doc、md 格式</p>
-                                        </div>
-                                    )}
+                                        ) : (
+                                            <div class="upload-placeholder">
+                                                <img src='https://pub.pincaimao.com/static/web/images/home/i_upload.png'></img>
+                                                <p class='upload-text'>点击上传简历</p>
+                                                <p class="upload-hint">支持 txt、markdown、pdf、docx、doc、md 格式</p>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             <button
                                 class="submit-button"
-                                disabled={!this.selectedFile || (!hideJdInput && !this.jobDescription.trim()) || this.isUploading || this.isSubmitting}
+                                disabled={(!hideResumeUpload && !this.selectedFile) || (!hideJdInput && !this.jobDescription.trim()) || this.isUploading || this.isSubmitting}
                                 onClick={this.handleStartInterview}
                             >
                                 {this.isUploading ? '上传中...' : this.isSubmitting ? '处理中...' : '开始分析'}
@@ -477,8 +485,8 @@ export class MnmsModal {
                                 showFeedbackButtons={this.showFeedbackButtons}
                                 customInputs={this.conversationId ? {} : {
                                     ...this.customInputs,
-                                    file_url: this.uploadedFileInfo?.cos_key,
-                                    file_name: this.uploadedFileInfo?.file_name,
+                                    file_url: this.customInputs?.file_url || this.uploadedFileInfo?.cos_key,
+                                    file_name: this.customInputs?.file_name || this.uploadedFileInfo?.file_name,
                                     job_info: this.customInputs?.job_info || this.jobDescription
                                 }}
                                 interviewMode={this.interviewMode}
