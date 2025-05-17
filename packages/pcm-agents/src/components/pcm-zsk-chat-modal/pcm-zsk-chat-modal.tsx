@@ -63,7 +63,6 @@ export class ChatKBModal {
    */
   @State() messages: ChatMessage[] = [];
 
-
   /**
    * 当点击模态框关闭时触发
    */
@@ -442,7 +441,7 @@ export class ChatKBModal {
         this.isLoading = false;
       },
       onComplete: async () => {      
-        
+
         this.isLoading = false;
         const latestAIMessage = this.currentStreamingMessage;
         latestAIMessage.isStreaming = false;
