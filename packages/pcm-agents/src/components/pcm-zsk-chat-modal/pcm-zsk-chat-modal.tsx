@@ -150,8 +150,8 @@ export class ChatKBModal {
    * 自定义智能体inputs输入参数:
    * 1. show_suggested_questions: 是否显示推荐问题
    */
-  @Prop() customInputs: Record<string, any> = {
-    show_suggested_questions: false,
+  @Prop() customInputs: Record<string, string> = {
+    show_suggested_questions: 'false',
   };
 
 
@@ -203,6 +203,14 @@ export class ChatKBModal {
 
   private tokenInvalidListener: () => void;
 
+  /**
+   * 当点击清除对话记录按钮时触发
+   */
+  @Event() clearConversation: EventEmitter<string>;
+
+  // 添加一个新的状态来控制是否应该隐藏引用文档
+  @State() shouldHideReferences: boolean = false;
+
   @Watch('token')
   handleTokenChange(newToken: string) {
     // 当传入的 token 变化时，更新 authStore 中的 token
@@ -253,6 +261,9 @@ export class ChatKBModal {
     // 重置推荐问题和引用文档
     this.suggestedQuestions = [];
     this.currentRefs = [];
+
+    // 重置引用文档显示状态
+    this.shouldHideReferences = false;
 
     // 创建新的消息对象
     const newMessage: ChatMessage = {
@@ -315,6 +326,11 @@ export class ChatKBModal {
         // 处理问题建议
         if (data.event === 'node_started' && data.data.title.includes('聘才猫推荐开始')) {
           this.suggestedQuestionsLoading = true;
+        }
+
+        // 添加对"不显示引用"的检测
+        if (data.event === 'node_started' && data.data.title.includes('不显示引用')) {
+          this.shouldHideReferences = true;
         }
 
         // 处理问题建议
@@ -425,7 +441,8 @@ export class ChatKBModal {
         this.currentStreamingMessage = null;
         this.isLoading = false;
       },
-      onComplete: async () => {
+      onComplete: async () => {      
+        
         this.isLoading = false;
         const latestAIMessage = this.currentStreamingMessage;
         latestAIMessage.isStreaming = false;
@@ -946,6 +963,21 @@ export class ChatKBModal {
     }
   }
 
+  // 添加清除对话记录的方法
+  private handleClearConversation = () => {
+    if (this.isLoading || this.currentStreamingMessage) return;
+    
+    // 触发清除对话事件，传递当前会话ID
+    this.clearConversation.emit(this.conversationId);
+    
+    // 清空本地消息记录
+    this.messages = [];
+    this.currentStreamingMessage = null;
+    this.conversationId = undefined;
+    this.currentRefs = [];
+    this.suggestedQuestions = [];
+  };
+
   render() {
     if (!this.isOpen) return null;
 
@@ -965,8 +997,8 @@ export class ChatKBModal {
 
     // 修改渲染引用文档组件的方法
     const renderReferences = () => {
-      // 只有当没有正在流式输出的消息且有引用文档时才显示
-      if (!this.showReferences || this.currentRefs.length === 0 || this.currentStreamingMessage) return null;
+      // 只有当没有正在流式输出的消息且有引用文档且未设置隐藏引用时才显示
+      if (!this.showReferences || this.currentRefs.length === 0 || this.currentStreamingMessage || this.shouldHideReferences) return null;
 
       return (
         <div class="references-section">
@@ -1075,6 +1107,16 @@ export class ChatKBModal {
           disabled={this.isRecordingAudio || this.isConvertingAudio}
         ></textarea>
         <div class="input-toolbar">
+          <div class="toolbar-actions">
+            <button
+              class="toolbar-button"
+              title="清除对话记录"
+              onClick={this.handleClearConversation}
+              disabled={this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.messages.length === 0}
+            >
+             <img src="https://pcm-pub-1351162788.cos.ap-guangzhou.myqcloud.com/sdk/image/brush-alt-svgrepo-com.png" alt="清除对话记录" />
+            </button>
+          </div>
           <div class="toolbar-actions">
             <button
               class={{

@@ -818,7 +818,7 @@ export namespace Components {
         /**
           * 自定义智能体inputs输入参数: 1. show_suggested_questions: 是否显示推荐问题
          */
-        "customInputs": Record<string, any>;
+        "customInputs": Record<string, string>;
         /**
           * 数字员工ID，从聘才猫开发平台创建数字员工后，点击导出获取
          */
@@ -1320,6 +1320,7 @@ declare global {
         "streamComplete": StreamCompleteEventData1;
         "conversationStart": ConversationStartEventData1;
         "tokenInvalid": void;
+        "clearConversation": string;
     }
     interface HTMLPcmZskChatModalElement extends Components.PcmZskChatModal, HTMLStencilElement {
         addEventListener<K extends keyof HTMLPcmZskChatModalElementEventMap>(type: K, listener: (this: HTMLPcmZskChatModalElement, ev: PcmZskChatModalCustomEvent<HTMLPcmZskChatModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -2490,7 +2491,7 @@ declare namespace LocalJSX {
         /**
           * 自定义智能体inputs输入参数: 1. show_suggested_questions: 是否显示推荐问题
          */
-        "customInputs"?: Record<string, any>;
+        "customInputs"?: Record<string, string>;
         /**
           * 数字员工ID，从聘才猫开发平台创建数字员工后，点击导出获取
          */
@@ -2523,6 +2524,10 @@ declare namespace LocalJSX {
           * 模态框标题
          */
         "modalTitle"?: string;
+        /**
+          * 当点击清除对话记录按钮时触发
+         */
+        "onClearConversation"?: (event: PcmZskChatModalCustomEvent<string>) => void;
         /**
           * 新会话开始的回调，只会在一轮对话开始时触发一次
          */

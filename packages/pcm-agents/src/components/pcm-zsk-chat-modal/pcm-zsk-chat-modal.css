@@ -742,6 +742,11 @@
   align-items: center;
 }
 
+.toolbar-button img {
+  width: 16px;
+  height: 16px;
+}
+
 /* 发送按钮样式 */
 .submit-text-button {
   padding: 6px 16px;
