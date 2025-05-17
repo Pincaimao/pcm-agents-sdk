@@ -19,7 +19,7 @@ export interface ConversationStartEventData {
 }
 
 /**
- * 面试完成事件的数据类型
+ * 聊天完成事件的数据类型
  */
 export interface InterviewCompleteEventData {
   conversation_id: string;
