@@ -701,7 +701,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域 传入customInputs.file_url时，会隐藏简历上传区域 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天
          */
         "customInputs": Record<string, any>;
         /**
@@ -2313,7 +2313,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域 传入customInputs.file_url时，会隐藏简历上传区域 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天
          */
         "customInputs"?: Record<string, any>;
         /**

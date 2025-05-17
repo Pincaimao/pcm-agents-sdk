@@ -77,6 +77,8 @@ export class MnmsModal {
 
     /**
      * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
+     * 传入customInputs.file_url时，会隐藏简历上传区域
+     * 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天
      */
     @Prop() customInputs: Record<string, any> = {};
 
@@ -165,6 +167,10 @@ export class MnmsModal {
         // 将 zIndex 存入配置缓存
         if (this.zIndex) {
             configStore.setItem('modal-zIndex', this.zIndex);
+        }
+
+        if (this.token) {
+            authStore.setToken(this.token);
         }
 
         // 添加全局token无效事件监听器

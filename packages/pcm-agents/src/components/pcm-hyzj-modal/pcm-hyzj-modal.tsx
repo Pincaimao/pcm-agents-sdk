@@ -140,7 +140,9 @@ export class HyzjModal {
         if (this.zIndex) {
             configStore.setItem('modal-zIndex', this.zIndex);
         }
-
+        if (this.token) {
+            authStore.setToken(this.token);
+        }
 
         // 添加全局token无效事件监听器
         this.tokenInvalidListener = () => {

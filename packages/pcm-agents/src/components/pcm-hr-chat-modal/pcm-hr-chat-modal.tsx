@@ -239,10 +239,10 @@ export class ChatHRModal {
 
   @Watch('token')
   handleTokenChange(newToken: string) {
-      // 当传入的 token 变化时，更新 authStore 中的 token
-      if (newToken && newToken !== authStore.getToken()) {
-          authStore.setToken(newToken);
-      }
+    // 当传入的 token 变化时，更新 authStore 中的 token
+    if (newToken && newToken !== authStore.getToken()) {
+      authStore.setToken(newToken);
+    }
   }
 
   componentWillLoad() {
@@ -250,7 +250,11 @@ export class ChatHRModal {
     // 将 zIndex 存入配置缓存
     if (this.zIndex) {
       configStore.setItem('modal-zIndex', this.zIndex);
-  }
+    }
+
+    if (this.token) {
+      authStore.setToken(this.token);
+    }
 
     // 添加全局token无效事件监听器
     this.tokenInvalidListener = () => {

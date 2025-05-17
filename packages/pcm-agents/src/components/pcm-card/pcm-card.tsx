@@ -106,6 +106,9 @@ export class PcmCard {
      * 组件将要加载时，如果有 botId 则获取数据
      */
     componentWillLoad() {
+        if (this.token) {
+            authStore.setToken(this.token);
+        }
         if (this.botId) {
             this.fetchBotData();
         }

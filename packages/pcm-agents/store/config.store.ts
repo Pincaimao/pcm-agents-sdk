@@ -8,7 +8,7 @@ export interface ConfigData {
 // 从localStorage获取初始配置
 const getInitialConfig = (): ConfigData => {
   try {
-    const storedConfig = localStorage.getItem('pcm-config-data');
+    const storedConfig = localStorage.getItem('pcm-sdk-config-data');
     return storedConfig ? JSON.parse(storedConfig) : {};
   } catch (error) {
     console.error('Error parsing stored config:', error);
@@ -66,9 +66,9 @@ export const configStore = {
 onChange('data', value => {
   try {
     if (Object.keys(value).length > 0) {
-      localStorage.setItem('pcm-config-data', JSON.stringify(value));
+      localStorage.setItem('pcm-sdk-config-data', JSON.stringify(value));
     } else {
-      localStorage.removeItem('pcm-config-data');
+      localStorage.removeItem('pcm-sdk-config-data');
     }
   } catch (error) {
     console.error('Error saving config to localStorage:', error);
