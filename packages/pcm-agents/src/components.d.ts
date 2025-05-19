@@ -828,7 +828,7 @@ export namespace Components {
          */
         "fullscreen": boolean;
         /**
-          * 应用图标URL
+          * 应用图标URL，如果未设置则使用智能体头像
          */
         "icon"?: string;
         /**
@@ -851,10 +851,6 @@ export namespace Components {
           * 模态框标题
          */
         "modalTitle": string;
-        /**
-          * 是否显示引用文档
-         */
-        "showReferences": boolean;
         /**
           * SDK鉴权密钥
          */
@@ -2501,7 +2497,7 @@ declare namespace LocalJSX {
          */
         "fullscreen"?: boolean;
         /**
-          * 应用图标URL
+          * 应用图标URL，如果未设置则使用智能体头像
          */
         "icon"?: string;
         /**
@@ -2544,10 +2540,6 @@ declare namespace LocalJSX {
           * SDK密钥验证失败事件
          */
         "onTokenInvalid"?: (event: PcmZskChatModalCustomEvent<void>) => void;
-        /**
-          * 是否显示引用文档
-         */
-        "showReferences"?: boolean;
         /**
           * SDK鉴权密钥
          */

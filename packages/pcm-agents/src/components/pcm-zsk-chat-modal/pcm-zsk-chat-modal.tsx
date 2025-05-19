@@ -35,6 +35,7 @@ interface EmployeeDetails {
   last_conversation_id: string | null;
   workflow_id: string;
   agent_name: string;
+  show_quote_doc?: boolean;
 }
 
 @Component({
@@ -69,7 +70,7 @@ export class ChatKBModal {
   @Event() modalClosed: EventEmitter<void>;
 
   /**
-   * 应用图标URL
+   * 应用图标URL，如果未设置则使用智能体头像
    */
   @Prop() icon?: string;
 
@@ -162,7 +163,7 @@ export class ChatKBModal {
   /**
    * 是否显示引用文档
    */
-  @Prop() showReferences: boolean = true;
+  @State() showReferences: boolean = false;
 
 
   /**
@@ -592,6 +593,11 @@ export class ChatKBModal {
       });
       if (result.success && result.data) {
         this.employeeDetails = result.data;
+        
+        // 根据 show_quote_doc 设置是否显示引用文档
+        if (this.employeeDetails.show_quote_doc !== undefined) {
+          this.showReferences = this.employeeDetails.show_quote_doc;
+        }
 
         // 设置预设问题
         if (this.employeeDetails.quick_questions) {
@@ -994,9 +1000,12 @@ export class ChatKBModal {
       'fullscreen-overlay': this.fullscreen
     };
 
+    // 确定要显示的图标：优先使用传入的icon，如果未设置则使用智能体头像
+    const displayIcon = this.icon || (this.employeeDetails?.avatar || '');
+
     // 修改渲染引用文档组件的方法
     const renderReferences = () => {
-      // 只有当没有正在流式输出的消息且有引用文档且未设置隐藏引用时才显示
+      // 只有当没有正在流式输出的消息且有引用文档且未设置隐藏引用且showReferences为true时才显示
       if (!this.showReferences || this.currentRefs.length === 0 || this.currentStreamingMessage || this.shouldHideReferences) return null;
 
       return (
@@ -1174,7 +1183,7 @@ export class ChatKBModal {
           {this.isShowHeader && (
             <div class="modal-header">
               <div class="header-left">
-                {this.icon && <img src={this.icon} class="header-icon" alt="应用图标" />}
+                {displayIcon && <img src={displayIcon} class="header-icon" alt="应用图标" />}
                 <div>{this.modalTitle}</div>
               </div>
               {this.isNeedClose && (
