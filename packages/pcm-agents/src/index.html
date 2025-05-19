@@ -115,6 +115,8 @@
         <button class="pcm-button" id="open-zsk-chat">数字员工</button>
         <button class="pcm-button" id="open-jd-chat">JD生成</button>
       </div>
+
+   
     </div>
   </div>
 
@@ -149,10 +151,10 @@
 
 
   <pcm-htws-modal id="pcm-htws-modal" modal-title="劳动合同卫士" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
-    conversation-id="" fullscreen="false" default-query="请您提问"></pcm-htws-modal>
+    conversation-id="" fullscreen="true" default-query="请您提问"></pcm-htws-modal>
 
-  <pcm-zsk-chat-modal id="pcm-zsk-chat-modal" employee-id="137" modal-title="数字员工"
-    conversation-id="" fullscreen="false"
+  <pcm-zsk-chat-modal id="pcm-zsk-chat-modal" employee-id="137"
+    conversation-id="" fullscreen="true"
      default-query="请您提问"></pcm-zsk-chat-modal>
 
 
@@ -846,8 +848,43 @@
       });
 
       // 打开聊天按钮事件监听
-      openZSKChatButton.addEventListener('click', () => {
-        chatZSKModal.isOpen = true;
+      openZSKChatButton.addEventListener('click', async () => {
+        // 弹出对话框让用户选择操作
+        const action = prompt('请选择操作：\n1. 打开当前数字员工\n2. 切换到新数字员工\n3. 重置当前数字员工');
+        
+        if (action === '1') {
+          // 打开当前数字员工
+          chatZSKModal.isOpen = true;
+        } else if (action === '2') {
+          // 切换到新数字员工
+          const newEmployeeId = prompt('请输入新的数字员工ID:', '138');
+          if (newEmployeeId) {
+            // 预设的员工ID和会话ID映射
+            const employeeConversations = {
+              '137': 'a7e996dc-64fa-4086-aff1-497ef83daab2',
+              '138': 'd6177c58-f131-43e2-9ad5-498b0167e15e',
+            };
+            
+            // 如果有预设的会话ID，则使用它
+            if (employeeConversations[newEmployeeId]) {
+              console.log( employeeConversations[newEmployeeId]);
+              
+              await chatZSKModal.resetEmployee(newEmployeeId,employeeConversations[newEmployeeId]);
+            } else{
+              await chatZSKModal.resetEmployee(newEmployeeId);
+            }
+           
+            console.log(`已切换到数字员工ID: ${newEmployeeId}`);
+            chatZSKModal.isOpen = true;
+          }
+        } else if (action === '3') {
+          // 重置当前数字员工
+          const result = await chatZSKModal.resetEmployee();
+          if (result) {
+            console.log('已重置当前数字员工');
+            chatZSKModal.isOpen = true;
+          }
+        }
       });
 
       // chatZSKModal.customInputs = {
@@ -975,6 +1012,7 @@
         id: "35677279421992960"
       };
     };
+
   </script>
 </body>
 

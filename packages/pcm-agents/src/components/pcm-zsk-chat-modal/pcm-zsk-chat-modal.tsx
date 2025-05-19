@@ -1,4 +1,4 @@
-import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
+import { Component, Prop, h, State, Event, EventEmitter, Element, Watch, Method } from '@stencil/core';
 import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, verifyApiKey } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
 import { ConversationStartEventData, StreamCompleteEventData } from '../../components';
@@ -47,7 +47,7 @@ export class ChatKBModal {
   /**
    * 模态框标题
    */
-  @Prop() modalTitle: string = '在线客服';
+  @Prop() modalTitle?: string;
 
   /**
    * SDK鉴权密钥
@@ -161,7 +161,7 @@ export class ChatKBModal {
   @State() currentRefs: Reference[] = [];
 
   /**
-   * 是否显示引用文档
+   * 是否显示引用文档（总开关）
    */
   @State() showReferences: boolean = false;
 
@@ -169,7 +169,7 @@ export class ChatKBModal {
   /**
    * 数字员工ID，从聘才猫开发平台创建数字员工后，点击导出获取
    */
-  @Prop() employeeId!: string;
+  @Prop({ mutable: true }) employeeId!: string;
 
 
   // 添加语音输入相关状态
@@ -208,7 +208,7 @@ export class ChatKBModal {
    */
   @Event() clearConversation: EventEmitter<string>;
 
-  // 添加一个新的状态来控制是否应该隐藏引用文档
+  // 是否应该隐藏引用文档（每次对话是否隐藏引用文档）
   @State() shouldHideReferences: boolean = false;
 
   @Watch('token')
@@ -227,7 +227,7 @@ export class ChatKBModal {
     }
     if (this.token) {
       authStore.setToken(this.token);
-  }
+    }
 
     // 添加全局token无效事件监听器
     this.tokenInvalidListener = () => {
@@ -441,7 +441,7 @@ export class ChatKBModal {
         this.currentStreamingMessage = null;
         this.isLoading = false;
       },
-      onComplete: async () => {      
+      onComplete: async () => {
 
         this.isLoading = false;
         const latestAIMessage = this.currentStreamingMessage;
@@ -488,8 +488,9 @@ export class ChatKBModal {
 
 
   // 修改 loadHistoryMessages 方法
-  private async loadHistoryMessages() {
-    if (!this.conversationId) return;
+  private async loadHistoryMessages(newConversationId?: string) {
+    if (!this.conversationId && !newConversationId) return;
+    const conversationId = newConversationId || this.conversationId;
 
     this.isLoadingHistory = true;
     console.log('加载历史消息...');
@@ -499,7 +500,7 @@ export class ChatKBModal {
         url: '/sdk/v1/knowledge/chat/conversation-history',
         method: 'GET',
         data: {
-          conversation_id: this.conversationId,
+          conversation_id: conversationId,
         }
       });
 
@@ -593,7 +594,7 @@ export class ChatKBModal {
       });
       if (result.success && result.data) {
         this.employeeDetails = result.data;
-        
+
         // 根据 show_quote_doc 设置是否显示引用文档
         if (this.employeeDetails.show_quote_doc !== undefined) {
           this.showReferences = this.employeeDetails.show_quote_doc;
@@ -971,10 +972,10 @@ export class ChatKBModal {
   // 添加清除对话记录的方法
   private handleClearConversation = () => {
     if (this.isLoading || this.currentStreamingMessage) return;
-    
+
     // 触发清除对话事件，传递当前会话ID
     this.clearConversation.emit(this.conversationId);
-    
+
     // 清空本地消息记录
     this.messages = [];
     this.currentStreamingMessage = null;
@@ -982,6 +983,42 @@ export class ChatKBModal {
     this.currentRefs = [];
     this.suggestedQuestions = [];
   };
+
+  /**
+   * 重置组件状态的公共方法
+   * 
+   * @param newEmployeeId 新的员工ID(可选)
+   * @param newConversationId 新的会话ID(可选)
+   */
+  @Method()
+  async resetEmployee(newEmployeeId?: string, newConversationId?: string) {
+    // 重置所有状态
+    this.messages = [];
+    this.currentStreamingMessage = null;
+    this.conversationId = undefined;
+    this.currentRefs = [];
+    this.suggestedQuestions = [];
+    this.quickQuestions = [];
+    this.employeeDetails = null;
+    this.shouldHideReferences = false;
+    this.showReferences = false;
+
+    // 如果提供了新的员工ID，则更新
+    if (newEmployeeId) {
+      this.employeeId = newEmployeeId;
+    }
+
+    // 重新获取员工详情
+    await this.fetchEmployeeDetails();
+
+    // 如果有会话ID，加载历史记录
+    if (newConversationId) {
+      this.conversationId = newConversationId;
+      await this.loadHistoryMessages(newConversationId);
+    }
+
+    return true;
+  }
 
   render() {
     if (!this.isOpen) return null;
@@ -1002,6 +1039,9 @@ export class ChatKBModal {
 
     // 确定要显示的图标：优先使用传入的icon，如果未设置则使用智能体头像
     const displayIcon = this.icon || (this.employeeDetails?.avatar || '');
+    
+    // 确定要显示的标题：优先使用传入的modalTitle，如果未设置则使用智能体名称
+    const displayTitle = this.modalTitle || (this.employeeDetails?.name || '在线客服');
 
     // 修改渲染引用文档组件的方法
     const renderReferences = () => {
@@ -1122,7 +1162,7 @@ export class ChatKBModal {
               onClick={this.handleClearConversation}
               disabled={this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.messages.length === 0}
             >
-             <img src="https://pcm-pub-1351162788.cos.ap-guangzhou.myqcloud.com/sdk/image/brush-alt-svgrepo-com.png" alt="清除对话记录" />
+              <img src="https://pcm-pub-1351162788.cos.ap-guangzhou.myqcloud.com/sdk/image/brush-alt-svgrepo-com.png" alt="清除对话记录" />
             </button>
           </div>
           <div class="toolbar-actions">
@@ -1184,7 +1224,7 @@ export class ChatKBModal {
             <div class="modal-header">
               <div class="header-left">
                 {displayIcon && <img src={displayIcon} class="header-icon" alt="应用图标" />}
-                <div>{this.modalTitle}</div>
+                <div>{displayTitle}</div>
               </div>
               {this.isNeedClose && (
                 <button class="close-button" onClick={this.handleClose}>

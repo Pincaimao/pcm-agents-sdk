@@ -1,7 +1,12 @@
 :host {
   display: block;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
+    
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -15,6 +20,7 @@
   overflow-y: auto;
   padding: 20px;
   z-index: 1000;
+  -webkit-overflow-scrolling: touch; /* 增强iOS滚动体验 */
 }
 
 /* 全屏模式下取消 padding */
@@ -838,10 +844,7 @@
     padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
   }
 
-  .chat-history {
-    min-height: 200px;
-    max-height: 350px;
-  }
+
 }
 
 /* 修改引用文档样式 */

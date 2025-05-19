@@ -758,6 +758,136 @@ export namespace Components {
         "zIndex"?: number;
     }
     /**
+     * 模拟面试
+     */
+    interface PcmMnmsVideoModal {
+        /**
+          * 会话ID，传入继续对话，否则创建新会话
+         */
+        "conversationId"?: string;
+        /**
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。
+         */
+        "customInputs": Record<string, string>;
+        /**
+          * 默认查询文本
+         */
+        "defaultQuery": string;
+        /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode": 'drawer' | 'window';
+        /**
+          * 是否以全屏模式打开，移动端建议设置为true
+         */
+        "fullscreen": boolean;
+        /**
+          * 应用图标URL
+         */
+        "icon"?: string;
+        /**
+          * 面试模式：text - 文本模式，video - 视频模式
+         */
+        "interviewMode": 'text' | 'video';
+        /**
+          * 是否展示右上角的关闭按钮
+         */
+        "isNeedClose": boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen": boolean;
+        /**
+          * 是否展示顶部标题栏
+         */
+        "isShowHeader": boolean;
+        /**
+          * 模态框标题
+         */
+        "modalTitle": string;
+        /**
+          * 是否显示复制按钮
+         */
+        "showCopyButton": boolean;
+        /**
+          * 是否显示点赞点踩按钮
+         */
+        "showFeedbackButtons": boolean;
+        /**
+          * SDK鉴权密钥
+         */
+        "token": string;
+        /**
+          * 聊天框的页面层级
+         */
+        "zIndex"?: number;
+    }
+    /**
+     * 模拟面试
+     */
+    interface PcmMnmsZpModal {
+        /**
+          * 会话ID，传入继续对话，否则创建新会话
+         */
+        "conversationId"?: string;
+        /**
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。
+         */
+        "customInputs": Record<string, string>;
+        /**
+          * 默认查询文本
+         */
+        "defaultQuery": string;
+        /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode": 'drawer' | 'window';
+        /**
+          * 是否以全屏模式打开，移动端建议设置为true
+         */
+        "fullscreen": boolean;
+        /**
+          * 应用图标URL
+         */
+        "icon"?: string;
+        /**
+          * 面试模式：text - 文本模式，video - 视频模式
+         */
+        "interviewMode": 'text' | 'video';
+        /**
+          * 是否展示右上角的关闭按钮
+         */
+        "isNeedClose": boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen": boolean;
+        /**
+          * 是否展示顶部标题栏
+         */
+        "isShowHeader": boolean;
+        /**
+          * 模态框标题
+         */
+        "modalTitle": string;
+        /**
+          * 是否显示复制按钮
+         */
+        "showCopyButton": boolean;
+        /**
+          * 是否显示点赞点踩按钮
+         */
+        "showFeedbackButtons": boolean;
+        /**
+          * SDK鉴权密钥
+         */
+        "token": string;
+        /**
+          * 聊天框的页面层级
+         */
+        "zIndex"?: number;
+    }
+    /**
      * 面试报告
      */
     interface PcmMsbgModal {
@@ -850,7 +980,13 @@ export namespace Components {
         /**
           * 模态框标题
          */
-        "modalTitle": string;
+        "modalTitle"?: string;
+        /**
+          * 重置组件状态的公共方法
+          * @param newEmployeeId 新的员工ID(可选)
+          * @param newConversationId 新的会话ID(可选)
+         */
+        "resetEmployee": (newEmployeeId?: string, newConversationId?: string) => Promise<boolean>;
         /**
           * SDK鉴权密钥
          */
@@ -958,6 +1094,14 @@ export interface PcmMnctModalCustomEvent<T> extends CustomEvent<T> {
 export interface PcmMnmsModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmMnmsModalElement;
+}
+export interface PcmMnmsVideoModalCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLPcmMnmsVideoModalElement;
+}
+export interface PcmMnmsZpModalCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLPcmMnmsZpModalElement;
 }
 export interface PcmMsbgModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -1285,6 +1429,60 @@ declare global {
         prototype: HTMLPcmMnmsModalElement;
         new (): HTMLPcmMnmsModalElement;
     };
+    interface HTMLPcmMnmsVideoModalElementEventMap {
+        "modalClosed": void;
+        "uploadSuccess": FileUploadResponse;
+        "streamComplete": StreamCompleteEventData;
+        "conversationStart": ConversationStartEventData;
+        "interviewComplete": InterviewCompleteEventData;
+        "tokenInvalid": void;
+        "someErrorEvent": ErrorEventDetail;
+        "recordingError": RecordingErrorEventData;
+    }
+    /**
+     * 模拟面试
+     */
+    interface HTMLPcmMnmsVideoModalElement extends Components.PcmMnmsVideoModal, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLPcmMnmsVideoModalElementEventMap>(type: K, listener: (this: HTMLPcmMnmsVideoModalElement, ev: PcmMnmsVideoModalCustomEvent<HTMLPcmMnmsVideoModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLPcmMnmsVideoModalElementEventMap>(type: K, listener: (this: HTMLPcmMnmsVideoModalElement, ev: PcmMnmsVideoModalCustomEvent<HTMLPcmMnmsVideoModalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLPcmMnmsVideoModalElement: {
+        prototype: HTMLPcmMnmsVideoModalElement;
+        new (): HTMLPcmMnmsVideoModalElement;
+    };
+    interface HTMLPcmMnmsZpModalElementEventMap {
+        "modalClosed": void;
+        "uploadSuccess": FileUploadResponse;
+        "streamComplete": StreamCompleteEventData;
+        "conversationStart": ConversationStartEventData;
+        "interviewComplete": InterviewCompleteEventData;
+        "tokenInvalid": void;
+        "someErrorEvent": ErrorEventDetail;
+        "recordingError": RecordingErrorEventData;
+    }
+    /**
+     * 模拟面试
+     */
+    interface HTMLPcmMnmsZpModalElement extends Components.PcmMnmsZpModal, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLPcmMnmsZpModalElementEventMap>(type: K, listener: (this: HTMLPcmMnmsZpModalElement, ev: PcmMnmsZpModalCustomEvent<HTMLPcmMnmsZpModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLPcmMnmsZpModalElementEventMap>(type: K, listener: (this: HTMLPcmMnmsZpModalElement, ev: PcmMnmsZpModalCustomEvent<HTMLPcmMnmsZpModalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLPcmMnmsZpModalElement: {
+        prototype: HTMLPcmMnmsZpModalElement;
+        new (): HTMLPcmMnmsZpModalElement;
+    };
     interface HTMLPcmMsbgModalElementEventMap {
         "modalClosed": void;
         "uploadSuccess": FileUploadResponse;
@@ -1372,6 +1570,8 @@ declare global {
         "pcm-jlpp-modal": HTMLPcmJlppModalElement;
         "pcm-mnct-modal": HTMLPcmMnctModalElement;
         "pcm-mnms-modal": HTMLPcmMnmsModalElement;
+        "pcm-mnms-video-modal": HTMLPcmMnmsVideoModalElement;
+        "pcm-mnms-zp-modal": HTMLPcmMnmsZpModalElement;
         "pcm-msbg-modal": HTMLPcmMsbgModalElement;
         "pcm-zsk-chat-modal": HTMLPcmZskChatModalElement;
         "pcm-zygh-modal": HTMLPcmZyghModalElement;
@@ -2399,6 +2599,200 @@ declare namespace LocalJSX {
         "zIndex"?: number;
     }
     /**
+     * 模拟面试
+     */
+    interface PcmMnmsVideoModal {
+        /**
+          * 会话ID，传入继续对话，否则创建新会话
+         */
+        "conversationId"?: string;
+        /**
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。
+         */
+        "customInputs"?: Record<string, string>;
+        /**
+          * 默认查询文本
+         */
+        "defaultQuery"?: string;
+        /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode"?: 'drawer' | 'window';
+        /**
+          * 是否以全屏模式打开，移动端建议设置为true
+         */
+        "fullscreen"?: boolean;
+        /**
+          * 应用图标URL
+         */
+        "icon"?: string;
+        /**
+          * 面试模式：text - 文本模式，video - 视频模式
+         */
+        "interviewMode"?: 'text' | 'video';
+        /**
+          * 是否展示右上角的关闭按钮
+         */
+        "isNeedClose"?: boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen"?: boolean;
+        /**
+          * 是否展示顶部标题栏
+         */
+        "isShowHeader"?: boolean;
+        /**
+          * 模态框标题
+         */
+        "modalTitle"?: string;
+        /**
+          * 新会话开始的回调，只会在一轮对话开始时触发一次
+         */
+        "onConversationStart"?: (event: PcmMnmsVideoModalCustomEvent<ConversationStartEventData>) => void;
+        /**
+          * 当聊天完成时触发
+         */
+        "onInterviewComplete"?: (event: PcmMnmsVideoModalCustomEvent<InterviewCompleteEventData>) => void;
+        /**
+          * 当点击模态框关闭时触发
+         */
+        "onModalClosed"?: (event: PcmMnmsVideoModalCustomEvent<void>) => void;
+        /**
+          * 录制错误事件
+         */
+        "onRecordingError"?: (event: PcmMnmsVideoModalCustomEvent<RecordingErrorEventData>) => void;
+        /**
+          * 错误事件
+         */
+        "onSomeErrorEvent"?: (event: PcmMnmsVideoModalCustomEvent<ErrorEventDetail>) => void;
+        /**
+          * 流式输出完成事件
+         */
+        "onStreamComplete"?: (event: PcmMnmsVideoModalCustomEvent<StreamCompleteEventData>) => void;
+        /**
+          * SDK密钥验证失败事件
+         */
+        "onTokenInvalid"?: (event: PcmMnmsVideoModalCustomEvent<void>) => void;
+        /**
+          * 上传成功事件
+         */
+        "onUploadSuccess"?: (event: PcmMnmsVideoModalCustomEvent<FileUploadResponse>) => void;
+        /**
+          * 是否显示复制按钮
+         */
+        "showCopyButton"?: boolean;
+        /**
+          * 是否显示点赞点踩按钮
+         */
+        "showFeedbackButtons"?: boolean;
+        /**
+          * SDK鉴权密钥
+         */
+        "token": string;
+        /**
+          * 聊天框的页面层级
+         */
+        "zIndex"?: number;
+    }
+    /**
+     * 模拟面试
+     */
+    interface PcmMnmsZpModal {
+        /**
+          * 会话ID，传入继续对话，否则创建新会话
+         */
+        "conversationId"?: string;
+        /**
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。
+         */
+        "customInputs"?: Record<string, string>;
+        /**
+          * 默认查询文本
+         */
+        "defaultQuery"?: string;
+        /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode"?: 'drawer' | 'window';
+        /**
+          * 是否以全屏模式打开，移动端建议设置为true
+         */
+        "fullscreen"?: boolean;
+        /**
+          * 应用图标URL
+         */
+        "icon"?: string;
+        /**
+          * 面试模式：text - 文本模式，video - 视频模式
+         */
+        "interviewMode"?: 'text' | 'video';
+        /**
+          * 是否展示右上角的关闭按钮
+         */
+        "isNeedClose"?: boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen"?: boolean;
+        /**
+          * 是否展示顶部标题栏
+         */
+        "isShowHeader"?: boolean;
+        /**
+          * 模态框标题
+         */
+        "modalTitle"?: string;
+        /**
+          * 新会话开始的回调，只会在一轮对话开始时触发一次
+         */
+        "onConversationStart"?: (event: PcmMnmsZpModalCustomEvent<ConversationStartEventData>) => void;
+        /**
+          * 当聊天完成时触发
+         */
+        "onInterviewComplete"?: (event: PcmMnmsZpModalCustomEvent<InterviewCompleteEventData>) => void;
+        /**
+          * 当点击模态框关闭时触发
+         */
+        "onModalClosed"?: (event: PcmMnmsZpModalCustomEvent<void>) => void;
+        /**
+          * 录制错误事件
+         */
+        "onRecordingError"?: (event: PcmMnmsZpModalCustomEvent<RecordingErrorEventData>) => void;
+        /**
+          * 错误事件
+         */
+        "onSomeErrorEvent"?: (event: PcmMnmsZpModalCustomEvent<ErrorEventDetail>) => void;
+        /**
+          * 流式输出完成事件
+         */
+        "onStreamComplete"?: (event: PcmMnmsZpModalCustomEvent<StreamCompleteEventData>) => void;
+        /**
+          * SDK密钥验证失败事件
+         */
+        "onTokenInvalid"?: (event: PcmMnmsZpModalCustomEvent<void>) => void;
+        /**
+          * 上传成功事件
+         */
+        "onUploadSuccess"?: (event: PcmMnmsZpModalCustomEvent<FileUploadResponse>) => void;
+        /**
+          * 是否显示复制按钮
+         */
+        "showCopyButton"?: boolean;
+        /**
+          * 是否显示点赞点踩按钮
+         */
+        "showFeedbackButtons"?: boolean;
+        /**
+          * SDK鉴权密钥
+         */
+        "token": string;
+        /**
+          * 聊天框的页面层级
+         */
+        "zIndex"?: number;
+    }
+    /**
      * 面试报告
      */
     interface PcmMsbgModal {
@@ -2644,6 +3038,8 @@ declare namespace LocalJSX {
         "pcm-jlpp-modal": PcmJlppModal;
         "pcm-mnct-modal": PcmMnctModal;
         "pcm-mnms-modal": PcmMnmsModal;
+        "pcm-mnms-video-modal": PcmMnmsVideoModal;
+        "pcm-mnms-zp-modal": PcmMnmsZpModal;
         "pcm-msbg-modal": PcmMsbgModal;
         "pcm-zsk-chat-modal": PcmZskChatModal;
         "pcm-zygh-modal": PcmZyghModal;
@@ -2699,6 +3095,14 @@ declare module "@stencil/core" {
              * 模拟面试
              */
             "pcm-mnms-modal": LocalJSX.PcmMnmsModal & JSXBase.HTMLAttributes<HTMLPcmMnmsModalElement>;
+            /**
+             * 模拟面试
+             */
+            "pcm-mnms-video-modal": LocalJSX.PcmMnmsVideoModal & JSXBase.HTMLAttributes<HTMLPcmMnmsVideoModalElement>;
+            /**
+             * 模拟面试
+             */
+            "pcm-mnms-zp-modal": LocalJSX.PcmMnmsZpModal & JSXBase.HTMLAttributes<HTMLPcmMnmsZpModalElement>;
             /**
              * 面试报告
              */
