@@ -160,7 +160,7 @@ export class ChatAPPModal {
    */
   @Event() interviewComplete: EventEmitter<InterviewCompleteEventData>;
 
-  private readonly SCROLL_THRESHOLD = 30;
+  private readonly SCROLL_THRESHOLD = 20;
 
 
 
@@ -293,6 +293,9 @@ export class ChatAPPModal {
   // 添加内容类型状态
   @State() previewContentType: 'file' | 'markdown' | 'text' = 'file';
   @State() previewContent: string = '';
+
+  // 添加新的状态来追踪用户交互
+  @State() isUserScrolling: boolean = false;
 
   @Watch('token')
   handleTokenChange(newToken: string) {
@@ -553,16 +556,50 @@ export class ChatAPPModal {
   }
 
 
-  // 监听滚动事件，用于控制聊天历史记录的自动滚动行为。
+  // 修改滚动处理函数
   private handleScroll = () => {
-    const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
-    if (!chatHistory) return;
+    // 只有当用户正在滚动时才更新自动滚动状态
+    if (this.isUserScrolling) {
 
-    const { scrollTop, scrollHeight, clientHeight } = chatHistory;
-    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+      const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
+      if (!chatHistory) return;
 
-    // 更新是否应该自动滚动的状态
-    this.shouldAutoScroll = distanceFromBottom <= this.SCROLL_THRESHOLD;
+      const { scrollTop, scrollHeight, clientHeight } = chatHistory;
+      const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+
+      // 更新是否应该自动滚动的状态
+      this.shouldAutoScroll = distanceFromBottom <= this.SCROLL_THRESHOLD;
+
+    }
+  };
+
+  // 添加触摸开始事件处理
+  private handleTouchStart = () => {
+    this.isUserScrolling = true;
+  };
+
+  // 添加触摸结束事件处理
+  private handleTouchEnd = () => {
+    setTimeout(() => {
+      this.isUserScrolling = false;
+    }, 100); // 添加小延迟以确保滚动事件处理完成
+  };
+
+  private _wheelTimer: any = null;
+
+  // 添加鼠标滚轮事件处理
+  private handleWheel = () => {
+    this.isUserScrolling = true;
+
+    // 清除之前的定时器（如果存在）
+    if (this._wheelTimer) {
+      clearTimeout(this._wheelTimer);
+    }
+
+    // 设置新的定时器
+    this._wheelTimer = setTimeout(() => {
+      this.isUserScrolling = false;
+    }, 150); // 滚轮停止后的延迟时间
   };
 
   private scrollToBottom() {
@@ -571,16 +608,6 @@ export class ChatAPPModal {
     if (chatHistory && this.isOpen) {
       // 强制浏览器重新计算布局
       chatHistory.scrollTop = chatHistory.scrollHeight;
-    }
-  }
-
-  // 添加 componentDidRender 生命周期方法，用于在组件渲染后滚动到底部
-  componentDidRender() {
-    if (this.isLoadingHistory || (this.shouldAutoScroll && this.isOpen)) {
-      const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
-      if (chatHistory) {
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-      }
     }
   }
 
@@ -644,21 +671,14 @@ export class ChatAPPModal {
       });
     } finally {
       this.isLoadingHistory = false;
-      requestAnimationFrame(() => {
+      setTimeout(() => {
         this.shouldAutoScroll = true;
         this.scrollToBottom();
-      });
+      }, 200);
+     
     }
   }
 
-  // 修改 componentDidLoad 生命周期方法
-  componentDidLoad() {
-    // 添加滚动事件监听器
-    const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
-    if (chatHistory) {
-      chatHistory.addEventListener('scroll', this.handleScroll);
-    }
-  }
 
   // 修改 componentWillLoad 生命周期方法
   componentWillLoad() {
@@ -1164,14 +1184,9 @@ export class ChatAPPModal {
     });
   }
 
-  // 修改 componentDidLoad 生命周期方法，确保组件卸载时释放资源
+  // 确保组件卸载时释放资源
   disconnectedCallback() {
     document.removeEventListener('pcm-token-invalid', this.tokenInvalidListener);
-    // 移除滚动事件监听器
-    const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
-    if (chatHistory) {
-      chatHistory.removeEventListener('scroll', this.handleScroll);
-    }
 
     // 释放音频资源
     if (this.audioElement) {
@@ -1707,7 +1722,12 @@ export class ChatAPPModal {
           )}
 
           <div class="chat-container">
-            <div class="chat-history" onScroll={this.handleScroll}>
+            <div class="chat-history"
+              onScroll={this.handleScroll}
+              onTouchStart={this.handleTouchStart}
+              onTouchEnd={this.handleTouchEnd}
+              onWheel={this.handleWheel}
+            >
               {this.isLoadingHistory ? (
                 <div class="loading-container">
                   <div class="loading-spinner"></div>

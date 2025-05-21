@@ -159,7 +159,7 @@ export class ChatHRModal {
    */
   @Event() interviewComplete: EventEmitter<InterviewCompleteEventData>;
 
-  private readonly SCROLL_THRESHOLD = 30;
+  private readonly SCROLL_THRESHOLD = 20;
 
   /**
    * 视频录制最大时长（秒）
@@ -236,6 +236,9 @@ export class ChatHRModal {
   @Prop() displayContentStatus: boolean = true;
 
   private tokenInvalidListener: () => void;
+
+  // 添加新的状态来追踪用户交互
+  @State() isUserScrolling: boolean = false;
 
   @Watch('token')
   handleTokenChange(newToken: string) {
@@ -518,17 +521,52 @@ export class ChatHRModal {
     }
   }
 
-  // 监听滚动事件，用于控制聊天历史记录的自动滚动行为。
+  // 修改滚动处理函数
   private handleScroll = () => {
-    const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
-    if (!chatHistory) return;
+    // 只有当用户正在滚动时才更新自动滚动状态
+    if (this.isUserScrolling) {
 
-    const { scrollTop, scrollHeight, clientHeight } = chatHistory;
-    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+      const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
+      if (!chatHistory) return;
 
-    // 更新是否应该自动滚动的状态
-    this.shouldAutoScroll = distanceFromBottom <= this.SCROLL_THRESHOLD;
+      const { scrollTop, scrollHeight, clientHeight } = chatHistory;
+      const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+
+      // 更新是否应该自动滚动的状态
+      this.shouldAutoScroll = distanceFromBottom <= this.SCROLL_THRESHOLD;
+
+    }
   };
+
+  // 添加触摸开始事件处理
+  private handleTouchStart = () => {
+    this.isUserScrolling = true;
+  };
+
+  // 添加触摸结束事件处理
+  private handleTouchEnd = () => {
+    setTimeout(() => {
+      this.isUserScrolling = false;
+    }, 100); // 添加小延迟以确保滚动事件处理完成
+  };
+
+  private _wheelTimer: any = null;
+
+  // 添加鼠标滚轮事件处理
+  private handleWheel = () => {
+    this.isUserScrolling = true;
+
+    // 清除之前的定时器（如果存在）
+    if (this._wheelTimer) {
+      clearTimeout(this._wheelTimer);
+    }
+
+    // 设置新的定时器
+    this._wheelTimer = setTimeout(() => {
+      this.isUserScrolling = false;
+    }, 150); // 滚轮停止后的延迟时间
+  };
+
 
   private scrollToBottom() {
     if (!this.shouldAutoScroll) return;
@@ -539,15 +577,6 @@ export class ChatHRModal {
     }
   }
 
-  // 添加 componentDidRender 生命周期方法，用于在组件渲染后滚动到底部
-  componentDidRender() {
-    if (this.isLoadingHistory || (this.shouldAutoScroll && this.isOpen)) {
-      const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
-      if (chatHistory) {
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-      }
-    }
-  }
 
   // 修改加载历史消息的方法
   private async loadHistoryMessages() {
@@ -592,10 +621,10 @@ export class ChatHRModal {
       alert(error instanceof Error ? error.message : '加载历史消息失败，请刷新重试');
     } finally {
       this.isLoadingHistory = false;
-      requestAnimationFrame(() => {
+      setTimeout(() => {
         this.shouldAutoScroll = true;
         this.scrollToBottom();
-      });
+      }, 200);
     }
   }
 
@@ -1063,7 +1092,7 @@ export class ChatHRModal {
     });
   }
 
-  // 修改 componentDidLoad 生命周期方法，确保组件卸载时释放资源
+  // 确保组件卸载时释放资源
   disconnectedCallback() {
     document.removeEventListener('pcm-token-invalid', this.tokenInvalidListener);
     // 释放音频资源
@@ -1298,7 +1327,12 @@ export class ChatHRModal {
             </div>
           ) : (
             <div style={{ height: '100%' }}>
-              <div class="chat-history" onScroll={this.handleScroll}>
+              <div class="chat-history"
+                onScroll={this.handleScroll}
+                onTouchStart={this.handleTouchStart}
+                onTouchEnd={this.handleTouchEnd}
+                onWheel={this.handleWheel}
+              >
                 {this.isLoadingHistory ? (
                   <div class="loading-container">
                     <div class="loading-spinner"></div>
