@@ -1,4 +1,4 @@
-import { Component, Prop, h, State, Event, EventEmitter, Element, Watch, Method } from '@stencil/core';
+import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
 import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, verifyApiKey } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
 import { ConversationStartEventData, StreamCompleteEventData } from '../../components';
@@ -169,7 +169,7 @@ export class ChatKBModal {
   /**
    * 数字员工ID，从聘才猫开发平台创建数字员工后，点击导出获取
    */
-  @Prop({ mutable: true }) employeeId!: string;
+  @Prop() employeeId!: string;
 
 
   // 添加语音输入相关状态
@@ -488,9 +488,8 @@ export class ChatKBModal {
 
 
   // 修改 loadHistoryMessages 方法
-  private async loadHistoryMessages(newConversationId?: string) {
-    if (!this.conversationId && !newConversationId) return;
-    const conversationId = newConversationId || this.conversationId;
+  private async loadHistoryMessages() {
+    if (!this.conversationId) return;
 
     this.isLoadingHistory = true;
     console.log('加载历史消息...');
@@ -500,7 +499,7 @@ export class ChatKBModal {
         url: '/sdk/v1/knowledge/chat/conversation-history',
         method: 'GET',
         data: {
-          conversation_id: conversationId,
+          conversation_id: this.conversationId,
         }
       });
 
@@ -984,41 +983,6 @@ export class ChatKBModal {
     this.suggestedQuestions = [];
   };
 
-  /**
-   * 重置组件状态的公共方法
-   * 
-   * @param newEmployeeId 新的员工ID(可选)
-   * @param newConversationId 新的会话ID(可选)
-   */
-  @Method()
-  async resetEmployee(newEmployeeId?: string, newConversationId?: string) {
-    // 重置所有状态
-    this.messages = [];
-    this.currentStreamingMessage = null;
-    this.conversationId = undefined;
-    this.currentRefs = [];
-    this.suggestedQuestions = [];
-    this.quickQuestions = [];
-    this.employeeDetails = null;
-    this.shouldHideReferences = false;
-    this.showReferences = false;
-
-    // 如果提供了新的员工ID，则更新
-    if (newEmployeeId) {
-      this.employeeId = newEmployeeId;
-    }
-
-    // 重新获取员工详情
-    await this.fetchEmployeeDetails();
-
-    // 如果有会话ID，加载历史记录
-    if (newConversationId) {
-      this.conversationId = newConversationId;
-      await this.loadHistoryMessages(newConversationId);
-    }
-
-    return true;
-  }
 
   render() {
     if (!this.isOpen) return null;
