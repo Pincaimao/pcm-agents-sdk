@@ -1,5 +1,6 @@
-import { Component, Prop, h,  State, Watch } from '@stencil/core';
+import { Component, Prop, h,  State, Watch,Event, EventEmitter } from '@stencil/core';
 import { sendHttpRequest } from '../../utils/utils';
+import { authStore } from '../../../store/auth.store';
 
 /**
  * 智能体卡片组件
@@ -77,6 +78,13 @@ export class PcmCard {
     @State() error: string = '';
 
     /**
+     * SDK密钥验证失败事件
+     */
+    @Event() tokenInvalid: EventEmitter<void>;
+
+    private tokenInvalidListener: () => void;
+
+    /**
      * 监听 botId 变化，当 botId 改变时重新获取数据
      */
     @Watch('botId')
@@ -86,13 +94,34 @@ export class PcmCard {
         }
     }
 
+    @Watch('token')
+    handleTokenChange(newToken: string) {
+        // 当传入的 token 变化时，更新 authStore 中的 token
+        if (newToken && newToken !== authStore.getToken()) {
+            authStore.setToken(newToken);
+        }
+    }
+
     /**
      * 组件将要加载时，如果有 botId 则获取数据
      */
     componentWillLoad() {
+        if (this.token) {
+            authStore.setToken(this.token);
+        }
         if (this.botId) {
             this.fetchBotData();
         }
+         // 添加全局token无效事件监听器
+         this.tokenInvalidListener = () => {
+            this.tokenInvalid.emit();
+        };
+        document.addEventListener('pcm-token-invalid', this.tokenInvalidListener);
+    }
+
+    disconnectedCallback() {
+        // 组件销毁时移除事件监听器
+        document.removeEventListener('pcm-token-invalid', this.tokenInvalidListener);
     }
 
 
@@ -109,9 +138,6 @@ export class PcmCard {
             const response = await sendHttpRequest({
                 url: `/sdk/v1/agent/${this.botId}/info`,
                 method: 'GET',
-                headers: {
-                    'authorization': 'Bearer ' + this.token
-                },
             });
 
             if (response.success && response.data) {

@@ -1,7 +1,9 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
-import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend } from '../../utils/utils';
+import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, verifyApiKey } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
 import { ConversationStartEventData, StreamCompleteEventData } from '../../components';
+import { authStore } from '../../../store/auth.store';
+import { configStore } from '../../../store/config.store';
 
 /**
  * 知识库问答助手
@@ -33,6 +35,7 @@ interface EmployeeDetails {
   last_conversation_id: string | null;
   workflow_id: string;
   agent_name: string;
+  show_quote_doc?: boolean;
 }
 
 @Component({
@@ -44,7 +47,7 @@ export class ChatKBModal {
   /**
    * 模态框标题
    */
-  @Prop() modalTitle: string = '在线客服';
+  @Prop() modalTitle?: string;
 
   /**
    * SDK鉴权密钥
@@ -61,14 +64,13 @@ export class ChatKBModal {
    */
   @State() messages: ChatMessage[] = [];
 
-
   /**
    * 当点击模态框关闭时触发
    */
   @Event() modalClosed: EventEmitter<void>;
 
   /**
-   * 应用图标URL
+   * 应用图标URL，如果未设置则使用智能体头像
    */
   @Prop() icon?: string;
 
@@ -133,7 +135,7 @@ export class ChatKBModal {
   @Event() tokenInvalid: EventEmitter<void>;
 
 
-  private readonly SCROLL_THRESHOLD = 30;
+  private readonly SCROLL_THRESHOLD = 20;
 
   /**
    * 是否以全屏模式打开，移动端建议设置为true
@@ -145,9 +147,12 @@ export class ChatKBModal {
   @State() isSubmittingText: boolean = false;
 
   /**
-   * 自定义智能体inputs输入参数
+   * 自定义智能体inputs输入参数:
+   * 1. show_suggested_questions: 是否显示推荐问题
    */
-  @Prop() customInputs: Record<string, any> = {};
+  @Prop() customInputs: Record<string, string> = {
+    show_suggested_questions: 'false',
+  };
 
 
   // 添加推荐问题和引用文档状态
@@ -156,14 +161,10 @@ export class ChatKBModal {
   @State() currentRefs: Reference[] = [];
 
   /**
-   * 是否显示引用文档
+   * 是否显示引用文档（总开关）
    */
-  @Prop() showReferences: boolean = true;
+  @State() showReferences: boolean = false;
 
-  /**
-   * 是否显示推荐问题
-   */
-  @Prop() showSuggestedQuestions: boolean = false;
 
   /**
    * 数字员工ID，从聘才猫开发平台创建数字员工后，点击导出获取
@@ -200,18 +201,43 @@ export class ChatKBModal {
    */
   @State() quickQuestions: string[] = [];
 
-
-  
   private tokenInvalidListener: () => void;
 
-  componentWillLoad() {
-      // 添加全局token无效事件监听器
-      this.tokenInvalidListener = () => {
-          this.tokenInvalid.emit();
-      };
-      document.addEventListener('pcm-token-invalid', this.tokenInvalidListener);
+  /**
+   * 当点击清除对话记录按钮时触发
+   */
+  @Event() clearConversation: EventEmitter<string>;
+
+  // 是否应该隐藏引用文档（每次对话是否隐藏引用文档）
+  @State() shouldHideReferences: boolean = false;
+
+  // 添加新的状态来追踪用户交互
+  @State() isUserScrolling: boolean = false;
+
+  @Watch('token')
+  handleTokenChange(newToken: string) {
+    // 当传入的 token 变化时，更新 authStore 中的 token
+    if (newToken && newToken !== authStore.getToken()) {
+      authStore.setToken(newToken);
+    }
   }
 
+  componentWillLoad() {
+
+    // 将 zIndex 存入配置缓存
+    if (this.zIndex) {
+      configStore.setItem('modal-zIndex', this.zIndex);
+    }
+    if (this.token) {
+      authStore.setToken(this.token);
+    }
+
+    // 添加全局token无效事件监听器
+    this.tokenInvalidListener = () => {
+      this.tokenInvalid.emit();
+    };
+    document.addEventListener('pcm-token-invalid', this.tokenInvalidListener);
+  }
 
 
   private handleClose = () => {
@@ -238,6 +264,9 @@ export class ChatKBModal {
     // 重置推荐问题和引用文档
     this.suggestedQuestions = [];
     this.currentRefs = [];
+
+    // 重置引用文档显示状态
+    this.shouldHideReferences = false;
 
     // 创建新的消息对象
     const newMessage: ChatMessage = {
@@ -277,15 +306,12 @@ export class ChatKBModal {
     // 合并基本输入参数和自定义输入参数
     requestData.inputs = {
       // 合并自定义输入参数
-      ...this.customInputs
+      ...this.customInputs,
     };
 
     await sendSSERequest({
       url: `/sdk/v1/knowledge/chat/chat-messages`,
       method: 'POST',
-      headers: {
-        'authorization': 'Bearer ' + this.token
-      },
       data: requestData,
       onMessage: (data) => {
         console.log('收到Stream数据:', data);
@@ -303,6 +329,11 @@ export class ChatKBModal {
         // 处理问题建议
         if (data.event === 'node_started' && data.data.title.includes('聘才猫推荐开始')) {
           this.suggestedQuestionsLoading = true;
+        }
+
+        // 添加对"不显示引用"的检测
+        if (data.event === 'node_started' && data.data.title.includes('不显示引用')) {
+          this.shouldHideReferences = true;
         }
 
         // 处理问题建议
@@ -414,6 +445,7 @@ export class ChatKBModal {
         this.isLoading = false;
       },
       onComplete: async () => {
+
         this.isLoading = false;
         const latestAIMessage = this.currentStreamingMessage;
         latestAIMessage.isStreaming = false;
@@ -426,20 +458,56 @@ export class ChatKBModal {
   }
 
 
-  // 监听滚动事件，用于控制聊天历史记录的自动滚动行为。
+  // 修改滚动处理函数
   private handleScroll = () => {
-    const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
-    if (!chatHistory) return;
+    // 只有当用户正在滚动时才更新自动滚动状态
+    if (this.isUserScrolling) {
 
-    const { scrollTop, scrollHeight, clientHeight } = chatHistory;
-    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+      const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
+      if (!chatHistory) return;
 
-    // 更新是否应该自动滚动的状态
-    this.shouldAutoScroll = distanceFromBottom <= this.SCROLL_THRESHOLD;
+      const { scrollTop, scrollHeight, clientHeight } = chatHistory;
+      const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+
+      // 更新是否应该自动滚动的状态
+      this.shouldAutoScroll = distanceFromBottom <= this.SCROLL_THRESHOLD;
+
+    }
   };
+
+  // 添加触摸开始事件处理
+  private handleTouchStart = () => {
+    this.isUserScrolling = true;
+  };
+
+  // 添加触摸结束事件处理
+  private handleTouchEnd = () => {
+    setTimeout(() => {
+      this.isUserScrolling = false;
+    }, 100); // 添加小延迟以确保滚动事件处理完成
+  };
+
+  private _wheelTimer: any = null;
+
+  // 添加鼠标滚轮事件处理
+  private handleWheel = () => {
+    this.isUserScrolling = true;
+
+    // 清除之前的定时器（如果存在）
+    if (this._wheelTimer) {
+      clearTimeout(this._wheelTimer);
+    }
+
+    // 设置新的定时器
+    this._wheelTimer = setTimeout(() => {
+      this.isUserScrolling = false;
+    }, 150); // 滚轮停止后的延迟时间
+  };
+
 
   private scrollToBottom() {
     if (!this.shouldAutoScroll) return;
+
     const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
     if (chatHistory && this.isOpen) {
       // 强制浏览器重新计算布局
@@ -469,9 +537,6 @@ export class ChatKBModal {
       const result = await sendHttpRequest({
         url: '/sdk/v1/knowledge/chat/conversation-history',
         method: 'GET',
-        headers: {
-          'authorization': 'Bearer ' + this.token
-        },
         data: {
           conversation_id: this.conversationId,
         }
@@ -508,27 +573,20 @@ export class ChatKBModal {
 
         this.messages = formattedMessages;
 
-        requestAnimationFrame(() => {
-          this.shouldAutoScroll = true;
-          this.scrollToBottom();
-        });
+
       }
     } catch (error) {
       console.error('加载历史消息失败:', error);
       alert(error instanceof Error ? error.message : '加载历史消息失败，请刷新重试');
     } finally {
       this.isLoadingHistory = false;
+      setTimeout(() => {
+        this.shouldAutoScroll = true;
+        this.scrollToBottom();
+      }, 200);
     }
   }
 
-  // 修改 componentDidLoad 生命周期方法
-  componentDidLoad() {
-    // 添加滚动事件监听器
-    const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
-    if (chatHistory) {
-      chatHistory.addEventListener('scroll', this.handleScroll);
-    }
-  }
 
   // 修改音频转文字方法
   private async convertAudioToText(cosKey: string): Promise<string | null> {
@@ -536,9 +594,6 @@ export class ChatKBModal {
       const result = await sendHttpRequest<{ text: string }>({
         url: '/sdk/v1/tts/audio_to_text',
         method: 'POST',
-        headers: {
-          'authorization': 'Bearer ' + this.token
-        },
         data: {
           cos_key: cosKey
         }
@@ -567,12 +622,14 @@ export class ChatKBModal {
       const result = await sendHttpRequest({
         url: `/sdk/v1/knowledge/chat/employee/${this.employeeId}`,
         method: 'GET',
-        headers: {
-          'authorization': 'Bearer ' + this.token
-        }
       });
       if (result.success && result.data) {
         this.employeeDetails = result.data;
+
+        // 根据 show_quote_doc 设置是否显示引用文档
+        if (this.employeeDetails.show_quote_doc !== undefined) {
+          this.showReferences = this.employeeDetails.show_quote_doc;
+        }
 
         // 设置预设问题
         if (this.employeeDetails.quick_questions) {
@@ -606,6 +663,7 @@ export class ChatKBModal {
         setTimeout(() => alert('请提供有效的数字员工ID'), 0);
         return;
       }
+      await verifyApiKey(this.token);
 
       // 获取智能体详情
       await this.fetchEmployeeDetails();
@@ -613,16 +671,11 @@ export class ChatKBModal {
   }
 
 
-  // 修改 componentDidLoad 生命周期方法，确保组件卸载时释放资源
+  // 确保组件卸载时释放资源
   disconnectedCallback() {
     // 组件销毁时移除事件监听器
     document.removeEventListener('pcm-token-invalid', this.tokenInvalidListener);
 
-    // 移除滚动事件监听器
-    const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
-    if (chatHistory) {
-      chatHistory.removeEventListener('scroll', this.handleScroll);
-    }
     // 清理音频录制计时器
     if (this.audioRecordingTimer) {
       clearInterval(this.audioRecordingTimer);
@@ -699,7 +752,7 @@ export class ChatKBModal {
         })
         .catch(error => {
           console.error('麦克风权限请求失败:', error);
-          
+
           // 根据错误类型提供更具体的提示
           if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
             alert('麦克风访问被拒绝。\n\n在Mac上，请前往系统偏好设置 > 安全性与隐私 > 隐私 > 麦克风，确保您的浏览器已被允许访问麦克风。');
@@ -752,7 +805,7 @@ export class ChatKBModal {
       audioRecorder.onstop = () => {
         // 停止并释放媒体流
         stream.getTracks().forEach(track => track.stop());
-        
+
         // 处理录制的音频
         this.processAudioRecording();
       };
@@ -806,7 +859,6 @@ export class ChatKBModal {
 
       // 上传音频文件
       const fileInfo = await uploadFileToBackend(audioFile, {
-        'authorization': 'Bearer ' + this.token
       }, {
         'tags': 'audio'
       });
@@ -924,9 +976,6 @@ export class ChatKBModal {
       const result = await sendHttpRequest({
         url: `/sdk/v1/files/${docId}/info`,
         method: 'GET',
-        headers: {
-          'authorization': `Bearer ${this.token}`
-        },
       });
 
 
@@ -946,6 +995,23 @@ export class ChatKBModal {
     }
   }
 
+  // 添加清除对话记录的方法
+  private handleClearConversation = () => {
+    if (this.isLoading || this.currentStreamingMessage) return;
+
+    // 触发清除对话事件，传递当前会话ID
+    this.clearConversation.emit(this.conversationId);
+
+    // 清空本地消息记录
+    this.messages = [];
+    this.currentStreamingMessage = null;
+    this.conversationId = undefined;
+    this.currentRefs = [];
+    this.suggestedQuestions = [];
+  };
+
+
+
   render() {
     if (!this.isOpen) return null;
 
@@ -963,9 +1029,16 @@ export class ChatKBModal {
       'fullscreen-overlay': this.fullscreen
     };
 
+    // 确定要显示的图标：优先使用传入的icon，如果未设置则使用智能体头像
+    const displayIcon = this.icon || (this.employeeDetails?.avatar || '');
+
+    // 确定要显示的标题：优先使用传入的modalTitle，如果未设置则使用智能体名称
+    const displayTitle = this.modalTitle || (this.employeeDetails?.name || '在线客服');
+
     // 修改渲染引用文档组件的方法
     const renderReferences = () => {
-      if (!this.showReferences || this.currentRefs.length === 0) return null;
+      // 只有当没有正在流式输出的消息且有引用文档且未设置隐藏引用且showReferences为true时才显示
+      if (!this.showReferences || this.currentRefs.length === 0 || this.currentStreamingMessage || this.shouldHideReferences) return null;
 
       return (
         <div class="references-section">
@@ -999,7 +1072,11 @@ export class ChatKBModal {
 
     // 渲染推荐问题组件
     const renderSuggestedQuestions = () => {
-      if (!this.showSuggestedQuestions) return null;
+
+      // 只有当没有正在流式输出的消息时才显示推荐问题
+      if (!this.customInputs.show_suggested_questions && !this.currentStreamingMessage) {
+        return null;
+      }
 
       if (this.suggestedQuestionsLoading) {
         return (
@@ -1034,8 +1111,8 @@ export class ChatKBModal {
 
     // 渲染预设问题组件
     const renderQuickQuestions = () => {
-      // 只有在没有会话ID且有预设问题时才显示
-      if (this.conversationId || this.quickQuestions.length === 0) return null;
+      // 只有在没有会话ID且有预设问题且没有正在流式输出的消息时才显示
+      if (this.conversationId || this.quickQuestions.length === 0 || this.currentStreamingMessage) return null;
 
       return (
         <div class="suggested-questions">
@@ -1070,6 +1147,16 @@ export class ChatKBModal {
           disabled={this.isRecordingAudio || this.isConvertingAudio}
         ></textarea>
         <div class="input-toolbar">
+          <div class="toolbar-actions">
+            <button
+              class="toolbar-button"
+              title="清除对话记录"
+              onClick={this.handleClearConversation}
+              disabled={this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.messages.length === 0}
+            >
+              <img src="https://pcm-pub-1351162788.cos.ap-guangzhou.myqcloud.com/sdk/image/brush-alt-svgrepo-com.png" alt="清除对话记录" />
+            </button>
+          </div>
           <div class="toolbar-actions">
             <button
               class={{
@@ -1128,8 +1215,8 @@ export class ChatKBModal {
           {this.isShowHeader && (
             <div class="modal-header">
               <div class="header-left">
-                {this.icon && <img src={this.icon} class="header-icon" alt="应用图标" />}
-                <div>{this.modalTitle}</div>
+                {displayIcon && <img src={displayIcon} class="header-icon" alt="应用图标" />}
+                <div>{displayTitle}</div>
               </div>
               {this.isNeedClose && (
                 <button class="close-button" onClick={this.handleClose}>
@@ -1140,7 +1227,13 @@ export class ChatKBModal {
           )}
 
           <div class="chat-container">
-            <div class="chat-history" onScroll={this.handleScroll}>
+            <div
+              class="chat-history"
+              onScroll={this.handleScroll}
+              onTouchStart={this.handleTouchStart}
+              onTouchEnd={this.handleTouchEnd}
+              onWheel={this.handleWheel}
+            >
               {this.isLoadingHistory ? (
                 <div class="loading-container">
                   <div class="loading-spinner"></div>
@@ -1153,7 +1246,6 @@ export class ChatKBModal {
                       <pcm-chat-message
                         message={message}
                         showFeedbackButtons={false}
-                        token={this.token}
                         onMessageChange={(event) => {
                           const updatedMessages = this.messages.map(msg =>
                             msg.id === message.id ? { ...msg, ...event.detail } : msg
@@ -1166,7 +1258,6 @@ export class ChatKBModal {
                   {this.currentStreamingMessage && (
                     <div id={`message_${this.currentStreamingMessage.id}`}>
                       <pcm-chat-message
-                        token={this.token}
                         message={this.currentStreamingMessage}
                         showFeedbackButtons={false}
                       ></pcm-chat-message>

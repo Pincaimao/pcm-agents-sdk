@@ -1,6 +1,9 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
-import { sendHttpRequest } from '../../utils/utils';
+import { sendHttpRequest, verifyApiKey } from '../../utils/utils';
 import { ConversationStartEventData, InterviewCompleteEventData, StreamCompleteEventData } from '../../components';
+import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
+import { authStore } from '../../../store/auth.store';
+import { configStore } from '../../../store/config.store';
 
 /**
  * 职位生成组件
@@ -71,7 +74,7 @@ export class PcmJdModal {
      * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
      * 
      */
-    @Prop() customInputs: Record<string, any> = {};
+    @Prop() customInputs: Record<string, string> = {};
 
     /**
      * 流式输出完成事件
@@ -93,6 +96,18 @@ export class PcmJdModal {
      */
     @Event() tokenInvalid: EventEmitter<void>;
 
+    /**
+    * 错误事件
+    */
+    @Event() someErrorEvent: EventEmitter<ErrorEventDetail>;
+
+    /**
+     * 附件预览模式
+     * 'drawer': 在右侧抽屉中预览
+     * 'window': 在新窗口中打开
+     */
+    @Prop() filePreviewMode: 'drawer' | 'window' = 'window';
+
     @State() showChatModal: boolean = false;
 
     // 使用 @Element 装饰器获取组件的 host 元素
@@ -100,56 +115,83 @@ export class PcmJdModal {
 
     // 输入模式：structured(点选模式) 或 free(表单模式)
     @State() inputMode: 'structured' | 'free' = 'structured';
-    
+
     // 步骤：input(输入职位名称) 或 review(选择标签)
     @State() step: 'input' | 'review' = 'input';
-    
+
     // 职位名称
     @State() jobName: string = '';
-    
+
     // 自由输入模式的文本
     @State() freeInputText: string = '';
-    
+
     // 是否正在加载标签
     @State() isLoading: boolean = false;
-    
+
     // 是否正在提交
     @State() isSubmitting: boolean = false;
-    
+
     // 标签组
     @State() tagGroups: { dimensionName: string; defaultTags: string[]; optionalTags: string[] }[] = [];
-    
+
     // 洗牌后的标签组
     @State() shuffledTagGroups: { dimensionName: string; tags: string[] }[] = [];
-    
+
     // 选中的AI标签
     @State() selectedAITags: { [key: string]: string[] } = {};
-    
+
     // 选中的基础标签
     @State() selectedTags: {
         salary: string;
         benefits: string[];
         education: string;
     } = {
-        salary: '',
-        benefits: [],
-        education: ''
-    };
+            salary: '',
+            benefits: [],
+            education: ''
+        };
 
-    
+
     private tokenInvalidListener: () => void;
+    private removeErrorListener: () => void;
 
+    @Watch('token')
+    handleTokenChange(newToken: string) {
+        // 当传入的 token 变化时，更新 authStore 中的 token
+        if (newToken && newToken !== authStore.getToken()) {
+            authStore.setToken(newToken);
+        }
+    }
     componentWillLoad() {
+
+        // 将 zIndex 存入配置缓存
+        if (this.zIndex) {
+            configStore.setItem('modal-zIndex', this.zIndex);
+        }
+        if (this.token) {
+            authStore.setToken(this.token);
+        }
+
         // 添加全局token无效事件监听器
         this.tokenInvalidListener = () => {
             this.tokenInvalid.emit();
         };
+
+        // 添加全局错误监听
+        this.removeErrorListener = ErrorEventBus.addErrorListener((errorDetail) => {
+            this.someErrorEvent.emit(errorDetail);
+        });
         document.addEventListener('pcm-token-invalid', this.tokenInvalidListener);
     }
 
     disconnectedCallback() {
         // 组件销毁时移除事件监听器
         document.removeEventListener('pcm-token-invalid', this.tokenInvalidListener);
+
+        // 移除错误监听器
+        if (this.removeErrorListener) {
+            this.removeErrorListener();
+        }
     }
 
 
@@ -226,15 +268,11 @@ export class PcmJdModal {
             const response = await sendHttpRequest({
                 url: '/sdk/v1/chat/workflow/block-run',
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${this.token}`,
-                    'Content-Type': 'application/json'
-                },
                 data: {
                     inputs: {
                         input_info: jobName
                     },
-                    workflow_code:"generate_jd_tags"
+                    workflow_code: "generate_jd_tags"
                 }
             });
 
@@ -271,7 +309,13 @@ export class PcmJdModal {
                     this.shuffledTagGroups = shuffled;
                     this.selectedAITags = initialSelectedTags;
                 } catch (error) {
-                    console.error('解析工作流输出错误:', error);
+                    ErrorEventBus.emitError({
+                        source: 'pcm-jd-modal[handlePositionAnalysis]',
+                        error: error,
+                        message: '解析前置标签时错误',
+                        type: 'ui'
+                    });
+
                 }
             }
         } catch (error) {
@@ -287,7 +331,7 @@ export class PcmJdModal {
             const newTags = currentTags.includes(value)
                 ? currentTags.filter(t => t !== value)
                 : [...currentTags, value];
-            
+
             this.selectedTags = {
                 ...this.selectedTags,
                 benefits: newTags
@@ -305,7 +349,7 @@ export class PcmJdModal {
         const newTags = currentTags.includes(tag)
             ? currentTags.filter(t => t !== tag)
             : [...currentTags, tag];
-        
+
         this.selectedAITags = {
             ...this.selectedAITags,
             [dimensionName]: newTags
@@ -339,15 +383,15 @@ export class PcmJdModal {
 
             // 构建职位描述
             let jobInfo = `职位名称：${this.jobName}\n`;
-            
+
             if (salaryRange) {
                 jobInfo += `薪资范围：${salaryRange}\n`;
             }
-            
+
             if (selectedBenefits) {
                 jobInfo += `福利待遇：${selectedBenefits}\n`;
             }
-            
+
             if (education) {
                 jobInfo += `学历要求：${education}\n`;
             }
@@ -364,7 +408,12 @@ export class PcmJdModal {
             this.jobDescription = jobInfo;
         } catch (error) {
             console.error('提交结构化数据时出错:', error);
-            alert('提交数据时出错，请重试');
+            ErrorEventBus.emitError({
+                source: 'pcm-jd-modal[handleSubmitStructured]',
+                error: error,
+                message: '提交数据时出错，请重试',
+                type: 'ui'
+            });
         } finally {
             this.isSubmitting = false;
         }
@@ -381,12 +430,17 @@ export class PcmJdModal {
         try {
             // 直接使用自由输入的文本作为职位描述
             this.jobDescription = this.freeInputText;
-            
+
             // 显示聊天模态框
             this.showChatModal = true;
         } catch (error) {
             console.error('提交自由输入数据时出错:', error);
-            alert('提交数据时出错，请重试');
+            ErrorEventBus.emitError({
+                source: 'pcm-jd-modal[handleSubmitFree]',
+                error: error,
+                message: '提交数据时出错，请重试',
+                type: 'ui'
+            });
         } finally {
             this.isSubmitting = false;
         }
@@ -395,7 +449,7 @@ export class PcmJdModal {
     @State() jobDescription: string = '';
 
     @Watch('isOpen')
-    handleIsOpenChange(newValue: boolean) {
+    async handleIsOpenChange(newValue: boolean) {
         if (!newValue) {
             // 重置状态
             this.showChatModal = false;
@@ -419,7 +473,7 @@ export class PcmJdModal {
                 this.inputMode = 'free';
                 this.freeInputText = this.customInputs.job_info;
             }
-            
+            await verifyApiKey(this.token);
             if (this.conversationId) {
                 // 如果有会话ID，直接显示聊天模态框
                 this.showChatModal = true;
@@ -444,11 +498,6 @@ export class PcmJdModal {
         this.interviewComplete.emit(event.detail);
     };
 
-    // 添加 handleTokenInvalid 方法
-    private handleTokenInvalid = () => {
-        // 转发 token 无效事件
-        this.tokenInvalid.emit();
-    };
 
     // 渲染标签组
     private renderTagGroup(title: string, options: { text: string, value: string }[], category: 'salary' | 'benefits' | 'education') {
@@ -462,7 +511,7 @@ export class PcmJdModal {
                             : this.selectedTags[category] === option.value;
 
                         return (
-                            <div 
+                            <div
                                 class={{
                                     'tag': true,
                                     'tag-selected': isSelected
@@ -489,7 +538,7 @@ export class PcmJdModal {
                             {group.tags.map(tag => {
                                 const isSelected = (this.selectedAITags[group.dimensionName] || []).includes(tag);
                                 return (
-                                    <div 
+                                    <div
                                         class={{
                                             'tag': true,
                                             'tag-selected': isSelected
@@ -538,10 +587,8 @@ export class PcmJdModal {
             'fullscreen-overlay': this.fullscreen
         };
 
-        // 检查是否有会话ID，如果有则直接显示聊天模态框
-        if (this.conversationId && !this.showChatModal) {
-            this.showChatModal = true;
-        }
+        // 显示加载状态
+        const isLoading = this.conversationId && !this.showChatModal;
 
         // 修正这里的逻辑，确保当 customInputs.job_info 存在时不隐藏输入区域，而是显示自由输入模式
         const hideJdInput = false;
@@ -569,8 +616,8 @@ export class PcmJdModal {
                             {/* 输入模式切换 */}
                             <div class="input-mode-toggle">
                                 <span>职位需求信息</span>
-                                <button 
-                                    class="toggle-button" 
+                                <button
+                                    class="toggle-button"
                                     onClick={this.handleToggleInput}
                                     disabled={this.isLoading}
                                 >
@@ -706,6 +753,14 @@ export class PcmJdModal {
                         </div>
                     )}
 
+                     {/* 加载状态 - 在有会话ID但聊天模态框尚未显示时展示 */}
+                     {isLoading && (
+                        <div class="loading-container">
+                            <div class="loading-spinner"></div>
+                            <p class="loading-text">正在加载对话...</p>
+                        </div>
+                    )}
+
                     {/* 聊天界面 - 在显示聊天模态框时显示 */}
                     {this.showChatModal && (
                         <div>
@@ -713,15 +768,14 @@ export class PcmJdModal {
                                 isOpen={true}
                                 modalTitle={this.modalTitle}
                                 icon={this.icon}
-                                token={this.token}
-                                isShowHeader={this.isShowHeader} 
-                                isNeedClose={this.isShowHeader} 
-                                zIndex={this.zIndex}
+                                isShowHeader={this.isShowHeader}
+                                isNeedClose={this.isShowHeader}
                                 fullscreen={this.fullscreen}
                                 botId="3022316191018873"
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
                                 enableVoice={false}
+                                filePreviewMode={this.filePreviewMode}
                                 customInputs={this.conversationId ? {} : {
                                     ...this.customInputs,
                                     job_info: this.customInputs?.job_info || this.jobDescription
@@ -731,7 +785,6 @@ export class PcmJdModal {
                                 onStreamComplete={this.handleStreamComplete}
                                 onConversationStart={this.handleConversationStart}
                                 onInterviewComplete={this.handleInterviewComplete}
-                                onTokenInvalid={this.handleTokenInvalid}
                             ></pcm-app-chat-modal>
                         </div>
                     )}

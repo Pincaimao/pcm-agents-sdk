@@ -3,10 +3,11 @@ import { marked } from 'marked';
 import extendedTables from 'marked-extended-tables';
 import { ChatMessage } from '../../interfaces/chat';
 import { sendHttpRequest } from '../../utils/utils';
+import { ErrorEventBus } from '../../utils/error-event';
 
 @Component({
     tag: 'pcm-chat-message',
-    styleUrl: 'pcm-chat-message.css',
+    styleUrls: ['../../global/markdown.css', 'pcm-chat-message.css'],
     shadow: true,
 })
 export class ChatMessageComponent {
@@ -14,11 +15,6 @@ export class ChatMessageComponent {
      * 消息数据
      */
     @Prop() message: ChatMessage;
-
-    /**
-     * SDK鉴权密钥
-     */
-    @Prop({ attribute: 'token' }) token: string = '';
 
     /**
      * 是否显示点赞点踩按钮 
@@ -58,6 +54,20 @@ export class ChatMessageComponent {
      */
     @Prop() showCopyButton: boolean = true;
 
+    /**
+     * 附件预览模式
+     * 'drawer': 在右侧抽屉中预览
+     * 'window': 在新窗口中打开
+     */
+    @Prop() filePreviewMode: 'drawer' | 'window' = 'window';
+
+    @Event() filePreviewRequest: EventEmitter<{
+        url?: string,
+        fileName: string,
+        content?: string,
+        contentType: 'file' | 'markdown' | 'text'
+    }>;
+
     constructor() {
         // 配置 marked 选项
         marked.use(extendedTables);
@@ -87,21 +97,13 @@ export class ChatMessageComponent {
                     alert('内容已复制到剪贴板');
                 })
                 .catch(err => {
-                    alert('复制失败');
-                    console.error('复制失败:', err);
-                });
-        }
-    }
-
-    private copyInputValue(text: string) {
-        if (text) {
-            navigator.clipboard.writeText(text)
-                .then(() => {
-                    console.log('内容已复制到剪贴板');
-                    alert('内容已复制到剪贴板');
-                })
-                .catch(err => {
-                    alert('复制失败');
+                    // 使用全局事件总线发送错误
+                    ErrorEventBus.emitError({
+                        source: 'pcm-chat-message[copyMessageContent]',
+                        error: err,
+                        message: '复制内容失败',
+                        type: 'ui'
+                    });
                     console.error('复制失败:', err);
                 });
         }
@@ -112,7 +114,7 @@ export class ChatMessageComponent {
         if (!this.message?.query?.trim()) return null;
 
         return (
-            <div class={{ 'user-message-container': true}}>
+            <div class={{ 'user-message-container': true }}>
                 {this.userAvatar && (
                     <div class="avatar user-avatar">
                         <img src={this.userAvatar} alt="用户头像" />
@@ -135,7 +137,7 @@ export class ChatMessageComponent {
         const htmlContent = this.message.answer ? marked(this.message.answer) : '';
 
         return (
-            <div class={{ 'assistant-message-container': true}}>
+            <div class={{ 'assistant-message-container': true }}>
                 {this.assistantAvatar && (
                     <div class="avatar assistant-avatar">
                         <img src={this.assistantAvatar} alt="助手头像" />
@@ -209,15 +211,10 @@ export class ChatMessageComponent {
             const result = await sendHttpRequest<{ file_url: string }>({
                 url: '/sdk/v1/files/presigned-url',
                 method: 'GET',
-                headers: {
-                    'authorization': `Bearer ${this.token}`
-                },
                 params: {
                     cos_key: cosKey
                 }
             });
-
-            console.log(result);
 
             if (result.success && result.data?.file_url) {
                 const baseUrl = result.data.file_url;
@@ -225,25 +222,55 @@ export class ChatMessageComponent {
             }
             return null;
         } catch (error) {
+            ErrorEventBus.emitError({
+                source: 'pcm-chat-message[getCosPreviewUrl]',
+                error,
+                message: '获取预览URL失败',
+                type: 'network'
+            });
             console.error('获取预览URL失败:', error);
             return null;
         }
     }
 
-    // 处理文件点击
-    private async handleFileClick(fileUrl: string) {
+    // 添加处理文本内容点击的方法
+    private handleContentClick(title: string, content: string, contentType: 'markdown' | 'text' = 'text') {
+        this.filePreviewRequest.emit({
+            fileName: title,
+            content: content,
+            contentType: contentType
+        });
+
+    }
+
+    // 修改处理文件点击的方法
+    private async handleFileClick(fileUrl: string, fileName: string) {
         const previewUrl = await this.getCosPreviewUrl(fileUrl);
         if (previewUrl) {
-            window.open(previewUrl, '_blank');
+            if (this.filePreviewMode === 'drawer') {
+                this.filePreviewRequest.emit({
+                    url: previewUrl,
+                    fileName: fileName,
+                    contentType: 'file'
+                });
+            } else {
+                window.open(previewUrl, '_blank');
+            }
         } else {
             console.error('无法获取预览URL');
+            ErrorEventBus.emitError({
+                source: 'pcm-chat-message[handleFileClick]',
+                error: '无法获取预览URL',
+                message: '无法获取预览URL',
+                type: 'network'
+            });
         }
     }
 
     // 修改渲染文件项的部分
     private renderFileItem(fileName: string, fileUrl: string, index: number) {
         return (
-            <div key={index} class="file-card" onClick={() => this.handleFileClick(fileUrl)}>
+            <div key={index} class="file-card" onClick={() => this.handleFileClick(fileUrl, fileName)}>
                 <div class="file-card-icon" style={{ background: 'linear-gradient(45deg, #ff5600, #ff8344)' }}>
                     <img src="https://pub.pincaimao.com/static/web/images/home/i_file.png"></img>
                 </div>
@@ -258,14 +285,14 @@ export class ChatMessageComponent {
     // 修改渲染输入数据的方法
     private renderInputs() {
         if (!this.message.inputs) return null;
-        
+
         // 检查是否所有字段都为 null、undefined 或空字符串
         const hasValidInput = Object.keys(this.message.inputs).some(key => {
             const value = this.message.inputs[key];
-            return value !== null && value !== undefined && value !== '' && 
-                   !key.startsWith('hide_') && key !== 'answer';
+            return value !== null && value !== undefined && value !== '' &&
+                !key.startsWith('hide_') && key !== 'answer';
         });
-        
+
         // 如果没有有效输入，返回 null
         if (!hasValidInput) return null;
 
@@ -281,14 +308,14 @@ export class ChatMessageComponent {
                         } else if (key === 'file_urls') {
                             // 始终将 file_urls 视为逗号分隔的字符串
                             const fileList = typeof value === 'string' ? value.split(',') : [value.toString()];
-                            
+
                             // 同样将 file_names 视为逗号分隔的字符串
-                            const fileNames = this.message.inputs.file_names ? 
-                                (typeof this.message.inputs.file_names === 'string' ? 
-                                    this.message.inputs.file_names.split(',') : 
-                                    [this.message.inputs.file_names.toString()]) : 
+                            const fileNames = this.message.inputs.file_names ?
+                                (typeof this.message.inputs.file_names === 'string' ?
+                                    this.message.inputs.file_names.split(',') :
+                                    [this.message.inputs.file_names.toString()]) :
                                 [];
-                            
+
                             return (
                                 <div key={index}>
                                     {fileList.map((fileUrl, fileIndex) => {
@@ -299,24 +326,18 @@ export class ChatMessageComponent {
                                 </div>
                             );
                         } else if (key === 'job_info' || key === 'rule') {
+                            const title = key === 'job_info' ? '职位信息' : '评估规则';
+                            const content = typeof value === 'string' ? value : JSON.stringify(value, null, 2);
+
                             return (
-                                <div key={index} class="file-card">
+                                <div key={index} class="file-card" onClick={() => this.handleContentClick(title, content)}>
                                     <div class="file-card-icon" style={{ background: '#0d75fb' }}>
                                         <img src="https://pub.pincaimao.com/static/web/images/home/i_position.png"></img>
                                     </div>
                                     <div class="file-card-content">
-                                        <div class="file-card-type">[{key === 'job_info' ? '职位信息' : '评估规则'}]</div>
-                                        <div class="file-card-name">{typeof value === 'string' && value.length > 50 ? value.substring(0, 50) + '...' : value}</div>
+                                        <div class="file-card-type">[{title}]</div>
+                                        <div class="file-card-name">{content.length > 50 ? content.substring(0, 50) + '...' : content}</div>
                                     </div>
-                                    <button class="copy-card-button" onClick={(e) => {
-                                        e.stopPropagation();
-                                        this.copyInputValue(value);
-                                    }} title="复制内容">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                                        </svg>
-                                    </button>
                                 </div>
                             );
                         } else if (key === 'input') {
@@ -357,6 +378,12 @@ export class ChatMessageComponent {
     private async submitFeedback(rating: 'like' | 'dislike' | null) {
         if (!this.message.id) {
             console.error('消息ID不存在，无法提交反馈');
+            ErrorEventBus.emitError({
+                source: 'pcm-chat-message[submitFeedback]',
+                error: '消息ID不存在，无法提交反馈',
+                message: '消息ID不存在，无法提交反馈',
+                type: 'ui'
+            });
             return;
         }
 
@@ -364,9 +391,6 @@ export class ChatMessageComponent {
             const result = await sendHttpRequest({
                 url: `/sdk/v1/chat/messages/${this.message.id}/feedbacks`,
                 method: 'POST',
-                headers: {
-                    'authorization': `Bearer ${this.token}`
-                },
                 data: {
                     rating,
                     bot_id: this.botId,

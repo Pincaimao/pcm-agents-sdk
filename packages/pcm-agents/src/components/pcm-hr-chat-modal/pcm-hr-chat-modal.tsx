@@ -1,7 +1,9 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
-import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, FileUploadResponse, synthesizeAudio } from '../../utils/utils';
+import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, FileUploadResponse, synthesizeAudio, verifyApiKey } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
 import { ConversationStartEventData, InterviewCompleteEventData, StreamCompleteEventData } from '../../components';
+import { authStore } from '../../../store/auth.store';
+import { configStore } from '../../../store/config.store';
 
 @Component({
   tag: 'pcm-hr-chat-modal',
@@ -157,7 +159,7 @@ export class ChatHRModal {
    */
   @Event() interviewComplete: EventEmitter<InterviewCompleteEventData>;
 
-  private readonly SCROLL_THRESHOLD = 30;
+  private readonly SCROLL_THRESHOLD = 20;
 
   /**
    * 视频录制最大时长（秒）
@@ -235,7 +237,28 @@ export class ChatHRModal {
 
   private tokenInvalidListener: () => void;
 
+  // 添加新的状态来追踪用户交互
+  @State() isUserScrolling: boolean = false;
+
+  @Watch('token')
+  handleTokenChange(newToken: string) {
+    // 当传入的 token 变化时，更新 authStore 中的 token
+    if (newToken && newToken !== authStore.getToken()) {
+      authStore.setToken(newToken);
+    }
+  }
+
   componentWillLoad() {
+
+    // 将 zIndex 存入配置缓存
+    if (this.zIndex) {
+      configStore.setItem('modal-zIndex', this.zIndex);
+    }
+
+    if (this.token) {
+      authStore.setToken(this.token);
+    }
+
     // 添加全局token无效事件监听器
     this.tokenInvalidListener = () => {
       this.tokenInvalid.emit();
@@ -263,7 +286,6 @@ export class ChatHRModal {
 
     try {
       const result = await uploadFileToBackend(this.selectedFile, {
-        'authorization': 'Bearer ' + this.token
       }, {
         'tags': 'resume'
       });
@@ -386,9 +408,6 @@ export class ChatHRModal {
     await sendSSERequest({
       url: '/sdk/v1/chat/chat-messages',
       method: 'POST',
-      headers: {
-        'authorization': 'Bearer ' + this.token
-      },
       data: requestData,
       onMessage: (data) => {
         console.log('收到Stream数据:', data);
@@ -467,7 +486,7 @@ export class ChatHRModal {
 
           if (textForSynthesis) {
             // 合成语音
-            const audioUrl = await synthesizeAudio(textForSynthesis, this.token);
+            const audioUrl = await synthesizeAudio(textForSynthesis);
 
             if (this.enableVoice) {
               // 自动播放语音
@@ -491,9 +510,6 @@ export class ChatHRModal {
       await sendHttpRequest({
         url: '/sdk/v1/hr_competition/answer',
         method: 'POST',
-        headers: {
-          'authorization': 'Bearer ' + this.token
-        },
         data: {
           conversation_id: conversationId,
           question: question,
@@ -505,17 +521,52 @@ export class ChatHRModal {
     }
   }
 
-  // 监听滚动事件，用于控制聊天历史记录的自动滚动行为。
+  // 修改滚动处理函数
   private handleScroll = () => {
-    const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
-    if (!chatHistory) return;
+    // 只有当用户正在滚动时才更新自动滚动状态
+    if (this.isUserScrolling) {
 
-    const { scrollTop, scrollHeight, clientHeight } = chatHistory;
-    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+      const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
+      if (!chatHistory) return;
 
-    // 更新是否应该自动滚动的状态
-    this.shouldAutoScroll = distanceFromBottom <= this.SCROLL_THRESHOLD;
+      const { scrollTop, scrollHeight, clientHeight } = chatHistory;
+      const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+
+      // 更新是否应该自动滚动的状态
+      this.shouldAutoScroll = distanceFromBottom <= this.SCROLL_THRESHOLD;
+
+    }
   };
+
+  // 添加触摸开始事件处理
+  private handleTouchStart = () => {
+    this.isUserScrolling = true;
+  };
+
+  // 添加触摸结束事件处理
+  private handleTouchEnd = () => {
+    setTimeout(() => {
+      this.isUserScrolling = false;
+    }, 100); // 添加小延迟以确保滚动事件处理完成
+  };
+
+  private _wheelTimer: any = null;
+
+  // 添加鼠标滚轮事件处理
+  private handleWheel = () => {
+    this.isUserScrolling = true;
+
+    // 清除之前的定时器（如果存在）
+    if (this._wheelTimer) {
+      clearTimeout(this._wheelTimer);
+    }
+
+    // 设置新的定时器
+    this._wheelTimer = setTimeout(() => {
+      this.isUserScrolling = false;
+    }, 150); // 滚轮停止后的延迟时间
+  };
+
 
   private scrollToBottom() {
     if (!this.shouldAutoScroll) return;
@@ -526,15 +577,6 @@ export class ChatHRModal {
     }
   }
 
-  // 添加 componentDidRender 生命周期方法，用于在组件渲染后滚动到底部
-  componentDidRender() {
-    if (this.isLoadingHistory || (this.shouldAutoScroll && this.isOpen)) {
-      const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
-      if (chatHistory) {
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-      }
-    }
-  }
 
   // 修改加载历史消息的方法
   private async loadHistoryMessages() {
@@ -547,9 +589,6 @@ export class ChatHRModal {
       const response = await sendHttpRequest({
         url: '/sdk/v1/chat/messages',
         method: 'GET',
-        headers: {
-          'authorization': 'Bearer ' + this.token
-        },
         data: {
           conversation_id: this.conversationId,
           bot_id: "3022316191018880",
@@ -582,10 +621,10 @@ export class ChatHRModal {
       alert(error instanceof Error ? error.message : '加载历史消息失败，请刷新重试');
     } finally {
       this.isLoadingHistory = false;
-      requestAnimationFrame(() => {
+      setTimeout(() => {
         this.shouldAutoScroll = true;
         this.scrollToBottom();
-      });
+      }, 200);
     }
   }
 
@@ -593,6 +632,7 @@ export class ChatHRModal {
   @Watch('isOpen')
   async handleIsOpenChange(newValue: boolean) {
     if (newValue) {
+      await verifyApiKey(this.token);
       if (this.conversationId) {
         await this.loadHistoryMessages();
       }
@@ -948,7 +988,6 @@ export class ChatHRModal {
 
       // 使用uploadFileToBackend上传视频
       const result = await uploadFileToBackend(videoFile, {
-        'authorization': 'Bearer ' + this.token
       }, {
         'tags': 'other'
       });
@@ -986,9 +1025,6 @@ export class ChatHRModal {
       await sendHttpRequest({
         url: '/sdk/v1/hr_competition/answer',
         method: 'POST',
-        headers: {
-          'authorization': 'Bearer ' + this.token
-        },
         data: {
           conversation_id: this.conversationId,
           question: lastAIMessage.answer,
@@ -1015,9 +1051,6 @@ export class ChatHRModal {
       await sendHttpRequest({
         url: `/sdk/v1/hr_competition/${this.conversationId}/end`,
         method: 'POST',
-        headers: {
-          'authorization': 'Bearer ' + this.token
-        },
       });
     } catch (error) {
       console.error('发送面试完成请求失败:', error);
@@ -1059,7 +1092,7 @@ export class ChatHRModal {
     });
   }
 
-  // 修改 componentDidLoad 生命周期方法，确保组件卸载时释放资源
+  // 确保组件卸载时释放资源
   disconnectedCallback() {
     document.removeEventListener('pcm-token-invalid', this.tokenInvalidListener);
     // 释放音频资源
@@ -1294,7 +1327,12 @@ export class ChatHRModal {
             </div>
           ) : (
             <div style={{ height: '100%' }}>
-              <div class="chat-history" onScroll={this.handleScroll}>
+              <div class="chat-history"
+                onScroll={this.handleScroll}
+                onTouchStart={this.handleTouchStart}
+                onTouchEnd={this.handleTouchEnd}
+                onWheel={this.handleWheel}
+              >
                 {this.isLoadingHistory ? (
                   <div class="loading-container">
                     <div class="loading-spinner"></div>
@@ -1305,7 +1343,6 @@ export class ChatHRModal {
                     {this.messages.map((message) => (
                       <div id={`message_${message.id}`} key={message.id}>
                         <pcm-chat-message
-                          token={this.token}
                           message={message}
                           onMessageChange={(event) => {
                             const updatedMessages = this.messages.map(msg =>
@@ -1319,7 +1356,6 @@ export class ChatHRModal {
                     {this.currentStreamingMessage && (
                       <div id={`message_${this.currentStreamingMessage.id}`}>
                         <pcm-chat-message
-                          token={this.token}
                           message={this.currentStreamingMessage}
                         ></pcm-chat-message>
                       </div>

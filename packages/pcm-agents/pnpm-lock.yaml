@@ -36,6 +36,9 @@ importers:
       '@stencil/core':
         specifier: ^4.27.1
         version: 4.31.0
+      '@stencil/store':
+        specifier: ^2.1.3
+        version: 2.1.3(@stencil/core@4.31.0)
       '@types/jest':
         specifier: ^29.5.14
         version: 29.5.14
@@ -511,6 +514,12 @@ packages:
       '@stencil/core': '>=3 || >= 4.0.0-beta.0 || >= 4.0.0'
       react: ^18 || ^19
       react-dom: ^18 || ^19
+
+  '@stencil/store@2.1.3':
+    resolution: {integrity: sha512-qeWJisbcafVcAhFZidiqK82ULlgBzPNEhlsm0PZ54FHkNTIomxns2MiI7IOGUvGPumK1WK7KzajRomHHc8SYag==}
+    engines: {node: '>=18.0.0', npm: '>=6.0.0'}
+    peerDependencies:
+      '@stencil/core': '>=2.0.0 || >=3.0.0 || >= 4.0.0-beta.0 || >= 4.0.0'
 
   '@stencil/vue-output-target@0.10.7':
     resolution: {integrity: sha512-IYxDe+SLCkwhwsWRdynE31rTK1zN3hVwwojQ/V9lrN8Gnx4PTvrUQHiRno9jFo1dk+EaBZWX9gZSmXta0ZaZew==}
@@ -2591,6 +2600,10 @@ snapshots:
       ts-morph: 22.0.0
     transitivePeerDependencies:
       - '@types/react'
+
+  '@stencil/store@2.1.3(@stencil/core@4.31.0)':
+    dependencies:
+      '@stencil/core': 4.31.0
 
   '@stencil/vue-output-target@0.10.7(@stencil/core@4.31.0)(vue@3.5.13)':
     dependencies:

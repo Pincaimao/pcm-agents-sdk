@@ -1,14 +1,14 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
-import { uploadFileToBackend, FileUploadResponse } from '../../utils/utils';
+import { uploadFileToBackend, FileUploadResponse, verifyApiKey } from '../../utils/utils';
 import { ConversationStartEventData, StreamCompleteEventData } from '../../components';
+import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
+import { authStore } from '../../../store/auth.store'; // 导入 authStore
+import { configStore } from '../../../store/config.store';
 
 /**
  * 职业规划助手
  */
 
-/**
- * 职业规划类型枚举
- */
 export type CareerPlanType = '长期规划' | '转行建议' | '晋升路径';
 
 @Component({
@@ -76,7 +76,7 @@ export class ZyghModal {
     /**
      * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"
      */
-    @Prop() customInputs: Record<string, any> = {};
+    @Prop() customInputs: Record<string, string> = {};
 
     /**
      * 上传成功事件
@@ -106,6 +106,18 @@ export class ZyghModal {
      */
     @Event() tokenInvalid: EventEmitter<void>;
 
+    /**
+    * 错误事件
+    */
+    @Event() someErrorEvent: EventEmitter<ErrorEventDetail>;
+
+    /**
+     * 附件预览模式
+     * 'drawer': 在右侧抽屉中预览
+     * 'window': 在新窗口中打开
+     */
+    @Prop() filePreviewMode: 'drawer' | 'window' = 'window';
+
     @State() selectedFile: File | null = null;
     @State() isUploading: boolean = false;
     @State() uploadedFileInfo: FileUploadResponse | null = null;
@@ -115,6 +127,47 @@ export class ZyghModal {
 
     // 使用 @Element 装饰器获取组件的 host 元素
     @Element() hostElement: HTMLElement;
+
+    private tokenInvalidListener: () => void;
+    private removeErrorListener: () => void;
+
+    @Watch('token')
+    handleTokenChange(newToken: string) {
+        // 当传入的 token 变化时，更新 authStore 中的 token
+        if (newToken && newToken !== authStore.getToken()) {
+            authStore.setToken(newToken);
+        }
+    }
+
+    componentWillLoad() {
+
+        // 将 zIndex 存入配置缓存
+        if (this.zIndex) {
+            configStore.setItem('modal-zIndex', this.zIndex);
+        }
+        if (this.token) {
+            authStore.setToken(this.token);
+        }
+
+        // 添加全局token无效事件监听器
+        this.tokenInvalidListener = () => {
+            this.tokenInvalid.emit();
+        };
+        // 添加全局错误监听
+        this.removeErrorListener = ErrorEventBus.addErrorListener((errorDetail) => {
+            this.someErrorEvent.emit(errorDetail);
+        });
+        document.addEventListener('pcm-token-invalid', this.tokenInvalidListener);
+    }
+
+    disconnectedCallback() {
+        // 组件销毁时移除事件监听器
+        document.removeEventListener('pcm-token-invalid', this.tokenInvalidListener);
+        // 移除错误监听器
+        if (this.removeErrorListener) {
+            this.removeErrorListener();
+        }
+    }
 
     private handleClose = () => {
         this.isOpen = false;
@@ -153,7 +206,6 @@ export class ZyghModal {
 
         try {
             const result = await uploadFileToBackend(this.selectedFile, {
-                'authorization': 'Bearer ' + this.token
             }, {
                 'tags': 'resume'
             });
@@ -163,7 +215,12 @@ export class ZyghModal {
         } catch (error) {
             console.error('文件上传错误:', error);
             this.clearSelectedFile();
-            alert(error instanceof Error ? error.message : '文件上传失败，请重试');
+            ErrorEventBus.emitError({
+                source: 'pcm-zygh-modal[uploadFile]',
+                error: error,
+                message: '文件上传失败，请重试',
+                type: 'ui'
+            });
         } finally {
             this.isUploading = false;
         }
@@ -187,24 +244,24 @@ export class ZyghModal {
                 }
             }
 
-            // console.log('传递的customInputs:', {
-            //     ...this.customInputs,
-            //     file_url: this.uploadedFileInfo.cos_key,
-            //     type: this.selectedPlanType
-            // });
 
             // 直接显示聊天模态框
             this.showChatModal = true;
         } catch (error) {
             console.error('开始规划时出错:', error);
-            alert('开始规划时出错，请重试');
+            ErrorEventBus.emitError({
+                source: 'pcm-zygh-modal[handleStartPlanning]',
+                error: error,
+                message: '开始规划时出错，请重试',
+                type: 'ui'
+            });
         } finally {
             this.isSubmitting = false;
         }
     };
 
     @Watch('isOpen')
-    handleIsOpenChange(newValue: boolean) {
+    async handleIsOpenChange(newValue: boolean) {
         if (!newValue) {
             // 重置状态
             this.clearSelectedFile();
@@ -212,8 +269,14 @@ export class ZyghModal {
 
         } else {
             if (this.customInputs && this.customInputs.type) {
-                this.selectedPlanType = this.customInputs.type;
+                // 检查是否是有效的 CareerPlanType 值
+                const type = this.customInputs.type;
+                if (type === '长期规划' || type === '转行建议' || type === '晋升路径') {
+                    this.selectedPlanType = type;
+                }
             }
+
+            await verifyApiKey(this.token);
 
             if (this.conversationId) {
                 // 如果有会话ID，直接显示聊天模态框
@@ -222,11 +285,6 @@ export class ZyghModal {
         }
     }
 
-   
-    componentWillLoad() {
-        // 检查 customInputs 中是否有 type
-
-    }
 
     // 处理流式输出完成事件
     private handleStreamComplete = (event: CustomEvent) => {
@@ -247,11 +305,6 @@ export class ZyghModal {
         });
     };
 
-    // 添加 handleTokenInvalid 方法
-    private handleTokenInvalid = () => {
-        // 转发 token 无效事件
-        this.tokenInvalid.emit();
-    };
 
     render() {
         if (!this.isOpen) return null;
@@ -271,10 +324,8 @@ export class ZyghModal {
             'fullscreen-overlay': this.fullscreen
         };
 
-        // 检查是否有会话ID，如果有则直接显示聊天模态框
-        if (this.conversationId && !this.showChatModal) {
-            this.showChatModal = true;
-        }
+        // 显示加载状态
+        const isLoading = this.conversationId && !this.showChatModal;
 
         return (
             <div class={overlayClass} style={modalStyle}>
@@ -292,6 +343,7 @@ export class ZyghModal {
                             )}
                         </div>
                     )}
+
 
                     {/* 输入界面 - 仅在不显示聊天模态框且没有会话ID时显示 */}
                     {!this.showChatModal && !this.conversationId && (
@@ -374,6 +426,14 @@ export class ZyghModal {
                         </div>
                     )}
 
+                    {/* 加载状态 - 在有会话ID但聊天模态框尚未显示时展示 */}
+                    {isLoading && (
+                        <div class="loading-container">
+                            <div class="loading-spinner"></div>
+                            <p class="loading-text">正在加载对话...</p>
+                        </div>
+                    )}
+
                     {/* 聊天界面 - 在显示聊天模态框时显示 */}
                     {this.showChatModal && (
                         <div>
@@ -381,15 +441,14 @@ export class ZyghModal {
                                 isOpen={true}
                                 modalTitle={this.modalTitle}
                                 icon={this.icon}
-                                token={this.token}
                                 isShowHeader={this.isShowHeader}
                                 isNeedClose={this.isShowHeader}
-                                zIndex={this.zIndex}
                                 botId="3022316191018898"
                                 fullscreen={this.fullscreen}
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
                                 enableVoice={false}
+                                filePreviewMode={this.filePreviewMode}
                                 customInputs={this.conversationId ? {} : {
                                     ...this.customInputs,
                                     file_url: this.uploadedFileInfo?.cos_key,
@@ -401,7 +460,6 @@ export class ZyghModal {
                                 onStreamComplete={this.handleStreamComplete}
                                 onConversationStart={this.handleConversationStart}
                                 onInterviewComplete={this.handlePlanningComplete}
-                                onTokenInvalid={this.handleTokenInvalid}
                             ></pcm-app-chat-modal>
                         </div>
                     )}
