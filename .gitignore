@@ -3,3 +3,4 @@ node_modules/
 /packages/pcm-agents-vue/lib
 /doc
 /packages/pcm-agents/uploadToCOS.cjs
+/packages/pcm-agents/www.zip
