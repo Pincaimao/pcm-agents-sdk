@@ -23,6 +23,13 @@
 | `useButtonText`      | `use-button-text`   | 自定义立即使用按钮文本 | `string`  | `'立即使用'`    |
 
 
+## Events
+
+| Event          | Description | Type                |
+| -------------- | ----------- | ------------------- |
+| `tokenInvalid` | SDK密钥验证失败事件 | `CustomEvent<void>` |
+
+
 ----------------------------------------------
 
 *Built with [StencilJS](https://stenciljs.com/)*

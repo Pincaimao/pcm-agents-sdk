@@ -1,6 +1,9 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
-import { uploadFileToBackend, FileUploadResponse } from '../../utils/utils';
+import { uploadFileToBackend, FileUploadResponse, verifyApiKey } from '../../utils/utils';
 import { ConversationStartEventData, InterviewCompleteEventData, StreamCompleteEventData } from '../../components';
+import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
+import { authStore } from '../../../store/auth.store';
+import { configStore } from '../../../store/config.store';
 
 /**
  * 模拟出题大师
@@ -70,7 +73,7 @@ export class MnctModal {
     /**
      * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
      */
-    @Prop() customInputs: Record<string, any> = {};
+    @Prop() customInputs: Record<string, string> = {};
 
     /**
      * 上传成功事件
@@ -97,6 +100,18 @@ export class MnctModal {
      */
     @Event() tokenInvalid: EventEmitter<void>;
 
+    /**
+    * 错误事件
+    */
+    @Event() someErrorEvent: EventEmitter<ErrorEventDetail>;
+
+    /**
+     * 附件预览模式
+     * 'drawer': 在右侧抽屉中预览
+     * 'window': 在新窗口中打开
+     */
+    @Prop() filePreviewMode: 'drawer' | 'window' = 'window';
+
     @State() selectedFile: File | null = null;
     @State() isUploading: boolean = false;
     @State() uploadedFileInfo: FileUploadResponse | null = null;
@@ -109,23 +124,48 @@ export class MnctModal {
     @State() isSubmitting: boolean = false;
 
 
-    
     private tokenInvalidListener: () => void;
+    private removeErrorListener: () => void;
+
+    @Watch('token')
+    handleTokenChange(newToken: string) {
+        // 当传入的 token 变化时，更新 authStore 中的 token
+        if (newToken && newToken !== authStore.getToken()) {
+            authStore.setToken(newToken);
+        }
+    }
 
     componentWillLoad() {
+
+        // 将 zIndex 存入配置缓存
+        if (this.zIndex) {
+            configStore.setItem('modal-zIndex', this.zIndex);
+        }
+        if (this.token) {
+            authStore.setToken(this.token);
+        }
+
         // 添加全局token无效事件监听器
         this.tokenInvalidListener = () => {
             this.tokenInvalid.emit();
         };
+        // 添加全局错误监听
+        this.removeErrorListener = ErrorEventBus.addErrorListener((errorDetail) => {
+            this.someErrorEvent.emit(errorDetail);
+        });
         document.addEventListener('pcm-token-invalid', this.tokenInvalidListener);
     }
 
     disconnectedCallback() {
         // 组件销毁时移除事件监听器
         document.removeEventListener('pcm-token-invalid', this.tokenInvalidListener);
+        // 移除错误监听器
+        if (this.removeErrorListener) {
+            this.removeErrorListener();
+        }
     }
 
-    
+
     private handleClose = () => {
         this.isOpen = false;
         this.modalClosed.emit();
@@ -160,7 +200,6 @@ export class MnctModal {
         try {
             // 使用 uploadFileToBackend 工具函数上传文件
             const result = await uploadFileToBackend(this.selectedFile, {
-                'authorization': 'Bearer ' + this.token
             }, {
                 'tags': 'resume'
             });
@@ -170,7 +209,12 @@ export class MnctModal {
         } catch (error) {
             console.error('文件上传错误:', error);
             this.clearSelectedFile();
-            alert(error instanceof Error ? error.message : '文件上传失败，请重试');
+            ErrorEventBus.emitError({
+                source: 'pcm-mnct-modal[uploadFile]',
+                error: error,
+                message: '文件上传失败，请重试',
+                type: 'ui'
+            });
         } finally {
             this.isUploading = false;
         }
@@ -218,25 +262,32 @@ export class MnctModal {
             this.showChatModal = true;
         } catch (error) {
             console.error('开始面试时出错:', error);
-            alert('开始面试时出错，请重试');
+            ErrorEventBus.emitError({
+                source: 'pcm-mnct-modal[handleStartInterview]',
+                error: error,
+                message: '开始面试时出错，请重试',
+                type: 'ui'
+            });
         } finally {
             this.isSubmitting = false;
         }
     };
 
     @Watch('isOpen')
-    handleIsOpenChange(newValue: boolean) {
+    async handleIsOpenChange(newValue: boolean) {
         if (!newValue) {
             // 重置状态
             this.clearSelectedFile();
             this.showChatModal = false;
             this.jobDescription = '';
-         
+
         } else {
             if (this.customInputs && this.customInputs.job_info) {
                 this.jobDescription = this.customInputs.job_info;
             }
-            
+
+            await verifyApiKey(this.token);
+
             if (this.conversationId) {
                 // 如果有会话ID，直接显示聊天模态框
                 this.showChatModal = true;
@@ -261,11 +312,6 @@ export class MnctModal {
         this.interviewComplete.emit(event.detail);
     };
 
-    // 添加 handleTokenInvalid 方法
-    private handleTokenInvalid = () => {
-        // 转发 token 无效事件
-        this.tokenInvalid.emit();
-    };
 
     render() {
         if (!this.isOpen) return null;
@@ -274,7 +320,6 @@ export class MnctModal {
             zIndex: String(this.zIndex)
         };
 
-        console.log('showChatModal:', this.showChatModal);
 
         const containerClass = {
             'modal-container': true,
@@ -287,10 +332,8 @@ export class MnctModal {
             'fullscreen-overlay': this.fullscreen
         };
 
-        // 检查是否有会话ID，如果有则直接显示聊天模态框
-        if (this.conversationId && !this.showChatModal) {
-            this.showChatModal = true;
-        }
+        // 显示加载状态
+        const isLoading = this.conversationId && !this.showChatModal;
 
         // 修正这里的逻辑，确保当 customInputs.job_info 存在时，hideJdInput 为 true
         const hideJdInput = Boolean(this.customInputs && this.customInputs.job_info);
@@ -319,7 +362,7 @@ export class MnctModal {
                             {!hideJdInput && (
                                 <div class="jd-input-section">
                                     <label htmlFor="job-description">请输入职位描述 (JD)</label>
-                                    <textarea 
+                                    <textarea
                                         id="job-description"
                                         class="job-description-textarea"
                                         placeholder="请输入职位描述，包括职责、要求等信息..."
@@ -329,7 +372,7 @@ export class MnctModal {
                                     ></textarea>
                                 </div>
                             )}
-                            
+
                             {/* 简历上传区域 */}
                             <div class="resume-upload-section">
                                 <label>上传简历</label>
@@ -379,21 +422,28 @@ export class MnctModal {
                         </div>
                     )}
 
+                    {/* 加载状态 - 在有会话ID但聊天模态框尚未显示时展示 */}
+                    {isLoading && (
+                        <div class="loading-container">
+                            <div class="loading-spinner"></div>
+                            <p class="loading-text">正在加载对话...</p>
+                        </div>
+                    )}
+
                     {/* 聊天界面 - 在显示聊天模态框时显示 */}
                     {this.showChatModal && (
-                        <div >
+                        <div>
                             <pcm-app-chat-modal
                                 isOpen={true}
                                 modalTitle={this.modalTitle}
                                 icon={this.icon}
-                                token={this.token}
-                                isShowHeader={this.isShowHeader} // 不显示内部的标题栏，因为外部已有
-                                isNeedClose={this.isShowHeader} // 不显示内部的关闭按钮，因为外部已有
-                                zIndex={this.zIndex}
+                                isShowHeader={this.isShowHeader}
+                                isNeedClose={this.isShowHeader}
                                 fullscreen={this.fullscreen}
                                 botId="3022316191018876"
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
+                                filePreviewMode={this.filePreviewMode}
                                 enableVoice={false}
                                 customInputs={this.conversationId ? {} : {
                                     ...this.customInputs,
@@ -406,7 +456,6 @@ export class MnctModal {
                                 onStreamComplete={this.handleStreamComplete}
                                 onConversationStart={this.handleConversationStart}
                                 onInterviewComplete={this.handleInterviewComplete}
-                                onTokenInvalid={this.handleTokenInvalid}
                             ></pcm-app-chat-modal>
                         </div>
                     )}

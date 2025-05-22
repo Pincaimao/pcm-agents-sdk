@@ -29,6 +29,7 @@
 
     button {
       padding: 8px 16px;
+      margin: 10px 5px;
       background-color: #1890ff;
       color: white;
       border: none;
@@ -88,7 +89,7 @@
         </div>
 
         <div class="pcm-button">
-          <pcm-button id="open-mnms-chat-video" disabled>模拟面试（视频）</pcm-button>
+          <pcm-button id="open-mnms-chat-video">模拟面试（视频）</pcm-button>
         </div>
         <button id="open-hr-chat" disabled>打开金牌HR大赛</button>
         <button id="open-video-chat">视频面试（一站式）</button>
@@ -113,7 +114,10 @@
         <button class="pcm-button" id="open-htws-chat">劳动合同卫士</button>
         <button class="pcm-button" id="open-zsk-chat">数字员工</button>
         <button class="pcm-button" id="open-jd-chat">JD生成</button>
+        <button class="pcm-button" id="open-qgqjl-chat">千岗千简历</button>
       </div>
+
+     
     </div>
   </div>
 
@@ -123,7 +127,7 @@
   </pcm-msbg-modal>
 
   <pcm-mnct-modal id="pcm-mnct-modal" modal-title="面试出题大师" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
-    conversation-id="" fullscreen="true" default-query="请您提问">
+    conversation-id="" file-preview-mode="drawer" fullscreen="true" default-query="请您提问">
   </pcm-mnct-modal>
 
   <pcm-mnms-modal id="pcm-mnms-modal-video" modal-title="模拟面试（视频）"
@@ -138,21 +142,21 @@
   </pcm-mnms-modal>
 
   <pcm-jlpp-modal id="pcm-jlpp-modal" modal-title="简历匹配助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
-    conversation-id="" fullscreen="false" default-query="请您提问"></pcm-jlpp-modal>
+    conversation-id="ff192832-d3d0-411a-87d7-912b8094eb5f" file-preview-mode="drawer" fullscreen="false" default-query="请您提问"></pcm-jlpp-modal>
 
   <pcm-zygh-modal id="pcm-zygh-modal" modal-title="职业规划助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
-    conversation-id="" fullscreen="false" default-query="请您提问"></pcm-zygh-modal>
+    conversation-id="" file-preview-mode="drawer" fullscreen="false" default-query="请您提问"></pcm-zygh-modal>
 
   <pcm-hyzj-modal id="pcm-hyzj-modal" modal-title="会议总结助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
     conversation-id="" fullscreen="false" default-query="请您提问"></pcm-hyzj-modal>
 
 
   <pcm-htws-modal id="pcm-htws-modal" modal-title="劳动合同卫士" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
-    conversation-id="" fullscreen="false" default-query="请您提问"></pcm-htws-modal>
+    conversation-id="" fullscreen="true" default-query="请您提问"></pcm-htws-modal>
 
-  <pcm-zsk-chat-modal id="pcm-zsk-chat-modal" employee-id="137" modal-title="数字员工"
-    icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id="" fullscreen="false"
-    show-suggested-questions="false" default-query="请您提问"></pcm-zsk-chat-modal>
+  <pcm-zsk-chat-modal id="pcm-zsk-chat-modal" employee-id="137"
+    conversation-id="" fullscreen="true"
+     default-query="请您提问"></pcm-zsk-chat-modal>
 
 
   <pcm-jd-modal id="pcm-jd-modal" modal-title="职位生成" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
@@ -183,10 +187,15 @@
       interview-mode="text"
   ></pcm-app-chat-modal> -->
 
+  <!-- 添加千岗千简历模态框组件 -->
+  <pcm-qgqjl-modal id="pcm-qgqjl-modal" modal-title="千岗千简历" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
+    conversation-id="" fullscreen="false" default-query="请您提问">
+  </pcm-qgqjl-modal>
+
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc0NzMwMTc3OH0.Jz4BCaQS-IRYAMYh-sKwt2hHm6oqQ_HhglL0pToHgSI";
-    const SHARED_TOKEN_NEW = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc0NzEyNzk0Mn0.fa4-AFlpO4fioxklO_m5ygXqCdq7lfTEGmZwe8jbDWA"
+    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDc4ODE4NDV9.gxCOeWylcnDqQlPXDXiNiggjMpKbYd-g6iqa3jOma_o";
+    const SHARED_TOKEN_NEW = "11"
     let stream = null;
     const urlParams = new URLSearchParams(window.location.search);
 
@@ -216,6 +225,8 @@
       handleJdModal();
       handlePcmCard();
       handleVideoChatModal();
+      handleQgqjlModal(); // 添加千岗千简历模态框处理
+
     });
 
     // 为所有组件设置共享的 token
@@ -233,7 +244,8 @@
         'pcm-zsk-chat-modal',
         'pcm-jd-modal',
         'pcm-card',
-        'pcm-video-chat-modal'
+        'pcm-video-chat-modal',
+        'pcm-qgqjl-modal' // 添加千岗千简历组件
       ];
 
       components.forEach(id => {
@@ -354,6 +366,11 @@
         chatModal.setAttribute('conversation-id', event.detail.conversation_id);
       });
 
+      chatModal.addEventListener('tokenInvalid', () => {
+        console.log('SDK密钥验证失败');
+        chatModal.setAttribute('token', SHARED_TOKEN_NEW);
+      });
+
       chatModal.addEventListener('interviewComplete', (event) => {
         console.log('面试完成:', event.detail);
         chatModal.isOpen = false;
@@ -433,6 +450,10 @@
         mnmsModal.setAttribute('token', SHARED_TOKEN_NEW);
       });
 
+      mnmsModal.addEventListener('someErrorEvent', (event) => {
+        console.log('错误事件:', event.detail);
+      });
+
       // 打开聊天按钮事件监听
       openChatButton.addEventListener('click', () => {
         mnmsModal.isOpen = true;
@@ -444,7 +465,9 @@
 
       // 设置自定义输入
       // mnmsModal.customInputs = {
-      //   job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广"
+      //   job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广",
+      //   file_url: "/resources/file/20250416/d258f91a1ff6061822f00b4e245dbd00.pdf",
+      //   file_name: "简历.pdf"
       // };
     };
 
@@ -481,6 +504,10 @@
       mnmsModal.addEventListener('tokenInvalid', () => {
         console.log('SDK密钥验证失败');
         mnmsModal.setAttribute('token', SHARED_TOKEN_NEW);
+      });
+
+      mnmsModal.addEventListener('someErrorEvent', (event) => {
+        console.log('错误事件:', event.detail);
       });
 
       // 打开聊天按钮事件监听
@@ -526,6 +553,10 @@
         jlppModal.setAttribute('token', SHARED_TOKEN_NEW);
       });
 
+      jlppModal.addEventListener('someErrorEvent', (event) => {
+        console.log('错误事件:', event.detail);
+      });
+
       // 打开简历事件监听
       if (openJlpxButton) {
         openJlpxButton.addEventListener('click', () => {
@@ -568,6 +599,10 @@
       zyghModal.addEventListener('tokenInvalid', () => {
         console.log('SDK密钥验证失败');
         zyghModal.setAttribute('token', SHARED_TOKEN_NEW);
+      });
+
+      zyghModal.addEventListener('someErrorEvent', (event) => {
+        console.log('错误事件:', event.detail);
       });
 
       // 打开职业规划助手按钮事件监听
@@ -618,6 +653,10 @@
         mnctModal.setAttribute('token', SHARED_TOKEN_NEW);
       });
 
+      mnctModal.addEventListener('someErrorEvent', (event) => {
+        console.log('错误事件:', event.detail);
+      });
+
       // 打开聊天按钮事件监听
       openMnctButton.addEventListener('click', () => {
         mnctModal.isOpen = true;
@@ -663,6 +702,10 @@
       msbgModal.addEventListener('tokenInvalid', () => {
         console.log('SDK密钥验证失败');
         msbgModal.setAttribute('token', SHARED_TOKEN_NEW);
+      });
+
+      msbgModal.addEventListener('someErrorEvent', (event) => {
+        console.log('错误事件:', event.detail);
       });
 
       // 打开聊天按钮事件监听
@@ -711,6 +754,10 @@
         hyzjModal.setAttribute('token', SHARED_TOKEN_NEW);
       });
 
+      hyzjModal.addEventListener('someErrorEvent', (event) => {
+        console.log('错误事件:', event.detail);
+      });
+
       // 打开按钮事件监听
       openHyzjButton.addEventListener('click', () => {
         hyzjModal.isOpen = true;
@@ -751,6 +798,10 @@
       htwsModal.addEventListener('tokenInvalid', () => {
         console.log('SDK密钥验证失败');
         htwsModal.setAttribute('token', SHARED_TOKEN_NEW);
+      });
+
+      htwsModal.addEventListener('someErrorEvent', (event) => {
+        console.log('错误事件:', event.detail);
       });
 
       // 打开按钮事件监听
@@ -801,10 +852,53 @@
         chatZSKModal.setAttribute('token', SHARED_TOKEN_NEW);
       });
 
-      // 打开聊天按钮事件监听
-      openZSKChatButton.addEventListener('click', () => {
-        chatZSKModal.isOpen = true;
+      chatZSKModal.addEventListener('someErrorEvent', (event) => {
+        console.log('错误事件:', event.detail);
       });
+
+      // 打开聊天按钮事件监听
+      openZSKChatButton.addEventListener('click', async () => {
+        // 弹出对话框让用户选择操作
+        const action = prompt('请选择操作：\n1. 打开当前数字员工\n2. 切换到新数字员工\n3. 重置当前数字员工');
+        
+        if (action === '1') {
+          // 打开当前数字员工
+          chatZSKModal.isOpen = true;
+        } else if (action === '2') {
+          // 切换到新数字员工
+          const newEmployeeId = prompt('请输入新的数字员工ID:', '138');
+          if (newEmployeeId) {
+            // 预设的员工ID和会话ID映射
+            const employeeConversations = {
+              '137': 'a7e996dc-64fa-4086-aff1-497ef83daab2',
+              '138': 'd6177c58-f131-43e2-9ad5-498b0167e15e',
+            };
+            
+            // 如果有预设的会话ID，则使用它
+            if (employeeConversations[newEmployeeId]) {
+              console.log( employeeConversations[newEmployeeId]);
+              
+              await chatZSKModal.resetEmployee(newEmployeeId,employeeConversations[newEmployeeId]);
+            } else{
+              await chatZSKModal.resetEmployee(newEmployeeId);
+            }
+           
+            console.log(`已切换到数字员工ID: ${newEmployeeId}`);
+            chatZSKModal.isOpen = true;
+          }
+        } else if (action === '3') {
+          // 重置当前数字员工
+          const result = await chatZSKModal.resetEmployee();
+          if (result) {
+            console.log('已重置当前数字员工');
+            chatZSKModal.isOpen = true;
+          }
+        }
+      });
+
+      // chatZSKModal.customInputs = {
+      //   show_suggested_questions: 'true',
+      // };
     };
 
     // 职位生成模态框处理
@@ -843,15 +937,19 @@
         jdModal.setAttribute('token', SHARED_TOKEN_NEW);
       });
 
+      jdModal.addEventListener('someErrorEvent', (event) => {
+        console.log('错误事件:', event.detail);
+      });
+
       // 打开聊天按钮事件监听
       openJDButton.addEventListener('click', () => {
         jdModal.isOpen = true;
       });
 
       // 设置自定义输入
-      // jdModal.customInputs = {
-      //   input: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广"
-      // };
+      jdModal.customInputs = {
+        job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广"
+      };
     };
 
     const handlePcmCard = () => {
@@ -907,6 +1005,10 @@
         videoChatModal.setAttribute('token', SHARED_TOKEN_NEW);
       });
 
+      videoChatModal.addEventListener('someErrorEvent', (event) => {
+        console.log('错误事件:', event.detail);
+      });
+
       // 打开视频面试按钮事件监听
       openVideoChatButton.addEventListener('click', () => {
         videoChatModal.isOpen = true;
@@ -919,6 +1021,97 @@
         id: "35677279421992960"
       };
     };
+
+    // 千岗千简历模态框处理
+    const handleQgqjlModal = () => {
+      const qgqjlModal = document.getElementById('pcm-qgqjl-modal');
+      const openQgqjlButton = document.getElementById('open-qgqjl-chat');
+
+      if (!qgqjlModal || !openQgqjlButton) return;
+
+      // 设置事件监听
+      qgqjlModal.addEventListener('modalClosed', () => {
+        console.log('千岗千简历窗口已关闭');
+        qgqjlModal.isOpen = false;
+      });
+
+      qgqjlModal.addEventListener('streamComplete', (event) => {
+        console.log('流式响应完成:', event.detail);
+      });
+
+      qgqjlModal.addEventListener('conversationStart', (event) => {
+        console.log('会话开始:', event.detail);
+        qgqjlModal.setAttribute('conversation-id', event.detail.conversation_id);
+      });
+
+      qgqjlModal.addEventListener('interviewComplete', (event) => {
+        console.log('分析完成:', event.detail);
+      });
+
+      qgqjlModal.addEventListener('uploadSuccess', (event) => {
+        console.log('文件上传成功:', event.detail);
+      });
+
+      qgqjlModal.addEventListener('tokenInvalid', () => {
+        console.log('SDK密钥验证失败');
+        qgqjlModal.setAttribute('token', SHARED_TOKEN_NEW);
+      });
+
+      qgqjlModal.addEventListener('someErrorEvent', (event) => {
+        console.log('错误事件:', event.detail);
+      });
+
+      // 打开千岗千简历按钮事件监听
+      openQgqjlButton.addEventListener('click', () => {
+        qgqjlModal.isOpen = true;
+      });
+
+      // 可以设置自定义输入（可选）
+      qgqjlModal.customInputs = {
+        // job_info: "前端开发工程师，负责Web应用的开发与维护，要求熟悉React、TypeScript和现代前端工具链"
+        mode_type: "0"
+      };
+    };
+
+ 
+    
+    // 处理职位按钮点击
+    // const handleJobButtonClick = (jobInfo, jobId) => {
+    //   // 获取父容器
+    //   const modalId = 'pcm-mnms-modal-text';
+    //   const oldModal = document.getElementById(modalId);
+    //   const parentElement = oldModal.parentElement;
+      
+    //   if (!oldModal || !parentElement) {
+    //     console.error('找不到模拟面试模态框组件或其父元素');
+    //     return;
+    //   }
+      
+    //   console.log(`点击了职位ID: ${jobId}, 描述: ${jobInfo.substring(0, 30)}...`);
+      
+    //   // 创建新的模态框组件
+    //   const newModal = document.createElement('pcm-mnms-modal');
+    //   newModal.id = modalId;
+      
+    //   // 复制所有原始属性
+    //   Array.from(oldModal.attributes).forEach(attr => {
+    //     if (attr.name !== 'id') {
+    //       newModal.setAttribute(attr.name, attr.value);
+    //     }
+    //   });
+      
+    //   // 替换组件
+    //   parentElement.replaceChild(newModal, oldModal);
+      
+    //   // 设置自定义输入并打开模态框
+    //   setTimeout(() => {
+    //     newModal.customInputs = {
+    //       job_info: jobInfo
+    //     };
+    //     newModal.isOpen = true;
+    //   }, 100); // 短暂延迟确保组件已完全初始化
+    // };
+
   </script>
 </body>
 

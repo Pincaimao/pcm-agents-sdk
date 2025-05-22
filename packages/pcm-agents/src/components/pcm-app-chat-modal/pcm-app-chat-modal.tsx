@@ -1,4 +1,4 @@
-import { Component, Prop, h, State, Event, EventEmitter, Element } from '@stencil/core';
+import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
 import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, fetchAgentInfo, synthesizeAudio } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
 import {
@@ -8,10 +8,14 @@ import {
   RecordingErrorEventData,
   RecordingStatusChangeEventData
 } from '../../interfaces/events';
+import { marked } from 'marked';
+import { ErrorEventBus } from '../../utils/error-event';
+import { authStore } from '../../../store/auth.store'; // 导入 authStore
+import { configStore } from '../../../store/config.store';
 
 @Component({
   tag: 'pcm-app-chat-modal',
-  styleUrl: 'pcm-app-chat-modal.css',
+  styleUrls: ['pcm-app-chat-modal.css', '../../global/markdown.css',],
   shadow: true,
 })
 export class ChatAPPModal {
@@ -23,7 +27,7 @@ export class ChatAPPModal {
   /**
    * SDK鉴权密钥
    */
-  @Prop({ attribute: 'token' }) token!: string;
+  @Prop({ attribute: 'token' }) token?: string;
 
   /**
    * 是否显示聊天模态框
@@ -49,7 +53,7 @@ export class ChatAPPModal {
   /**
    * 聊天框的页面层级
    */
-  @Prop() zIndex?: number = 1000;
+  @Prop({ mutable: true }) zIndex?: number;
 
   /**
    * 是否展示顶部标题栏
@@ -156,7 +160,7 @@ export class ChatAPPModal {
    */
   @Event() interviewComplete: EventEmitter<InterviewCompleteEventData>;
 
-  private readonly SCROLL_THRESHOLD = 30;
+  private readonly SCROLL_THRESHOLD = 20;
 
 
 
@@ -216,7 +220,7 @@ export class ChatAPPModal {
   /**
    * 自定义智能体inputs输入参数
    */
-  @Prop() customInputs: Record<string, any> = {};
+  @Prop() customInputs: Record<string, string> = {};
 
   /**
    * 机器人ID
@@ -274,6 +278,41 @@ export class ChatAPPModal {
    */
   @Prop() showFeedbackButtons: boolean = true;
 
+  /**
+   * 附件预览模式
+   * 'drawer': 在右侧抽屉中预览
+   * 'window': 在新窗口中打开
+   */
+  @Prop() filePreviewMode: 'drawer' | 'window' = 'window';
+
+  // 添加新的状态来管理抽屉
+  @State() isDrawerOpen: boolean = false;
+  @State() previewUrl: string = '';
+  @State() previewFileName: string = '';
+
+  // 添加内容类型状态
+  @State() previewContentType: 'file' | 'markdown' | 'text' = 'file';
+  @State() previewContent: string = '';
+
+  // 添加新的状态来追踪用户交互
+  @State() isUserScrolling: boolean = false;
+
+  @Watch('token')
+  handleTokenChange(newToken: string) {
+    // 当传入的 token 变化时，更新 authStore 中的 token
+    if (newToken && newToken !== authStore.getToken()) {
+      authStore.setToken(newToken);
+    }
+  }
+
+  constructor() {
+    // 配置 marked 选项
+    marked.setOptions({
+      breaks: true,
+      gfm: true
+    });
+  }
+
   private handleClose = () => {
     this.stopRecording();
     this.modalClosed.emit();
@@ -281,14 +320,21 @@ export class ChatAPPModal {
 
   // 添加获取智能体信息的方法
   private async fetchAgentLogo() {
-    if (!this.botId || !this.token) return;
+    if (!this.botId) return;
 
     try {
-      const agentInfo = await fetchAgentInfo(this.token, this.botId);
+      const agentInfo = await fetchAgentInfo(this.botId);
+
       if (agentInfo && agentInfo.logo) {
         this.agentLogo = agentInfo.logo;
       }
     } catch (error) {
+      ErrorEventBus.emitError({
+        source: 'pcm-app-chat-modal[fetchAgentLogo]',
+        error: error,
+        message: '获取智能体信息失败',
+        type: 'network'
+      });
       console.error('获取智能体信息失败:', error);
     }
   }
@@ -370,9 +416,6 @@ export class ChatAPPModal {
     await sendSSERequest({
       url: '/sdk/v1/chat/chat-messages',
       method: 'POST',
-      headers: {
-        'authorization': 'Bearer ' + this.token
-      },
       data: requestData,
       onMessage: (data) => {
         console.log('收到Stream数据:', data);
@@ -441,7 +484,12 @@ export class ChatAPPModal {
       },
       onError: (error) => {
         console.error('发生错误:', error);
-        alert(error instanceof Error ? error.message : '消息发送失败，请稍后再试');
+        ErrorEventBus.emitError({
+          source: 'pcm-app-chat-modal[sendMessageToAPI]',
+          error: error,
+          message: '消息发送失败，请稍后再试',
+          type: 'network'
+        });
         this.messages = [...this.messages, {
           ...newMessage,
           answer: '抱歉，发生了错误，请稍后再试。',
@@ -483,7 +531,7 @@ export class ChatAPPModal {
 
           if (textForSynthesis && this.enableTTS) {
             // 使用工具函数合成语音
-            const audioUrl = await synthesizeAudio(textForSynthesis, this.token);
+            const audioUrl = await synthesizeAudio(textForSynthesis);
 
             if (this.enableVoice) {
               // 自动播放语音
@@ -508,16 +556,50 @@ export class ChatAPPModal {
   }
 
 
-  // 监听滚动事件，用于控制聊天历史记录的自动滚动行为。
+  // 修改滚动处理函数
   private handleScroll = () => {
-    const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
-    if (!chatHistory) return;
+    // 只有当用户正在滚动时才更新自动滚动状态
+    if (this.isUserScrolling) {
 
-    const { scrollTop, scrollHeight, clientHeight } = chatHistory;
-    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+      const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
+      if (!chatHistory) return;
 
-    // 更新是否应该自动滚动的状态
-    this.shouldAutoScroll = distanceFromBottom <= this.SCROLL_THRESHOLD;
+      const { scrollTop, scrollHeight, clientHeight } = chatHistory;
+      const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+
+      // 更新是否应该自动滚动的状态
+      this.shouldAutoScroll = distanceFromBottom <= this.SCROLL_THRESHOLD;
+
+    }
+  };
+
+  // 添加触摸开始事件处理
+  private handleTouchStart = () => {
+    this.isUserScrolling = true;
+  };
+
+  // 添加触摸结束事件处理
+  private handleTouchEnd = () => {
+    setTimeout(() => {
+      this.isUserScrolling = false;
+    }, 100); // 添加小延迟以确保滚动事件处理完成
+  };
+
+  private _wheelTimer: any = null;
+
+  // 添加鼠标滚轮事件处理
+  private handleWheel = () => {
+    this.isUserScrolling = true;
+
+    // 清除之前的定时器（如果存在）
+    if (this._wheelTimer) {
+      clearTimeout(this._wheelTimer);
+    }
+
+    // 设置新的定时器
+    this._wheelTimer = setTimeout(() => {
+      this.isUserScrolling = false;
+    }, 150); // 滚轮停止后的延迟时间
   };
 
   private scrollToBottom() {
@@ -526,16 +608,6 @@ export class ChatAPPModal {
     if (chatHistory && this.isOpen) {
       // 强制浏览器重新计算布局
       chatHistory.scrollTop = chatHistory.scrollHeight;
-    }
-  }
-
-  // 添加 componentDidRender 生命周期方法，用于在组件渲染后滚动到底部
-  componentDidRender() {
-    if (this.isLoadingHistory || (this.shouldAutoScroll && this.isOpen)) {
-      const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
-      if (chatHistory) {
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-      }
     }
   }
 
@@ -551,9 +623,6 @@ export class ChatAPPModal {
       const result = await sendHttpRequest({
         url: '/sdk/v1/chat/messages',
         method: 'GET',
-        headers: {
-          'authorization': 'Bearer ' + this.token
-        },
         data: {
           conversation_id: this.conversationId,
           bot_id: this.botId,
@@ -594,28 +663,43 @@ export class ChatAPPModal {
       }
     } catch (error) {
       console.error('加载历史消息失败:', error);
-      alert(error instanceof Error ? error.message : '加载历史消息失败，请刷新重试');
+      ErrorEventBus.emitError({
+        source: 'pcm-app-chat-modal[loadHistoryMessages]',
+        error: error,
+        message: '加载历史消息失败，请刷新重试',
+        type: 'network'
+      });
     } finally {
       this.isLoadingHistory = false;
-      requestAnimationFrame(() => {
+      setTimeout(() => {
         this.shouldAutoScroll = true;
         this.scrollToBottom();
-      });
+      }, 200);
+     
     }
   }
 
-  // 修改 componentDidLoad 生命周期方法
-  componentDidLoad() {
-
-    // 添加滚动事件监听器
-    const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
-    if (chatHistory) {
-      chatHistory.addEventListener('scroll', this.handleScroll);
-    }
-  }
 
   // 修改 componentWillLoad 生命周期方法
   componentWillLoad() {
+    // 将 zIndex 存入配置缓存
+    if (this.zIndex) {
+      configStore.setItem('modal-zIndex', this.zIndex);
+    } else {
+      // 如果没有提供 zIndex，尝试从缓存中读取
+      const cachedZIndex = configStore.getItem<number>('modal-zIndex');
+      if (cachedZIndex) {
+        this.zIndex = cachedZIndex;
+      } else {
+        this.zIndex = 1000;
+        configStore.setItem('modal-zIndex', 1000);
+      }
+    }
+
+    if (this.token) {
+      authStore.setToken(this.token);
+    }
+
     // 添加全局token无效事件监听器
     this.tokenInvalidListener = () => {
       this.tokenInvalid.emit();
@@ -629,10 +713,10 @@ export class ChatAPPModal {
 
     // 如果没有设置助手头像，尝试获取智能体头像
     if (!this.assistantAvatar && this.botId) {
+
       this.fetchAgentLogo();
     }
-    console.log(this.isOpen);
-    
+
     // 如果组件加载时已经是打开状态，则直接开始对话
     if (this.isOpen) {
       if (this.conversationId) {
@@ -828,11 +912,11 @@ export class ChatAPPModal {
 
     } catch (error) {
       console.error('无法访问摄像头或麦克风:', error);
-      // 通知父组件无法访问媒体设备
-      this.recordingError.emit({
-        type: 'media_access_failed',
+      ErrorEventBus.emitError({
+        source: 'pcm-app-chat-modal[startRecording]',
+        error: error,
         message: '无法访问摄像头或麦克风，请确保已授予权限',
-        details: error
+        type: 'network'
       });
       this.showRecordingUI = false;
     }
@@ -849,6 +933,12 @@ export class ChatAPPModal {
           videoElement.srcObject = stream;
           videoElement.play().catch(err => {
             console.error('视频播放失败:', err);
+            ErrorEventBus.emitError({
+              source: 'pcm-app-chat-modal[setupVideoPreview]',
+              error: err,
+              message: '视频播放失败',
+              type: 'ui'
+            });
           });
         } catch (e) {
           console.warn('设置srcObject失败，尝试替代方法:', e);
@@ -865,6 +955,12 @@ export class ChatAPPModal {
             };
           } catch (urlError) {
             console.error('创建对象URL失败:', urlError);
+            ErrorEventBus.emitError({
+              source: 'pcm-app-chat-modal[setupVideoPreview]',
+              error: urlError,
+              message: '创建对象URL失败',
+              type: 'network'
+            });
           }
         }
       } else {
@@ -938,9 +1034,6 @@ export class ChatAPPModal {
       const result = await sendHttpRequest<{ text: string }>({
         url: '/sdk/v1/tts/audio_to_text',
         method: 'POST',
-        headers: {
-          'authorization': 'Bearer ' + this.token
-        },
         data: {
           cos_key: cosKey
         }
@@ -954,6 +1047,12 @@ export class ChatAPPModal {
       }
     } catch (error) {
       console.error('音频转文字错误:', error);
+      ErrorEventBus.emitError({
+        source: 'pcm-app-chat-modal[convertAudioToText]',
+        error: error,
+        message: '音频转文字错误',
+        type: 'network'
+      });
       return null;
     }
   }
@@ -975,7 +1074,7 @@ export class ChatAPPModal {
 
       // 使用uploadFileToBackend上传文件
       const fileInfo = await uploadFileToBackend(file, {
-        'authorization': 'Bearer ' + this.token
+
       }, {
         'tags': 'other'
       });
@@ -988,11 +1087,11 @@ export class ChatAPPModal {
 
     } catch (error) {
       console.error('视频上传或处理错误:', error);
-      // 通知父组件视频上传失败
-      this.recordingError.emit({
-        type: 'upload_failed',
+      ErrorEventBus.emitError({
+        source: 'pcm-app-chat-modal[uploadRecordedVideo]',
+        error: error,
         message: '视频上传或处理失败',
-        details: error
+        type: 'network'
       });
     } finally {
       this.isUploadingVideo = false; // 上传完成后重置状态
@@ -1012,7 +1111,7 @@ export class ChatAPPModal {
       const requestData: any = {
         response_mode: 'streaming',
         conversation_id: this.conversationId,
-        query: "面试完成",
+        query: "我已经回答完毕，请结束面试",
         inputs: {
           // 合并自定义输入参数
           ...this.customInputs
@@ -1023,12 +1122,15 @@ export class ChatAPPModal {
       sendHttpRequest({
         url: '/sdk/v1/chat/chat-messages',
         method: 'POST',
-        headers: {
-          'authorization': 'Bearer ' + this.token
-        },
         data: requestData
       }).catch(error => {
         console.error('发送面试完成请求失败:', error);
+        ErrorEventBus.emitError({
+          source: 'pcm-app-chat-modal[completeInterview]',
+          error: error,
+          message: '发送面试完成请求失败',
+          type: 'network'
+        });
       });
 
     } catch (error) {
@@ -1056,6 +1158,12 @@ export class ChatAPPModal {
 
       this.audioElement.onerror = () => {
         console.error('音频播放错误');
+        ErrorEventBus.emitError({
+          source: 'pcm-app-chat-modal[playAudio]',
+          error: '音频播放错误',
+          message: '音频播放错误',
+          type: 'ui'
+        });
         this.isPlayingAudio = false;
         this.audioUrl = null;
         resolve();
@@ -1063,6 +1171,12 @@ export class ChatAPPModal {
 
       this.audioElement.play().catch(error => {
         console.error('音频播放失败:', error);
+        ErrorEventBus.emitError({
+          source: 'pcm-app-chat-modal[playAudio]',
+          error: error,
+          message: '音频播放失败',
+          type: 'ui'
+        });
         this.isPlayingAudio = false;
         this.audioUrl = null;
         resolve();
@@ -1070,14 +1184,9 @@ export class ChatAPPModal {
     });
   }
 
-  // 修改 componentDidLoad 生命周期方法，确保组件卸载时释放资源
+  // 确保组件卸载时释放资源
   disconnectedCallback() {
     document.removeEventListener('pcm-token-invalid', this.tokenInvalidListener);
-    // 移除滚动事件监听器
-    const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
-    if (chatHistory) {
-      chatHistory.removeEventListener('scroll', this.handleScroll);
-    }
 
     // 释放音频资源
     if (this.audioElement) {
@@ -1171,7 +1280,12 @@ export class ChatAPPModal {
       await this.sendMessageToAPI(textToSend);
     } catch (error) {
       console.error('提交文本回答失败:', error);
-      alert('提交回答失败，请重试');
+      ErrorEventBus.emitError({
+        source: 'pcm-app-chat-modal[submitTextAnswer]',
+        error: error,
+        message: '提交文本回答失败',
+        type: 'network'
+      });
     } finally {
       this.isSubmittingText = false;
     }
@@ -1191,13 +1305,12 @@ export class ChatAPPModal {
         })
         .catch(error => {
           console.error('麦克风权限请求失败:', error);
-
-          // 根据错误类型提供更具体的提示
-          if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-            alert('麦克风访问被拒绝。\n\n在Mac上，请前往系统偏好设置 > 安全性与隐私 > 隐私 > 麦克风，确保您的浏览器已被允许访问麦克风。');
-          } else {
-            alert('无法访问麦克风，请确保已授予权限并且麦克风设备正常工作。');
-          }
+          ErrorEventBus.emitError({
+            source: 'pcm-app-chat-modal[handleVoiceInputClick]',
+            error: error,
+            message: '麦克风权限请求失败',
+            type: 'ui'
+          });
         });
     }
   };
@@ -1222,7 +1335,12 @@ export class ChatAPPModal {
           // 停止并释放媒体流
           stream.getTracks().forEach(track => track.stop());
           console.error('无法创建音频录制器:', recorderError);
-          alert('您的浏览器不支持音频录制功能');
+          ErrorEventBus.emitError({
+            source: 'pcm-app-chat-modal[startRecordingWithStream]',
+            error: recorderError,
+            message: '无法创建音频录制器',
+            type: 'ui'
+          });
           return;
         }
       }
@@ -1267,7 +1385,12 @@ export class ChatAPPModal {
       // 停止并释放媒体流
       stream.getTracks().forEach(track => track.stop());
       console.error('开始录音失败:', error);
-      alert('开始录音失败，请确保麦克风设备正常工作');
+      ErrorEventBus.emitError({
+        source: 'pcm-app-chat-modal[startRecordingWithStream]',
+        error: error,
+        message: '开始录音失败，请确保麦克风设备正常工作',
+        type: 'ui'
+      });
     }
   }
 
@@ -1298,7 +1421,7 @@ export class ChatAPPModal {
 
       // 上传音频文件
       const fileInfo = await uploadFileToBackend(audioFile, {
-        'authorization': 'Bearer ' + this.token
+
       }, {
         'tags': 'audio'
       });
@@ -1336,7 +1459,12 @@ export class ChatAPPModal {
       }
     } catch (error) {
       console.error('处理音频录制失败:', error);
-      alert('语音识别失败，请重试');
+      ErrorEventBus.emitError({
+        source: 'pcm-app-chat-modal[processAudioRecording]',
+        error: error,
+        message: '语音识别失败，请重试',
+        type: 'ui'
+      });
     } finally {
       this.isConvertingAudio = false;
       this.audioChunks = [];
@@ -1392,6 +1520,22 @@ export class ChatAPPModal {
       }
     }
   }
+
+  // 修改事件处理方法
+  private handleFilePreviewRequest = (event: CustomEvent<{
+    url?: string,
+    fileName: string,
+    content?: string,
+    contentType: 'file' | 'markdown' | 'text'
+  }>) => {
+    const { url, fileName, content, contentType } = event.detail;
+
+    this.previewFileName = fileName || '内容预览';
+    this.previewContentType = contentType;
+    this.previewUrl = url;
+    this.previewContent = content || '';
+    this.isDrawerOpen = true;
+  };
 
   render() {
     if (!this.isOpen) return null;
@@ -1578,7 +1722,12 @@ export class ChatAPPModal {
           )}
 
           <div class="chat-container">
-            <div class="chat-history" onScroll={this.handleScroll}>
+            <div class="chat-history"
+              onScroll={this.handleScroll}
+              onTouchStart={this.handleTouchStart}
+              onTouchEnd={this.handleTouchEnd}
+              onWheel={this.handleWheel}
+            >
               {this.isLoadingHistory ? (
                 <div class="loading-container">
                   <div class="loading-spinner"></div>
@@ -1591,11 +1740,12 @@ export class ChatAPPModal {
                       <pcm-chat-message
                         botId={this.botId}
                         message={message}
-                        token={this.token}
                         userAvatar={this.userAvatar}
                         assistantAvatar={effectiveAssistantAvatar}
                         showCopyButton={this.showCopyButton}
                         showFeedbackButtons={this.showFeedbackButtons}
+                        filePreviewMode={this.filePreviewMode}
+                        onFilePreviewRequest={this.handleFilePreviewRequest}
                         onMessageChange={(event) => {
                           const updatedMessages = this.messages.map(msg =>
                             msg.id === message.id ? { ...msg, ...event.detail } : msg
@@ -1609,12 +1759,13 @@ export class ChatAPPModal {
                     <div id={`message_${this.currentStreamingMessage.id}`}>
                       <pcm-chat-message
                         botId={this.botId}
-                        token={this.token}
                         message={this.currentStreamingMessage}
                         userAvatar={this.userAvatar}
                         assistantAvatar={effectiveAssistantAvatar}
                         showCopyButton={this.showCopyButton}
                         showFeedbackButtons={this.showFeedbackButtons}
+                        filePreviewMode={this.filePreviewMode}
+                        onFilePreviewRequest={this.handleFilePreviewRequest}
                       ></pcm-chat-message>
                     </div>
                   )}
@@ -1700,6 +1851,40 @@ export class ChatAPPModal {
               </div>
             </div>
           </div>
+
+          {/* 添加预览抽屉 */}
+          <pcm-drawer
+            isOpen={this.isDrawerOpen}
+            drawerTitle={this.previewFileName}
+            width="80%"
+            onClosed={() => {
+              this.isDrawerOpen = false;
+              this.previewUrl = '';
+              this.previewContent = '';
+            }}
+          >
+            {this.previewContentType === 'file' && this.previewUrl && (
+              <div class="file-preview-container">
+                <iframe
+                  src={this.previewUrl}
+                  frameborder="0"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 'none', height: 'calc(100vh - 120px)' }}
+                ></iframe>
+              </div>
+            )}
+
+            {this.previewContentType === 'markdown' && this.previewContent && (
+              <div class="markdown-preview-container markdown-body" innerHTML={marked(this.previewContent)}></div>
+            )}
+
+            {this.previewContentType === 'text' && this.previewContent && (
+              <div class="text-preview-container">
+                <pre>{this.previewContent}</pre>
+              </div>
+            )}
+          </pcm-drawer>
         </div>
       </div>
     );
