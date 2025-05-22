@@ -16,6 +16,7 @@ import { PcmMnmsModal as PcmMnmsModalElement, defineCustomElement as definePcmMn
 import { PcmMnmsVideoModal as PcmMnmsVideoModalElement, defineCustomElement as definePcmMnmsVideoModal } from "pcm-agents/dist/components/pcm-mnms-video-modal.js";
 import { PcmMnmsZpModal as PcmMnmsZpModalElement, defineCustomElement as definePcmMnmsZpModal } from "pcm-agents/dist/components/pcm-mnms-zp-modal.js";
 import { PcmMsbgModal as PcmMsbgModalElement, defineCustomElement as definePcmMsbgModal } from "pcm-agents/dist/components/pcm-msbg-modal.js";
+import { PcmQgqjlModal as PcmQgqjlModalElement, defineCustomElement as definePcmQgqjlModal } from "pcm-agents/dist/components/pcm-qgqjl-modal.js";
 import { PcmZskChatModal as PcmZskChatModalElement, defineCustomElement as definePcmZskChatModal } from "pcm-agents/dist/components/pcm-zsk-chat-modal.js";
 import { PcmZyghModal as PcmZyghModalElement, defineCustomElement as definePcmZyghModal } from "pcm-agents/dist/components/pcm-zygh-modal.js";
 import React from 'react';
@@ -236,6 +237,21 @@ export const PcmMsbgModal = createComponent({
         onSomeErrorEvent: 'someErrorEvent'
     },
     defineCustomElement: definePcmMsbgModal
+});
+export const PcmQgqjlModal = createComponent({
+    tagName: 'pcm-qgqjl-modal',
+    elementClass: PcmQgqjlModalElement,
+    react: React,
+    events: {
+        onModalClosed: 'modalClosed',
+        onUploadSuccess: 'uploadSuccess',
+        onStreamComplete: 'streamComplete',
+        onConversationStart: 'conversationStart',
+        onInterviewComplete: 'interviewComplete',
+        onTokenInvalid: 'tokenInvalid',
+        onSomeErrorEvent: 'someErrorEvent'
+    },
+    defineCustomElement: definePcmQgqjlModal
 });
 export const PcmZskChatModal = createComponent({
     tagName: 'pcm-zsk-chat-modal',
