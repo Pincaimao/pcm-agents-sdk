@@ -31,26 +31,6 @@
 | `tokenInvalid`      | SDK密钥验证失败事件             | `CustomEvent<void>`                       |
 
 
-## Methods
-
-### `resetEmployee(newEmployeeId?: string, newConversationId?: string) => Promise<boolean>`
-
-重置组件状态的公共方法
-
-#### Parameters
-
-| Name                | Type     | Description |
-| ------------------- | -------- | ----------- |
-| `newEmployeeId`     | `string` | 新的员工ID(可选)  |
-| `newConversationId` | `string` | 新的会话ID(可选)  |
-
-#### Returns
-
-Type: `Promise<boolean>`
-
-
-
-
 ## Dependencies
 
 ### Depends on

@@ -61,6 +61,7 @@
  - [pcm-mnms-video-modal](../pcm-mnms-video-modal)
  - [pcm-mnms-zp-modal](../pcm-mnms-zp-modal)
  - [pcm-msbg-modal](../pcm-msbg-modal)
+ - [pcm-qgqjl-modal](../pcm-qgqjl-modal)
  - [pcm-zygh-modal](../pcm-zygh-modal)
 
 ### Depends on
@@ -83,6 +84,7 @@ graph TD;
   pcm-mnms-video-modal --> pcm-app-chat-modal
   pcm-mnms-zp-modal --> pcm-app-chat-modal
   pcm-msbg-modal --> pcm-app-chat-modal
+  pcm-qgqjl-modal --> pcm-app-chat-modal
   pcm-zygh-modal --> pcm-app-chat-modal
   style pcm-app-chat-modal fill:#f9f,stroke:#333,stroke-width:4px
 ```
