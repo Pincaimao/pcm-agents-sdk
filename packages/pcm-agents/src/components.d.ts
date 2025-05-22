@@ -940,6 +940,59 @@ export namespace Components {
          */
         "zIndex"?: number;
     }
+    /**
+     * 千岗千简历
+     */
+    interface PcmQgqjlModal {
+        /**
+          * 会话ID，传入继续对话，否则创建新会话
+         */
+        "conversationId"?: string;
+        /**
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
+         */
+        "customInputs": Record<string, string>;
+        /**
+          * 默认查询文本
+         */
+        "defaultQuery": string;
+        /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode": 'drawer' | 'window';
+        /**
+          * 是否以全屏模式打开，移动端建议设置为true
+         */
+        "fullscreen": boolean;
+        /**
+          * 应用图标URL
+         */
+        "icon"?: string;
+        /**
+          * 是否展示右上角的关闭按钮
+         */
+        "isNeedClose": boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen": boolean;
+        /**
+          * 是否展示顶部标题栏
+         */
+        "isShowHeader": boolean;
+        /**
+          * 模态框标题
+         */
+        "modalTitle": string;
+        /**
+          * SDK鉴权密钥
+         */
+        "token": string;
+        /**
+          * 聊天框的页面层级
+         */
+        "zIndex"?: number;
+    }
     interface PcmZskChatModal {
         /**
           * 会话ID，传入继续对话，否则创建新会话
@@ -981,12 +1034,6 @@ export namespace Components {
           * 模态框标题
          */
         "modalTitle"?: string;
-        /**
-          * 重置组件状态的公共方法
-          * @param newEmployeeId 新的员工ID(可选)
-          * @param newConversationId 新的会话ID(可选)
-         */
-        "resetEmployee": (newEmployeeId?: string, newConversationId?: string) => Promise<boolean>;
         /**
           * SDK鉴权密钥
          */
@@ -1106,6 +1153,10 @@ export interface PcmMnmsZpModalCustomEvent<T> extends CustomEvent<T> {
 export interface PcmMsbgModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmMsbgModalElement;
+}
+export interface PcmQgqjlModalCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLPcmQgqjlModalElement;
 }
 export interface PcmZskChatModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -1509,6 +1560,32 @@ declare global {
         prototype: HTMLPcmMsbgModalElement;
         new (): HTMLPcmMsbgModalElement;
     };
+    interface HTMLPcmQgqjlModalElementEventMap {
+        "modalClosed": void;
+        "uploadSuccess": FileUploadResponse;
+        "streamComplete": StreamCompleteEventData1;
+        "conversationStart": ConversationStartEventData1;
+        "interviewComplete": InterviewCompleteEventData1;
+        "tokenInvalid": void;
+        "someErrorEvent": ErrorEventDetail;
+    }
+    /**
+     * 千岗千简历
+     */
+    interface HTMLPcmQgqjlModalElement extends Components.PcmQgqjlModal, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLPcmQgqjlModalElementEventMap>(type: K, listener: (this: HTMLPcmQgqjlModalElement, ev: PcmQgqjlModalCustomEvent<HTMLPcmQgqjlModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLPcmQgqjlModalElementEventMap>(type: K, listener: (this: HTMLPcmQgqjlModalElement, ev: PcmQgqjlModalCustomEvent<HTMLPcmQgqjlModalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLPcmQgqjlModalElement: {
+        prototype: HTMLPcmQgqjlModalElement;
+        new (): HTMLPcmQgqjlModalElement;
+    };
     interface HTMLPcmZskChatModalElementEventMap {
         "modalClosed": void;
         "streamComplete": StreamCompleteEventData1;
@@ -1573,6 +1650,7 @@ declare global {
         "pcm-mnms-video-modal": HTMLPcmMnmsVideoModalElement;
         "pcm-mnms-zp-modal": HTMLPcmMnmsZpModalElement;
         "pcm-msbg-modal": HTMLPcmMsbgModalElement;
+        "pcm-qgqjl-modal": HTMLPcmQgqjlModalElement;
         "pcm-zsk-chat-modal": HTMLPcmZskChatModalElement;
         "pcm-zygh-modal": HTMLPcmZyghModalElement;
     }
@@ -2873,6 +2951,87 @@ declare namespace LocalJSX {
          */
         "zIndex"?: number;
     }
+    /**
+     * 千岗千简历
+     */
+    interface PcmQgqjlModal {
+        /**
+          * 会话ID，传入继续对话，否则创建新会话
+         */
+        "conversationId"?: string;
+        /**
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
+         */
+        "customInputs"?: Record<string, string>;
+        /**
+          * 默认查询文本
+         */
+        "defaultQuery"?: string;
+        /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode"?: 'drawer' | 'window';
+        /**
+          * 是否以全屏模式打开，移动端建议设置为true
+         */
+        "fullscreen"?: boolean;
+        /**
+          * 应用图标URL
+         */
+        "icon"?: string;
+        /**
+          * 是否展示右上角的关闭按钮
+         */
+        "isNeedClose"?: boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen"?: boolean;
+        /**
+          * 是否展示顶部标题栏
+         */
+        "isShowHeader"?: boolean;
+        /**
+          * 模态框标题
+         */
+        "modalTitle"?: string;
+        /**
+          * 新会话开始的回调，只会在一轮对话开始时触发一次
+         */
+        "onConversationStart"?: (event: PcmQgqjlModalCustomEvent<ConversationStartEventData1>) => void;
+        /**
+          * 当聊天完成时触发
+         */
+        "onInterviewComplete"?: (event: PcmQgqjlModalCustomEvent<InterviewCompleteEventData1>) => void;
+        /**
+          * 当点击模态框关闭时触发
+         */
+        "onModalClosed"?: (event: PcmQgqjlModalCustomEvent<void>) => void;
+        /**
+          * 错误事件
+         */
+        "onSomeErrorEvent"?: (event: PcmQgqjlModalCustomEvent<ErrorEventDetail>) => void;
+        /**
+          * 流式输出完成事件
+         */
+        "onStreamComplete"?: (event: PcmQgqjlModalCustomEvent<StreamCompleteEventData1>) => void;
+        /**
+          * SDK密钥验证失败事件
+         */
+        "onTokenInvalid"?: (event: PcmQgqjlModalCustomEvent<void>) => void;
+        /**
+          * 上传成功事件
+         */
+        "onUploadSuccess"?: (event: PcmQgqjlModalCustomEvent<FileUploadResponse>) => void;
+        /**
+          * SDK鉴权密钥
+         */
+        "token": string;
+        /**
+          * 聊天框的页面层级
+         */
+        "zIndex"?: number;
+    }
     interface PcmZskChatModal {
         /**
           * 会话ID，传入继续对话，否则创建新会话
@@ -3041,6 +3200,7 @@ declare namespace LocalJSX {
         "pcm-mnms-video-modal": PcmMnmsVideoModal;
         "pcm-mnms-zp-modal": PcmMnmsZpModal;
         "pcm-msbg-modal": PcmMsbgModal;
+        "pcm-qgqjl-modal": PcmQgqjlModal;
         "pcm-zsk-chat-modal": PcmZskChatModal;
         "pcm-zygh-modal": PcmZyghModal;
     }
@@ -3107,6 +3267,10 @@ declare module "@stencil/core" {
              * 面试报告
              */
             "pcm-msbg-modal": LocalJSX.PcmMsbgModal & JSXBase.HTMLAttributes<HTMLPcmMsbgModalElement>;
+            /**
+             * 千岗千简历
+             */
+            "pcm-qgqjl-modal": LocalJSX.PcmQgqjlModal & JSXBase.HTMLAttributes<HTMLPcmQgqjlModalElement>;
             "pcm-zsk-chat-modal": LocalJSX.PcmZskChatModal & JSXBase.HTMLAttributes<HTMLPcmZskChatModalElement>;
             "pcm-zygh-modal": LocalJSX.PcmZyghModal & JSXBase.HTMLAttributes<HTMLPcmZyghModalElement>;
         }

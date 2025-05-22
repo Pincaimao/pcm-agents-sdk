@@ -114,9 +114,10 @@
         <button class="pcm-button" id="open-htws-chat">劳动合同卫士</button>
         <button class="pcm-button" id="open-zsk-chat">数字员工</button>
         <button class="pcm-button" id="open-jd-chat">JD生成</button>
+        <button class="pcm-button" id="open-qgqjl-chat">千岗千简历</button>
       </div>
 
-   
+     
     </div>
   </div>
 
@@ -186,9 +187,14 @@
       interview-mode="text"
   ></pcm-app-chat-modal> -->
 
+  <!-- 添加千岗千简历模态框组件 -->
+  <pcm-qgqjl-modal id="pcm-qgqjl-modal" modal-title="千岗千简历" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
+    conversation-id="" fullscreen="false" default-query="请您提问">
+  </pcm-qgqjl-modal>
+
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDc3MjQ1OTF9.tk_71T4p6jkXBU_GxG3Tip30d_t2gB_8aDRnDLtnkpk";
+    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDc4ODE4NDV9.gxCOeWylcnDqQlPXDXiNiggjMpKbYd-g6iqa3jOma_o";
     const SHARED_TOKEN_NEW = "11"
     let stream = null;
     const urlParams = new URLSearchParams(window.location.search);
@@ -219,6 +225,8 @@
       handleJdModal();
       handlePcmCard();
       handleVideoChatModal();
+      handleQgqjlModal(); // 添加千岗千简历模态框处理
+
     });
 
     // 为所有组件设置共享的 token
@@ -236,7 +244,8 @@
         'pcm-zsk-chat-modal',
         'pcm-jd-modal',
         'pcm-card',
-        'pcm-video-chat-modal'
+        'pcm-video-chat-modal',
+        'pcm-qgqjl-modal' // 添加千岗千简历组件
       ];
 
       components.forEach(id => {
@@ -938,9 +947,9 @@
       });
 
       // 设置自定义输入
-      // jdModal.customInputs = {
-      //   input: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广"
-      // };
+      jdModal.customInputs = {
+        job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广"
+      };
     };
 
     const handlePcmCard = () => {
@@ -1012,6 +1021,96 @@
         id: "35677279421992960"
       };
     };
+
+    // 千岗千简历模态框处理
+    const handleQgqjlModal = () => {
+      const qgqjlModal = document.getElementById('pcm-qgqjl-modal');
+      const openQgqjlButton = document.getElementById('open-qgqjl-chat');
+
+      if (!qgqjlModal || !openQgqjlButton) return;
+
+      // 设置事件监听
+      qgqjlModal.addEventListener('modalClosed', () => {
+        console.log('千岗千简历窗口已关闭');
+        qgqjlModal.isOpen = false;
+      });
+
+      qgqjlModal.addEventListener('streamComplete', (event) => {
+        console.log('流式响应完成:', event.detail);
+      });
+
+      qgqjlModal.addEventListener('conversationStart', (event) => {
+        console.log('会话开始:', event.detail);
+        qgqjlModal.setAttribute('conversation-id', event.detail.conversation_id);
+      });
+
+      qgqjlModal.addEventListener('interviewComplete', (event) => {
+        console.log('分析完成:', event.detail);
+      });
+
+      qgqjlModal.addEventListener('uploadSuccess', (event) => {
+        console.log('文件上传成功:', event.detail);
+      });
+
+      qgqjlModal.addEventListener('tokenInvalid', () => {
+        console.log('SDK密钥验证失败');
+        qgqjlModal.setAttribute('token', SHARED_TOKEN_NEW);
+      });
+
+      qgqjlModal.addEventListener('someErrorEvent', (event) => {
+        console.log('错误事件:', event.detail);
+      });
+
+      // 打开千岗千简历按钮事件监听
+      openQgqjlButton.addEventListener('click', () => {
+        qgqjlModal.isOpen = true;
+      });
+
+      // 可以设置自定义输入（可选）
+      qgqjlModal.customInputs = {
+        // job_info: "前端开发工程师，负责Web应用的开发与维护，要求熟悉React、TypeScript和现代前端工具链"
+        mode_type: "0"
+      };
+    };
+
+ 
+    
+    // 处理职位按钮点击
+    // const handleJobButtonClick = (jobInfo, jobId) => {
+    //   // 获取父容器
+    //   const modalId = 'pcm-mnms-modal-text';
+    //   const oldModal = document.getElementById(modalId);
+    //   const parentElement = oldModal.parentElement;
+      
+    //   if (!oldModal || !parentElement) {
+    //     console.error('找不到模拟面试模态框组件或其父元素');
+    //     return;
+    //   }
+      
+    //   console.log(`点击了职位ID: ${jobId}, 描述: ${jobInfo.substring(0, 30)}...`);
+      
+    //   // 创建新的模态框组件
+    //   const newModal = document.createElement('pcm-mnms-modal');
+    //   newModal.id = modalId;
+      
+    //   // 复制所有原始属性
+    //   Array.from(oldModal.attributes).forEach(attr => {
+    //     if (attr.name !== 'id') {
+    //       newModal.setAttribute(attr.name, attr.value);
+    //     }
+    //   });
+      
+    //   // 替换组件
+    //   parentElement.replaceChild(newModal, oldModal);
+      
+    //   // 设置自定义输入并打开模态框
+    //   setTimeout(() => {
+    //     newModal.customInputs = {
+    //       job_info: jobInfo
+    //     };
+    //     newModal.isOpen = true;
+    //   }, 100); // 短暂延迟确保组件已完全初始化
+    // };
 
   </script>
 </body>
