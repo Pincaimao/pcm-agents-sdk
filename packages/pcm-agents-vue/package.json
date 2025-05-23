@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@stencil/vue-output-target": "^0.10.7",
-    "pcm-agents": "file:../pcm-agents"
+    "pcm-agents": "../pcm-agents"
   },
   "devDependencies": {
     "@types/node": "^22.13.10",

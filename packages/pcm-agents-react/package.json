@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@stencil/react-output-target": "^0.8.2",
-    "pcm-agents": "file:../pcm-agents"
+    "pcm-agents": "../pcm-agents"
   },
   "peerDependencies": {
     "react": "^17.0.0 || ^18.0.0",
