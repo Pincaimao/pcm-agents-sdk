@@ -165,7 +165,7 @@
 .upload-placeholder .upload-hint {
     font-size: 14px;
     color: #949AA5;
-    margin-top: 0.5rem;
+    margin-top: 8px;
     padding: 0px 10px;
 }
 
@@ -372,7 +372,7 @@
     align-items: center;
     justify-content: center;
     height: 100%;
-    padding: 2rem;
+    padding: 24px;
   }
   
   .loading-spinner {
@@ -382,7 +382,7 @@
     border-radius: 50%;
     border-top-color: var(--pcm-primary-color, #1890ff);
     animation: spin 1s linear infinite;
-    margin-bottom: 1rem;
+    margin-bottom: 16px;
   }
   
   .loading-text {

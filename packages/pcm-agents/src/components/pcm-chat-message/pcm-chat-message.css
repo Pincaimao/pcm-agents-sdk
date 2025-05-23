@@ -36,15 +36,15 @@
   background: #f5f7ff;
   font-size: 14px;
   color: #1F2328;
-  border-radius: .375rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
 }
 
 /* 助手消息气泡样式 */
 .assistant-message {
   padding: 15px 10px;
   background-color: #fff;
-  border-radius: .375rem;
+  border-radius: 6px;
   font-size: 14px;
   color: #1F2328;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
