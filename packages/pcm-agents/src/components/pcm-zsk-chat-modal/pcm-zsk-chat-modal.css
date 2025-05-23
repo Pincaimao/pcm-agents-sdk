@@ -464,16 +464,6 @@
   background-color: #f9f9f9;
 }
 
-.file-info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px;
-  background: white;
-  border: 1px solid #e8e8e8;
-  border-radius: 4px;
-}
-
 
 .recording-section {
   border-top: 1px solid #eee;
