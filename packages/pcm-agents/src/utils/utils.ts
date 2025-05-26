@@ -92,6 +92,38 @@ export const getEffectiveToken = (): string => {
 };
 
 /**
+ * 请求超时时间（毫秒）
+ */
+const REQUEST_TIMEOUT = 0.1 * 60 * 1000; // 2分钟
+
+/**
+ * 创建带超时的 fetch 请求
+ * @param url 请求URL
+ * @param options fetch选项
+ * @param timeout 超时时间（毫秒）
+ * @returns Promise<Response>
+ */
+const fetchWithTimeout = async (url: string, options: RequestInit, timeout: number = REQUEST_TIMEOUT): Promise<Response> => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('请求超时，请检查网络连接后重试');
+    }
+    throw error;
+  }
+};
+
+/**
  * 发送 SSE 流式请求
  * @param config 请求配置
  * @param isRetry 是否为重试请求
@@ -112,7 +144,7 @@ export const sendSSERequest = async (config: SSERequestConfig, isRetry = false):
       }
     }
 
-    const response = await fetch(requestUrl, {
+    const response = await fetchWithTimeout(requestUrl, {
       method,
       headers: {
         'Accept': 'text/event-stream',
@@ -172,6 +204,14 @@ export const sendSSERequest = async (config: SSERequestConfig, isRetry = false):
     onComplete?.();
   } catch (error) {
     console.error('SSE 请求错误:', error);
+    
+    // 如果是超时错误且不是重试请求，则重试一次
+    if (error instanceof Error && error.message.includes('请求超时') && !isRetry) {
+      console.log('SSE请求超时，正在重试...');
+      syncDelay(1000); // 延迟1秒后重试
+      return sendSSERequest(config, true);
+    }
+    
     onError?.(error);
   }
 };
@@ -280,7 +320,7 @@ export const sendHttpRequest = async <T = any>(config: HttpRequestConfig, isRetr
       requestUrl += (queryParams.toString() ? '&' : '?') + dataParams.toString();
     }
 
-    const response = await fetch(requestUrl, requestConfig);
+    const response = await fetchWithTimeout(requestUrl, requestConfig);
     
     // 检查是否为401错误（未授权）
     if (response.status === 401) {
@@ -328,6 +368,14 @@ export const sendHttpRequest = async <T = any>(config: HttpRequestConfig, isRetr
     };
   } catch (error) {
     console.error('HTTP请求错误:', error);
+    
+    // 如果是超时错误且允许重试，则重试一次
+    if (error instanceof Error && error.message.includes('请求超时') && isRetry) {
+      console.log('HTTP请求超时，正在重试...');
+      syncDelay(1000); // 延迟1秒后重试
+      return sendHttpRequest(config, false);
+    }
+    
     if (config.onError) {
       config.onError(error);
     }
@@ -374,7 +422,6 @@ export const verifyApiKey = async (token: string): Promise<boolean> => {
  * @returns Promise<any> 智能体信息数据
  */
 export const fetchAgentInfo = async (botId: string): Promise<any> => {
-  
   if (!botId) {
     throw new Error('智能体ID不能为空');
   }
@@ -469,7 +516,7 @@ export const synthesizeAudio = async (text: string, token?: string, isRetry = fa
   }
 
   try {
-    const response = await fetch(`${API_DOMAIN}/sdk/v1/tts/synthesize_audio`, {
+    const response = await fetchWithTimeout(`${API_DOMAIN}/sdk/v1/tts/synthesize_audio`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -499,6 +546,14 @@ export const synthesizeAudio = async (text: string, token?: string, isRetry = fa
     return URL.createObjectURL(audioBlob);
   } catch (error) {
     console.error('语音合成错误:', error);
+    
+    // 如果是超时错误且不是重试请求，则重试一次
+    if (error instanceof Error && error.message.includes('请求超时') && !isRetry) {
+      console.log('语音合成请求超时，正在重试...');
+      syncDelay(1000); // 延迟1秒后重试
+      return synthesizeAudio(text, token, true);
+    }
+    
     throw error;
   }
 };
