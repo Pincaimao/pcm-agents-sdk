@@ -625,6 +625,8 @@ export class ChatHRModal {
         });
 
         this.messages = formattedMessages;
+        // 根据历史消息计算当前题目序号
+        this.currentQuestionNumber = this.messages.length > 0 ? this.messages.length : 0;
       }
     } catch (error) {
       console.error('加载历史消息失败:', error);
