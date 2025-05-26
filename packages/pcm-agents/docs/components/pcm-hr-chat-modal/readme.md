@@ -11,6 +11,7 @@
 | `countdownWarningTime` | `countdown-warning-time` | 录制倒计时提醒时间（秒） 当剩余时间小于此值时，显示倒计时警告                                               | `number`  | `30`        |
 | `defaultQuery`         | `default-query`          | 首次对话提问文本                                                                      | `string`  | `'请开始出题'`   |
 | `displayContentStatus` | `display-content-status` | 是否显示题干内容                                                                      | `boolean` | `true`      |
+| `enableAudio`          | `enable-audio`           | 是否启用音频播放功能（包括自动播放和手动播放）                                                       | `boolean` | `true`      |
 | `enableVoice`          | `enable-voice`           | 是否自动播放语音问题                                                                    | `boolean` | `true`      |
 | `fullscreen`           | `fullscreen`             | 是否以全屏模式打开，移动端建议设置为true                                                        | `boolean` | `false`     |
 | `icon`                 | `icon`                   | 应用图标URL                                                                       | `string`  | `undefined` |

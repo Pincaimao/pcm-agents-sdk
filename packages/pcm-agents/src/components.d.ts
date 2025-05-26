@@ -375,6 +375,10 @@ export namespace Components {
          */
         "displayContentStatus": boolean;
         /**
+          * 是否启用音频播放功能（包括自动播放和手动播放）
+         */
+        "enableAudio": boolean;
+        /**
           * 是否自动播放语音问题
          */
         "enableVoice": boolean;
@@ -2090,6 +2094,10 @@ declare namespace LocalJSX {
           * 是否显示题干内容
          */
         "displayContentStatus"?: boolean;
+        /**
+          * 是否启用音频播放功能（包括自动播放和手动播放）
+         */
+        "enableAudio"?: boolean;
         /**
           * 是否自动播放语音问题
          */
