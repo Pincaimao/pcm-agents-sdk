@@ -678,14 +678,13 @@ export class ChatHRModal {
       alert('请至少选择一个关注模块');
       return;
     }
-
-    // 不再显示欢迎确认对话框，因为已经在组件打开时显示了
     // 直接询问用户是否准备好开始面试
     const confirmed = confirm('如果您已做好准备请点击"确定"开始面试。');
 
     if (!confirmed) {
       return;
     }
+
 
     // 修改文件上传逻辑
     if (this.requireResume) {
@@ -753,22 +752,32 @@ export class ChatHRModal {
       let mediaRecorder;
       try {
         mediaRecorder = new MediaRecorder(stream, {
-          mimeType: mimeType
+          mimeType: mimeType,
+          videoBitsPerSecond: 800000, // 800kbps 视频比特率限制
+          audioBitsPerSecond: 64000   // 64kbps 音频比特率限制
         });
       } catch (e) {
         // 如果指定MIME类型失败，尝试使用默认设置
         console.warn('指定的MIME类型不受支持，使用默认设置:', e);
         try {
-          mediaRecorder = new MediaRecorder(stream);
-        } catch (recorderError) {
-          // 通知父组件录制器创建失败
-          this.recordingError.emit({
-            type: 'recorder_creation_failed',
-            message: '无法创建媒体录制器，您的浏览器可能不支持此功能',
-            details: recorderError
+          mediaRecorder = new MediaRecorder(stream, {
+            videoBitsPerSecond: 800000, // 即使降级也保持比特率限制
+            audioBitsPerSecond: 64000
           });
-          this.showRecordingUI = false;
-          return;
+        } catch (recorderError) {
+          // 最后的降级选项，不设置任何参数
+          try {
+            mediaRecorder = new MediaRecorder(stream);
+          } catch (finalError) {
+            // 通知父组件录制器创建失败
+            this.recordingError.emit({
+              type: 'recorder_creation_failed',
+              message: '无法创建媒体录制器，您的浏览器可能不支持此功能',
+              details: finalError
+            });
+            this.showRecordingUI = false;
+            return;
+          }
         }
       }
 
@@ -797,7 +806,8 @@ export class ChatHRModal {
           // 根据实际使用的MIME类型创建Blob
           const blobType = mimeType || 'video/mp4';
           const blob = new Blob(chunks, { type: blobType });
-
+          console.log(blob.size);
+          
           if (blob.size === 0) {
             // 通知父组件录制的视频为空
             this.recordingError.emit({
@@ -1005,7 +1015,7 @@ export class ChatHRModal {
       if (result) {
         // 使用 FileUploadResponse 类型的字段
         await this.saveVideoAnswer(result.cos_key);
-        this.sendNextQuestion();
+        this.sendMessageToAPI("下一题");
       } else {
         throw new Error('视频上传失败');
       }
@@ -1046,10 +1056,6 @@ export class ChatHRModal {
     }
   }
 
-  // 发送"下一题"请求
-  private sendNextQuestion() {
-    this.sendMessageToAPI("下一题");
-  }
 
   /**
    * 发送面试完成请求
