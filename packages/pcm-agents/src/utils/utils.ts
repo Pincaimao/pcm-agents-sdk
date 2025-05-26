@@ -94,7 +94,7 @@ export const getEffectiveToken = (): string => {
 /**
  * 请求超时时间（毫秒）
  */
-const REQUEST_TIMEOUT = 0.1 * 60 * 1000; // 2分钟
+const REQUEST_TIMEOUT = 3 * 60 * 1000; // 3分钟
 
 /**
  * 创建带超时的 fetch 请求
