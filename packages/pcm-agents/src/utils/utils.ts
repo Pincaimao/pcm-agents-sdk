@@ -453,8 +453,6 @@ export interface FileUploadResponse {
   file_name: string;
   /** 文件大小（带单位的字符串，如 "1.5MB"） */
   file_size: string;
-  /** 文件的预签名URL */
-  presigned_url: string;
   /** 文件扩展名 */
   ext: string;
 }
@@ -480,7 +478,7 @@ export const uploadFileToBackend = async (file: File, headers?: Record<string, s
   }
 
   try {
-    const response = await sendHttpRequest<{ cos_key: string; file_name: string; file_size: string; presigned_url: string; ext: string }>({
+    const response = await sendHttpRequest<{ cos_key: string; file_name: string; file_size: string;  ext: string }>({
       url: '/sdk/v1/files/upload',
       method: 'POST',
       headers: {

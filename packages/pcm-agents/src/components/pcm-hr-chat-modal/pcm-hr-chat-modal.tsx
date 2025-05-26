@@ -300,7 +300,6 @@ export class ChatHRModal {
           cos_key: result.cos_key,
           file_name: result.file_name,
           file_size: result.file_size,
-          presigned_url: result.presigned_url,
           ext: result.ext
         }];
       }
