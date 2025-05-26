@@ -194,7 +194,7 @@
 
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc0ODMxNDM1NX0.bxvby3ceGMmbtTHBKOYgo8J43ZgVXiXBpmKnJf72j-8";
+    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDgzNTE4MTl9.63pHClTY6_mLltDdXMS0WXS5O9CP_mknSI7v6zfzHPw";
     const SHARED_TOKEN_NEW = "11"
     let stream = null;
     const urlParams = new URLSearchParams(window.location.search);
@@ -385,33 +385,7 @@
           stream = null;
         }
 
-        // 检查是否已有会话ID
-        const conversationId = chatModal.getAttribute('conversation-id');
-
-        if (!conversationId || conversationId === '') {
-          // 没有会话ID时，弹出系统级输入框，要求用户输入邮箱
-          const userEmail = prompt('请输入您的邮箱地址，用于接收评选结果：');
-
-          // 验证邮箱格式
-          if (userEmail) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (emailRegex.test(userEmail)) {
-              // 设置邮箱到组件
-              chatModal.setAttribute('to-email', userEmail);
-              chatModal.isOpen = true;
-
-            } else {
-              alert('请输入有效的邮箱地址');
-            }
-          } else {
-            // 用户取消输入
-            console.log('用户取消了邮箱输入');
-          }
-        } else {
-          // 已有会话ID，直接打开聊天窗口
-          chatModal.isOpen = true;
-
-        }
+        chatModal.isOpen = true;
       });
     };
 
