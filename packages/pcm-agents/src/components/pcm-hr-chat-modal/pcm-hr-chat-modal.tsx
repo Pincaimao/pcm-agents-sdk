@@ -231,6 +231,11 @@ export class ChatHRModal {
   @Prop() enableVoice: boolean = true;
 
   /**
+   * 是否启用音频播放功能（包括自动播放和手动播放）
+   */
+  @Prop() enableAudio: boolean = true;
+
+  /**
    * 是否显示题干内容
    */
   @Prop() displayContentStatus: boolean = true;
@@ -441,7 +446,9 @@ export class ChatHRModal {
                 isStreaming: true
               };
               this.currentStreamingMessage = updatedMessage;
-              this.scrollToBottom();
+              setTimeout(() => {
+                this.scrollToBottom();
+              }, 200);
             }
           }
         }
@@ -480,7 +487,8 @@ export class ChatHRModal {
         // 增加题目计数
         this.currentQuestionNumber++;
 
-        if (latestAIMessage && latestAIMessage.answer) {
+        // 只有在启用音频功能时才进行语音合成和播放
+        if (this.enableAudio && latestAIMessage && latestAIMessage.answer) {
           // 优先使用 LLMText，如果没有则使用 answer
           const textForSynthesis = llmText || latestAIMessage.answer;
 
@@ -499,6 +507,9 @@ export class ChatHRModal {
               // 非自动播放模式下，不立即开始等待录制
             }
           }
+        } else if (!this.enableAudio) {
+          // 如果禁用音频功能，直接开始等待录制
+          this.startWaitingToRecord();
         }
       }
     });
@@ -569,7 +580,6 @@ export class ChatHRModal {
 
 
   private scrollToBottom() {
-    if (!this.shouldAutoScroll) return;
     const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
     if (chatHistory && this.isOpen) {
       // 强制浏览器重新计算布局
