@@ -633,12 +633,34 @@ export class ChatHRModal {
       alert(error instanceof Error ? error.message : '加载历史消息失败，请刷新重试');
     } finally {
       this.isLoadingHistory = false;
-      setTimeout(() => {
+      setTimeout(async () => {
         this.shouldAutoScroll = true;
         this.scrollToBottom();
-        // 如果有会话ID，直接发送"下一题"请求
-        if (this.conversationId) {
-          this.sendMessageToAPI("下一题");
+        
+        // 如果有会话ID，处理继续答题的逻辑
+        if (this.conversationId && this.messages.length > 0) {
+          const lastAIMessage = this.messages[this.messages.length - 1];
+          
+          // 如果有AI消息且启用音频功能，准备播放语音
+          if (lastAIMessage && lastAIMessage.answer && this.enableAudio) {
+            // 合成语音
+            const audioUrl = await synthesizeAudio(lastAIMessage.answer);
+            
+            if (this.enableVoice) {
+              // 自动播放语音
+              await this.playAudio(audioUrl);
+              // 播放完成后开始等待录制
+              this.startWaitingToRecord();
+            } else {
+              // 只保存音频URL，不自动播放
+              this.audioUrl = audioUrl;
+            }
+          } else if (!this.enableAudio) {
+            // 如果禁用音频功能，直接开始等待录制
+            this.startWaitingToRecord();
+          } else{
+            this.sendMessageToAPI("下一题");
+          } 
         }
       }, 200);
     }
