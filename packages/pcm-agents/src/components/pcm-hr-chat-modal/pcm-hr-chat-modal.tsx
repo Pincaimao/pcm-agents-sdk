@@ -635,16 +635,16 @@ export class ChatHRModal {
       setTimeout(async () => {
         this.shouldAutoScroll = true;
         this.scrollToBottom();
-        
+
         // 如果有会话ID，处理继续答题的逻辑
         if (this.conversationId && this.messages.length > 0) {
           const lastAIMessage = this.messages[this.messages.length - 1];
-          
+
           // 如果有AI消息且启用音频功能，准备播放语音
           if (lastAIMessage && lastAIMessage.answer && this.enableAudio) {
             // 合成语音
             const audioUrl = await synthesizeAudio(lastAIMessage.answer);
-            
+
             if (this.enableVoice) {
               // 自动播放语音
               await this.playAudio(audioUrl);
@@ -657,9 +657,9 @@ export class ChatHRModal {
           } else if (!this.enableAudio) {
             // 如果禁用音频功能，直接开始等待录制
             this.startWaitingToRecord();
-          } else{
+          } else {
             this.sendMessageToAPI("下一题");
-          } 
+          }
         }
       }, 200);
     }
@@ -671,9 +671,9 @@ export class ChatHRModal {
     if (newValue) {
       await verifyApiKey(this.token);
       if (this.conversationId) {
-        await this.loadHistoryMessages();
         // 如果有会话ID，直接跳过初始上传界面
         this.showInitialUpload = false;
+        await this.loadHistoryMessages();
       }
     }
   }
@@ -720,6 +720,7 @@ export class ChatHRModal {
     this.showInitialUpload = false;
     const message = `我是一名${this.selectedJobCategory}，请您开始提问`;
     this.sendMessageToAPI(message);
+
   };
 
   // 开始等待录制
@@ -830,7 +831,7 @@ export class ChatHRModal {
           const blobType = mimeType || 'video/mp4';
           const blob = new Blob(chunks, { type: blobType });
           console.log(blob.size);
-          
+
           if (blob.size === 0) {
             // 通知父组件录制的视频为空
             this.recordingError.emit({

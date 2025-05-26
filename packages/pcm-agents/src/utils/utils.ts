@@ -78,7 +78,7 @@ export interface SSERequestConfig {
  */
 const syncDelay = (ms: number) => {
   const start = Date.now();
-  while(Date.now() - start < ms) {
+  while (Date.now() - start < ms) {
     // 空循环，阻塞主线程
   }
 };
@@ -158,7 +158,7 @@ export const sendSSERequest = async (config: SSERequestConfig, isRetry = false):
     if (response.status === 401) {
       // 触发全局token无效事件
       createTokenInvalidEvent();
-      
+
       // 如果不是重试请求，则使用同步延迟500毫秒后重试一次
       if (!isRetry) {
         syncDelay(500); // 阻塞式延迟
@@ -204,14 +204,14 @@ export const sendSSERequest = async (config: SSERequestConfig, isRetry = false):
     onComplete?.();
   } catch (error) {
     console.error('SSE 请求错误:', error);
-    
+
     // 如果是超时错误且不是重试请求，则重试一次
     if (error instanceof Error && error.message.includes('请求超时') && !isRetry) {
       console.log('SSE请求超时，正在重试...');
       syncDelay(1000); // 延迟1秒后重试
       return sendSSERequest(config, true);
     }
-    
+
     onError?.(error);
   }
 };
@@ -283,7 +283,7 @@ export const sendHttpRequest = async <T = any>(config: HttpRequestConfig, isRetr
     // 如果没有提供 Authorization 头，则从 authStore 获取 token
     if (headers['authorization'] == undefined && headers['Authorization'] == undefined) {
       const token = getEffectiveToken();
-      
+
       if (token) {
         headers['authorization'] = `Bearer ${token}`;
       }
@@ -321,12 +321,12 @@ export const sendHttpRequest = async <T = any>(config: HttpRequestConfig, isRetr
     }
 
     const response = await fetchWithTimeout(requestUrl, requestConfig);
-    
+
     // 检查是否为401错误（未授权）
     if (response.status === 401) {
       // 触发全局token无效事件
       createTokenInvalidEvent();
-      
+
       // 重试请求
       if (isRetry) {
         syncDelay(500); // 阻塞式延迟
@@ -368,14 +368,14 @@ export const sendHttpRequest = async <T = any>(config: HttpRequestConfig, isRetr
     };
   } catch (error) {
     console.error('HTTP请求错误:', error);
-    
+
     // 如果是超时错误且允许重试，则重试一次
     if (error instanceof Error && error.message.includes('请求超时') && isRetry) {
       console.log('HTTP请求超时，正在重试...');
       syncDelay(1000); // 延迟1秒后重试
       return sendHttpRequest(config, false);
     }
-    
+
     if (config.onError) {
       config.onError(error);
     }
@@ -397,15 +397,17 @@ export const sendHttpRequest = async <T = any>(config: HttpRequestConfig, isRetr
  * @returns Promise<boolean> 验证是否成功
  */
 export const verifyApiKey = async (token: string): Promise<boolean> => {
-
-  const response = await sendHttpRequest({
-    url: '/sdk/v1/user',
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`,
+  const response = await sendHttpRequest(
+    {
+      url: '/sdk/v1/user',
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     },
-  }, false);
-  
+    false,
+  );
+
   // 如果是401错误，同步延迟500毫秒后返回
   if (!response.success && response.error && response.error.code === 401) {
     // 执行同步延迟
@@ -458,6 +460,30 @@ export interface FileUploadResponse {
 }
 
 /**
+ * 计算文件的SHA256哈希值
+ * @param file 要计算哈希值的文件
+ * @returns Promise<string> 返回文件的SHA256哈希值
+ */
+export const calculateFileSHA256 = async (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = async e => {
+      try {
+        const arrayBuffer = e.target?.result as ArrayBuffer;
+        const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        resolve(hashHex);
+      } catch (error) {
+        reject(error);
+      }
+    };
+    reader.onerror = () => reject(new Error('读取文件失败'));
+    reader.readAsArrayBuffer(file);
+  });
+};
+
+/**
  * 通过后端API上传文件
  * @param file 要上传的文件
  * @param headers 可选的请求头
@@ -465,33 +491,82 @@ export interface FileUploadResponse {
  * @returns Promise 包含上传结果
  */
 export const uploadFileToBackend = async (file: File, headers?: Record<string, string>, params?: Record<string, any>): Promise<FileUploadResponse> => {
-  const formData = new FormData();
-  formData.append('file', file);
-
-  // 添加额外参数到 formData
-  if (params) {
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        formData.append(key, String(value));
-      }
-    });
-  }
-
   try {
-    const response = await sendHttpRequest<{ cos_key: string; file_name: string; file_size: string;  ext: string }>({
-      url: '/sdk/v1/files/upload',
+    // 计算文件的SHA256哈希值
+    const sha256 = await calculateFileSHA256(file);
+
+    // 第一步：获取腾讯云上传URL
+    const uploadUrlResponse = await sendHttpRequest<{
+      upload_url: string;
+      content_type: string;
+      filetype: string;
+      is_deleted: number;
+      cos: {
+        cos_key: string;
+      };
+      filename: string;
+      filesize: string;
+    }>({
+      url: '/sdk/v1/files/generate-upload-url',
       method: 'POST',
-      headers: {
-        ...headers,
+      data: {
+        filename: file.name,
+        filesize: file.size,
+        sha256: sha256,
       },
-      formData,
+      headers,
     });
 
-    if (!response.success || !response.data) {
-      throw new Error(response.message || '文件上传失败');
+    if (!uploadUrlResponse.success || !uploadUrlResponse.data) {
+      throw new Error(uploadUrlResponse.message || '获取上传URL失败');
+    }
+    const generate = uploadUrlResponse.data;
+
+    if (generate.is_deleted != 1) {
+      // 第二步：直接上传文件到腾讯云
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // 添加额外参数到 formData
+      if (params) {
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) {
+            formData.append(key, String(value));
+          }
+        });
+      }
+      console.log(file.type);
+      
+      const uploadResponse = await fetch(generate.upload_url, {
+        method: 'PUT',
+        body: file, // 直接发送文件内容，不使用FormData
+        headers: {
+          'Content-Type': generate.content_type || 'application/octet-stream',
+        },
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error(`文件上传到腾讯云失败: ${uploadResponse.status} ${uploadResponse.statusText}`);
+      }
+
+      // 第三步：标记上传完成
+      sendHttpRequest({
+        url: '/sdk/v1/files/mark-as-upload',
+        method: 'POST',
+        data: {
+          cos_key: generate.cos.cos_key,
+        },
+        headers,
+      });
     }
 
-    return response.data;
+    // 返回文件信息
+    return {
+      cos_key: generate.cos.cos_key,
+      file_name: generate.filename,
+      file_size: generate.filesize,
+      ext: generate.filetype,
+    };
   } catch (error) {
     console.error('文件上传错误:', error);
     throw error;
@@ -508,7 +583,7 @@ export const uploadFileToBackend = async (file: File, headers?: Record<string, s
 export const synthesizeAudio = async (text: string, token?: string, isRetry = false): Promise<string> => {
   // 如果没有提供 token，则从 authStore 获取
   const effectiveToken = token || getEffectiveToken();
-  
+
   if (!effectiveToken) {
     throw new Error('API密钥不能为空');
   }
@@ -527,7 +602,7 @@ export const synthesizeAudio = async (text: string, token?: string, isRetry = fa
     if (response.status === 401) {
       // 触发全局token无效事件
       createTokenInvalidEvent();
-      
+
       // 如果不是重试请求，则使用同步延迟500毫秒后重试一次
       if (!isRetry) {
         syncDelay(500); // 阻塞式延迟
@@ -544,14 +619,14 @@ export const synthesizeAudio = async (text: string, token?: string, isRetry = fa
     return URL.createObjectURL(audioBlob);
   } catch (error) {
     console.error('语音合成错误:', error);
-    
+
     // 如果是超时错误且不是重试请求，则重试一次
     if (error instanceof Error && error.message.includes('请求超时') && !isRetry) {
       console.log('语音合成请求超时，正在重试...');
       syncDelay(1000); // 延迟1秒后重试
       return synthesizeAudio(text, token, true);
     }
-    
+
     throw error;
   }
 };
