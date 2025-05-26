@@ -634,6 +634,10 @@ export class ChatHRModal {
       setTimeout(() => {
         this.shouldAutoScroll = true;
         this.scrollToBottom();
+        // 如果有会话ID，直接发送"下一题"请求
+        if (this.conversationId) {
+          this.sendMessageToAPI("下一题");
+        }
       }, 200);
     }
   }
@@ -645,6 +649,8 @@ export class ChatHRModal {
       await verifyApiKey(this.token);
       if (this.conversationId) {
         await this.loadHistoryMessages();
+        // 如果有会话ID，直接跳过初始上传界面
+        this.showInitialUpload = false;
       }
     }
   }
@@ -676,12 +682,6 @@ export class ChatHRModal {
 
     if (this.selectedDimensions.length === 0) {
       alert('请至少选择一个关注模块');
-      return;
-    }
-    // 直接询问用户是否准备好开始面试
-    const confirmed = confirm('如果您已做好准备请点击"确定"开始面试。');
-
-    if (!confirmed) {
       return;
     }
 
