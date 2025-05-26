@@ -637,7 +637,7 @@ export class ChatHRModal {
         this.scrollToBottom();
 
         // 如果有会话ID，处理继续答题的逻辑
-        if (this.conversationId && this.messages.length > 0) {
+        if (this.conversationId && this.messages.length > 0 && this.currentQuestionNumber <= this.totalQuestions) {
           const lastAIMessage = this.messages[this.messages.length - 1];
 
           // 如果有AI消息且启用音频功能，准备播放语音
