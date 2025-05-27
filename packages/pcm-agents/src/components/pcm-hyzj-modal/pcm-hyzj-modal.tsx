@@ -71,9 +71,15 @@ export class HyzjModal {
     @Prop() fullscreen: boolean = false;
 
     /**
-     * 自定义输入参数
+     * 自定义输入参数<br>
+     * 支持字符串格式（将被解析为JSON）或对象格式
      */
-    @Prop() customInputs: Record<string, string> = {};
+    @Prop() customInputs: Record<string, string> | string = {};
+
+    /**
+     * 解析后的自定义输入参数
+     */
+    @State() parsedCustomInputs: Record<string, string> = {};
 
     /**
      * 上传成功事件
@@ -134,7 +140,36 @@ export class HyzjModal {
         }
     }
 
+    @Watch('customInputs')
+    handleCustomInputsChange() {
+        this.parseCustomInputs();
+    }
+
+    private parseCustomInputs() {
+        try {
+            if (typeof this.customInputs === 'string') {
+                // 尝试将字符串解析为JSON对象
+                this.parsedCustomInputs = JSON.parse(this.customInputs);
+            } else {
+                // 已经是对象，直接使用
+                this.parsedCustomInputs = { ...this.customInputs };
+            }
+        } catch (error) {
+            console.error('解析 customInputs 失败:', error);
+            // 解析失败时设置为空对象
+            this.parsedCustomInputs = {};
+            ErrorEventBus.emitError({
+                source: 'pcm-hyzj-modal[parseCustomInputs]',
+                error: error,
+                message: '解析自定义输入参数失败',
+                type: 'ui'
+            });
+        }
+    }
+
     componentWillLoad() {
+        // 初始解析 customInputs
+        this.parseCustomInputs();
 
         // 将 zIndex 存入配置缓存
         if (this.zIndex) {
@@ -403,7 +438,7 @@ export class HyzjModal {
                                 enableVoice={false}
                                 filePreviewMode={this.filePreviewMode}
                                 customInputs={this.conversationId ? {} : {
-                                    ...this.customInputs,
+                                    ...this.parsedCustomInputs,
                                     file_url: this.uploadedFileInfo?.cos_key,
                                     file_name: this.uploadedFileInfo?.file_name
                                 }}

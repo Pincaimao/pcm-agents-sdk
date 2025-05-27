@@ -74,9 +74,15 @@ export class ZyghModal {
 
 
     /**
-     * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"
+     * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"<br>
+     * 支持字符串格式（将被解析为JSON）或对象格式
      */
-    @Prop() customInputs: Record<string, string> = {};
+    @Prop() customInputs: Record<string, string> | string = {};
+
+    /**
+     * 解析后的自定义输入参数
+     */
+    @State() parsedCustomInputs: Record<string, string> = {};
 
     /**
      * 上传成功事件
@@ -139,7 +145,36 @@ export class ZyghModal {
         }
     }
 
+    @Watch('customInputs')
+    handleCustomInputsChange() {
+        this.parseCustomInputs();
+    }
+
+    private parseCustomInputs() {
+        try {
+            if (typeof this.customInputs === 'string') {
+                // 尝试将字符串解析为JSON对象
+                this.parsedCustomInputs = JSON.parse(this.customInputs);
+            } else {
+                // 已经是对象，直接使用
+                this.parsedCustomInputs = { ...this.customInputs };
+            }
+        } catch (error) {
+            console.error('解析 customInputs 失败:', error);
+            // 解析失败时设置为空对象
+            this.parsedCustomInputs = {};
+            ErrorEventBus.emitError({
+                source: 'pcm-zygh-modal[parseCustomInputs]',
+                error: error,
+                message: '解析自定义输入参数失败',
+                type: 'ui'
+            });
+        }
+    }
+
     componentWillLoad() {
+        // 初始解析 customInputs
+        this.parseCustomInputs();
 
         // 将 zIndex 存入配置缓存
         if (this.zIndex) {
@@ -268,9 +303,9 @@ export class ZyghModal {
             this.showChatModal = false;
 
         } else {
-            if (this.customInputs && this.customInputs.type) {
+            if (this.parsedCustomInputs && this.parsedCustomInputs.type) {
                 // 检查是否是有效的 CareerPlanType 值
-                const type = this.customInputs.type;
+                const type = this.parsedCustomInputs.type;
                 if (type === '长期规划' || type === '转行建议' || type === '晋升路径') {
                     this.selectedPlanType = type;
                 }
@@ -450,7 +485,7 @@ export class ZyghModal {
                                 enableVoice={false}
                                 filePreviewMode={this.filePreviewMode}
                                 customInputs={this.conversationId ? {} : {
-                                    ...this.customInputs,
+                                    ...this.parsedCustomInputs,
                                     file_url: this.uploadedFileInfo?.cos_key,
                                     file_name: this.uploadedFileInfo?.file_name,
                                     type: this.selectedPlanType

@@ -137,6 +137,7 @@
 
   <pcm-mnms-modal id="pcm-mnms-modal-text" modal-title="模拟面试（文字）" show-copy-button="false"
     show-feedback-buttons="false"
+    custom-inputs='{"job_info":"商务","file_url":"/resources/file/20250527/d0120aad3e90a8df0e608e6a74febae7.html","file_name":"产量与效益分析页.html"}'
     icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id="" fullscreen="false"
     interview-mode="text" default-query="请您提问">
   </pcm-mnms-modal>
@@ -145,14 +146,14 @@
     conversation-id="ff192832-d3d0-411a-87d7-912b8094eb5f" file-preview-mode="drawer" fullscreen="false" default-query="请您提问"></pcm-jlpp-modal>
 
   <pcm-zygh-modal id="pcm-zygh-modal" modal-title="职业规划助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
-    conversation-id="" file-preview-mode="drawer" fullscreen="false" default-query="请您提问"></pcm-zygh-modal>
+    conversation-id="" custom-inputs='{"type":"转行建议"}'  file-preview-mode="drawer" fullscreen="false" default-query="请您提问"></pcm-zygh-modal>
 
   <pcm-hyzj-modal id="pcm-hyzj-modal" modal-title="会议总结助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
     conversation-id="" fullscreen="false" default-query="请您提问"></pcm-hyzj-modal>
 
 
   <pcm-htws-modal id="pcm-htws-modal" modal-title="劳动合同卫士" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
-    conversation-id="" fullscreen="true" default-query="请您提问"></pcm-htws-modal>
+    conversation-id="" custom-inputs='{"input":"使 用 说 明 一、双方在签订本合同前，应认真阅读本合同。本合同一经签订，即具有法律效力，双方必须严格履行。 "}' fullscreen="true" default-query="请您提问"></pcm-htws-modal>
 
   <pcm-zsk-chat-modal id="pcm-zsk-chat-modal" employee-id="137"
     conversation-id="" fullscreen="true"
@@ -585,9 +586,9 @@
       });
 
       // 设置自定义输入
-      zyghModal.customInputs = {
-        type: "转行建议"
-      };
+      // zyghModal.customInputs = {
+      //   type: "转行建议"
+      // };
     };
 
 
@@ -784,9 +785,9 @@
       });
 
       // 设置自定义输入
-      htwsModal.customInputs = {
-        input: " 使 用 说 明 一、双方在签订本合同前，应认真阅读本合同。本合同一经签订，即具有法律效力，双方必须严格履行。 二、本合同必须由用人单位加盖用人单位公章（或者劳动合同专用章），劳动者（乙方）签字。 三、本合同中的空栏，由双方协商确定后填写，并不得违反法律、法规和相关规定；不需填写的空栏，划上／。 四、本合同的未尽事宜，可另行签订补充协议，作为本合同的附件，与本合同一并履行。 五、本合同必须认真填写，字迹清楚、文字简练、准确，并不得擅自涂改。 根据《中华人民共和国劳动法》、《中华人民共和国劳动合同法》等法律、法规的规定，在平等自愿、协商一致的基础上，订立本劳动合同。 一、合同期限 第一条 甲、乙双方选择以下第 （一） 种形式确定本合同期限： "
-      };
+      // htwsModal.customInputs = {
+      //   input: " 使 用 说 明 一、双方在签订本合同前，应认真阅读本合同。本合同一经签订，即具有法律效力，双方必须严格履行。 二、本合同必须由用人单位加盖用人单位公章（或者劳动合同专用章），劳动者（乙方）签字。 三、本合同中的空栏，由双方协商确定后填写，并不得违反法律、法规和相关规定；不需填写的空栏，划上／。 四、本合同的未尽事宜，可另行签订补充协议，作为本合同的附件，与本合同一并履行。 五、本合同必须认真填写，字迹清楚、文字简练、准确，并不得擅自涂改。 根据《中华人民共和国劳动法》、《中华人民共和国劳动合同法》等法律、法规的规定，在平等自愿、协商一致的基础上，订立本劳动合同。 一、合同期限 第一条 甲、乙双方选择以下第 （一） 种形式确定本合同期限： "
+      // };
 
     };
 

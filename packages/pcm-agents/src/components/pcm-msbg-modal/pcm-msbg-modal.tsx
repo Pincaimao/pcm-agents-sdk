@@ -71,9 +71,15 @@ export class MsbgModal {
     @Prop() fullscreen: boolean = false;
 
     /**
-     * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
+     * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br>
+     * 支持字符串格式（将被解析为JSON）或对象格式
      */
-    @Prop() customInputs: Record<string, string> = {};
+    @Prop() customInputs: Record<string, string> | string = {};
+
+    /**
+     * 解析后的自定义输入参数
+     */
+    @State() parsedCustomInputs: Record<string, string> = {};
 
     /**
      * 上传成功事件
@@ -134,7 +140,37 @@ export class MsbgModal {
         }
     }
 
+    @Watch('customInputs')
+    handleCustomInputsChange() {
+        this.parseCustomInputs();
+    }
+
+    private parseCustomInputs() {
+        try {
+            if (typeof this.customInputs === 'string') {
+                // 尝试将字符串解析为JSON对象
+                this.parsedCustomInputs = JSON.parse(this.customInputs);
+            } else {
+                // 已经是对象，直接使用
+                this.parsedCustomInputs = { ...this.customInputs };
+            }
+        } catch (error) {
+            console.error('解析 customInputs 失败:', error);
+            // 解析失败时设置为空对象
+            this.parsedCustomInputs = {};
+            ErrorEventBus.emitError({
+                source: 'pcm-msbg-modal[parseCustomInputs]',
+                error: error,
+                message: '解析自定义输入参数失败',
+                type: 'ui'
+            });
+        }
+    }
+
     componentWillLoad() {
+        // 初始解析 customInputs
+        this.parseCustomInputs();
+        
         // 将 zIndex 存入配置缓存
         if (this.zIndex) {
             configStore.setItem('modal-zIndex', this.zIndex);
@@ -229,7 +265,7 @@ export class MsbgModal {
         }
 
         // 如果没有预设的job_info，则需要检查用户输入
-        if (!this.customInputs?.job_info && !this.jobDescription.trim()) {
+        if (!this.parsedCustomInputs?.job_info && !this.jobDescription.trim()) {
             alert('请输入职位描述');
             return;
         }
@@ -271,8 +307,8 @@ export class MsbgModal {
             this.jobDescription = '';
 
         } else {
-            if (this.customInputs && this.customInputs.job_info) {
-                this.jobDescription = this.customInputs.job_info;
+            if (this.parsedCustomInputs && this.parsedCustomInputs.job_info) {
+                this.jobDescription = this.parsedCustomInputs.job_info;
             }
 
             await verifyApiKey(this.token);
@@ -324,8 +360,8 @@ export class MsbgModal {
         // 显示加载状态
         const isLoading = this.conversationId && !this.showChatModal;
 
-        // 修正这里的逻辑，确保当 customInputs.job_info 存在时，hideJdInput 为 true
-        const hideJdInput = Boolean(this.customInputs && this.customInputs.job_info);
+        // 修正这里的逻辑，确保当 parsedCustomInputs.job_info 存在时，hideJdInput 为 true
+        const hideJdInput = Boolean(this.parsedCustomInputs && this.parsedCustomInputs.job_info);
 
         return (
             <div class={overlayClass} style={modalStyle}>
@@ -347,7 +383,7 @@ export class MsbgModal {
                     {/* 上传界面 - 仅在不显示聊天模态框且没有会话ID时显示 */}
                     {!this.showChatModal && !this.conversationId && (
                         <div class="input-container">
-                            {/* JD输入区域 - 仅在没有customInputs.job_info时显示 */}
+                            {/* JD输入区域 - 仅在没有parsedCustomInputs.job_info时显示 */}
                             {!hideJdInput && (
                                 <div class="jd-input-section">
                                     <label htmlFor="job-description">请输入职位描述 (JD)</label>
@@ -435,10 +471,10 @@ export class MsbgModal {
                                 filePreviewMode={this.filePreviewMode}
                                 enableVoice={false}
                                 customInputs={this.conversationId ? {} : {
-                                    ...this.customInputs,
+                                    ...this.parsedCustomInputs,
                                     file_urls: this.uploadedFileInfo?.cos_key,
                                     file_names: this.uploadedFileInfo?.file_name,
-                                    job_info: this.customInputs?.job_info || this.jobDescription
+                                    job_info: this.parsedCustomInputs?.job_info || this.jobDescription
                                 }}
                                 interviewMode="text"
                                 onModalClosed={this.handleClose}

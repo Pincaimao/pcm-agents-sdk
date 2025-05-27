@@ -78,9 +78,15 @@ export class MnmsVideoModal {
     /**
      * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br>
      * 传入customInputs.file_url时，会隐藏简历上传区域。<br>
-     * 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。
+     * 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
+     * 支持字符串格式（将被解析为JSON）或对象格式
      */
-    @Prop() customInputs: Record<string, string> = {};
+    @Prop() customInputs: Record<string, string> | string = {};
+
+    /**
+     * 解析后的自定义输入参数
+     */
+    @State() parsedCustomInputs: Record<string, string> = {};
 
     /**
      * 上传成功事件
@@ -162,7 +168,36 @@ export class MnmsVideoModal {
         }
     }
 
+    @Watch('customInputs')
+    handleCustomInputsChange() {
+        this.parseCustomInputs();
+    }
+
+    private parseCustomInputs() {
+        try {
+            if (typeof this.customInputs === 'string') {
+                // 尝试将字符串解析为JSON对象
+                this.parsedCustomInputs = JSON.parse(this.customInputs);
+            } else {
+                // 已经是对象，直接使用
+                this.parsedCustomInputs = { ...this.customInputs };
+            }
+        } catch (error) {
+            console.error('解析 customInputs 失败:', error);
+            // 解析失败时设置为空对象
+            this.parsedCustomInputs = {};
+            ErrorEventBus.emitError({
+                source: 'pcm-mnms-video-modal[parseCustomInputs]',
+                error: error,
+                message: '解析自定义输入参数失败',
+                type: 'ui'
+            });
+        }
+    }
+
     componentWillLoad() {
+        // 初始解析 customInputs
+        this.parseCustomInputs();
 
         // 将 zIndex 存入配置缓存
         if (this.zIndex) {
@@ -261,7 +296,7 @@ export class MnmsVideoModal {
         }
 
         // 如果没有预设的job_info，则需要检查用户输入
-        if (!this.customInputs?.job_info && !this.jobDescription.trim()) {
+        if (!this.parsedCustomInputs?.job_info && !this.jobDescription.trim()) {
             alert('请输入职位描述');
             return;
         }
@@ -278,14 +313,7 @@ export class MnmsVideoModal {
                 }
             }
 
-            // 使用预设的job_info或用户输入的jobDescription
-            // const jobInfo = this.customInputs?.job_info || this.jobDescription;
 
-            // console.log('传递的customInputs:', {
-            //     ...this.customInputs,
-            //     file_url: this.uploadedFileInfo.cos_key,
-            //     job_info: jobInfo
-            // });
 
             // 直接显示聊天模态框
             this.showChatModal = true;
@@ -311,14 +339,14 @@ export class MnmsVideoModal {
             this.jobDescription = '';
 
         } else {
-            if (this.customInputs && this.customInputs.job_info) {
-                this.jobDescription = this.customInputs.job_info;
+            if (this.parsedCustomInputs && this.parsedCustomInputs.job_info) {
+                this.jobDescription = this.parsedCustomInputs.job_info;
             }
 
             await verifyApiKey(this.token);
 
             // 如果同时有 file_url 和 job_info，或者有会话ID，直接显示聊天模态框
-            if ((this.customInputs?.file_url && this.customInputs?.job_info) || this.conversationId) {
+            if ((this.parsedCustomInputs?.file_url && this.parsedCustomInputs?.job_info) || this.conversationId) {
                 this.showChatModal = true;
             }
         }
@@ -369,14 +397,14 @@ export class MnmsVideoModal {
         // 显示加载状态
         const isLoading = this.conversationId && !this.showChatModal;
 
-        // 修正这里的逻辑，确保当 customInputs.job_info 存在时，hideJdInput 为 true
-        const hideJdInput = Boolean(this.customInputs && this.customInputs.job_info);
+        // 修正这里的逻辑，确保当 parsedCustomInputs.job_info 存在时，hideJdInput 为 true
+        const hideJdInput = Boolean(this.parsedCustomInputs && this.parsedCustomInputs.job_info);
         
         // 判断是否隐藏简历上传区域
-        const hideResumeUpload = Boolean(this.customInputs && this.customInputs.file_url);
+        const hideResumeUpload = Boolean(this.parsedCustomInputs && this.parsedCustomInputs.file_url);
         
         // 判断是否同时提供了file_url和job_info
-        const hasFileAndJob = Boolean(this.customInputs?.file_url && this.customInputs?.job_info);
+        const hasFileAndJob = Boolean(this.parsedCustomInputs?.file_url && this.parsedCustomInputs?.job_info);
 
         return (
             <div class={overlayClass} style={modalStyle}>
@@ -398,7 +426,7 @@ export class MnmsVideoModal {
                     {/* 上传界面 - 仅在不显示聊天模态框且没有会话ID且没有同时提供file_url和job_info时显示 */}
                     {!this.showChatModal && !this.conversationId && !hasFileAndJob && (
                         <div class="input-container">
-                            {/* JD输入区域 - 仅在没有customInputs.job_info时显示 */}
+                            {/* JD输入区域 - 仅在没有parsedCustomInputs.job_info时显示 */}
                             {!hideJdInput && (
                                 <div class="jd-input-section">
                                     <label htmlFor="job-description">请输入职位描述 (JD)</label>
@@ -413,7 +441,7 @@ export class MnmsVideoModal {
                                 </div>
                             )}
 
-                            {/* 简历上传区域 - 仅在没有customInputs.file_url时显示 */}
+                            {/* 简历上传区域 - 仅在没有parsedCustomInputs.file_url时显示 */}
                             {!hideResumeUpload && (
                                 <div class="resume-upload-section">
                                     <label>上传简历</label>
@@ -490,10 +518,10 @@ export class MnmsVideoModal {
                                 showCopyButton={this.showCopyButton}
                                 showFeedbackButtons={this.showFeedbackButtons}
                                 customInputs={this.conversationId ? {} : {
-                                    ...this.customInputs,
-                                    file_url: this.customInputs?.file_url || this.uploadedFileInfo?.cos_key,
-                                    file_name: this.customInputs?.file_name || this.uploadedFileInfo?.file_name,
-                                    job_info: this.customInputs?.job_info || this.jobDescription
+                                    ...this.parsedCustomInputs,
+                                    file_url: this.parsedCustomInputs?.file_url || this.uploadedFileInfo?.cos_key,
+                                    file_name: this.parsedCustomInputs?.file_name || this.uploadedFileInfo?.file_name,
+                                    job_info: this.parsedCustomInputs?.job_info || this.jobDescription
                                 }}
                                 interviewMode={this.interviewMode}
                                 showProgressBar={false}

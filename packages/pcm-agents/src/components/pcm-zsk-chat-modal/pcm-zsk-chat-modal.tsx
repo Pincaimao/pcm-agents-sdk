@@ -147,13 +147,20 @@ export class ChatKBModal {
   @State() isSubmittingText: boolean = false;
 
   /**
-   * 自定义智能体inputs输入参数:
-   * 1. show_suggested_questions: 是否显示推荐问题
+   * 自定义智能体inputs输入参数:<br>
+   * 1. show_suggested_questions: 是否显示推荐问题<br>
+   * 支持字符串格式（将被解析为JSON）或对象格式
    */
-  @Prop() customInputs: Record<string, string> = {
+  @Prop() customInputs: Record<string, string> | string = {
     show_suggested_questions: 'false',
   };
 
+  /**
+   * 解析后的自定义输入参数
+   */
+  @State() parsedCustomInputs: Record<string, string> = {
+    show_suggested_questions: 'false',
+  };
 
   // 添加推荐问题和引用文档状态
   @State() suggestedQuestions: string[] = [];
@@ -222,7 +229,32 @@ export class ChatKBModal {
     }
   }
 
+  @Watch('customInputs')
+  handleCustomInputsChange() {
+    this.parseCustomInputs();
+  }
+
+  private parseCustomInputs() {
+    try {
+      if (typeof this.customInputs === 'string') {
+        // 尝试将字符串解析为JSON对象
+        this.parsedCustomInputs = JSON.parse(this.customInputs);
+      } else {
+        // 已经是对象，直接使用
+        this.parsedCustomInputs = { ...this.customInputs };
+      }
+    } catch (error) {
+      console.error('解析 customInputs 失败:', error);
+      // 解析失败时设置为默认对象
+      this.parsedCustomInputs = {
+        show_suggested_questions: 'false',
+      };
+    }
+  }
+
   componentWillLoad() {
+    // 初始解析 customInputs
+    this.parseCustomInputs();
 
     // 将 zIndex 存入配置缓存
     if (this.zIndex) {
@@ -273,7 +305,7 @@ export class ChatKBModal {
       id: `temp-${Date.now()}`,  // 临时ID，将被服务器返回的ID替换
       conversation_id: this.conversationId,  // 会话ID
       parent_message_id: "00000000-0000-0000-0000-000000000000", // 默认父消息ID
-      inputs: this.customInputs || {},  // 输入参数
+      inputs: this.parsedCustomInputs || {},  // 使用解析后的输入参数
       query: queryText,  // 用户输入的消息内容
       answer: '',  // 初始为空
       message_files: [],  // 消息附件
@@ -306,7 +338,7 @@ export class ChatKBModal {
     // 合并基本输入参数和自定义输入参数
     requestData.inputs = {
       // 合并自定义输入参数
-      ...this.customInputs,
+      ...this.parsedCustomInputs,
     };
 
     await sendSSERequest({
@@ -1074,7 +1106,7 @@ export class ChatKBModal {
     const renderSuggestedQuestions = () => {
 
       // 只有当没有正在流式输出的消息时才显示推荐问题
-      if (!this.customInputs.show_suggested_questions && !this.currentStreamingMessage) {
+      if (!this.parsedCustomInputs.show_suggested_questions && !this.currentStreamingMessage) {
         return null;
       }
 
