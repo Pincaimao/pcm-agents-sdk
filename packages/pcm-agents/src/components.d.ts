@@ -546,7 +546,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域 支持字符串格式（将被解析为JSON）或对象格式
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 支持字符串格式（将被解析为JSON）或对象格式
          */
         "customInputs": Record<string, string> | string;
         /**
@@ -652,7 +652,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域 支持字符串格式（将被解析为JSON）或对象格式
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 支持字符串格式（将被解析为JSON）或对象格式
          */
         "customInputs": Record<string, string> | string;
         /**
@@ -900,7 +900,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域 支持字符串格式（将被解析为JSON）或对象格式
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 支持字符串格式（将被解析为JSON）或对象格式
          */
         "customInputs": Record<string, string> | string;
         /**
@@ -953,7 +953,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域 支持字符串格式（将被解析为JSON）或对象格式
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 支持字符串格式（将被解析为JSON）或对象格式
          */
         "customInputs": Record<string, string> | string;
         /**
@@ -1053,7 +1053,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径" 支持字符串格式（将被解析为JSON）或对象格式
+          * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"<br> 支持字符串格式（将被解析为JSON）或对象格式
          */
         "customInputs": Record<string, string> | string;
         /**
@@ -2357,7 +2357,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域 支持字符串格式（将被解析为JSON）或对象格式
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 支持字符串格式（将被解析为JSON）或对象格式
          */
         "customInputs"?: Record<string, string> | string;
         /**
@@ -2515,7 +2515,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域 支持字符串格式（将被解析为JSON）或对象格式
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 支持字符串格式（将被解析为JSON）或对象格式
          */
         "customInputs"?: Record<string, string> | string;
         /**
@@ -2887,7 +2887,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域 支持字符串格式（将被解析为JSON）或对象格式
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 支持字符串格式（将被解析为JSON）或对象格式
          */
         "customInputs"?: Record<string, string> | string;
         /**
@@ -2968,7 +2968,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域 支持字符串格式（将被解析为JSON）或对象格式
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 支持字符串格式（将被解析为JSON）或对象格式
          */
         "customInputs"?: Record<string, string> | string;
         /**
@@ -3116,7 +3116,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径" 支持字符串格式（将被解析为JSON）或对象格式
+          * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"<br> 支持字符串格式（将被解析为JSON）或对象格式
          */
         "customInputs"?: Record<string, string> | string;
         /**
