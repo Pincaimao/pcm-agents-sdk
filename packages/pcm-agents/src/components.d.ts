@@ -631,6 +631,13 @@ export namespace Components {
          */
         "zIndex"?: number;
     }
+    interface PcmMessage {
+        "close": () => Promise<void>;
+        "content": string;
+        "duration": number;
+        "show": () => Promise<void>;
+        "type": 'success' | 'error' | 'info' | 'warning';
+    }
     /**
      * 模拟出题大师
      */
@@ -1421,6 +1428,12 @@ declare global {
         prototype: HTMLPcmJlppModalElement;
         new (): HTMLPcmJlppModalElement;
     };
+    interface HTMLPcmMessageElement extends Components.PcmMessage, HTMLStencilElement {
+    }
+    var HTMLPcmMessageElement: {
+        prototype: HTMLPcmMessageElement;
+        new (): HTMLPcmMessageElement;
+    };
     interface HTMLPcmMnctModalElementEventMap {
         "modalClosed": void;
         "uploadSuccess": FileUploadResponse;
@@ -1639,6 +1652,7 @@ declare global {
         "pcm-hyzj-modal": HTMLPcmHyzjModalElement;
         "pcm-jd-modal": HTMLPcmJdModalElement;
         "pcm-jlpp-modal": HTMLPcmJlppModalElement;
+        "pcm-message": HTMLPcmMessageElement;
         "pcm-mnct-modal": HTMLPcmMnctModalElement;
         "pcm-mnms-modal": HTMLPcmMnmsModalElement;
         "pcm-mnms-video-modal": HTMLPcmMnmsVideoModalElement;
@@ -2492,6 +2506,11 @@ declare namespace LocalJSX {
          */
         "zIndex"?: number;
     }
+    interface PcmMessage {
+        "content"?: string;
+        "duration"?: number;
+        "type"?: 'success' | 'error' | 'info' | 'warning';
+    }
     /**
      * 模拟出题大师
      */
@@ -3189,6 +3208,7 @@ declare namespace LocalJSX {
         "pcm-hyzj-modal": PcmHyzjModal;
         "pcm-jd-modal": PcmJdModal;
         "pcm-jlpp-modal": PcmJlppModal;
+        "pcm-message": PcmMessage;
         "pcm-mnct-modal": PcmMnctModal;
         "pcm-mnms-modal": PcmMnmsModal;
         "pcm-mnms-video-modal": PcmMnmsVideoModal;
@@ -3241,6 +3261,7 @@ declare module "@stencil/core" {
              * 简历匹配
              */
             "pcm-jlpp-modal": LocalJSX.PcmJlppModal & JSXBase.HTMLAttributes<HTMLPcmJlppModalElement>;
+            "pcm-message": LocalJSX.PcmMessage & JSXBase.HTMLAttributes<HTMLPcmMessageElement>;
             /**
              * 模拟出题大师
              */

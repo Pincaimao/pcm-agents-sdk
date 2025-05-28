@@ -21,6 +21,7 @@ import { PcmHtwsModal as PcmHtwsModalElement, defineCustomElement as definePcmHt
 import { PcmHyzjModal as PcmHyzjModalElement, defineCustomElement as definePcmHyzjModal } from "pcm-agents/dist/components/pcm-hyzj-modal.js";
 import { PcmJdModal as PcmJdModalElement, defineCustomElement as definePcmJdModal } from "pcm-agents/dist/components/pcm-jd-modal.js";
 import { PcmJlppModal as PcmJlppModalElement, defineCustomElement as definePcmJlppModal } from "pcm-agents/dist/components/pcm-jlpp-modal.js";
+import { PcmMessage as PcmMessageElement, defineCustomElement as definePcmMessage } from "pcm-agents/dist/components/pcm-message.js";
 import { PcmMnctModal as PcmMnctModalElement, defineCustomElement as definePcmMnctModal } from "pcm-agents/dist/components/pcm-mnct-modal.js";
 import { PcmMnmsModal as PcmMnmsModalElement, defineCustomElement as definePcmMnmsModal } from "pcm-agents/dist/components/pcm-mnms-modal.js";
 import { PcmMnmsVideoModal as PcmMnmsVideoModalElement, defineCustomElement as definePcmMnmsVideoModal } from "pcm-agents/dist/components/pcm-mnms-video-modal.js";
@@ -292,6 +293,17 @@ export const PcmJlppModal: StencilReactComponent<PcmJlppModalElement, PcmJlppMod
         onSomeErrorEvent: 'someErrorEvent'
     } as PcmJlppModalEvents,
     defineCustomElement: definePcmJlppModal
+});
+
+type PcmMessageEvents = NonNullable<unknown>;
+
+export const PcmMessage: StencilReactComponent<PcmMessageElement, PcmMessageEvents> = /*@__PURE__*/ createComponent<PcmMessageElement, PcmMessageEvents>({
+    tagName: 'pcm-message',
+    elementClass: PcmMessageElement,
+    // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
+    react: React,
+    events: {} as PcmMessageEvents,
+    defineCustomElement: definePcmMessage
 });
 
 type PcmMnctModalEvents = {
