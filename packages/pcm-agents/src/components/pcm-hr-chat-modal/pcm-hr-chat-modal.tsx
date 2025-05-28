@@ -438,7 +438,7 @@ export class ChatHRModal {
 
     // 设置当前流式消息
     this.currentStreamingMessage = newMessage;
-   
+
     // 滚动到底部
     setTimeout(() => {
       this.shouldAutoScroll = true;
@@ -702,7 +702,7 @@ export class ChatHRModal {
 
     this.isLoadingHistory = true;
     console.log('加载历史消息...');
-    let interviewStatus = true;
+    let interviewStatus = false;
 
     try {
       // 首先获取面试状态
@@ -712,8 +712,8 @@ export class ChatHRModal {
       });
 
       // 处理面试状态
-      if (interviewStatusResponse.success && interviewStatusResponse.data && interviewStatusResponse.data.ended == 0) {
-        interviewStatus = false;
+      if (interviewStatusResponse.success && interviewStatusResponse.data && interviewStatusResponse.data.ended == 1) {
+        interviewStatus = true;
       }
 
       // 获取历史消息
