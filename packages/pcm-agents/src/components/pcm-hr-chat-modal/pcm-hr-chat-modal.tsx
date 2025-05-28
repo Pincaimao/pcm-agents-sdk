@@ -148,7 +148,7 @@ export class ChatHRModal {
   @State() recordingStartTime: number = 0;
   @State() waitingToRecord: boolean = false;
   @State() waitingTimer: any = null;
-  @State() waitingTimeLeft: number = 10; // 等待时间（秒）
+  @State() waitingTimeLeft: number = 15; // 等待时间（秒）
 
   // 添加一个新的私有属性来存储视频元素的引用
   private videoRef: HTMLVideoElement | null = null;
@@ -885,7 +885,7 @@ export class ChatHRModal {
     }
 
     this.waitingToRecord = true;
-    this.waitingTimeLeft = 10;
+    this.waitingTimeLeft = 15;
 
     this.waitingTimer = setInterval(() => {
       this.waitingTimeLeft--;
