@@ -11,6 +11,7 @@ import { PcmHtwsModal as PcmHtwsModalElement, defineCustomElement as definePcmHt
 import { PcmHyzjModal as PcmHyzjModalElement, defineCustomElement as definePcmHyzjModal } from "pcm-agents/dist/components/pcm-hyzj-modal.js";
 import { PcmJdModal as PcmJdModalElement, defineCustomElement as definePcmJdModal } from "pcm-agents/dist/components/pcm-jd-modal.js";
 import { PcmJlppModal as PcmJlppModalElement, defineCustomElement as definePcmJlppModal } from "pcm-agents/dist/components/pcm-jlpp-modal.js";
+import { PcmMessage as PcmMessageElement, defineCustomElement as definePcmMessage } from "pcm-agents/dist/components/pcm-message.js";
 import { PcmMnctModal as PcmMnctModalElement, defineCustomElement as definePcmMnctModal } from "pcm-agents/dist/components/pcm-mnct-modal.js";
 import { PcmMnmsModal as PcmMnmsModalElement, defineCustomElement as definePcmMnmsModal } from "pcm-agents/dist/components/pcm-mnms-modal.js";
 import { PcmMnmsVideoModal as PcmMnmsVideoModalElement, defineCustomElement as definePcmMnmsVideoModal } from "pcm-agents/dist/components/pcm-mnms-video-modal.js";
@@ -71,7 +72,8 @@ export const PcmChatMessage = createComponent({
     react: React,
     events: {
         onMessageChange: 'messageChange',
-        onFilePreviewRequest: 'filePreviewRequest'
+        onFilePreviewRequest: 'filePreviewRequest',
+        onRetryRequest: 'retryRequest'
     },
     defineCustomElement: definePcmChatMessage
 });
@@ -94,6 +96,7 @@ export const PcmHrChatModal = createComponent({
         onModalClosed: 'modalClosed',
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
+        onSomeErrorEvent: 'someErrorEvent',
         onInterviewComplete: 'interviewComplete',
         onRecordingError: 'recordingError',
         onRecordingStatusChange: 'recordingStatusChange',
@@ -159,6 +162,13 @@ export const PcmJlppModal = createComponent({
         onSomeErrorEvent: 'someErrorEvent'
     },
     defineCustomElement: definePcmJlppModal
+});
+export const PcmMessage = createComponent({
+    tagName: 'pcm-message',
+    elementClass: PcmMessageElement,
+    react: React,
+    events: {},
+    defineCustomElement: definePcmMessage
 });
 export const PcmMnctModal = createComponent({
     tagName: 'pcm-mnct-modal',
