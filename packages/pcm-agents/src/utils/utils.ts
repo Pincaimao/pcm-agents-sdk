@@ -1,6 +1,7 @@
 // 导入环境变量
 import { API_DOMAIN } from './env';
 import { authStore } from '../../store/auth.store'; // 导入 authStore
+import { configStore } from '../../store/config.store';
 
 export { API_DOMAIN };
 
@@ -206,7 +207,7 @@ export const sendSSERequest = async (config: SSERequestConfig, isRetry = false):
     console.error('SSE 请求错误:', error);
 
     // 如果是超时错误且不是重试请求，则重试一次
-    if (error instanceof Error && error.message.includes('请求超时') && !isRetry) {
+    if (!isRetry) {
       console.log('SSE请求超时，正在重试...');
       syncDelay(1000); // 延迟1秒后重试
       return sendSSERequest(config, true);
@@ -370,7 +371,7 @@ export const sendHttpRequest = async <T = any>(config: HttpRequestConfig, isRetr
     console.error('HTTP请求错误:', error);
 
     // 如果是超时错误且允许重试，则重试一次
-    if (error instanceof Error && error.message.includes('请求超时') && isRetry) {
+    if (isRetry) {
       console.log('HTTP请求超时，正在重试...');
       syncDelay(1000); // 延迟1秒后重试
       return sendHttpRequest(config, false);
@@ -414,6 +415,8 @@ export const verifyApiKey = async (token: string): Promise<boolean> => {
     syncDelay(500);
     return false;
   } else {
+    
+    configStore.setItem('pcm-sdk-CUser', `${response.data.user}(${response.data.chat_user})`);
     return response.success;
   }
 };
@@ -621,7 +624,7 @@ export const synthesizeAudio = async (text: string, token?: string, isRetry = fa
     console.error('语音合成错误:', error);
 
     // 如果是超时错误且不是重试请求，则重试一次
-    if (error instanceof Error && error.message.includes('请求超时') && !isRetry) {
+    if (!isRetry) {
       console.log('语音合成请求超时，正在重试...');
       syncDelay(1000); // 延迟1秒后重试
       return synthesizeAudio(text, token, true);

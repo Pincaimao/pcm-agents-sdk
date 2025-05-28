@@ -116,7 +116,8 @@ type PcmChatMessageEvents = {
         fileName: string,
         content?: string,
         contentType: 'file' | 'markdown' | 'text'
-    }>>
+    }>>,
+    onRetryRequest: EventName<CustomEvent<string>>
 };
 
 export const PcmChatMessage: StencilReactComponent<PcmChatMessageElement, PcmChatMessageEvents> = /*@__PURE__*/ createComponent<PcmChatMessageElement, PcmChatMessageEvents>({
@@ -126,7 +127,8 @@ export const PcmChatMessage: StencilReactComponent<PcmChatMessageElement, PcmCha
     react: React,
     events: {
         onMessageChange: 'messageChange',
-        onFilePreviewRequest: 'filePreviewRequest'
+        onFilePreviewRequest: 'filePreviewRequest',
+        onRetryRequest: 'retryRequest'
     } as PcmChatMessageEvents,
     defineCustomElement: definePcmChatMessage
 });
@@ -154,6 +156,7 @@ type PcmHrChatModalEvents = {
     onModalClosed: EventName<CustomEvent<void>>,
     onStreamComplete: EventName<PcmHrChatModalCustomEvent<StreamCompleteEventData>>,
     onConversationStart: EventName<PcmHrChatModalCustomEvent<ConversationStartEventData>>,
+    onSomeErrorEvent: EventName<PcmHrChatModalCustomEvent<ErrorEventDetail>>,
     onInterviewComplete: EventName<PcmHrChatModalCustomEvent<InterviewCompleteEventData>>,
     onRecordingError: EventName<CustomEvent<{
         type: string;
@@ -176,6 +179,7 @@ export const PcmHrChatModal: StencilReactComponent<PcmHrChatModalElement, PcmHrC
         onModalClosed: 'modalClosed',
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
+        onSomeErrorEvent: 'someErrorEvent',
         onInterviewComplete: 'interviewComplete',
         onRecordingError: 'recordingError',
         onRecordingStatusChange: 'recordingStatusChange',

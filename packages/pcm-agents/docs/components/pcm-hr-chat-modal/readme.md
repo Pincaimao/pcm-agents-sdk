@@ -36,6 +36,7 @@
 | `modalClosed`           | 当点击模态框关闭时触发             | `CustomEvent<void>`                                                                                    |
 | `recordingError`        | 录制错误事件                  | `CustomEvent<{ type: string; message: string; details?: any; }>`                                       |
 | `recordingStatusChange` | 录制状态变化事件                | `CustomEvent<{ status: "started" \| "stopped" \| "paused" \| "resumed" \| "failed"; details?: any; }>` |
+| `someErrorEvent`        | 错误事件                    | `CustomEvent<ErrorEventDetail>`                                                                        |
 | `streamComplete`        | 一轮对话结束时的回调              | `CustomEvent<StreamCompleteEventData>`                                                                 |
 | `tokenInvalid`          | SDK密钥验证失败事件             | `CustomEvent<void>`                                                                                    |
 

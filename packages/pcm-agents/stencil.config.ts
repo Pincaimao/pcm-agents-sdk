@@ -73,6 +73,7 @@ export const config: Config = {
       key: readFileSync('C:/Users/Administrator/Downloads/webarcx_com.key', 'utf8'),
     },
   },
+  globalScript: 'src/utils/init.ts',
   plugins: [
     dotenvPlugin()
   ],

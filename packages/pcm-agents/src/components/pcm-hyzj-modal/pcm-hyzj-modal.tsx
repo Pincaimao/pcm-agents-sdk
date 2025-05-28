@@ -4,6 +4,7 @@ import { ConversationStartEventData, InterviewCompleteEventData, StreamCompleteE
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store';
 import { configStore } from '../../../store/config.store';
+import { SentryReporter } from '../../utils/sentry-reporter';
 
 /**
  * 会议总结助手
@@ -158,11 +159,14 @@ export class HyzjModal {
             console.error('解析 customInputs 失败:', error);
             // 解析失败时设置为空对象
             this.parsedCustomInputs = {};
+            SentryReporter.captureError(error, {
+                action: 'parseCustomInputs',
+                component: 'pcm-hyzj-modal',
+                title: '解析自定义输入参数失败'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-hyzj-modal[parseCustomInputs]',
                 error: error,
-                message: '解析自定义输入参数失败',
-                type: 'ui'
+                message: '解析自定义输入参数失败'
             });
         }
     }
@@ -246,11 +250,14 @@ export class HyzjModal {
         } catch (error) {
             console.error('文件上传错误:', error);
             this.clearSelectedFile();
+            SentryReporter.captureError(error, {
+                action: 'uploadFile',
+                component: 'pcm-hyzj-modal',
+                title: '文件上传失败'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-hyzj-modal[uploadFile]',
                 error: error,
-                message: '文件上传失败，请重试',
-                type: 'ui'
+                message: '文件上传失败，请重试'
             });
         } finally {
             this.isUploading = false;
@@ -279,11 +286,14 @@ export class HyzjModal {
             this.showChatModal = true;
         } catch (error) {
             console.error('开始面试时出错:', error);
+            SentryReporter.captureError(error, {
+                action: 'handleStartInterview',
+                component: 'pcm-hyzj-modal',
+                title: '开始面试时出错'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-hyzj-modal[handleStartInterview]',
                 error: error,
-                message: '开始面试时出错，请重试',
-                type: 'ui'
+                message: '开始面试时出错，请重试'
             });
         } finally {
             this.isSubmitting = false;

@@ -121,10 +121,6 @@ export namespace Components {
          */
         "interviewMode": 'video' | 'text';
         /**
-          * 是否通过对话轮数控制结束
-         */
-        "isControlByQuestionNumber": boolean;
-        /**
           * 是否展示右上角的关闭按钮
          */
         "isNeedClose": boolean;
@@ -157,17 +153,9 @@ export namespace Components {
          */
         "showFeedbackButtons": boolean;
         /**
-          * 是否显示进度条 true: 显示进度条 false: 隐藏进度条
-         */
-        "showProgressBar": boolean;
-        /**
           * SDK鉴权密钥
          */
         "token"?: string;
-        /**
-          * 控制对话轮数
-         */
-        "totalQuestions": number;
         /**
           * 用户头像URL
          */
@@ -1260,6 +1248,7 @@ declare global {
         content?: string,
         contentType: 'file' | 'markdown' | 'text'
     };
+        "retryRequest": string;
     }
     interface HTMLPcmChatMessageElement extends Components.PcmChatMessage, HTMLStencilElement {
         addEventListener<K extends keyof HTMLPcmChatMessageElementEventMap>(type: K, listener: (this: HTMLPcmChatMessageElement, ev: PcmChatMessageCustomEvent<HTMLPcmChatMessageElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -1302,6 +1291,7 @@ declare global {
         "modalClosed": void;
         "streamComplete": StreamCompleteEventData1;
         "conversationStart": ConversationStartEventData1;
+        "someErrorEvent": ErrorEventDetail1;
         "interviewComplete": InterviewCompleteEventData1;
         "recordingError": {
     type: string;
@@ -1795,10 +1785,6 @@ declare namespace LocalJSX {
          */
         "interviewMode"?: 'video' | 'text';
         /**
-          * 是否通过对话轮数控制结束
-         */
-        "isControlByQuestionNumber"?: boolean;
-        /**
           * 是否展示右上角的关闭按钮
          */
         "isNeedClose"?: boolean;
@@ -1859,17 +1845,9 @@ declare namespace LocalJSX {
          */
         "showFeedbackButtons"?: boolean;
         /**
-          * 是否显示进度条 true: 显示进度条 false: 隐藏进度条
-         */
-        "showProgressBar"?: boolean;
-        /**
           * SDK鉴权密钥
          */
         "token"?: string;
-        /**
-          * 控制对话轮数
-         */
-        "totalQuestions"?: number;
         /**
           * 用户头像URL
          */
@@ -2015,6 +1993,10 @@ declare namespace LocalJSX {
          */
         "onMessageChange"?: (event: PcmChatMessageCustomEvent<Partial<ChatMessage>>) => void;
         /**
+          * 重试事件
+         */
+        "onRetryRequest"?: (event: PcmChatMessageCustomEvent<string>) => void;
+        /**
           * 是否显示复制按钮
          */
         "showCopyButton"?: boolean;
@@ -2157,6 +2139,10 @@ declare namespace LocalJSX {
     status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
     details?: any;
   }>) => void;
+        /**
+          * 错误事件
+         */
+        "onSomeErrorEvent"?: (event: PcmHrChatModalCustomEvent<ErrorEventDetail1>) => void;
         /**
           * 一轮对话结束时的回调
          */

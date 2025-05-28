@@ -9,6 +9,7 @@ import {
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store';
 import { configStore } from '../../../store/config.store';
+import { SentryReporter } from '../../utils/sentry-reporter';
 
 /**
  * 模拟面试
@@ -166,11 +167,14 @@ export class ZhanshiMnmsModal {
             console.error('解析 customInputs 失败:', error);
             // 解析失败时设置为空对象
             this.parsedCustomInputs = {};
+            SentryReporter.captureError(error, {
+                action: 'parseCustomInputs',
+                component: 'pcm-1zhanshi-mnms-modal',
+                title: '解析自定义输入参数失败'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-1zhanshi-mnms-modal[parseCustomInputs]',
                 error: error,
-                message: '解析自定义输入参数失败',
-                type: 'ui'
+                message: '解析自定义输入参数失败'
             });
         }
     }
@@ -316,7 +320,6 @@ export class ZhanshiMnmsModal {
                                     file_name: this.uploadedFileInfo?.file_name,
                                 }}
                                 interviewMode={this.interviewMode}
-                                showProgressBar={false}
                                 onModalClosed={this.handleClose}
                                 onStreamComplete={this.handleStreamComplete}
                                 onConversationStart={this.handleConversationStart}

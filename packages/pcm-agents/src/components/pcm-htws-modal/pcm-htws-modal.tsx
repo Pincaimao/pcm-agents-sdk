@@ -4,6 +4,7 @@ import { ConversationStartEventData, InterviewCompleteEventData, StreamCompleteE
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store';
 import { configStore } from '../../../store/config.store';
+import { SentryReporter } from '../../utils/sentry-reporter';
 
 /**
  * 劳动合同卫士
@@ -164,11 +165,14 @@ export class HtwsModal {
             console.error('解析 customInputs 失败:', error);
             // 解析失败时设置为空对象
             this.parsedCustomInputs = {};
+            SentryReporter.captureError(error, {
+                action: 'parseCustomInputs',
+                component: 'pcm-htws-modal',
+                title: '解析自定义输入参数失败'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-htws-modal[parseCustomInputs]',
                 error: error,
-                message: '解析自定义输入参数失败',
-                type: 'ui'
+                message: '解析自定义输入参数失败'
             });
         }
     }
@@ -250,11 +254,14 @@ export class HtwsModal {
         } catch (error) {
             console.error('文件上传错误:', error);
             this.clearSelectedFile();
+            SentryReporter.captureError(error, {
+                action: 'uploadFile',
+                component: 'pcm-htws-modal',
+                title: '文件上传失败'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-htws-modal[uploadFile]',
                 error: error,
-                message: '文件上传失败，请重试',
-                type: 'ui'
+                message: '文件上传失败，请重试'
             });
         } finally {
             this.isUploading = false;
@@ -301,11 +308,14 @@ export class HtwsModal {
             this.showChatModal = true;
         } catch (error) {
             console.error('开始分析时出错:', error);
+            SentryReporter.captureError(error, {
+                action: 'handleStartInterview',
+                component: 'pcm-htws-modal',
+                title: '开始分析时出错'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-htws-modal[handleStartInterview]',
                 error: error,
-                message: '开始分析时出错，请重试',
-                type: 'ui'
+                message: '开始分析时出错，请重试'
             });
         } finally {
             this.isSubmitting = false;

@@ -4,6 +4,7 @@ import extendedTables from 'marked-extended-tables';
 import { ChatMessage } from '../../interfaces/chat';
 import { sendHttpRequest } from '../../utils/utils';
 import { ErrorEventBus } from '../../utils/error-event';
+import { SentryReporter } from '../../utils/sentry-reporter';
 
 @Component({
     tag: 'pcm-chat-message',
@@ -68,6 +69,11 @@ export class ChatMessageComponent {
         contentType: 'file' | 'markdown' | 'text'
     }>;
 
+    /**
+     * 重试事件
+     */
+    @Event() retryRequest: EventEmitter<string>; // 传递消息ID
+
     constructor() {
         // 配置 marked 选项
         marked.use(extendedTables);
@@ -81,6 +87,7 @@ export class ChatMessageComponent {
      * 组件加载时检查消息是否已有反馈状态
      */
     componentWillLoad() {
+        
         // 如果消息已经有反馈状态，初始化feedbackStatus
         if (this.message && this.message.feedback) {
             this.feedbackStatus = this.message.feedback.rating as 'like' | 'dislike' | null;
@@ -99,10 +106,8 @@ export class ChatMessageComponent {
                 .catch(err => {
                     // 使用全局事件总线发送错误
                     ErrorEventBus.emitError({
-                        source: 'pcm-chat-message[copyMessageContent]',
                         error: err,
                         message: '复制内容失败',
-                        type: 'ui'
                     });
                     console.error('复制失败:', err);
                 });
@@ -155,6 +160,20 @@ export class ChatMessageComponent {
                     </div>
                     {!showLoading && this.message.answer && !this.message.isStreaming && (
                         <div class="message-actions">
+                            {/* 根据父组件传入的属性决定是否显示重试按钮 */}
+                            {this.message.showRetryButton && (
+                                <button class="action-button retry-button" onClick={() => this.handleRetry()} title="重试">
+                                    <span class="button-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="23 4 23 10 17 10"></polyline>
+                                            <polyline points="1 20 1 14 7 14"></polyline>
+                                            <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+                                        </svg>
+                                    </span>
+                                    重试
+                                </button>
+                            )}
+                            
                             {this.showCopyButton && (
                                 <button class="action-button" onClick={() => this.copyMessageContent()} title="复制内容">
                                     <span class="button-icon">
@@ -222,11 +241,14 @@ export class ChatMessageComponent {
             }
             return null;
         } catch (error) {
+            SentryReporter.captureError(error, {
+                action: 'getCosPreviewUrl',
+                component: 'pcm-chat-message',
+                title: '获取预览URL失败'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-chat-message[getCosPreviewUrl]',
                 error,
                 message: '获取预览URL失败',
-                type: 'network'
             });
             console.error('获取预览URL失败:', error);
             return null;
@@ -258,11 +280,14 @@ export class ChatMessageComponent {
             }
         } else {
             console.error('无法获取预览URL');
+            SentryReporter.captureError('无法获取预览URL', {
+                action: 'handleFileClick',
+                component: 'pcm-chat-message',
+                title: '无法获取预览URL'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-chat-message[handleFileClick]',
                 error: '无法获取预览URL',
                 message: '无法获取预览URL',
-                type: 'network'
             });
         }
     }
@@ -378,11 +403,14 @@ export class ChatMessageComponent {
     private async submitFeedback(rating: 'like' | 'dislike' | null) {
         if (!this.message.id) {
             console.error('消息ID不存在，无法提交反馈');
+            SentryReporter.captureError('消息ID不存在，无法提交反馈', {
+                action: 'submitFeedback',
+                component: 'pcm-chat-message',
+                title: '无法提交反馈'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-chat-message[submitFeedback]',
                 error: '消息ID不存在，无法提交反馈',
                 message: '消息ID不存在，无法提交反馈',
-                type: 'ui'
             });
             return;
         }
@@ -418,6 +446,20 @@ export class ChatMessageComponent {
             }
         } catch (error) {
             console.error('提交反馈时发生错误:', error);
+            SentryReporter.captureError(error, {
+                action: 'submitFeedback',
+                component: 'pcm-chat-message',
+                title: '提交反馈失败'
+            });
+        }
+    }
+
+    /**
+     * 处理重试操作
+     */
+    private handleRetry() {
+        if (this.message.id) {
+            this.retryRequest.emit(this.message.id);
         }
     }
 

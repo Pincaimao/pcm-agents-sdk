@@ -9,6 +9,7 @@ import {
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store';
 import { configStore } from '../../../store/config.store';
+import { SentryReporter } from '../../utils/sentry-reporter';
 
 /**
  * 模拟面试
@@ -186,11 +187,14 @@ export class MnmsModal {
             console.error('解析 customInputs 失败:', error);
             // 解析失败时设置为空对象
             this.parsedCustomInputs = {};
+            SentryReporter.captureError(error, {
+                action: 'parseCustomInputs',
+                component: 'pcm-mnms-modal',
+                title: '解析自定义输入参数失败'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-mnms-modal[parseCustomInputs]',
                 error: error,
-                message: '解析自定义输入参数失败',
-                type: 'ui'
+                message: '解析自定义输入参数失败'
             });
         }
     }
@@ -273,11 +277,14 @@ export class MnmsModal {
         } catch (error) {
             console.error('文件上传错误:', error);
             this.clearSelectedFile();
+            SentryReporter.captureError(error, {
+                action: 'uploadFile',
+                component: 'pcm-mnms-modal',
+                title: '文件上传失败'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-mnms-modal[uploadFile]',
                 error: error,
-                message: '文件上传失败，请重试',
-                type: 'ui'
+                message: '文件上传失败，请重试'
             });
         } finally {
             this.isUploading = false;
@@ -313,24 +320,18 @@ export class MnmsModal {
                 }
             }
 
-            // 使用预设的job_info或用户输入的jobDescription
-            // const jobInfo = this.customInputs?.job_info || this.jobDescription;
-
-            // console.log('传递的customInputs:', {
-            //     ...this.customInputs,
-            //     file_url: this.uploadedFileInfo.cos_key,
-            //     job_info: jobInfo
-            // });
-
             // 直接显示聊天模态框
             this.showChatModal = true;
         } catch (error) {
             console.error('开始面试时出错:', error);
+            SentryReporter.captureError(error, {
+                action: 'handleStartInterview',
+                component: 'pcm-mnms-modal',
+                title: '开始面试时出错'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-mnms-modal[handleStartInterview]',
                 error: error,
-                message: '开始面试时出错，请重试',
-                type: 'ui'
+                message: '开始面试时出错，请重试'
             });
         } finally {
             this.isSubmitting = false;
@@ -531,7 +532,6 @@ export class MnmsModal {
                                     job_info: this.parsedCustomInputs?.job_info || this.jobDescription
                                 }}
                                 interviewMode={this.interviewMode}
-                                showProgressBar={false}
                                 onModalClosed={this.handleClose}
                                 onStreamComplete={this.handleStreamComplete}
                                 onConversationStart={this.handleConversationStart}

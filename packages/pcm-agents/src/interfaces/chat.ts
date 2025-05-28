@@ -73,4 +73,9 @@ export interface ChatMessage {
    * 是否正在流式输出
    */
   isStreaming?: boolean;
+
+  /**
+   * 是否显示重试按钮
+   */
+  showRetryButton?: boolean;
 } 

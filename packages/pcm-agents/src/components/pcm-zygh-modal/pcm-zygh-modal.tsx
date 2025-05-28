@@ -4,6 +4,7 @@ import { ConversationStartEventData, StreamCompleteEventData } from '../../compo
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store'; // 导入 authStore
 import { configStore } from '../../../store/config.store';
+import { SentryReporter } from '../../utils/sentry-reporter';
 
 /**
  * 职业规划助手
@@ -163,11 +164,14 @@ export class ZyghModal {
             console.error('解析 customInputs 失败:', error);
             // 解析失败时设置为空对象
             this.parsedCustomInputs = {};
+            SentryReporter.captureError(error, {
+                action: 'parseCustomInputs',
+                component: 'pcm-zygh-modal',
+                title: '解析自定义输入参数失败'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-zygh-modal[parseCustomInputs]',
                 error: error,
-                message: '解析自定义输入参数失败',
-                type: 'ui'
+                message: '解析自定义输入参数失败'
             });
         }
     }
@@ -250,11 +254,14 @@ export class ZyghModal {
         } catch (error) {
             console.error('文件上传错误:', error);
             this.clearSelectedFile();
+            SentryReporter.captureError(error, {
+                action: 'uploadFile',
+                component: 'pcm-zygh-modal',
+                title: '文件上传失败'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-zygh-modal[uploadFile]',
                 error: error,
-                message: '文件上传失败，请重试',
-                type: 'ui'
+                message: '文件上传失败，请重试'
             });
         } finally {
             this.isUploading = false;
@@ -279,16 +286,18 @@ export class ZyghModal {
                 }
             }
 
-
             // 直接显示聊天模态框
             this.showChatModal = true;
         } catch (error) {
             console.error('开始规划时出错:', error);
+            SentryReporter.captureError(error, {
+                action: 'handleStartPlanning',
+                component: 'pcm-zygh-modal',
+                title: '开始规划时出错'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-zygh-modal[handleStartPlanning]',
                 error: error,
-                message: '开始规划时出错，请重试',
-                type: 'ui'
+                message: '开始规划时出错，请重试'
             });
         } finally {
             this.isSubmitting = false;

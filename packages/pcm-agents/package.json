@@ -54,6 +54,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@sentry/browser": "^9.22.0",
     "@stencil/react-output-target": "^0.8.2",
     "@stencil/vue-output-target": "^0.10.7",
     "@types/marked": "^5.0.2",

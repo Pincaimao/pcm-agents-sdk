@@ -467,3 +467,17 @@
 .assistant-avatar {
   margin-right: 8px;
 }
+
+.retry-button {
+  background-color: #ff6b35 !important;
+  color: white !important;
+  border: none !important;
+}
+
+.retry-button:hover {
+  background-color: #e55a2b !important;
+}
+
+.retry-button .button-icon {
+  color: white !important;
+}

@@ -91,7 +91,7 @@
         <div class="pcm-button">
           <pcm-button id="open-mnms-chat-video">模拟面试（视频）</pcm-button>
         </div>
-        <button id="open-hr-chat" >打开金牌HR大赛</button>
+        <button id="open-hr-chat" disabled>打开金牌HR大赛</button>
         <button id="open-video-chat">视频面试（一站式）</button>
 
       </div>
@@ -130,10 +130,10 @@
     conversation-id="" file-preview-mode="drawer" fullscreen="true" default-query="请您提问">
   </pcm-mnct-modal>
 
-  <pcm-mnms-modal id="pcm-mnms-modal-video" modal-title="模拟面试（视频）"
+  <pcm-mnms-video-modal id="pcm-mnms-modal-video" modal-title="模拟面试（视频）"
     icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id="" fullscreen="false"
     interview-mode="video" default-query="请您提问">
-  </pcm-mnms-modal>
+  </pcm-mnms-video-modal>
 
   <pcm-mnms-modal id="pcm-mnms-modal-text" modal-title="模拟面试（文字）" show-copy-button="false"
     show-feedback-buttons="false"
@@ -143,7 +143,7 @@
   </pcm-mnms-modal>
 
   <pcm-jlpp-modal id="pcm-jlpp-modal" modal-title="简历匹配助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
-    conversation-id="ff192832-d3d0-411a-87d7-912b8094eb5f" file-preview-mode="drawer" fullscreen="false" default-query="请您提问"></pcm-jlpp-modal>
+    conversation-id="" file-preview-mode="drawer" fullscreen="false" default-query="请您提问"></pcm-jlpp-modal>
 
   <pcm-zygh-modal id="pcm-zygh-modal" modal-title="职业规划助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
     conversation-id="" custom-inputs='{"type":"转行建议"}'  file-preview-mode="drawer" fullscreen="false" default-query="请您提问"></pcm-zygh-modal>
@@ -173,8 +173,8 @@
   <pcm-hr-chat-modal id="pcm-hr-chat-modal" modal-title="金牌HR大赛" require-resume="false"
     welcome-message="欢迎您参加长沙市人力资源和社会保障局组织的金牌HR大赛，接下来我们将采用数字人方式对您做交流，本次大赛预计需要10-30分钟，请在安静的环境下参与此次大赛。"
     icon="https://p3-pc.douyinpic.com/img/aweme-avatar/tos-cn-avt-0015_55cc4ce1aa0059074f4f9def520246dc~c5_300x300.jpeg"
-    conversation-id="" to-email="790002517@qq.com" display-content-status="true" fullscreen="true" total-questions="3"
-    enable-voice="false"  callback-url="https://toa.ylzhaopin.com/api/test/receive"></pcm-hr-chat-modal>
+    conversation-id="" to-email="790002517@qq.com" display-content-status="true" fullscreen="true" total-questions="4"
+    enable-voice="false"  enable-audio="false" callback-url="https://toa.ylzhaopin.com/api/test/receive"></pcm-hr-chat-modal>
 
 
   <!-- <pcm-app-chat-modal
@@ -195,7 +195,7 @@
 
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc0ODM1NTkwMn0.Xw5SyKBgezlBikKf3TFQYmeF1iPrhCI2u014DN4HWCc";
+    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc0ODUwOTU5Nn0.nvXAgfawXfO775c1Mbo1F_VWWUFgbqdE3cZu4ogh_nA";
     const SHARED_TOKEN_NEW = "11"
     let stream = null;
     const urlParams = new URLSearchParams(window.location.search);
@@ -317,6 +317,10 @@
           if (document.getElementById('open-hr-chat')) {
             document.getElementById('open-hr-chat').disabled = false;
           }
+          if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+          }
 
         } catch (error) {
           console.error('获取媒体设备失败:', error);
@@ -380,11 +384,6 @@
 
       // 打开聊天按钮事件监听
       openChatButton.addEventListener('click', () => {
-        // 停止媒体流，因为已经不需要了
-        if (stream) {
-          stream.getTracks().forEach(track => track.stop());
-          stream = null;
-        }
 
         chatModal.isOpen = true;
       });
@@ -432,10 +431,6 @@
       // 打开聊天按钮事件监听
       openChatButton.addEventListener('click', () => {
         mnmsModal.isOpen = true;
-        if (stream) {
-          stream.getTracks().forEach(track => track.stop());
-          stream = null;
-        }
       });
 
       // 设置自定义输入
@@ -987,10 +982,6 @@
       // 打开视频面试按钮事件监听
       openVideoChatButton.addEventListener('click', () => {
         videoChatModal.isOpen = true;
-        if (stream) {
-          stream.getTracks().forEach(track => track.stop());
-          stream = null;
-        }
       });
       videoChatModal.customInputs = {
         id: "35677279421992960"

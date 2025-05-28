@@ -4,6 +4,7 @@ import { ConversationStartEventData, InterviewCompleteEventData, StreamCompleteE
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store';
 import { configStore } from '../../../store/config.store';
+import { SentryReporter } from '../../utils/sentry-reporter';
 
 /**
  * 职位生成组件
@@ -186,11 +187,14 @@ export class PcmJdModal {
             console.error('解析 customInputs 失败:', error);
             // 解析失败时设置为空对象
             this.parsedCustomInputs = {};
+            SentryReporter.captureError(error, {
+                action: 'parseCustomInputs',
+                component: 'pcm-jd-modal',
+                title: '解析自定义输入参数失败'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-jd-modal[parseCustomInputs]',
                 error: error,
-                message: '解析自定义输入参数失败',
-                type: 'ui'
+                message: '解析自定义输入参数失败'
             });
         }
     }
@@ -295,7 +299,7 @@ export class PcmJdModal {
     };
 
     private async handlePositionAnalysis(jobName: string) {
-        if (!jobName) return;
+        if (!jobName.trim()) return;
 
         this.isLoading = true;
 
@@ -344,13 +348,15 @@ export class PcmJdModal {
                     this.shuffledTagGroups = shuffled;
                     this.selectedAITags = initialSelectedTags;
                 } catch (error) {
-                    ErrorEventBus.emitError({
-                        source: 'pcm-jd-modal[handlePositionAnalysis]',
-                        error: error,
-                        message: '解析前置标签时错误',
-                        type: 'ui'
+                    SentryReporter.captureError(error, {
+                        action: 'handlePositionAnalysis',
+                        component: 'pcm-jd-modal',
+                        title: '解析前置标签时错误'
                     });
-
+                    ErrorEventBus.emitError({
+                        error: error,
+                        message: '解析前置标签时错误'
+                    });
                 }
             }
         } catch (error) {
@@ -443,11 +449,14 @@ export class PcmJdModal {
             this.jobDescription = jobInfo;
         } catch (error) {
             console.error('提交结构化数据时出错:', error);
+            SentryReporter.captureError(error, {
+                action: 'handleSubmitStructured',
+                component: 'pcm-jd-modal',
+                title: '提交数据时出错'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-jd-modal[handleSubmitStructured]',
                 error: error,
-                message: '提交数据时出错，请重试',
-                type: 'ui'
+                message: '提交数据时出错，请重试'
             });
         } finally {
             this.isSubmitting = false;
@@ -470,11 +479,14 @@ export class PcmJdModal {
             this.showChatModal = true;
         } catch (error) {
             console.error('提交自由输入数据时出错:', error);
+            SentryReporter.captureError(error, {
+                action: 'handleSubmitFree',
+                component: 'pcm-jd-modal',
+                title: '提交数据时出错'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-jd-modal[handleSubmitFree]',
                 error: error,
-                message: '提交数据时出错，请重试',
-                type: 'ui'
+                message: '提交数据时出错，请重试'
             });
         } finally {
             this.isSubmitting = false;

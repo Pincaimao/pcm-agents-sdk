@@ -12,6 +12,7 @@ import { marked } from 'marked';
 import { ErrorEventBus } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store'; // 导入 authStore
 import { configStore } from '../../../store/config.store';
+import { SentryReporter } from '../../utils/sentry-reporter';
 
 @Component({
   tag: 'pcm-app-chat-modal',
@@ -138,16 +139,7 @@ export class ChatAPPModal {
 
   // 添加一个新的私有属性来存储视频元素的引用
   private videoRef: HTMLVideoElement | null = null;
-
-  /**
-   * 是否通过对话轮数控制结束
-   */
-  @Prop() isControlByQuestionNumber: boolean = false;
-
-  /**
-   * 控制对话轮数
-   */
-  @Prop() totalQuestions: number = 10;
+  
 
   /**
    * 当前轮数
@@ -256,12 +248,6 @@ export class ChatAPPModal {
    */
   @State() agentLogo: string = '';
 
-  /**
-   * 是否显示进度条
-   * true: 显示进度条
-   * false: 隐藏进度条
-   */
-  @Prop() showProgressBar: boolean = true;
 
   // 添加新的状态属性来跟踪任务是否已完成
   @State() isTaskCompleted: boolean = false;
@@ -313,6 +299,56 @@ export class ChatAPPModal {
     });
   }
 
+  componentWillLoad() {
+    // 将 zIndex 存入配置缓存
+    if (this.zIndex) {
+      configStore.setItem('modal-zIndex', this.zIndex);
+    } else {
+      // 如果没有提供 zIndex，尝试从缓存中读取
+      const cachedZIndex = configStore.getItem<number>('modal-zIndex');
+      if (cachedZIndex) {
+        this.zIndex = cachedZIndex;
+      } else {
+        this.zIndex = 1000;
+        configStore.setItem('modal-zIndex', 1000);
+      }
+    }
+
+    if (this.token) {
+      authStore.setToken(this.token);
+    }
+
+    // 添加全局token无效事件监听器
+    this.tokenInvalidListener = () => {
+      this.tokenInvalid.emit();
+    };
+    document.addEventListener('pcm-token-invalid', this.tokenInvalidListener);
+
+    // 确保 customInputs 是一个对象
+    if (!this.customInputs) {
+      this.customInputs = {};
+    }
+
+    // 如果没有设置助手头像，尝试获取智能体头像
+    if (!this.assistantAvatar && this.botId) {
+
+      this.fetchAgentLogo();
+    }
+
+    // 如果组件加载时已经是打开状态，则直接开始对话
+    if (this.isOpen) {
+      if (this.conversationId) {
+        // 在下一个事件循环中加载历史消息，避免在componentWillLoad中进行异步操作
+        setTimeout(() => this.loadHistoryMessages(), 0);
+      } else {
+        // 在下一个事件循环中发送初始消息，避免在componentWillLoad中进行异步操作
+        setTimeout(() => {
+          this.sendMessageToAPI(this.defaultQuery);
+        }, 0);
+      }
+    }
+  }
+
   private handleClose = () => {
     this.stopRecording();
     this.modalClosed.emit();
@@ -329,13 +365,15 @@ export class ChatAPPModal {
         this.agentLogo = agentInfo.logo;
       }
     } catch (error) {
-      ErrorEventBus.emitError({
-        source: 'pcm-app-chat-modal[fetchAgentLogo]',
-        error: error,
-        message: '获取智能体信息失败',
-        type: 'network'
+      SentryReporter.captureError(error, {
+        action: 'fetchAgentLogo',
+        component: 'pcm-app-chat-modal',
+        title: '获取智能体信息失败'
       });
-      console.error('获取智能体信息失败:', error);
+      ErrorEventBus.emitError({
+        error: error,
+        message: '获取智能体信息失败'
+      });
     }
   }
 
@@ -350,10 +388,8 @@ export class ChatAPPModal {
     // 修改消息处理逻辑，移除文件上传相关代码
     const queryText = message.trim() || '请开始';
 
-    // 检查是否是最后一题
-    const isLastQuestion = this.currentQuestionNumber >= this.totalQuestions;
 
-    // 创建新的消息对象，统一对齐消息结构
+    // 创建新的消息对象
     const newMessage: ChatMessage = {
       id: `temp-${Date.now()}`,  // 临时ID，将被服务器返回的ID替换
       conversation_id: this.conversationId,  // 会话ID
@@ -376,23 +412,11 @@ export class ChatAPPModal {
     // 设置当前流式消息
     this.currentStreamingMessage = newMessage;
 
-    this.shouldAutoScroll = true;
     // 滚动到底部
-    this.scrollToBottom();
-
-    // 如果是最后一题，直接显示结束消息并完成面试
-    if (isLastQuestion && this.isControlByQuestionNumber) {
-      this.messages = [...this.messages, newMessage];
-      this.currentStreamingMessage = null;
-      this.isLoading = false;
-      await this.completeInterview();
-      this.interviewComplete.emit({
-        conversation_id: this.conversationId,
-        current_question_number: this.currentQuestionNumber,
-        total_questions: this.totalQuestions
-      });
-      return;
-    }
+    setTimeout(() => {
+      this.shouldAutoScroll = true;
+      this.scrollToBottom();
+    }, 200);
 
     // 准备请求数据
     const requestData: any = {
@@ -446,7 +470,6 @@ export class ChatAPPModal {
           this.interviewComplete.emit({
             conversation_id: this.conversationId,
             current_question_number: this.currentQuestionNumber,
-            total_questions: this.totalQuestions
           });
         }
 
@@ -485,11 +508,15 @@ export class ChatAPPModal {
       onError: (error) => {
         console.error('发生错误:', error);
         ErrorEventBus.emitError({
-          source: 'pcm-app-chat-modal[sendMessageToAPI]',
           error: error,
-          message: '消息发送失败，请稍后再试',
-          type: 'network'
+          message: '消息发送失败，请稍后再试'
         });
+        SentryReporter.captureError(error, {
+          action: 'sendMessageToAPI',
+          component: 'pcm-app-chat-modal',
+          title: '消息发送失败'
+        });
+       
         this.messages = [...this.messages, {
           ...newMessage,
           answer: '抱歉，发生了错误，请稍后再试。',
@@ -513,10 +540,11 @@ export class ChatAPPModal {
         // 获取最新的AI回复内容
         const latestAIMessage = this.currentStreamingMessage;
         latestAIMessage.isStreaming = false;
+        this.currentStreamingMessage = null;
+
         // 更新消息列表
         this.messages = [...this.messages, latestAIMessage];
 
-        this.currentStreamingMessage = null;
 
         // 增加题目计数
         this.currentQuestionNumber++;
@@ -544,11 +572,9 @@ export class ChatAPPModal {
               // 只保存音频URL，不自动播放
               this.audioUrl = audioUrl;
             }
-          } else {
+          } else if (this.interviewMode === 'video'){
             // 如果禁用了语音合成，只在视频模式时开始等待录制
-            if (this.interviewMode === 'video') {
-              this.startWaitingToRecord();
-            }
+            this.startWaitingToRecord();
           }
         }
       }
@@ -663,11 +689,14 @@ export class ChatAPPModal {
       }
     } catch (error) {
       console.error('加载历史消息失败:', error);
+      SentryReporter.captureError(error, {
+        action: 'loadHistoryMessages',
+        component: 'pcm-app-chat-modal',
+        title: '加载历史消息失败'
+      });
       ErrorEventBus.emitError({
-        source: 'pcm-app-chat-modal[loadHistoryMessages]',
         error: error,
-        message: '加载历史消息失败，请刷新重试',
-        type: 'network'
+        message: '加载历史消息失败，请刷新重试'
       });
     } finally {
       this.isLoadingHistory = false;
@@ -680,56 +709,7 @@ export class ChatAPPModal {
   }
 
 
-  // 修改 componentWillLoad 生命周期方法
-  componentWillLoad() {
-    // 将 zIndex 存入配置缓存
-    if (this.zIndex) {
-      configStore.setItem('modal-zIndex', this.zIndex);
-    } else {
-      // 如果没有提供 zIndex，尝试从缓存中读取
-      const cachedZIndex = configStore.getItem<number>('modal-zIndex');
-      if (cachedZIndex) {
-        this.zIndex = cachedZIndex;
-      } else {
-        this.zIndex = 1000;
-        configStore.setItem('modal-zIndex', 1000);
-      }
-    }
-
-    if (this.token) {
-      authStore.setToken(this.token);
-    }
-
-    // 添加全局token无效事件监听器
-    this.tokenInvalidListener = () => {
-      this.tokenInvalid.emit();
-    };
-    document.addEventListener('pcm-token-invalid', this.tokenInvalidListener);
-
-    // 确保 customInputs 是一个对象
-    if (!this.customInputs) {
-      this.customInputs = {};
-    }
-
-    // 如果没有设置助手头像，尝试获取智能体头像
-    if (!this.assistantAvatar && this.botId) {
-
-      this.fetchAgentLogo();
-    }
-
-    // 如果组件加载时已经是打开状态，则直接开始对话
-    if (this.isOpen) {
-      if (this.conversationId) {
-        // 在下一个事件循环中加载历史消息，避免在componentWillLoad中进行异步操作
-        setTimeout(() => this.loadHistoryMessages(), 0);
-      } else {
-        // 在下一个事件循环中发送初始消息，避免在componentWillLoad中进行异步操作
-        setTimeout(() => {
-          this.sendMessageToAPI(this.defaultQuery);
-        }, 0);
-      }
-    }
-  }
+  
 
   // 开始等待录制
   private startWaitingToRecord() {
@@ -789,22 +769,32 @@ export class ChatAPPModal {
       let mediaRecorder;
       try {
         mediaRecorder = new MediaRecorder(stream, {
-          mimeType: mimeType
+          mimeType: mimeType,
+          videoBitsPerSecond: 800000, // 800kbps 视频比特率限制
+          audioBitsPerSecond: 64000   // 64kbps 音频比特率限制
         });
       } catch (e) {
         // 如果指定MIME类型失败，尝试使用默认设置
         console.warn('指定的MIME类型不受支持，使用默认设置:', e);
         try {
-          mediaRecorder = new MediaRecorder(stream);
-        } catch (recorderError) {
-          // 通知父组件录制器创建失败
-          this.recordingError.emit({
-            type: 'recorder_creation_failed',
-            message: '无法创建媒体录制器，您的浏览器可能不支持此功能',
-            details: recorderError
+          mediaRecorder = new MediaRecorder(stream, {
+            videoBitsPerSecond: 800000, // 即使降级也保持比特率限制
+            audioBitsPerSecond: 64000
           });
-          this.showRecordingUI = false;
-          return;
+        } catch (recorderError) {
+          // 最后的降级选项，不设置任何参数
+          try {
+            mediaRecorder = new MediaRecorder(stream);
+          } catch (finalError) {
+            // 通知父组件录制器创建失败
+            this.recordingError.emit({
+              type: 'recorder_creation_failed',
+              message: '无法创建媒体录制器，您的浏览器可能不支持此功能',
+              details: finalError
+            });
+            this.showRecordingUI = false;
+            return;
+          }
         }
       }
 
@@ -865,6 +855,11 @@ export class ChatAPPModal {
             details: error
           });
           this.showRecordingUI = false;
+          SentryReporter.captureError(error, {
+            action: 'uploadRecordedVideo',
+            component: 'pcm-hr-chat-modal',
+            title: '处理录制视频时出错'
+          });
         }
       };
 
@@ -891,6 +886,11 @@ export class ChatAPPModal {
           details: startError
         });
         this.showRecordingUI = false;
+        SentryReporter.captureError(startError, {
+          action: 'startRecording',
+          component: 'pcm-hr-chat-modal',
+          title: '开始录制失败'
+        });
         return;
       }
 
@@ -912,13 +912,18 @@ export class ChatAPPModal {
 
     } catch (error) {
       console.error('无法访问摄像头或麦克风:', error);
-      ErrorEventBus.emitError({
-        source: 'pcm-app-chat-modal[startRecording]',
-        error: error,
-        message: '无法访问摄像头或麦克风，请确保已授予权限',
-        type: 'network'
-      });
       this.showRecordingUI = false;
+      ErrorEventBus.emitError({
+        error: error,
+        message: '无法访问摄像头或麦克风，请确保已授予权限'
+      });
+
+      SentryReporter.captureError(error, {
+        action: 'startRecording',
+        component: 'pcm-app-chat-modal',
+        title: '无法访问摄像头或麦克风'
+      });
+      
     }
   }
 
@@ -933,11 +938,14 @@ export class ChatAPPModal {
           videoElement.srcObject = stream;
           videoElement.play().catch(err => {
             console.error('视频播放失败:', err);
+            SentryReporter.captureError(err, {
+              action: 'setupVideoPreview',
+              component: 'pcm-app-chat-modal',
+              title: '视频播放失败'
+            });
             ErrorEventBus.emitError({
-              source: 'pcm-app-chat-modal[setupVideoPreview]',
               error: err,
-              message: '视频播放失败',
-              type: 'ui'
+              message: '视频播放失败'
             });
           });
         } catch (e) {
@@ -955,11 +963,14 @@ export class ChatAPPModal {
             };
           } catch (urlError) {
             console.error('创建对象URL失败:', urlError);
+            SentryReporter.captureError(urlError, {
+              action: 'setupVideoPreview',
+              component: 'pcm-app-chat-modal',
+              title: '创建对象URL失败'
+            });
             ErrorEventBus.emitError({
-              source: 'pcm-app-chat-modal[setupVideoPreview]',
               error: urlError,
-              message: '创建对象URL失败',
-              type: 'network'
+              message: '创建对象URL失败'
             });
           }
         }
@@ -1047,11 +1058,14 @@ export class ChatAPPModal {
       }
     } catch (error) {
       console.error('音频转文字错误:', error);
+      SentryReporter.captureError(error, {
+        action: 'convertAudioToText',
+        component: 'pcm-app-chat-modal',
+        title: '音频转文字错误'
+      });
       ErrorEventBus.emitError({
-        source: 'pcm-app-chat-modal[convertAudioToText]',
         error: error,
-        message: '音频转文字错误',
-        type: 'network'
+        message: '音频转文字错误'
       });
       return null;
     }
@@ -1087,11 +1101,14 @@ export class ChatAPPModal {
 
     } catch (error) {
       console.error('视频上传或处理错误:', error);
+      SentryReporter.captureError(error, {
+        action: 'uploadRecordedVideo',
+        component: 'pcm-app-chat-modal',
+        title: '视频上传或处理失败'
+      });
       ErrorEventBus.emitError({
-        source: 'pcm-app-chat-modal[uploadRecordedVideo]',
         error: error,
-        message: '视频上传或处理失败',
-        type: 'network'
+        message: '视频上传或处理失败'
       });
     } finally {
       this.isUploadingVideo = false; // 上传完成后重置状态
@@ -1100,43 +1117,6 @@ export class ChatAPPModal {
     }
   }
 
-
-  /**
-   * 发送面试完成请求
-   */
-  private async completeInterview() {
-    if (!this.conversationId) return;
-
-    try {
-      const requestData: any = {
-        response_mode: 'streaming',
-        conversation_id: this.conversationId,
-        query: "我已经回答完毕，请结束面试",
-        inputs: {
-          // 合并自定义输入参数
-          ...this.customInputs
-        }
-      };
-
-      // 使用sendHttpRequest发送请求
-      sendHttpRequest({
-        url: '/sdk/v1/chat/chat-messages',
-        method: 'POST',
-        data: requestData
-      }).catch(error => {
-        console.error('发送面试完成请求失败:', error);
-        ErrorEventBus.emitError({
-          source: 'pcm-app-chat-modal[completeInterview]',
-          error: error,
-          message: '发送面试完成请求失败',
-          type: 'network'
-        });
-      });
-
-    } catch (error) {
-      console.error('发送面试完成请求失败:', error);
-    }
-  }
 
   // 播放音频的方法
   private playAudio(audioUrl: string): Promise<void> {
@@ -1158,27 +1138,33 @@ export class ChatAPPModal {
 
       this.audioElement.onerror = () => {
         console.error('音频播放错误');
-        ErrorEventBus.emitError({
-          source: 'pcm-app-chat-modal[playAudio]',
-          error: '音频播放错误',
-          message: '音频播放错误',
-          type: 'ui'
-        });
         this.isPlayingAudio = false;
         this.audioUrl = null;
+        ErrorEventBus.emitError({
+          error: '音频播放错误',
+          message: '音频播放错误'
+        });
+        SentryReporter.captureMessage('音频播放错误', {
+          action: 'playAudio',
+          component: 'pcm-hr-chat-modal',
+          title: '音频播放错误'
+        });
         resolve();
       };
 
       this.audioElement.play().catch(error => {
         console.error('音频播放失败:', error);
-        ErrorEventBus.emitError({
-          source: 'pcm-app-chat-modal[playAudio]',
-          error: error,
-          message: '音频播放失败',
-          type: 'ui'
-        });
         this.isPlayingAudio = false;
         this.audioUrl = null;
+        ErrorEventBus.emitError({
+          error: error,
+          message: '音频播放失败'
+        });
+        SentryReporter.captureError(error, {
+          title: '音频播放失败',
+          action: 'playAudio',
+          component: 'pcm-hr-chat-modal',
+        });
         resolve();
       });
     });
@@ -1280,11 +1266,14 @@ export class ChatAPPModal {
       await this.sendMessageToAPI(textToSend);
     } catch (error) {
       console.error('提交文本回答失败:', error);
+      SentryReporter.captureError(error, {
+        action: 'submitTextAnswer',
+        component: 'pcm-app-chat-modal',
+        title: '提交文本回答失败'
+      });
       ErrorEventBus.emitError({
-        source: 'pcm-app-chat-modal[submitTextAnswer]',
         error: error,
-        message: '提交文本回答失败',
-        type: 'network'
+        message: '提交文本回答失败'
       });
     } finally {
       this.isSubmittingText = false;
@@ -1305,11 +1294,14 @@ export class ChatAPPModal {
         })
         .catch(error => {
           console.error('麦克风权限请求失败:', error);
+          SentryReporter.captureError(error, {
+            action: 'handleVoiceInputClick',
+            component: 'pcm-app-chat-modal',
+            title: '麦克风权限请求失败'
+          });
           ErrorEventBus.emitError({
-            source: 'pcm-app-chat-modal[handleVoiceInputClick]',
             error: error,
-            message: '麦克风权限请求失败',
-            type: 'ui'
+            message: '麦克风权限请求失败'
           });
         });
     }
@@ -1335,11 +1327,14 @@ export class ChatAPPModal {
           // 停止并释放媒体流
           stream.getTracks().forEach(track => track.stop());
           console.error('无法创建音频录制器:', recorderError);
+          SentryReporter.captureError(recorderError, {
+            action: 'startRecordingWithStream',
+            component: 'pcm-app-chat-modal',
+            title: '无法创建音频录制器'
+          });
           ErrorEventBus.emitError({
-            source: 'pcm-app-chat-modal[startRecordingWithStream]',
             error: recorderError,
-            message: '无法创建音频录制器',
-            type: 'ui'
+            message: '无法创建音频录制器'
           });
           return;
         }
@@ -1385,11 +1380,14 @@ export class ChatAPPModal {
       // 停止并释放媒体流
       stream.getTracks().forEach(track => track.stop());
       console.error('开始录音失败:', error);
+      SentryReporter.captureError(error, {
+        action: 'startRecordingWithStream',
+        component: 'pcm-app-chat-modal',
+        title: '开始录音失败'
+      });
       ErrorEventBus.emitError({
-        source: 'pcm-app-chat-modal[startRecordingWithStream]',
         error: error,
-        message: '开始录音失败，请确保麦克风设备正常工作',
-        type: 'ui'
+        message: '开始录音失败，请确保麦克风设备正常工作'
       });
     }
   }
@@ -1459,11 +1457,14 @@ export class ChatAPPModal {
       }
     } catch (error) {
       console.error('处理音频录制失败:', error);
+      SentryReporter.captureError(error, {
+        action: 'processAudioRecording',
+        component: 'pcm-app-chat-modal',
+        title: '处理音频录制失败'
+      });
       ErrorEventBus.emitError({
-        source: 'pcm-app-chat-modal[processAudioRecording]',
         error: error,
-        message: '语音识别失败，请重试',
-        type: 'ui'
+        message: '语音识别失败，请重试'
       });
     } finally {
       this.isConvertingAudio = false;
@@ -1795,21 +1796,7 @@ export class ChatAPPModal {
                           {renderPlaceholderStatus()}
                         </div>
                       )}
-                      {this.showProgressBar && (
-                        <div class="progress-container">
-                          <div class="progress-bar-container">
-                            <div
-                              class="progress-bar"
-                              style={{
-                                width: `${Math.max(0, this.currentQuestionNumber - 1) / this.totalQuestions * 100}%`
-                              }}
-                            ></div>
-                          </div>
-                          <div class="progress-text">
-                            已完成{Math.max(0, this.currentQuestionNumber - 1)}/{this.totalQuestions}
-                          </div>
-                        </div>
-                      )}
+                      
                     </div>
                     <div class="recording-controls">
                       {this.showRecordingUI ? (
