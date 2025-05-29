@@ -487,6 +487,53 @@ export const calculateFileSHA256 = async (file: File): Promise<string> => {
 };
 
 /**
+ * 带重试机制的文件上传请求
+ * @param url 上传URL
+ * @param file 要上传的文件
+ * @param contentType 内容类型
+ * @param maxRetries 最大重试次数
+ * @returns Promise<Response>
+ */
+export const uploadFileWithRetry = async (
+  url: string, 
+  file: File, 
+  contentType: string = 'application/octet-stream', 
+  maxRetries: number = 2
+): Promise<Response> => {
+  let retries = 0;
+  
+  while (true) {
+    try {
+      const response = await fetchWithTimeout(url, {
+        method: 'PUT',
+        body: file, // 直接发送文件内容，不使用FormData
+        headers: {
+          'Content-Type': contentType,
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`文件上传失败: ${response.status} ${response.statusText}`);
+      }
+      
+      return response;
+    } catch (error) {
+      retries++;
+      console.error(`文件上传错误(尝试 ${retries}/${maxRetries}):`, error);
+      
+      // 如果已达到最大重试次数，则抛出错误
+      if (retries >= maxRetries) {
+        throw error;
+      }
+      
+      // 重试前延迟，每次重试增加延迟时间
+      const delayTime = 1000 * retries;
+      syncDelay(delayTime);
+    }
+  }
+};
+
+/**
  * 通过后端API上传文件
  * @param file 要上传的文件
  * @param headers 可选的请求头
@@ -513,6 +560,7 @@ export const uploadFileToBackend = async (file: File, headers?: Record<string, s
       url: '/sdk/v1/files/generate-upload-url',
       method: 'POST',
       data: {
+        ...params,
         filename: file.name,
         filesize: file.size,
         sha256: sha256,
@@ -526,27 +574,12 @@ export const uploadFileToBackend = async (file: File, headers?: Record<string, s
     const generate = uploadUrlResponse.data;
 
     if (generate.is_deleted != 1) {
-      // 第二步：直接上传文件到腾讯云
-      const formData = new FormData();
-      formData.append('file', file);
-
-      // 添加额外参数到 formData
-      if (params) {
-        Object.entries(params).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            formData.append(key, String(value));
-          }
-        });
-      }
-      console.log(file.type);
-      
-      const uploadResponse = await fetch(generate.upload_url, {
-        method: 'PUT',
-        body: file, // 直接发送文件内容，不使用FormData
-        headers: {
-          'Content-Type': generate.content_type || 'application/octet-stream',
-        },
-      });
+      // 第二步：使用带重试机制的方法上传文件到腾讯云
+      const uploadResponse = await uploadFileWithRetry(
+        generate.upload_url,
+        file,
+        generate.content_type || 'application/octet-stream'
+      );
 
       if (!uploadResponse.ok) {
         throw new Error(`文件上传到腾讯云失败: ${uploadResponse.status} ${uploadResponse.statusText}`);

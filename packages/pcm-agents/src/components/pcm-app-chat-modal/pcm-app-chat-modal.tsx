@@ -1090,7 +1090,7 @@ export class ChatAPPModal {
       const fileInfo = await uploadFileToBackend(file, {
 
       }, {
-        'tags': 'other'
+        'tags': ['other']
       });
       // 使用 cos_key 作为视频标识符
       // 调用音频转文字API
@@ -1421,7 +1421,7 @@ export class ChatAPPModal {
       const fileInfo = await uploadFileToBackend(audioFile, {
 
       }, {
-        'tags': 'audio'
+        'tags': ['audio']
       });
 
       // 调用音频转文字API

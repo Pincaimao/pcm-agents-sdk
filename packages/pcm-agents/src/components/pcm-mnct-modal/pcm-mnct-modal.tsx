@@ -240,7 +240,7 @@ export class MnctModal {
             // 使用 uploadFileToBackend 工具函数上传文件
             const result = await uploadFileToBackend(this.selectedFile, {
             }, {
-                'tags': 'resume'
+                'tags': ['resume']
             });
 
             this.uploadedFileInfo = result;

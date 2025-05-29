@@ -355,7 +355,7 @@ export class ChatHRModal {
     try {
       const result = await uploadFileToBackend(this.selectedFile, {
       }, {
-        'tags': 'resume'
+        'tags': ['resume']
       });
 
       if (result) {
@@ -1217,7 +1217,7 @@ export class ChatHRModal {
       // 使用uploadFileToBackend上传视频
       const result = await uploadFileToBackend(videoFile, {
       }, {
-        'tags': 'other'
+        'tags': ['other']
       });
 
       if (result) {

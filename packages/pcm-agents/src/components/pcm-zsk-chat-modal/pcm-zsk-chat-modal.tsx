@@ -892,7 +892,7 @@ export class ChatKBModal {
       // 上传音频文件
       const fileInfo = await uploadFileToBackend(audioFile, {
       }, {
-        'tags': 'audio'
+        'tags': ['audio']
       });
 
       // 调用音频转文字API

@@ -245,7 +245,7 @@ export class JlppModal {
         try {
             const result = await uploadFileToBackend(this.selectedFile, {
             }, {
-                'tags': 'resume'
+                'tags': ['resume']
             });
 
             this.uploadedFileInfo = result;
