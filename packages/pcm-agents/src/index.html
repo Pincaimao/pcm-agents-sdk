@@ -146,7 +146,7 @@
     conversation-id="" file-preview-mode="drawer" fullscreen="false" default-query="请您提问"></pcm-jlpp-modal>
 
   <pcm-zygh-modal id="pcm-zygh-modal" modal-title="职业规划助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
-    conversation-id="" custom-inputs='{"type":"转行建议"}'  file-preview-mode="drawer" fullscreen="false" default-query="请您提问"></pcm-zygh-modal>
+    conversation-id="" custom-inputs='{"type":"转行建议","file_url":"/resources/file/20250527/d0120aad3e90a8df0e608e6a74febae7.html","file_name":"产量与效益分析页.html"}'  file-preview-mode="drawer" fullscreen="false" default-query="请您提问"></pcm-zygh-modal>
 
   <pcm-hyzj-modal id="pcm-hyzj-modal" modal-title="会议总结助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
     conversation-id="" fullscreen="false" default-query="请您提问"></pcm-hyzj-modal>
@@ -195,7 +195,7 @@
 
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc0ODUwOTU5Nn0.nvXAgfawXfO775c1Mbo1F_VWWUFgbqdE3cZu4ogh_nA";
+    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDg1OTU4NTF9.hruQF-TcOO4dz4AE7CMCamTBUbo0JGKDVkQESMR3DuM";
     const SHARED_TOKEN_NEW = "11"
     let stream = null;
     const urlParams = new URLSearchParams(window.location.search);
@@ -430,7 +430,18 @@
 
       // 打开聊天按钮事件监听
       openChatButton.addEventListener('click', () => {
+        
         mnmsModal.isOpen = true;
+
+        try {
+          // 故意制造一个错误，看是否会被上报到 Sentry
+          const nonExistentObject = undefined;
+          nonExistentObject.someProperty = 'test'; // 这里会抛出TypeError
+        } catch (error) {
+          console.error('捕获到错误:', error);
+          // 注意：即使我们捕获了错误，如果错误源自我们的SDK内部，
+          // 修改后的Sentry配置应该仍然会上报这个错误
+        }
       });
 
       // 设置自定义输入
@@ -533,6 +544,7 @@
           jlppModal.isOpen = true;
         });
       }
+
     };
 
     // 职业规划助手模态框处理
@@ -581,9 +593,11 @@
       });
 
       // 设置自定义输入
-      // zyghModal.customInputs = {
-      //   type: "转行建议"
-      // };
+      zyghModal.customInputs = {
+        type: "转行建议",
+        file_url: "/resources/file/20250416/d258f91a1ff6061822f00b4e245dbd00.pdf",
+        file_name: "简历.pdf"
+      };
     };
 
 
@@ -632,10 +646,7 @@
         mnctModal.isOpen = true;
       });
 
-      // 设置自定义输入
-      // mnctModal.customInputs = {
-      //   job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广"
-      // };
+
     };
 
     // 面试报告模态框处理
@@ -683,9 +694,10 @@
         msbgModal.isOpen = true;
       });
 
-      // 设置自定义输入
       // msbgModal.customInputs = {
-      //   job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广"
+      //   job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广",
+      //   file_urls: "/resources/file/20250416/d258f91a1ff6061822f00b4e245dbd00.pdf,/resources/file/20250416/d258f91a1ff6061822f00b4e245dbd00.pdf",
+      //   file_names: "简历.pdf,简历222.pdf"
       // };
     };
 
@@ -732,6 +744,7 @@
       openHyzjButton.addEventListener('click', () => {
         hyzjModal.isOpen = true;
       });
+
     };
 
 
@@ -1033,12 +1046,13 @@
       });
 
       // 可以设置自定义输入（可选）
-      qgqjlModal.customInputs = {
-        // job_info: "前端开发工程师，负责Web应用的开发与维护，要求熟悉React、TypeScript和现代前端工具链"
-        mode_type: "0"
-      };
+      // qgqjlModal.customInputs = {
+      //   job_info: "前端开发工程师，负责Web应用的开发与维护，要求熟悉React、TypeScript和现代前端工具链",
+      //   file_url: "/resources/file/20250416/d258f91a1ff6061822f00b4e245dbd00.pdf",
+      //   file_name: "简历.pdf",
+      //   mode_type: "0"
+      // };
     };
-
  
     
     // 处理职位按钮点击

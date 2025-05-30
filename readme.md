@@ -165,7 +165,9 @@ npm run upload
 
 #### react中使用
 
- 下载并导入 pcm-agents 和 pcm-agents-react，具体组件属性请查看智能体文档，这里只演示框架使用形式： 
+demo：https://github.com/Pincaimao/pcm-agents-sdk-react-demo
+
+下载并导入 pcm-agents 和 pcm-agents-react，具体组件属性请查看智能体文档，这里只演示框架使用形式： 
 
 ```react
 import { useState } from 'react';
@@ -204,7 +206,9 @@ export default App;
 
 #### vue中使用
 
- 下载并导入 pcm-agents 和 pcm-agents-vue，具体组件属性请查看智能体文档，这里只演示框架使用形式： 
+demo：https://github.com/Pincaimao/pcm-agents-sdk-vue3-demo
+
+下载并导入 pcm-agents 和 pcm-agents-vue，具体组件属性请查看智能体文档，这里只演示框架使用形式： 
 
 
 

@@ -80,14 +80,9 @@ export class MnmsVideoModal {
      * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br>
      * 传入customInputs.file_url时，会隐藏简历上传区域。<br>
      * 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
-     * 支持字符串格式（将被解析为JSON）或对象格式
      */
-    @Prop() customInputs: Record<string, string> | string = {};
+    @Prop() customInputs: Record<string, string> = {};
 
-    /**
-     * 解析后的自定义输入参数
-     */
-    @State() parsedCustomInputs: Record<string, string> = {};
 
     /**
      * 上传成功事件
@@ -169,39 +164,31 @@ export class MnmsVideoModal {
         }
     }
 
-    @Watch('customInputs')
-    handleCustomInputsChange() {
-        this.parseCustomInputs();
-    }
 
-    private parseCustomInputs() {
-        try {
-            if (typeof this.customInputs === 'string') {
-                // 尝试将字符串解析为JSON对象
-                this.parsedCustomInputs = JSON.parse(this.customInputs);
-            } else {
-                // 已经是对象，直接使用
-                this.parsedCustomInputs = { ...this.customInputs };
+    @Watch('isOpen')
+    async handleIsOpenChange(newValue: boolean) {
+        if (!newValue) {
+            // 重置状态
+            this.clearSelectedFile();
+            this.showChatModal = false;
+            this.jobDescription = '';
+
+        } else {
+            if (this.customInputs && this.customInputs.job_info) {
+                this.jobDescription = this.customInputs.job_info;
             }
-        } catch (error) {
-            console.error('解析 customInputs 失败:', error);
-            // 解析失败时设置为空对象
-            this.parsedCustomInputs = {};
-            SentryReporter.captureError(error, {
-                action: 'parseCustomInputs',
-                component: 'pcm-mnms-video-modal',
-                title: '解析自定义输入参数失败'
-            });
-            ErrorEventBus.emitError({
-                error: error,
-                message: '解析自定义输入参数失败'
-            });
+
+            await verifyApiKey(this.token);
+
+            // 如果同时有 file_url 和 job_info，或者有会话ID，直接显示聊天模态框
+            if ((this.customInputs?.file_url && this.customInputs?.job_info) || this.conversationId) {
+                this.showChatModal = true;
+            }
         }
     }
 
+
     componentWillLoad() {
-        // 初始解析 customInputs
-        this.parseCustomInputs();
 
         // 将 zIndex 存入配置缓存
         if (this.zIndex) {
@@ -235,7 +222,6 @@ export class MnmsVideoModal {
     }
 
     private handleClose = () => {
-        this.isOpen = false;
         this.modalClosed.emit();
     };
 
@@ -303,7 +289,7 @@ export class MnmsVideoModal {
         }
 
         // 如果没有预设的job_info，则需要检查用户输入
-        if (!this.parsedCustomInputs?.job_info && !this.jobDescription.trim()) {
+        if (!this.customInputs?.job_info && !this.jobDescription.trim()) {
             alert('请输入职位描述');
             return;
         }
@@ -338,50 +324,6 @@ export class MnmsVideoModal {
         }
     };
 
-    @Watch('isOpen')
-    async handleIsOpenChange(newValue: boolean) {
-        if (!newValue) {
-            // 重置状态
-            this.clearSelectedFile();
-            this.showChatModal = false;
-            this.jobDescription = '';
-
-        } else {
-            if (this.parsedCustomInputs && this.parsedCustomInputs.job_info) {
-                this.jobDescription = this.parsedCustomInputs.job_info;
-            }
-
-            await verifyApiKey(this.token);
-
-            // 如果同时有 file_url 和 job_info，或者有会话ID，直接显示聊天模态框
-            if ((this.parsedCustomInputs?.file_url && this.parsedCustomInputs?.job_info) || this.conversationId) {
-                this.showChatModal = true;
-            }
-        }
-    }
-
-
-    // 处理流式输出完成事件
-    private handleStreamComplete = (event: CustomEvent) => {
-        // 将事件转发出去
-        this.streamComplete.emit(event.detail);
-    };
-
-    // 处理会话开始事件
-    private handleConversationStart = (event: CustomEvent) => {
-        this.conversationStart.emit(event.detail);
-    };
-
-    // 处理面试完成事件
-    private handleInterviewComplete = (event: CustomEvent) => {
-        this.interviewComplete.emit(event.detail);
-    };
-
-
-    private handleRecordingError = (event: CustomEvent) => {
-        this.recordingError.emit(event.detail);
-    };
-
 
     render() {
         if (!this.isOpen) return null;
@@ -405,14 +347,14 @@ export class MnmsVideoModal {
         // 显示加载状态
         const isLoading = this.conversationId && !this.showChatModal;
 
-        // 修正这里的逻辑，确保当 parsedCustomInputs.job_info 存在时，hideJdInput 为 true
-        const hideJdInput = Boolean(this.parsedCustomInputs && this.parsedCustomInputs.job_info);
+        // 修正这里的逻辑，确保当 customInputs.job_info 存在时，hideJdInput 为 true
+        const hideJdInput = Boolean(this.customInputs && this.customInputs.job_info);
         
         // 判断是否隐藏简历上传区域
-        const hideResumeUpload = Boolean(this.parsedCustomInputs && this.parsedCustomInputs.file_url);
+        const hideResumeUpload = Boolean(this.customInputs && this.customInputs.file_url);
         
         // 判断是否同时提供了file_url和job_info
-        const hasFileAndJob = Boolean(this.parsedCustomInputs?.file_url && this.parsedCustomInputs?.job_info);
+        const hasFileAndJob = Boolean(this.customInputs?.file_url && this.customInputs?.job_info);
 
         return (
             <div class={overlayClass} style={modalStyle}>
@@ -526,17 +468,12 @@ export class MnmsVideoModal {
                                 showCopyButton={this.showCopyButton}
                                 showFeedbackButtons={this.showFeedbackButtons}
                                 customInputs={this.conversationId ? {} : {
-                                    ...this.parsedCustomInputs,
-                                    file_url: this.parsedCustomInputs?.file_url || this.uploadedFileInfo?.cos_key,
-                                    file_name: this.parsedCustomInputs?.file_name || this.uploadedFileInfo?.file_name,
-                                    job_info: this.parsedCustomInputs?.job_info || this.jobDescription
+                                    ...this.customInputs,
+                                    file_url: this.customInputs?.file_url || this.uploadedFileInfo?.cos_key,
+                                    file_name: this.customInputs?.file_name || this.uploadedFileInfo?.file_name,
+                                    job_info: this.customInputs?.job_info || this.jobDescription
                                 }}
                                 interviewMode={this.interviewMode}
-                                onModalClosed={this.handleClose}
-                                onStreamComplete={this.handleStreamComplete}
-                                onConversationStart={this.handleConversationStart}
-                                onInterviewComplete={this.handleInterviewComplete}
-                                onRecordingError={this.handleRecordingError}
                             ></pcm-app-chat-modal>
                         </div>
                     )}

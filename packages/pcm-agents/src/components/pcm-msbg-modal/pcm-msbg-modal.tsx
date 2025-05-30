@@ -73,14 +73,10 @@ export class MsbgModal {
 
     /**
      * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br>
-     * 支持字符串格式（将被解析为JSON）或对象格式
+     * 传入customInputs.file_urls时，会隐藏简历上传区域。<br>
+     * 传入customInputs.file_urls和customInputs.job_info时，会直接开始聊天。<br>
      */
-    @Prop() customInputs: Record<string, string> | string = {};
-
-    /**
-     * 解析后的自定义输入参数
-     */
-    @State() parsedCustomInputs: Record<string, string> = {};
+    @Prop() customInputs: Record<string, string>= {};
 
     /**
      * 上传成功事件
@@ -141,39 +137,30 @@ export class MsbgModal {
         }
     }
 
-    @Watch('customInputs')
-    handleCustomInputsChange() {
-        this.parseCustomInputs();
-    }
-
-    private parseCustomInputs() {
-        try {
-            if (typeof this.customInputs === 'string') {
-                // 尝试将字符串解析为JSON对象
-                this.parsedCustomInputs = JSON.parse(this.customInputs);
-            } else {
-                // 已经是对象，直接使用
-                this.parsedCustomInputs = { ...this.customInputs };
+    @Watch('isOpen')
+    async handleIsOpenChange(newValue: boolean) {
+        if (!newValue) {
+            // 重置状态
+            this.clearSelectedFile();
+            this.showChatModal = false;
+            this.jobDescription = '';
+        } else {
+            if (this.customInputs && this.customInputs.job_info) {
+                this.jobDescription = this.customInputs.job_info;
             }
-        } catch (error) {
-            console.error('解析 customInputs 失败:', error);
-            // 解析失败时设置为空对象
-            this.parsedCustomInputs = {};
-            SentryReporter.captureError(error, {
-                action: 'parseCustomInputs',
-                component: 'pcm-msbg-modal',
-                title: '解析自定义输入参数失败'
-            });
-            ErrorEventBus.emitError({
-                error: error,
-                message: '解析自定义输入参数失败'
-            });
+
+            await verifyApiKey(this.token);
+
+            // 如果有会话ID或者同时有file_urls和job_info，直接显示聊天模态框
+            if (this.conversationId || (this.customInputs?.file_urls && this.customInputs?.job_info)) {
+                this.showChatModal = true;
+            }
         }
     }
 
+
     componentWillLoad() {
-        // 初始解析 customInputs
-        this.parseCustomInputs();
+        
         
         // 将 zIndex 存入配置缓存
         if (this.zIndex) {
@@ -204,7 +191,6 @@ export class MsbgModal {
 
 
     private handleClose = () => {
-        this.isOpen = false;
         this.modalClosed.emit();
     };
 
@@ -272,7 +258,7 @@ export class MsbgModal {
         }
 
         // 如果没有预设的job_info，则需要检查用户输入
-        if (!this.parsedCustomInputs?.job_info && !this.jobDescription.trim()) {
+        if (!this.customInputs?.job_info && !this.jobDescription.trim()) {
             alert('请输入职位描述');
             return;
         }
@@ -307,46 +293,6 @@ export class MsbgModal {
         }
     };
 
-    @Watch('isOpen')
-    async handleIsOpenChange(newValue: boolean) {
-        if (!newValue) {
-            // 重置状态
-            this.clearSelectedFile();
-            this.showChatModal = false;
-            this.jobDescription = '';
-
-        } else {
-            if (this.parsedCustomInputs && this.parsedCustomInputs.job_info) {
-                this.jobDescription = this.parsedCustomInputs.job_info;
-            }
-
-            await verifyApiKey(this.token);
-
-            if (this.conversationId) {
-                // 如果有会话ID，直接显示聊天模态框
-                this.showChatModal = true;
-            }
-        }
-    }
-
-
-    // 处理流式输出完成事件
-    private handleStreamComplete = (event: CustomEvent) => {
-        // 将事件转发出去
-        this.streamComplete.emit(event.detail);
-    };
-
-    // 处理会话开始事件
-    private handleConversationStart = (event: CustomEvent) => {
-        this.conversationStart.emit(event.detail);
-    };
-
-    // 处理面试完成事件
-    private handleInterviewComplete = (event: CustomEvent) => {
-        this.interviewComplete.emit(event.detail);
-    };
-
-
     render() {
         if (!this.isOpen) return null;
 
@@ -369,8 +315,14 @@ export class MsbgModal {
         // 显示加载状态
         const isLoading = this.conversationId && !this.showChatModal;
 
-        // 修正这里的逻辑，确保当 parsedCustomInputs.job_info 存在时，hideJdInput 为 true
-        const hideJdInput = Boolean(this.parsedCustomInputs && this.parsedCustomInputs.job_info);
+        // 确保当 customInputs.job_info 存在时，hideJdInput 为 true
+        const hideJdInput = Boolean(this.customInputs && this.customInputs.job_info);
+        
+        // 判断是否隐藏面试内容上传区域
+        const hideFileUpload = Boolean(this.customInputs && this.customInputs.file_urls);
+        
+        // 判断是否同时提供了file_urls和job_info
+        const hasFileAndJob = Boolean(this.customInputs?.file_urls && this.customInputs?.job_info);
 
         return (
             <div class={overlayClass} style={modalStyle}>
@@ -389,8 +341,8 @@ export class MsbgModal {
                         </div>
                     )}
 
-                    {/* 上传界面 - 仅在不显示聊天模态框且没有会话ID时显示 */}
-                    {!this.showChatModal && !this.conversationId && (
+                    {/* 上传界面 - 仅在不显示聊天模态框且没有会话ID且没有同时提供file_urls和job_info时显示 */}
+                    {!this.showChatModal && !this.conversationId && !hasFileAndJob && (
                         <div class="input-container">
                             {/* JD输入区域 - 仅在没有parsedCustomInputs.job_info时显示 */}
                             {!hideJdInput && (
@@ -407,34 +359,36 @@ export class MsbgModal {
                                 </div>
                             )}
 
-                            {/* 上传面试内容上传区域 */}
-                            <div class="resume-upload-section">
-                                <label>上传面试内容</label>
-                                <div class="upload-area" onClick={this.handleUploadClick}>
-                                    {this.selectedFile ? (
-                                        <div class="file-item">
-                                            <div class="file-item-content">
-                                                <span class="file-icon">📝</span>
-                                                <span class="file-name">{this.selectedFile.name}</span>
+                            {/* 上传面试内容上传区域 - 仅在没有customInputs.file_urls时显示 */}
+                            {!hideFileUpload && (
+                                <div class="resume-upload-section">
+                                    <label>上传面试内容</label>
+                                    <div class="upload-area" onClick={this.handleUploadClick}>
+                                        {this.selectedFile ? (
+                                            <div class="file-item">
+                                                <div class="file-item-content">
+                                                    <span class="file-icon">📝</span>
+                                                    <span class="file-name">{this.selectedFile.name}</span>
+                                                </div>
+                                                <button class="remove-file" onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    this.clearSelectedFile();
+                                                }}>×</button>
                                             </div>
-                                            <button class="remove-file" onClick={(e) => {
-                                                e.stopPropagation();
-                                                this.clearSelectedFile();
-                                            }}>×</button>
-                                        </div>
-                                    ) : (
-                                        <div class="upload-placeholder">
-                                            <img src='https://pub.pincaimao.com/static/web/images/home/i_upload.png'></img>
-                                            <p class='upload-text'>点击上传面试内容</p>
-                                            <p class="upload-hint">支持 mp3、markdown、pdf、docx、doc、md 格式</p>
-                                        </div>
-                                    )}
+                                        ) : (
+                                            <div class="upload-placeholder">
+                                                <img src='https://pub.pincaimao.com/static/web/images/home/i_upload.png'></img>
+                                                <p class='upload-text'>点击上传面试内容</p>
+                                                <p class="upload-hint">支持 mp3、markdown、pdf、docx、doc、md 格式</p>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             <button
                                 class="submit-button"
-                                disabled={!this.selectedFile || (!hideJdInput && !this.jobDescription.trim()) || this.isUploading || this.isSubmitting}
+                                disabled={(!hideFileUpload && !this.selectedFile) || (!hideJdInput && !this.jobDescription.trim()) || this.isUploading || this.isSubmitting}
                                 onClick={this.handleStartInterview}
                             >
                                 {this.isUploading ? '上传中...' : this.isSubmitting ? '处理中...' : '开始分析'}
@@ -480,16 +434,12 @@ export class MsbgModal {
                                 filePreviewMode={this.filePreviewMode}
                                 enableVoice={false}
                                 customInputs={this.conversationId ? {} : {
-                                    ...this.parsedCustomInputs,
-                                    file_urls: this.uploadedFileInfo?.cos_key,
-                                    file_names: this.uploadedFileInfo?.file_name,
-                                    job_info: this.parsedCustomInputs?.job_info || this.jobDescription
+                                    ...this.customInputs,
+                                    file_urls: this.customInputs?.file_urls || this.uploadedFileInfo?.cos_key,
+                                    file_names: this.customInputs?.file_names || this.uploadedFileInfo?.file_name,
+                                    job_info: this.customInputs?.job_info || this.jobDescription
                                 }}
                                 interviewMode="text"
-                                onModalClosed={this.handleClose}
-                                onStreamComplete={this.handleStreamComplete}
-                                onConversationStart={this.handleConversationStart}
-                                onInterviewComplete={this.handleInterviewComplete}
                             ></pcm-app-chat-modal>
                         </div>
                     )}

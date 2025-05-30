@@ -73,14 +73,9 @@ export class HyzjModal {
 
     /**
      * 自定义输入参数<br>
-     * 支持字符串格式（将被解析为JSON）或对象格式
+     * 传入customInputs.file_url时，会直接开始聊天。<br>
      */
-    @Prop() customInputs: Record<string, string> | string = {};
-
-    /**
-     * 解析后的自定义输入参数
-     */
-    @State() parsedCustomInputs: Record<string, string> = {};
+    @Prop() customInputs: Record<string, string> = {};
 
     /**
      * 上传成功事件
@@ -141,39 +136,24 @@ export class HyzjModal {
         }
     }
 
-    @Watch('customInputs')
-    handleCustomInputsChange() {
-        this.parseCustomInputs();
-    }
-
-    private parseCustomInputs() {
-        try {
-            if (typeof this.customInputs === 'string') {
-                // 尝试将字符串解析为JSON对象
-                this.parsedCustomInputs = JSON.parse(this.customInputs);
-            } else {
-                // 已经是对象，直接使用
-                this.parsedCustomInputs = { ...this.customInputs };
+    @Watch('isOpen')
+    async handleIsOpenChange(newValue: boolean) {
+        if (!newValue) {
+            // 重置状态
+            this.clearSelectedFile();
+            this.showChatModal = false;
+        } else {
+            await verifyApiKey(this.token);
+            
+            // 如果有会话ID或者有file_url参数，直接显示聊天模态框
+            if (this.conversationId || this.customInputs?.file_url) {
+                this.showChatModal = true;
             }
-        } catch (error) {
-            console.error('解析 customInputs 失败:', error);
-            // 解析失败时设置为空对象
-            this.parsedCustomInputs = {};
-            SentryReporter.captureError(error, {
-                action: 'parseCustomInputs',
-                component: 'pcm-hyzj-modal',
-                title: '解析自定义输入参数失败'
-            });
-            ErrorEventBus.emitError({
-                error: error,
-                message: '解析自定义输入参数失败'
-            });
         }
     }
 
+
     componentWillLoad() {
-        // 初始解析 customInputs
-        this.parseCustomInputs();
 
         // 将 zIndex 存入配置缓存
         if (this.zIndex) {
@@ -208,7 +188,6 @@ export class HyzjModal {
 
 
     private handleClose = () => {
-        this.isOpen = false;
         this.modalClosed.emit();
     };
 
@@ -300,38 +279,6 @@ export class HyzjModal {
         }
     };
 
-    @Watch('isOpen')
-    async handleIsOpenChange(newValue: boolean) {
-        if (!newValue) {
-            // 重置状态
-            this.clearSelectedFile();
-            this.showChatModal = false;
-        } else {
-            await verifyApiKey(this.token);
-            if (this.conversationId) {
-                // 如果有会话ID，直接显示聊天模态框
-                this.showChatModal = true;
-            }
-        }
-    }
-
-
-    // 处理流式输出完成事件
-    private handleStreamComplete = (event: CustomEvent) => {
-        // 将事件转发出去
-        this.streamComplete.emit(event.detail);
-    };
-
-    // 处理会话开始事件
-    private handleConversationStart = (event: CustomEvent) => {
-        this.conversationStart.emit(event.detail);
-    };
-
-    // 处理面试完成事件
-    private handleInterviewComplete = (event: CustomEvent) => {
-        this.interviewComplete.emit(event.detail);
-    };
-
 
     render() {
         if (!this.isOpen) return null;
@@ -355,6 +302,9 @@ export class HyzjModal {
        // 显示加载状态
        const isLoading = this.conversationId && !this.showChatModal;
 
+       // 判断是否隐藏文件上传区域
+       const hideFileUpload = Boolean(this.customInputs && this.customInputs.file_url);
+
         return (
             <div class={overlayClass} style={modalStyle}>
                 <div class={containerClass}>
@@ -372,8 +322,8 @@ export class HyzjModal {
                         </div>
                     )}
 
-                    {/* 上传界面 - 仅在不显示聊天模态框且没有会话ID时显示 */}
-                    {!this.showChatModal && !this.conversationId && (
+                    {/* 上传界面 - 仅在不显示聊天模态框且没有会话ID且没有customInputs.file_url时显示 */}
+                    {!this.showChatModal && !this.conversationId && !hideFileUpload && (
                         <div class="input-container">
                             {/* 上传会议纪要上传区域 */}
                             <div class="resume-upload-section">
@@ -439,8 +389,8 @@ export class HyzjModal {
                                 isOpen={true}
                                 modalTitle={this.modalTitle}
                                 icon={this.icon}
-                                isShowHeader={this.isShowHeader} // 不显示内部的标题栏，因为外部已有
-                                isNeedClose={this.isShowHeader} // 不显示内部的关闭按钮，因为外部已有
+                                isShowHeader={this.isShowHeader}
+                                isNeedClose={this.isShowHeader}
                                 fullscreen={this.fullscreen}
                                 botId="3022316191018885"
                                 conversationId={this.conversationId}
@@ -448,15 +398,11 @@ export class HyzjModal {
                                 enableVoice={false}
                                 filePreviewMode={this.filePreviewMode}
                                 customInputs={this.conversationId ? {} : {
-                                    ...this.parsedCustomInputs,
-                                    file_url: this.uploadedFileInfo?.cos_key,
-                                    file_name: this.uploadedFileInfo?.file_name
+                                    ...this.customInputs,
+                                    file_url: this.customInputs?.file_url || this.uploadedFileInfo?.cos_key,
+                                    file_name: this.customInputs?.file_name || this.uploadedFileInfo?.file_name
                                 }}
                                 interviewMode="text"
-                                onModalClosed={this.handleClose}
-                                onStreamComplete={this.handleStreamComplete}
-                                onConversationStart={this.handleConversationStart}
-                                onInterviewComplete={this.handleInterviewComplete}
                             ></pcm-app-chat-modal>
                         </div>
                     )}

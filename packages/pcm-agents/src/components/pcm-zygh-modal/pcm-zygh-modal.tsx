@@ -76,14 +76,11 @@ export class ZyghModal {
 
     /**
      * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"<br>
-     * 支持字符串格式（将被解析为JSON）或对象格式
+     * 传入customInputs.file_url时，会隐藏简历上传区域。<br>
+     * 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
      */
-    @Prop() customInputs: Record<string, string> | string = {};
+    @Prop() customInputs: Record<string, string> = {};
 
-    /**
-     * 解析后的自定义输入参数
-     */
-    @State() parsedCustomInputs: Record<string, string> = {};
 
     /**
      * 上传成功事件
@@ -146,39 +143,36 @@ export class ZyghModal {
         }
     }
 
-    @Watch('customInputs')
-    handleCustomInputsChange() {
-        this.parseCustomInputs();
-    }
+    
+    @Watch('isOpen')
+    async handleIsOpenChange(newValue: boolean) {
+        if (!newValue) {
+            // 重置状态
+            this.clearSelectedFile();
+            this.showChatModal = false;
 
-    private parseCustomInputs() {
-        try {
-            if (typeof this.customInputs === 'string') {
-                // 尝试将字符串解析为JSON对象
-                this.parsedCustomInputs = JSON.parse(this.customInputs);
-            } else {
-                // 已经是对象，直接使用
-                this.parsedCustomInputs = { ...this.customInputs };
+        } else {
+            if (this.customInputs && this.customInputs.type) {
+                // 检查是否是有效的 CareerPlanType 值
+                const type = this.customInputs.type;
+                if (type === '长期规划' || type === '转行建议' || type === '晋升路径') {
+                    this.selectedPlanType = type;
+                }
             }
-        } catch (error) {
-            console.error('解析 customInputs 失败:', error);
-            // 解析失败时设置为空对象
-            this.parsedCustomInputs = {};
-            SentryReporter.captureError(error, {
-                action: 'parseCustomInputs',
-                component: 'pcm-zygh-modal',
-                title: '解析自定义输入参数失败'
-            });
-            ErrorEventBus.emitError({
-                error: error,
-                message: '解析自定义输入参数失败'
-            });
+
+            await verifyApiKey(this.token);
+
+            // 如果有会话ID或者有file_url参数，直接显示聊天模态框
+            if (this.conversationId || this.customInputs?.file_url) {
+                this.showChatModal = true;
+            }
         }
     }
 
+    
+
     componentWillLoad() {
-        // 初始解析 customInputs
-        this.parseCustomInputs();
+       
 
         // 将 zIndex 存入配置缓存
         if (this.zIndex) {
@@ -209,7 +203,6 @@ export class ZyghModal {
     }
 
     private handleClose = () => {
-        this.isOpen = false;
         this.modalClosed.emit();
     };
 
@@ -304,42 +297,6 @@ export class ZyghModal {
         }
     };
 
-    @Watch('isOpen')
-    async handleIsOpenChange(newValue: boolean) {
-        if (!newValue) {
-            // 重置状态
-            this.clearSelectedFile();
-            this.showChatModal = false;
-
-        } else {
-            if (this.parsedCustomInputs && this.parsedCustomInputs.type) {
-                // 检查是否是有效的 CareerPlanType 值
-                const type = this.parsedCustomInputs.type;
-                if (type === '长期规划' || type === '转行建议' || type === '晋升路径') {
-                    this.selectedPlanType = type;
-                }
-            }
-
-            await verifyApiKey(this.token);
-
-            if (this.conversationId) {
-                // 如果有会话ID，直接显示聊天模态框
-                this.showChatModal = true;
-            }
-        }
-    }
-
-
-    // 处理流式输出完成事件
-    private handleStreamComplete = (event: CustomEvent) => {
-        // 将事件转发出去
-        this.streamComplete.emit(event.detail);
-    };
-
-    // 处理会话开始事件
-    private handleConversationStart = (event: CustomEvent) => {
-        this.conversationStart.emit(event.detail);
-    };
 
     // 处理规划完成事件
     private handlePlanningComplete = (event: CustomEvent) => {
@@ -371,6 +328,9 @@ export class ZyghModal {
         // 显示加载状态
         const isLoading = this.conversationId && !this.showChatModal;
 
+        // 判断是否隐藏简历上传区域
+        const hideResumeUpload = Boolean(this.customInputs && this.customInputs.file_url);
+
         return (
             <div class={overlayClass} style={modalStyle}>
                 <div class={containerClass}>
@@ -389,8 +349,8 @@ export class ZyghModal {
                     )}
 
 
-                    {/* 输入界面 - 仅在不显示聊天模态框且没有会话ID时显示 */}
-                    {!this.showChatModal && !this.conversationId && (
+                    {/* 输入界面 - 仅在不显示聊天模态框且没有会话ID且没有file_url时显示 */}
+                    {!this.showChatModal && !this.conversationId && !hideResumeUpload && (
                         <div class="input-container">
 
                             {/* 规划类型选择 */}
@@ -494,15 +454,12 @@ export class ZyghModal {
                                 enableVoice={false}
                                 filePreviewMode={this.filePreviewMode}
                                 customInputs={this.conversationId ? {} : {
-                                    ...this.parsedCustomInputs,
-                                    file_url: this.uploadedFileInfo?.cos_key,
-                                    file_name: this.uploadedFileInfo?.file_name,
+                                    ...this.customInputs,
+                                    file_url: this.customInputs?.file_url || this.uploadedFileInfo?.cos_key,
+                                    file_name: this.customInputs?.file_name || this.uploadedFileInfo?.file_name,
                                     type: this.selectedPlanType
                                 }}
                                 interviewMode="text"
-                                onModalClosed={this.handleClose}
-                                onStreamComplete={this.handleStreamComplete}
-                                onConversationStart={this.handleConversationStart}
                                 onInterviewComplete={this.handlePlanningComplete}
                             ></pcm-app-chat-modal>
                         </div>

@@ -213,7 +213,6 @@ export class ZhanshiMnmsModal {
     }
 
     private handleClose = () => {
-        this.isOpen = false;
         this.modalClosed.emit();
     };
 
@@ -229,28 +228,6 @@ export class ZhanshiMnmsModal {
             this.showChatModal = true;
         }
     }
-
-
-    // 处理流式输出完成事件
-    private handleStreamComplete = (event: CustomEvent) => {
-        // 将事件转发出去
-        this.streamComplete.emit(event.detail);
-    };
-
-    // 处理会话开始事件
-    private handleConversationStart = (event: CustomEvent) => {
-        this.conversationStart.emit(event.detail);
-    };
-
-    // 处理面试完成事件
-    private handleInterviewComplete = (event: CustomEvent) => {
-        this.interviewComplete.emit(event.detail);
-    };
-
-
-    private handleRecordingError = (event: CustomEvent) => {
-        this.recordingError.emit(event.detail);
-    };
 
 
     render() {
@@ -320,11 +297,6 @@ export class ZhanshiMnmsModal {
                                     file_name: this.uploadedFileInfo?.file_name,
                                 }}
                                 interviewMode={this.interviewMode}
-                                onModalClosed={this.handleClose}
-                                onStreamComplete={this.handleStreamComplete}
-                                onConversationStart={this.handleConversationStart}
-                                onInterviewComplete={this.handleInterviewComplete}
-                                onRecordingError={this.handleRecordingError}
                             ></pcm-app-chat-modal>
                         </div>
                     )}
