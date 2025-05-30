@@ -121,10 +121,6 @@ export class MnmsVideoModal {
      */
     @Prop() filePreviewMode: 'drawer' | 'window' = 'window';
 
-    /**
-     * 面试模式：text - 文本模式，video - 视频模式
-     */
-    @Prop() interviewMode: 'text' | 'video' = 'text';
 
     /**
      * 录制错误事件
@@ -463,7 +459,7 @@ export class MnmsVideoModal {
                                 botId="47686077653323776"
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
-                                enableVoice={false}
+                                enableTTS={false}
                                 filePreviewMode={this.filePreviewMode}
                                 showCopyButton={this.showCopyButton}
                                 showFeedbackButtons={this.showFeedbackButtons}
@@ -473,7 +469,7 @@ export class MnmsVideoModal {
                                     file_name: this.customInputs?.file_name || this.uploadedFileInfo?.file_name,
                                     job_info: this.customInputs?.job_info || this.jobDescription
                                 }}
-                                interviewMode={this.interviewMode}
+                                interviewMode='video'
                             ></pcm-app-chat-modal>
                         </div>
                     )}

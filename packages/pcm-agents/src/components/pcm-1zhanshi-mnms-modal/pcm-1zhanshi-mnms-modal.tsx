@@ -118,11 +118,6 @@ export class ZhanshiMnmsModal {
     @Event() someErrorEvent: EventEmitter<ErrorEventDetail>;
 
     /**
-     * 面试模式：text - 文本模式，video - 视频模式
-     */
-    @Prop() interviewMode: 'text' | 'video' = 'text';
-
-    /**
      * 录制错误事件
      */
     @Event() recordingError: EventEmitter<RecordingErrorEventData>;
@@ -290,13 +285,13 @@ export class ZhanshiMnmsModal {
                                 botId="3022316191018903"
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
-                                enableVoice={false}
+                                enableTTS={false}
                                 customInputs={this.conversationId ? {} : {
                                     ...this.parsedCustomInputs,
                                     file_url: this.uploadedFileInfo?.cos_key,
                                     file_name: this.uploadedFileInfo?.file_name,
                                 }}
-                                interviewMode={this.interviewMode}
+                                interviewMode='video'
                             ></pcm-app-chat-modal>
                         </div>
                     )}
