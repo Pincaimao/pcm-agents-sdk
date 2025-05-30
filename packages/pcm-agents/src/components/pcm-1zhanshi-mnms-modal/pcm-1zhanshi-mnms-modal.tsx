@@ -9,7 +9,6 @@ import {
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store';
 import { configStore } from '../../../store/config.store';
-import { SentryReporter } from '../../utils/sentry-reporter';
 
 /**
  * 模拟面试
@@ -78,14 +77,8 @@ export class ZhanshiMnmsModal {
 
     /**
      * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br>
-     * 支持字符串格式（将被解析为JSON）或对象格式
      */
-    @Prop() customInputs: Record<string, string> | string = {};
-
-    /**
-     * 解析后的自定义输入参数
-     */
-    @State() parsedCustomInputs: Record<string, string> = {};
+    @Prop() customInputs: Record<string, string> = {};
 
     /**
      * 上传成功事件
@@ -144,39 +137,7 @@ export class ZhanshiMnmsModal {
         }
     }
 
-    @Watch('customInputs')
-    handleCustomInputsChange() {
-        this.parseCustomInputs();
-    }
-
-    private parseCustomInputs() {
-        try {
-            if (typeof this.customInputs === 'string') {
-                // 尝试将字符串解析为JSON对象
-                this.parsedCustomInputs = JSON.parse(this.customInputs);
-            } else {
-                // 已经是对象，直接使用
-                this.parsedCustomInputs = { ...this.customInputs };
-            }
-        } catch (error) {
-            console.error('解析 customInputs 失败:', error);
-            // 解析失败时设置为空对象
-            this.parsedCustomInputs = {};
-            SentryReporter.captureError(error, {
-                action: 'parseCustomInputs',
-                component: 'pcm-1zhanshi-mnms-modal',
-                title: '解析自定义输入参数失败'
-            });
-            ErrorEventBus.emitError({
-                error: error,
-                message: '解析自定义输入参数失败'
-            });
-        }
-    }
-
     componentWillLoad() {
-        // 初始解析 customInputs
-        this.parseCustomInputs();
 
         // 将 zIndex 存入配置缓存
         if (this.zIndex) {
@@ -287,7 +248,7 @@ export class ZhanshiMnmsModal {
                                 defaultQuery={this.defaultQuery}
                                 enableTTS={false}
                                 customInputs={this.conversationId ? {} : {
-                                    ...this.parsedCustomInputs,
+                                    ...this.customInputs,
                                     file_url: this.uploadedFileInfo?.cos_key,
                                     file_name: this.uploadedFileInfo?.file_name,
                                 }}

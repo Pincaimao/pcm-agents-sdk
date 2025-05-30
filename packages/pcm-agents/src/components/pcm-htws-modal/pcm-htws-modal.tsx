@@ -73,14 +73,8 @@ export class HtwsModal {
 
     /**
      * 自定义输入参数，传入customInputs.input时，会自动切换到自由输入模式<br>
-     * 支持字符串格式（将被解析为JSON）或对象格式
      */
-    @Prop() customInputs: Record<string, string> | string = {};
-
-    /**
-     * 解析后的自定义输入参数
-     */
-    @State() parsedCustomInputs: Record<string, string> = {};
+    @Prop() customInputs: Record<string, string> = {};
 
     /**
      * 上传成功事件
@@ -147,39 +141,7 @@ export class HtwsModal {
         }
     }
 
-    @Watch('customInputs')
-    handleCustomInputsChange() {
-        this.parseCustomInputs();
-    }
-
-    private parseCustomInputs() {
-        try {
-            if (typeof this.customInputs === 'string') {
-                // 尝试将字符串解析为JSON对象
-                this.parsedCustomInputs = JSON.parse(this.customInputs);
-            } else {
-                // 已经是对象，直接使用
-                this.parsedCustomInputs = { ...this.customInputs };
-            }
-        } catch (error) {
-            console.error('解析 customInputs 失败:', error);
-            // 解析失败时设置为空对象
-            this.parsedCustomInputs = {};
-            SentryReporter.captureError(error, {
-                action: 'parseCustomInputs',
-                component: 'pcm-htws-modal',
-                title: '解析自定义输入参数失败'
-            });
-            ErrorEventBus.emitError({
-                error: error,
-                message: '解析自定义输入参数失败'
-            });
-        }
-    }
-
     componentWillLoad() {
-        // 初始解析 customInputs
-        this.parseCustomInputs();
 
         // 将 zIndex 存入配置缓存
         if (this.zIndex) {
@@ -330,10 +292,10 @@ export class HtwsModal {
             this.freeInputText = '';
             this.inputMode = 'upload'; // 重置为默认上传模式
         } else {
-            if (this.parsedCustomInputs && this.parsedCustomInputs.input) {
+            if (this.customInputs && this.customInputs.input) {
                 // 如果有 input，直接切换到自由输入模式并填充内容
                 this.inputMode = 'free';
-                this.freeInputText = this.parsedCustomInputs.input;
+                this.freeInputText = this.customInputs.input;
             }
             await verifyApiKey(this.token);
 
@@ -504,7 +466,7 @@ export class HtwsModal {
                                 enableVoice={false}
                                 filePreviewMode={this.filePreviewMode}
                                 customInputs={this.conversationId ? {} : {
-                                    ...this.parsedCustomInputs,
+                                    ...this.customInputs,
                                     file_url: this.inputMode === 'upload' ? this.uploadedFileInfo?.cos_key : undefined,
                                     input: this.inputMode === 'free' ? this.freeInputText : undefined
                                 }}

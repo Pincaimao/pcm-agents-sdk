@@ -73,14 +73,8 @@ export class PcmJdModal {
 
     /**
      * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br>
-     * 支持字符串格式（将被解析为JSON）或对象格式
      */
-    @Prop() customInputs: Record<string, string> | string = {};
-
-    /**
-     * 解析后的自定义输入参数
-     */
-    @State() parsedCustomInputs: Record<string, string> = {};
+    @Prop() customInputs: Record<string, string> = {};
 
     /**
      * 流式输出完成事件
@@ -168,41 +162,9 @@ export class PcmJdModal {
             authStore.setToken(newToken);
         }
     }
-
-    @Watch('customInputs')
-    handleCustomInputsChange() {
-        this.parseCustomInputs();
-    }
-
-    private parseCustomInputs() {
-        try {
-            if (typeof this.customInputs === 'string') {
-                // 尝试将字符串解析为JSON对象
-                this.parsedCustomInputs = JSON.parse(this.customInputs);
-            } else {
-                // 已经是对象，直接使用
-                this.parsedCustomInputs = { ...this.customInputs };
-            }
-        } catch (error) {
-            console.error('解析 customInputs 失败:', error);
-            // 解析失败时设置为空对象
-            this.parsedCustomInputs = {};
-            SentryReporter.captureError(error, {
-                action: 'parseCustomInputs',
-                component: 'pcm-jd-modal',
-                title: '解析自定义输入参数失败'
-            });
-            ErrorEventBus.emitError({
-                error: error,
-                message: '解析自定义输入参数失败'
-            });
-        }
-    }
+  
 
     componentWillLoad() {
-        // 初始解析 customInputs
-        this.parseCustomInputs();
-
         // 将 zIndex 存入配置缓存
         if (this.zIndex) {
             configStore.setItem('modal-zIndex', this.zIndex);
@@ -513,11 +475,11 @@ export class PcmJdModal {
                 education: ''
             };
         } else {
-            if (this.parsedCustomInputs && this.parsedCustomInputs.job_info) {
-                this.jobDescription = this.parsedCustomInputs.job_info;
+            if (this.customInputs && this.customInputs.job_info) {
+                this.jobDescription = this.customInputs.job_info;
                 // 如果有 job_info，直接切换到自由输入模式并填充内容
                 this.inputMode = 'free';
-                this.freeInputText = this.parsedCustomInputs.job_info;
+                this.freeInputText = this.customInputs.job_info;
             }
             await verifyApiKey(this.token);
             if (this.conversationId) {
@@ -806,8 +768,8 @@ export class PcmJdModal {
                                 enableVoice={false}
                                 filePreviewMode={this.filePreviewMode}
                                 customInputs={this.conversationId ? {} : {
-                                    ...this.parsedCustomInputs,
-                                    job_info: this.parsedCustomInputs?.job_info || this.jobDescription
+                                    ...this.customInputs,
+                                    job_info: this.customInputs?.job_info || this.jobDescription
                                 }}
                                 interviewMode="text"
                             ></pcm-app-chat-modal>
