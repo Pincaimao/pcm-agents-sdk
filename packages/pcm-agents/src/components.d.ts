@@ -43,10 +43,6 @@ export namespace Components {
          */
         "icon"?: string;
         /**
-          * 面试模式：text - 文本模式，video - 视频模式
-         */
-        "interviewMode": 'text' | 'video';
-        /**
           * 是否展示右上角的关闭按钮
          */
         "isNeedClose": boolean;
@@ -784,10 +780,6 @@ export namespace Components {
           * 应用图标URL
          */
         "icon"?: string;
-        /**
-          * 面试模式：text - 文本模式，video - 视频模式
-         */
-        "interviewMode": 'text' | 'video';
         /**
           * 是否展示右上角的关闭按钮
          */
@@ -1688,10 +1680,6 @@ declare namespace LocalJSX {
           * 应用图标URL
          */
         "icon"?: string;
-        /**
-          * 面试模式：text - 文本模式，video - 视频模式
-         */
-        "interviewMode"?: 'text' | 'video';
         /**
           * 是否展示右上角的关闭按钮
          */
@@ -2717,10 +2705,6 @@ declare namespace LocalJSX {
           * 应用图标URL
          */
         "icon"?: string;
-        /**
-          * 面试模式：text - 文本模式，video - 视频模式
-         */
-        "interviewMode"?: 'text' | 'video';
         /**
           * 是否展示右上角的关闭按钮
          */
