@@ -9,14 +9,22 @@ export class PcmMessage {
   @Element() el: HTMLElement;
   @Prop() content: string = '';
   @Prop() type: 'success' | 'error' | 'info' | 'warning' = 'info';
-  @Prop() duration: number = 30000; // 默认显示3秒
+  @Prop() duration: number = 3000;
   @State() visible: boolean = false;
 
   private timer: number;
 
-  componentDidLoad() {
+  componentWillLoad() {
     if (this.content) {
-      this.show();
+      this.visible = true;
+    }
+  }
+
+  componentDidLoad() {
+    if (this.visible && this.duration > 0) {
+      this.timer = window.setTimeout(() => {
+        this.close();
+      }, this.duration);
     }
   }
 
@@ -41,12 +49,12 @@ export class PcmMessage {
   async close() {
     this.visible = false;
     
-    // 动画结束后移除元素
+    // 等待动画结束后移除元素
     setTimeout(() => {
       if (this.el && this.el.parentNode) {
         this.el.parentNode.removeChild(this.el);
       }
-    }, 300); // 假设动画持续300ms
+    }, 300);
   }
 
   render() {

@@ -7,7 +7,7 @@
 | Property   | Attribute  | Description | Type                                          | Default  |
 | ---------- | ---------- | ----------- | --------------------------------------------- | -------- |
 | `content`  | `content`  |             | `string`                                      | `''`     |
-| `duration` | `duration` |             | `number`                                      | `30000`  |
+| `duration` | `duration` |             | `number`                                      | `3000`   |
 | `type`     | `type`     |             | `"error" \| "info" \| "success" \| "warning"` | `'info'` |
 
 
