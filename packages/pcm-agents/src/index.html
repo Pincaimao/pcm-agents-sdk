@@ -127,7 +127,7 @@
   </pcm-msbg-modal>
 
   <pcm-mnct-modal id="pcm-mnct-modal" modal-title="面试出题大师" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
-    conversation-id="" file-preview-mode="drawer" fullscreen="true" default-query="请您提问">
+    conversation-id="" file-preview-mode="drawer" fullscreen="false" default-query="请您提问">
   </pcm-mnct-modal>
 
   <pcm-mnms-video-modal id="pcm-mnms-modal-video" modal-title="模拟面试（视频）"
@@ -146,17 +146,17 @@
     conversation-id="" file-preview-mode="drawer" fullscreen="false" default-query="请您提问"></pcm-jlpp-modal>
 
   <pcm-zygh-modal id="pcm-zygh-modal" modal-title="职业规划助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
-    conversation-id="" custom-inputs='{"type":"转行建议","file_url":"/resources/file/20250527/d0120aad3e90a8df0e608e6a74febae7.html","file_name":"产量与效益分析页.html"}'  file-preview-mode="drawer" fullscreen="false" default-query="请您提问"></pcm-zygh-modal>
+    conversation-id=""  file-preview-mode="drawer" fullscreen="false" default-query="请您提问"></pcm-zygh-modal>
 
   <pcm-hyzj-modal id="pcm-hyzj-modal" modal-title="会议总结助手" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
     conversation-id="" fullscreen="false" default-query="请您提问"></pcm-hyzj-modal>
 
 
   <pcm-htws-modal id="pcm-htws-modal" modal-title="劳动合同卫士" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
-    conversation-id="" custom-inputs='{"input":"使 用 说 明 一、双方在签订本合同前，应认真阅读本合同。本合同一经签订，即具有法律效力，双方必须严格履行。 "}' fullscreen="true" default-query="请您提问"></pcm-htws-modal>
+    conversation-id=""  fullscreen="false" default-query="请您提问"></pcm-htws-modal>
 
   <pcm-zsk-chat-modal id="pcm-zsk-chat-modal" employee-id="137"
-    conversation-id="" fullscreen="true"
+    conversation-id="" fullscreen="false"
      default-query="请您提问"></pcm-zsk-chat-modal>
 
 
@@ -173,7 +173,7 @@
   <pcm-hr-chat-modal id="pcm-hr-chat-modal" modal-title="金牌HR大赛" require-resume="false"
     welcome-message="欢迎您参加长沙市人力资源和社会保障局组织的金牌HR大赛，接下来我们将采用数字人方式对您做交流，本次大赛预计需要10-30分钟，请在安静的环境下参与此次大赛。"
     icon="https://p3-pc.douyinpic.com/img/aweme-avatar/tos-cn-avt-0015_55cc4ce1aa0059074f4f9def520246dc~c5_300x300.jpeg"
-    conversation-id="" to-email="790002517@qq.com" display-content-status="true" fullscreen="true" total-questions="10"
+    conversation-id="" to-email="790002517@qq.com" display-content-status="true" fullscreen="false" total-questions="10"
     enable-voice="false"  enable-audio="false" callback-url="https://toa.ylzhaopin.com/api/test/receive"></pcm-hr-chat-modal>
 
 
@@ -195,7 +195,7 @@
 
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDkyNzc4NTh9.EcnVy3GOf0N83s7Kj0eG1RUSJuQ-pNY5xLVhLMf-st0";
+    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDk2MjM3NjB9.HeczsxrrGbZPfoUu3JBlVnUC1Q7OjjVAR0z5w6_tWpU";
     const SHARED_TOKEN_NEW = "11"
     let stream = null;
     const urlParams = new URLSearchParams(window.location.search);
@@ -748,11 +748,11 @@
       });
 
       // 设置自定义输入
-      zyghModal.customInputs = {
-        type: "转行建议",
-        file_url: "/resources/file/20250416/d258f91a1ff6061822f00b4e245dbd00.pdf",
-        file_name: "简历.pdf"
-      };
+      // zyghModal.customInputs = {
+      //   type: "转行建议",
+      //   file_url: "/resources/file/20250416/d258f91a1ff6061822f00b4e245dbd00.pdf",
+      //   file_name: "简历.pdf"
+      // };
     };
 
 
