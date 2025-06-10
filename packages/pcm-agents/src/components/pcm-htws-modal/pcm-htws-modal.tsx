@@ -468,6 +468,7 @@ export class HtwsModal {
                                 customInputs={this.conversationId ? {} : {
                                     ...this.customInputs,
                                     file_url: this.inputMode === 'upload' ? this.uploadedFileInfo?.cos_key : undefined,
+                                    file_name: this.customInputs?.file_name || this.uploadedFileInfo?.file_name,
                                     input: this.inputMode === 'free' ? this.freeInputText : undefined
                                 }}
                                 interviewMode="text"
