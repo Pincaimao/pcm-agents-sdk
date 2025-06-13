@@ -195,7 +195,7 @@
 
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDk2MjM3NjB9.HeczsxrrGbZPfoUu3JBlVnUC1Q7OjjVAR0z5w6_tWpU";
+    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc0OTg4NDY5N30.ysKBve7QriWwDp_2iQSeGvGOarzVafOT53JKX63dUeA";
     const SHARED_TOKEN_NEW = "11"
     let stream = null;
     const urlParams = new URLSearchParams(window.location.search);
@@ -432,16 +432,7 @@
       openChatButton.addEventListener('click', () => {
         
         mnmsModal.isOpen = true;
-
-        try {
-          // 故意制造一个错误，看是否会被上报到 Sentry
-          const nonExistentObject = undefined;
-          nonExistentObject.someProperty = 'test'; // 这里会抛出TypeError
-        } catch (error) {
-          console.error('捕获到错误:', error);
-          // 注意：即使我们捕获了错误，如果错误源自我们的SDK内部，
-          // 修改后的Sentry配置应该仍然会上报这个错误
-        }
+       
       });
 
       // 设置自定义输入
