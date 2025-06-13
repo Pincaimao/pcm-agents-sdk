@@ -283,6 +283,8 @@ export class ChatAPPModal {
   // 添加新的状态来追踪用户交互
   @State() isUserScrolling: boolean = false;
 
+  @State() deviceError: string | null = null;
+
   @Watch('token')
   handleTokenChange(newToken: string) {
     // 当传入的 token 变化时，更新 authStore 中的 token
@@ -752,6 +754,9 @@ export class ChatAPPModal {
         }
       });
 
+      // 如果成功获取到媒体流，清除之前的设备错误
+      this.deviceError = null;
+
       this.recordingStream = stream;
       this.showRecordingUI = true;
       this.showCountdownWarning = false;
@@ -912,16 +917,33 @@ export class ChatAPPModal {
 
     } catch (error) {
       console.error('无法访问摄像头或麦克风:', error);
+      
+      // 设置设备错误状态
+      let errorMessage = '设备访问失败';
+      
+      if (error.name === 'NotAllowedError') {
+        errorMessage = '请允许访问摄像头和麦克风权限';
+      } else if (error.name === 'NotFoundError') {
+        errorMessage = '未检测到摄像头或麦克风设备';
+      } else if (error.name === 'NotReadableError') {
+        errorMessage = '设备正在被其他应用程序使用';
+      } else if (error.name === 'OverconstrainedError') {
+        errorMessage = '摄像头不支持指定的配置';
+      } else {
+        errorMessage = '无法访问摄像头或麦克风，请检查设备连接';
+      }
+      
+      this.deviceError = errorMessage;
       this.showRecordingUI = false;
       ErrorEventBus.emitError({
         error: error,
-        message: '无法访问摄像头或麦克风，请确保已授予权限'
+        message: errorMessage
       });
 
       SentryReporter.captureError(error, {
         action: 'startRecording',
         component: 'pcm-app-chat-modal',
-        title: '无法访问摄像头或麦克风'
+        title: errorMessage
       });
       
     }
@@ -1584,6 +1606,25 @@ export class ChatAPPModal {
 
     // 渲染占位符状态信息
     const renderPlaceholderStatus = () => {
+      // 设备错误状态 - 优先显示
+      if (this.deviceError) {
+        return (
+          <div class="placeholder-status error-status">
+            
+            <p>{this.deviceError}</p>
+            <div class="error-suggestions">
+              <p>请尝试以下解决方案：</p>
+              <ul>
+                <li>更换有摄像头和麦克风的设备</li>
+                <li>确保已允许浏览器访问摄像头和麦克风</li>
+                <li>关闭其他正在使用摄像头/麦克风的应用</li>
+              </ul>
+            </div>
+            
+          </div>
+        );
+      }
+
       // 任务已完成
       if (this.isTaskCompleted) {
         return (
