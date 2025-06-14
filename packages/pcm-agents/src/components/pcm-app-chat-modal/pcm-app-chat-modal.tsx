@@ -708,16 +708,39 @@ export class ChatAPPModal {
       });
     } finally {
       this.isLoadingHistory = false;
-      setTimeout(() => {
+      setTimeout(async () => {
         this.shouldAutoScroll = true;
         this.scrollToBottom();
+
+        // 如果有会话ID且有历史消息，处理继续对话的逻辑
+        if (this.conversationId && this.messages.length > 0) {
+          const lastAIMessage = this.messages[this.messages.length - 1];
+
+          // 如果有AI消息且启用了语音合成功能
+          if (lastAIMessage && lastAIMessage.answer && this.enableTTS) {
+            // 合成语音
+            const audioUrl = await synthesizeAudio(lastAIMessage.answer);
+
+            if (this.enableVoice) {
+              // 自动播放语音
+              await this.playAudio(audioUrl);
+              // 播放完成后，只在视频模式时开始等待录制
+              if (this.interviewMode === 'video') {
+                this.startWaitingToRecord();
+              }
+            } else {
+              // 只保存音频URL，不自动播放
+              this.audioUrl = audioUrl;
+              // 非自动播放模式下，不立即开始等待录制
+            }
+          } else if (!this.enableTTS && this.interviewMode === 'video') {
+            // 如果禁用了语音合成功能，且是视频模式，直接开始等待录制
+            this.startWaitingToRecord();
+          }
+        }
       }, 200);
-     
     }
   }
-
-
-  
 
   // 开始等待录制
   private startWaitingToRecord() {
