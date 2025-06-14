@@ -2,7 +2,7 @@ import { Component, Prop, h, Element, Event, EventEmitter, State } from '@stenci
 import { marked } from 'marked';
 import extendedTables from 'marked-extended-tables';
 import { ChatMessage } from '../../interfaces/chat';
-import { sendHttpRequest } from '../../utils/utils';
+import { sendHttpRequest, getCosPresignedUrl, getCosPreviewUrl } from '../../utils/utils';
 import { ErrorEventBus } from '../../utils/error-event';
 import { SentryReporter } from '../../utils/sentry-reporter';
 
@@ -39,6 +39,11 @@ export class ChatMessageComponent {
      * 点赞点踩状态
      */
     @State() feedbackStatus: 'like' | 'dislike' | null = null;
+
+    /**
+     * 视频播放URLs缓存
+     */
+    @State() videoUrls: { [key: string]: string } = {};
 
     /**
      * 用户头像URL
@@ -218,42 +223,11 @@ export class ChatMessageComponent {
         );
     }
 
-
     private getFileName(fileUrl: string): string {
         const parts = fileUrl.split('/');
         return parts[parts.length - 1];
     }
 
-    // 获取预览URL
-    private async getCosPreviewUrl(cosKey: string): Promise<string | null> {
-        try {
-            const result = await sendHttpRequest<{ file_url: string }>({
-                url: '/sdk/v1/files/presigned-url',
-                method: 'GET',
-                params: {
-                    cos_key: cosKey
-                }
-            });
-
-            if (result.success && result.data?.file_url) {
-                const baseUrl = result.data.file_url;
-                return `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}ci-process=doc-preview&copyable=1&dstType=html`;
-            }
-            return null;
-        } catch (error) {
-            SentryReporter.captureError(error, {
-                action: 'getCosPreviewUrl',
-                component: 'pcm-chat-message',
-                title: '获取预览URL失败'
-            });
-            ErrorEventBus.emitError({
-                error,
-                message: '获取预览URL失败',
-            });
-            console.error('获取预览URL失败:', error);
-            return null;
-        }
-    }
 
     // 添加处理文本内容点击的方法
     private handleContentClick(title: string, content: string, contentType: 'markdown' | 'text' = 'text') {
@@ -262,12 +236,26 @@ export class ChatMessageComponent {
             content: content,
             contentType: contentType
         });
+    }
 
+    // 加载视频播放URL
+    private async loadVideoUrl(cosKey: string) {
+        if (this.videoUrls[cosKey]) {
+            return; // 已经加载过了
+        }
+
+        const videoUrl = await getCosPresignedUrl(cosKey);
+        if (videoUrl) {
+            this.videoUrls = {
+                ...this.videoUrls,
+                [cosKey]: videoUrl
+            };
+        }
     }
 
     // 修改处理文件点击的方法
     private async handleFileClick(fileUrl: string, fileName: string) {
-        const previewUrl = await this.getCosPreviewUrl(fileUrl);
+        const previewUrl = await getCosPreviewUrl(fileUrl);
         if (previewUrl) {
             if (this.filePreviewMode === 'drawer') {
                 this.filePreviewRequest.emit({
@@ -326,7 +314,44 @@ export class ChatMessageComponent {
                 {Object.keys(this.message.inputs).map((key, index) => {
                     const value = this.message.inputs[key];
                     if (value && !key.startsWith('hide_') && key !== 'answer') {
-                        if (key === 'file_url') {
+                        if (key === 'video_url') {
+                            // 渲染视频播放区域
+                            const cosKey = value;
+                            const videoUrl = this.videoUrls[cosKey];
+                            
+                            // 如果还没有加载视频URL，异步加载
+                            if (!videoUrl) {
+                                this.loadVideoUrl(cosKey);
+                            }
+
+                            return (
+                                <div key={index} class="video-container">
+                                    {videoUrl ? (
+                                        <video 
+                                            controls 
+                                            preload="metadata"
+                                            style={{
+                                                width: '250px',
+                                                height: 'auto',
+                                                maxHeight: '250px',
+                                                borderRadius: '8px',
+                                                marginTop: '8px'
+                                            }}
+                                        >
+                                            <source src={videoUrl} type="video/webm" />
+                                            <source src={videoUrl} type="video/mp4" />
+                                            <source src={videoUrl} type="video/ogg" />
+                                            您的浏览器不支持视频播放。
+                                        </video>
+                                    ) : (
+                                        <div class="video-loading">
+                                            <div class="loading-spinner"></div>
+                                            <span>正在加载视频...</span>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        } else if (key === 'file_url') {
                             // 优先使用 file_name 属性，如果不存在则从 file_url 提取文件名
                             const fileName = this.message.inputs.file_name || this.getFileName(value);
                             return this.renderFileItem(fileName, value, index);

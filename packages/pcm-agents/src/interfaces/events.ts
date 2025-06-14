@@ -25,6 +25,7 @@ export interface InterviewCompleteEventData {
   conversation_id: string;
   current_question_number?: number;
   total_questions?: number;
+  ai_response?: string;
 }
 
 /**

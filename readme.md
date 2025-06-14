@@ -377,12 +377,14 @@ export default {
 | conversation_id         | string              | 当前会话的唯一标识符   |
 | current_question_number | number \| undefined | 当前问题的序号（可选） |
 | total_questions         | number \| undefined | 问题总数（可选）       |
+| ai_response             | string \| undefined | AI的最终回复内容（可选） |
 
 **使用场景示例：**
 
 - 面试或问答流程结束通知
 - 显示完成进度（如 "已完成3/5个问题"）
 - 触发结果汇总或评分流程
+- 获取AI的最终回复内容用于后续处理
 
 
 

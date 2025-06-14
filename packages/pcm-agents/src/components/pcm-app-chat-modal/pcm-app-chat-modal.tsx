@@ -390,6 +390,13 @@ export class ChatAPPModal {
     // 修改消息处理逻辑，移除文件上传相关代码
     const queryText = message.trim() || '请开始';
 
+    // 如果有视频URL，添加到customInputs中
+    if (videoUrl) {
+      this.customInputs = {
+        ...this.customInputs,
+        video_url: videoUrl
+      };
+    }
 
     // 创建新的消息对象
     const newMessage: ChatMessage = {
@@ -434,11 +441,6 @@ export class ChatAPPModal {
       ...this.customInputs
     };
 
-    // 如果有视频URL，添加到inputs中
-    if (videoUrl) {
-      requestData.inputs.video_url = videoUrl;
-    }
-
     await sendSSERequest({
       url: '/sdk/v1/chat/chat-messages',
       method: 'POST',
@@ -468,10 +470,14 @@ export class ChatAPPModal {
           // 设置标志，表示任务已结束
           this.isTaskCompleted = true;
 
+          // 获取当前AI回复内容，优先使用LLMText，否则使用answer
+          const aiResponse = llmText || answer || (this.currentStreamingMessage?.answer) || '';
+
           // 触发面试完成事件
           this.interviewComplete.emit({
             conversation_id: this.conversationId,
             current_question_number: this.currentQuestionNumber,
+            ai_response: aiResponse, // 添加AI回复内容
           });
         }
 
@@ -1256,7 +1262,25 @@ export class ChatAPPModal {
     if (event.key === 'Enter') {
       // 如果同时按下了Ctrl键，允许换行
       if (event.ctrlKey) {
-        return; // 不阻止默认行为，允许插入换行符
+        // 获取当前光标位置
+        const textarea = event.target as HTMLTextAreaElement;
+        const cursorPosition = textarea.selectionStart;
+        
+        // 在光标位置插入换行符
+        const beforeCursor = this.textAnswer.substring(0, cursorPosition);
+        const afterCursor = this.textAnswer.substring(cursorPosition);
+        this.textAnswer = beforeCursor + '\n' + afterCursor;
+        
+        // 阻止默认行为
+        event.preventDefault();
+        
+        // 在下一个事件循环中设置光标位置
+        setTimeout(() => {
+          const newPosition = cursorPosition + 1;
+          textarea.setSelectionRange(newPosition, newPosition);
+        }, 0);
+        
+        return;
       } else {
         // 阻止默认的换行行为
         event.preventDefault();

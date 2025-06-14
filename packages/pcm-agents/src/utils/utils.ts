@@ -666,3 +666,49 @@ export const synthesizeAudio = async (text: string, token?: string, isRetry = fa
     throw error;
   }
 };
+
+/**
+ * 获取COS文件的预签名URL
+ * @param cosKey COS文件key
+ * @param headers 可选的请求头
+ * @returns Promise<string | null> 返回预签名URL，失败时返回null
+ */
+export const getCosPresignedUrl = async (cosKey: string, headers?: Record<string, string>): Promise<string | null> => {
+  try {
+    const response = await sendHttpRequest<{ file_url: string }>({
+      url: '/sdk/v1/files/presigned-url',
+      method: 'GET',
+      params: {
+        cos_key: cosKey
+      },
+      headers
+    });
+
+    if (response.success && response.data?.file_url) {
+      return response.data.file_url;
+    }
+    return null;
+  } catch (error) {
+    console.error('获取预签名URL失败:', error);
+    return null;
+  }
+};
+
+/**
+ * 获取COS文件的预览URL（用于文档预览）
+ * @param cosKey COS文件key
+ * @param headers 可选的请求头
+ * @returns Promise<string | null> 返回预览URL，失败时返回null
+ */
+export const getCosPreviewUrl = async (cosKey: string, headers?: Record<string, string>): Promise<string | null> => {
+  try {
+    const fileUrl = await getCosPresignedUrl(cosKey, headers);
+    if (fileUrl) {
+      return `${fileUrl}${fileUrl.includes('?') ? '&' : '?'}ci-process=doc-preview&copyable=1&dstType=html`;
+    }
+    return null;
+  } catch (error) {
+    console.error('获取预览URL失败:', error);
+    return null;
+  }
+};

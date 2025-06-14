@@ -131,14 +131,13 @@
   </pcm-mnct-modal>
 
   <pcm-mnms-video-modal id="pcm-mnms-modal-video" modal-title="模拟面试（视频）"
-    icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id="" fullscreen="false"
+    icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"  fullscreen="false"
     interview-mode="video" default-query="请您提问">
   </pcm-mnms-video-modal>
 
   <pcm-mnms-modal id="pcm-mnms-modal-text" modal-title="模拟面试（文字）" show-copy-button="false"
     show-feedback-buttons="false"
-    custom-inputs='{"job_info":"商务","file_url":"/resources/file/20250527/d0120aad3e90a8df0e608e6a74febae7.html","file_name":"产量与效益分析页.html"}'
-    icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id="" fullscreen="false"
+    icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id="d3a3e983-b417-49ba-9804-72bff4089f52" fullscreen="false"
     interview-mode="text" default-query="请您提问">
   </pcm-mnms-modal>
 
@@ -195,7 +194,7 @@
 
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc0OTg4NDY5N30.ysKBve7QriWwDp_2iQSeGvGOarzVafOT53JKX63dUeA";
+    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDk4OTI0MzZ9.Woc5HGVj7zEHm7-YKnVTZnTdAWdSAQD_aBVWOWBi19o";
     const SHARED_TOKEN_NEW = "11"
     let stream = null;
     const urlParams = new URLSearchParams(window.location.search);
