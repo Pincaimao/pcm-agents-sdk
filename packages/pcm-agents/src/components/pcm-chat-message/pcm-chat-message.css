@@ -483,12 +483,21 @@
 }
 
 /* 视频容器样式 */
+.video-inputs-container {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+}
+
 .video-container {
   margin-top: 12px;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   background-color: #000;
+  width: 250px;
+  height: auto;
+  max-height: 250px;
 }
 
 .video-container video {

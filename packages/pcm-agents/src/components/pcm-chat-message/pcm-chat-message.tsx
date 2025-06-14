@@ -92,7 +92,7 @@ export class ChatMessageComponent {
      * 组件加载时检查消息是否已有反馈状态
      */
     componentWillLoad() {
-        
+
         // 如果消息已经有反馈状态，初始化feedbackStatus
         if (this.message && this.message.feedback) {
             this.feedbackStatus = this.message.feedback.rating as 'like' | 'dislike' | null;
@@ -178,7 +178,7 @@ export class ChatMessageComponent {
                                     重试
                                 </button>
                             )}
-                            
+
                             {this.showCopyButton && (
                                 <button class="action-button" onClick={() => this.copyMessageContent()} title="复制内容">
                                     <span class="button-icon">
@@ -318,37 +318,39 @@ export class ChatMessageComponent {
                             // 渲染视频播放区域
                             const cosKey = value;
                             const videoUrl = this.videoUrls[cosKey];
-                            
+
                             // 如果还没有加载视频URL，异步加载
                             if (!videoUrl) {
                                 this.loadVideoUrl(cosKey);
                             }
 
                             return (
-                                <div key={index} class="video-container">
-                                    {videoUrl ? (
-                                        <video 
-                                            controls 
-                                            preload="metadata"
-                                            style={{
-                                                width: '250px',
-                                                height: 'auto',
-                                                maxHeight: '250px',
-                                                borderRadius: '8px',
-                                                marginTop: '8px'
-                                            }}
-                                        >
-                                            <source src={videoUrl} type="video/webm" />
-                                            <source src={videoUrl} type="video/mp4" />
-                                            <source src={videoUrl} type="video/ogg" />
-                                            您的浏览器不支持视频播放。
-                                        </video>
-                                    ) : (
-                                        <div class="video-loading">
-                                            <div class="loading-spinner"></div>
-                                            <span>正在加载视频...</span>
-                                        </div>
-                                    )}
+                                <div class="video-inputs-container">
+                                    <div key={index} class="video-container">
+                                        {videoUrl ? (
+                                            <video
+                                                controls
+                                                preload="metadata"
+                                                style={{
+                                                    width: '250px',
+                                                    height: 'auto',
+                                                    maxHeight: '250px',
+                                                    borderRadius: '8px',
+                                                    marginTop: '8px'
+                                                }}
+                                            >
+                                                <source src={videoUrl} type="video/webm" />
+                                                <source src={videoUrl} type="video/mp4" />
+                                                <source src={videoUrl} type="video/ogg" />
+                                                您的浏览器不支持视频播放。
+                                            </video>
+                                        ) : (
+                                            <div class="video-loading">
+                                                <div class="loading-spinner"></div>
+                                                <span>正在加载视频...</span>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             );
                         } else if (key === 'file_url') {

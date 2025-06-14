@@ -652,8 +652,23 @@ export class ChatAPPModal {
 
     this.isLoadingHistory = true;
     console.log('加载历史消息...');
+    let conversationStatus = false;
 
     try {
+      // 首先获取会话状态
+      const conversationStatusResponse = await sendHttpRequest({
+        url: `/sdk/v1/chat/conversation`,
+        method: 'GET',
+        data: {
+          conversation_id: this.conversationId
+        }
+      });
+      // 处理会话状态
+      if (conversationStatusResponse.success && conversationStatusResponse.data && conversationStatusResponse.data.run_status=='结束') {
+        conversationStatus = true;
+      }
+
+      // 获取历史消息
       const result = await sendHttpRequest({
         url: '/sdk/v1/chat/messages',
         method: 'GET',
@@ -696,7 +711,7 @@ export class ChatAPPModal {
         this.messages = formattedMessages;
       }
     } catch (error) {
-      console.error('加载历史消息失败:', error);
+      console.error('加载历史消息或会话状态失败:', error);
       SentryReporter.captureError(error, {
         action: 'loadHistoryMessages',
         component: 'pcm-app-chat-modal',
@@ -712,8 +727,8 @@ export class ChatAPPModal {
         this.shouldAutoScroll = true;
         this.scrollToBottom();
 
-        // 如果有会话ID且有历史消息，处理继续对话的逻辑
-        if (this.conversationId && this.messages.length > 0) {
+        // 如果有会话ID且有历史消息，且会话未结束，处理继续对话的逻辑
+        if (this.conversationId && this.messages.length > 0 && !conversationStatus) {
           const lastAIMessage = this.messages[this.messages.length - 1];
 
           // 如果有AI消息且启用了语音合成功能
@@ -737,6 +752,10 @@ export class ChatAPPModal {
             // 如果禁用了语音合成功能，且是视频模式，直接开始等待录制
             this.startWaitingToRecord();
           }
+        } else if (conversationStatus) {
+          // 如果会话已结束，设置任务完成状态
+          this.isTaskCompleted = true;
+         
         }
       }, 200);
     }
@@ -1730,11 +1749,11 @@ export class ChatAPPModal {
       <div class="text-input-area">
         <textarea
           class="text-answer-input"
-          placeholder="发消息"
+          placeholder={this.isTaskCompleted ? "会话已结束" : "发消息"}
           value={this.textAnswer}
           onInput={this.handleTextInputChange}
           onKeyDown={this.handleKeyDown}
-          disabled={this.isRecordingAudio || this.isConvertingAudio}
+          disabled={this.isTaskCompleted || this.isRecordingAudio || this.isConvertingAudio}
         ></textarea>
         <div class="input-toolbar">
           <div class="toolbar-actions">
@@ -1746,7 +1765,7 @@ export class ChatAPPModal {
               }}
               title={this.isRecordingAudio ? '点击停止录音' : this.isConvertingAudio ? '正在识别语音...' : '语音输入'}
               onClick={this.handleVoiceInputClick}
-              disabled={this.isConvertingAudio || this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.waitingToRecord || this.isPlayingAudio}
+              disabled={this.isTaskCompleted || this.isConvertingAudio || this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.waitingToRecord || this.isPlayingAudio}
             >
               {this.isRecordingAudio ? (
                 <div>
@@ -1774,10 +1793,10 @@ export class ChatAPPModal {
           <div
             class={{
               'send-button': true,
-              'disabled': !this.textAnswer.trim() || this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.waitingToRecord || this.isPlayingAudio || this.isRecordingAudio || this.isConvertingAudio
+              'disabled': this.isTaskCompleted || !this.textAnswer.trim() || this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.waitingToRecord || this.isPlayingAudio || this.isRecordingAudio || this.isConvertingAudio
             }}
             onClick={() => {
-              if (!this.textAnswer.trim() || this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.waitingToRecord || this.isPlayingAudio || this.isRecordingAudio || this.isConvertingAudio) {
+              if (this.isTaskCompleted || !this.textAnswer.trim() || this.isSubmittingText || this.isLoading || !!this.currentStreamingMessage || this.waitingToRecord || this.isPlayingAudio || this.isRecordingAudio || this.isConvertingAudio) {
                 return;
               }
               this.submitTextAnswer();
