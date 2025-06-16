@@ -329,8 +329,15 @@ export class ChatMessageComponent {
                                     <div key={index} class="video-container">
                                         {videoUrl ? (
                                             <video
+                                                key={cosKey}
                                                 controls
                                                 preload="metadata"
+                                                onLoadedMetaData={(e) => {
+                                                    // 确保进度条正确显示
+                                                    const video = e.target as HTMLVideoElement;
+                                                    video.currentTime = 0.01;
+                                                }}
+                                                controlsList="nodownload"
                                                 style={{
                                                     width: '250px',
                                                     height: 'auto',

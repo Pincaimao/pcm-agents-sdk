@@ -80,7 +80,8 @@ export class MnmsModal {
      * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br>
      * 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br>
      * 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br>
-     * customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。
+     * customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br>
+     * customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。
      */
     @Prop() customInputs: Record<string, string> = {};
 

@@ -498,6 +498,12 @@
   width: 250px;
   height: auto;
   max-height: 250px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.video-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
 .video-container video {
@@ -538,4 +544,12 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .video-container {
+    width: 100%;
+    max-width: 300px;
+  }
 }

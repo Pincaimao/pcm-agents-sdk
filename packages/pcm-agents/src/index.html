@@ -131,13 +131,13 @@
   </pcm-mnct-modal>
 
   <pcm-mnms-video-modal id="pcm-mnms-modal-video" modal-title="模拟面试（视频）"
-    icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"  fullscreen="false"
+    icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"  fullscreen="false" conversation-id=""
     interview-mode="video" default-query="请您提问">
   </pcm-mnms-video-modal>
 
   <pcm-mnms-modal id="pcm-mnms-modal-text" modal-title="模拟面试（文字）" show-copy-button="false"
     show-feedback-buttons="false"
-    icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id="d3a3e983-b417-49ba-9804-72bff4089f52" fullscreen="false"
+    icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id="" fullscreen="false"
     interview-mode="text" default-query="请您提问">
   </pcm-mnms-modal>
 
@@ -194,7 +194,7 @@
 
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDk4OTI0MzZ9.Woc5HGVj7zEHm7-YKnVTZnTdAWdSAQD_aBVWOWBi19o";
+    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NTAxMjcwMzN9.nPn3J3VIgGD7jJSB9VQpWQxuuUzQWrv8dkCT81Fo9XY";
     const SHARED_TOKEN_NEW = "11"
     let stream = null;
     const urlParams = new URLSearchParams(window.location.search);
@@ -643,7 +643,7 @@
         job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广",
         // file_url: "/resources/file/20250416/d258f91a1ff6061822f00b4e245dbd00.pdf",
         // file_name: "简历.pdf",
-        // resume_content: JSON.stringify(resume_content)
+        resume_content: JSON.stringify(resume_content)
       };
     };
 

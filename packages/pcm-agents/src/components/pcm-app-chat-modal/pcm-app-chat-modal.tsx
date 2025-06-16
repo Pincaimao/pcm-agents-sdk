@@ -537,13 +537,13 @@ export class ChatAPPModal {
       onComplete: async () => {
         this.isLoading = false;
         // 发送第一条消息后，清空 customInputs
-        setTimeout(() => {
-          if (this.customInputs) {
-            Object.keys(this.customInputs).forEach(key => {
-              delete this.customInputs[key];
-            });
-          }
-        }, 1000); // 给一些时间让第一条消息处理完成
+        // setTimeout(() => {
+        //   if (this.customInputs) {
+        //     Object.keys(this.customInputs).forEach(key => {
+        //       delete this.customInputs[key];
+        //     });
+        //   }
+        // }, 1000); // 给一些时间让第一条消息处理完成
 
         // 获取最新的AI回复内容
         const latestAIMessage = this.currentStreamingMessage;
