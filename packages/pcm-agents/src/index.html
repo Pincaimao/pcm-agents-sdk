@@ -135,9 +135,9 @@
     interview-mode="video" default-query="请您提问">
   </pcm-mnms-video-modal>
 
-  <pcm-mnms-modal id="pcm-mnms-modal-text" modal-title="模拟面试（文字）" show-copy-button="false"
-    show-feedback-buttons="false"
-    icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id="" fullscreen="false"
+  <pcm-mnms-modal id="pcm-mnms-modal-text" modal-title="模拟面试（文字）" show-copy-button="false" 
+    show-feedback-buttons="false" show-workspace-history="true"
+    icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id="1b555dd5-740d-4d92-966c-062cabdde750" fullscreen="true"
     interview-mode="text" default-query="请您提问">
   </pcm-mnms-modal>
 
@@ -155,7 +155,7 @@
     conversation-id=""  fullscreen="false" default-query="请您提问"></pcm-htws-modal>
 
   <pcm-zsk-chat-modal id="pcm-zsk-chat-modal" employee-id="137"
-    conversation-id="" fullscreen="false"
+    conversation-id="" fullscreen="true"
      default-query="请您提问"></pcm-zsk-chat-modal>
 
 
@@ -194,7 +194,7 @@
 
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NTAxMjcwMzN9.nPn3J3VIgGD7jJSB9VQpWQxuuUzQWrv8dkCT81Fo9XY";
+    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NTAyMTc3ODF9.C8RyEP6rN1teNncgpiMjPAUpbWfQqoEwBLP0PO4Pbhk";
     const SHARED_TOKEN_NEW = "11"
     let stream = null;
     const urlParams = new URLSearchParams(window.location.search);
@@ -643,7 +643,7 @@
         job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广",
         // file_url: "/resources/file/20250416/d258f91a1ff6061822f00b4e245dbd00.pdf",
         // file_name: "简历.pdf",
-        resume_content: JSON.stringify(resume_content)
+        // resume_content: JSON.stringify(resume_content)
       };
     };
 

@@ -77,6 +77,11 @@ export class PcmJdModal {
     @Prop() customInputs: Record<string, string> = {};
 
     /**
+     * 是否显示工作区历史会话按钮
+     */
+    @Prop() showWorkspaceHistory: boolean = false;
+
+    /**
      * 流式输出完成事件
      */
     @Event() streamComplete: EventEmitter<StreamCompleteEventData>;
@@ -762,6 +767,7 @@ export class PcmJdModal {
                                 isShowHeader={this.isShowHeader}
                                 isNeedClose={this.isShowHeader}
                                 fullscreen={this.fullscreen}
+                                showWorkspaceHistory={this.showWorkspaceHistory}
                                 botId="3022316191018873"
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}

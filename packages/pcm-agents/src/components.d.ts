@@ -149,6 +149,10 @@ export namespace Components {
          */
         "showFeedbackButtons": boolean;
         /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory": boolean;
+        /**
           * SDK鉴权密钥
          */
         "token"?: string;
@@ -460,6 +464,10 @@ export namespace Components {
          */
         "modalTitle": string;
         /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory": boolean;
+        /**
           * SDK鉴权密钥
          */
         "token": string;
@@ -512,6 +520,10 @@ export namespace Components {
           * 模态框标题
          */
         "modalTitle": string;
+        /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory": boolean;
         /**
           * SDK鉴权密钥
          */
@@ -566,6 +578,10 @@ export namespace Components {
          */
         "modalTitle": string;
         /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory": boolean;
+        /**
           * SDK鉴权密钥
          */
         "token": string;
@@ -618,6 +634,10 @@ export namespace Components {
           * 模态框标题
          */
         "modalTitle": string;
+        /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory": boolean;
         /**
           * SDK鉴权密钥
          */
@@ -678,6 +698,10 @@ export namespace Components {
           * 模态框标题
          */
         "modalTitle": string;
+        /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory": boolean;
         /**
           * SDK鉴权密钥
          */
@@ -743,6 +767,10 @@ export namespace Components {
           * 是否显示点赞点踩按钮
          */
         "showFeedbackButtons": boolean;
+        /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory": boolean;
         /**
           * SDK鉴权密钥
          */
@@ -870,6 +898,10 @@ export namespace Components {
          */
         "showFeedbackButtons": boolean;
         /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory": boolean;
+        /**
           * SDK鉴权密钥
          */
         "token": string;
@@ -923,6 +955,10 @@ export namespace Components {
          */
         "modalTitle": string;
         /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory": boolean;
+        /**
           * SDK鉴权密钥
          */
         "token": string;
@@ -975,6 +1011,10 @@ export namespace Components {
           * 模态框标题
          */
         "modalTitle": string;
+        /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory": boolean;
         /**
           * SDK鉴权密钥
          */
@@ -1075,6 +1115,10 @@ export namespace Components {
           * 模态框标题
          */
         "modalTitle": string;
+        /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory": boolean;
         /**
           * SDK鉴权密钥
          */
@@ -1847,6 +1891,10 @@ declare namespace LocalJSX {
          */
         "showFeedbackButtons"?: boolean;
         /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory"?: boolean;
+        /**
           * SDK鉴权密钥
          */
         "token"?: string;
@@ -2247,6 +2295,10 @@ declare namespace LocalJSX {
          */
         "onUploadSuccess"?: (event: PcmHtwsModalCustomEvent<FileUploadResponse>) => void;
         /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory"?: boolean;
+        /**
           * SDK鉴权密钥
          */
         "token": string;
@@ -2328,6 +2380,10 @@ declare namespace LocalJSX {
          */
         "onUploadSuccess"?: (event: PcmHyzjModalCustomEvent<FileUploadResponse>) => void;
         /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory"?: boolean;
+        /**
           * SDK鉴权密钥
          */
         "token": string;
@@ -2404,6 +2460,10 @@ declare namespace LocalJSX {
           * SDK密钥验证失败事件
          */
         "onTokenInvalid"?: (event: PcmJdModalCustomEvent<void>) => void;
+        /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory"?: boolean;
         /**
           * SDK鉴权密钥
          */
@@ -2485,6 +2545,10 @@ declare namespace LocalJSX {
           * 上传成功事件
          */
         "onUploadSuccess"?: (event: PcmJlppModalCustomEvent<FileUploadResponse>) => void;
+        /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory"?: boolean;
         /**
           * SDK鉴权密钥
          */
@@ -2571,6 +2635,10 @@ declare namespace LocalJSX {
           * 上传成功事件
          */
         "onUploadSuccess"?: (event: PcmMnctModalCustomEvent<FileUploadResponse>) => void;
+        /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory"?: boolean;
         /**
           * SDK鉴权密钥
          */
@@ -2668,6 +2736,10 @@ declare namespace LocalJSX {
           * 是否显示点赞点踩按钮
          */
         "showFeedbackButtons"?: boolean;
+        /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory"?: boolean;
         /**
           * SDK鉴权密钥
          */
@@ -2859,6 +2931,10 @@ declare namespace LocalJSX {
          */
         "showFeedbackButtons"?: boolean;
         /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory"?: boolean;
+        /**
           * SDK鉴权密钥
          */
         "token": string;
@@ -2940,6 +3016,10 @@ declare namespace LocalJSX {
          */
         "onUploadSuccess"?: (event: PcmMsbgModalCustomEvent<FileUploadResponse>) => void;
         /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory"?: boolean;
+        /**
           * SDK鉴权密钥
          */
         "token": string;
@@ -3020,6 +3100,10 @@ declare namespace LocalJSX {
           * 上传成功事件
          */
         "onUploadSuccess"?: (event: PcmQgqjlModalCustomEvent<FileUploadResponse>) => void;
+        /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory"?: boolean;
         /**
           * SDK鉴权密钥
          */
@@ -3171,6 +3255,10 @@ declare namespace LocalJSX {
           * 上传成功事件
          */
         "onUploadSuccess"?: (event: PcmZyghModalCustomEvent<FileUploadResponse>) => void;
+        /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory"?: boolean;
         /**
           * SDK鉴权密钥
          */

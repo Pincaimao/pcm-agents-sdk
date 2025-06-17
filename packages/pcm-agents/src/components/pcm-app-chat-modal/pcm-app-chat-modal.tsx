@@ -1,6 +1,6 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
 import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, fetchAgentInfo, synthesizeAudio } from '../../utils/utils';
-import { ChatMessage } from '../../interfaces/chat';
+import { ChatMessage, ConversationItem } from '../../interfaces/chat';
 import {
   StreamCompleteEventData,
   ConversationStartEventData,
@@ -139,7 +139,7 @@ export class ChatAPPModal {
 
   // 添加一个新的私有属性来存储视频元素的引用
   private videoRef: HTMLVideoElement | null = null;
-  
+
 
   /**
    * 当前轮数
@@ -271,6 +271,11 @@ export class ChatAPPModal {
    */
   @Prop() filePreviewMode: 'drawer' | 'window' = 'window';
 
+  /**
+   * 是否显示工作区历史会话按钮
+   */
+  @Prop() showWorkspaceHistory: boolean = false;
+
   // 添加新的状态来管理抽屉
   @State() isDrawerOpen: boolean = false;
   @State() previewUrl: string = '';
@@ -284,6 +289,11 @@ export class ChatAPPModal {
   @State() isUserScrolling: boolean = false;
 
   @State() deviceError: string | null = null;
+
+  // 添加历史会话相关状态
+  @State() isHistoryDrawerOpen: boolean = false;
+  @State() historyConversations: ConversationItem[] = [];
+  @State() isLoadingConversations: boolean = false;
 
   @Watch('token')
   handleTokenChange(newToken: string) {
@@ -524,7 +534,7 @@ export class ChatAPPModal {
           component: 'pcm-app-chat-modal',
           title: '消息发送失败'
         });
-       
+
         this.messages = [...this.messages, {
           ...newMessage,
           answer: '抱歉，发生了错误，请稍后再试。',
@@ -580,7 +590,7 @@ export class ChatAPPModal {
               // 只保存音频URL，不自动播放
               this.audioUrl = audioUrl;
             }
-          } else if (this.interviewMode === 'video'){
+          } else if (this.interviewMode === 'video') {
             // 如果禁用了语音合成，只在视频模式时开始等待录制
             this.startWaitingToRecord();
           }
@@ -664,7 +674,7 @@ export class ChatAPPModal {
         }
       });
       // 处理会话状态
-      if (conversationStatusResponse.success && conversationStatusResponse.data && conversationStatusResponse.data.run_status=='结束') {
+      if (conversationStatusResponse.success && conversationStatusResponse.data && conversationStatusResponse.data.run_status == '结束') {
         conversationStatus = true;
       }
 
@@ -755,7 +765,7 @@ export class ChatAPPModal {
         } else if (conversationStatus) {
           // 如果会话已结束，设置任务完成状态
           this.isTaskCompleted = true;
-         
+
         }
       }, 200);
     }
@@ -965,10 +975,10 @@ export class ChatAPPModal {
 
     } catch (error) {
       console.error('无法访问摄像头或麦克风:', error);
-      
+
       // 设置设备错误状态
       let errorMessage = '设备访问失败';
-      
+
       if (error.name === 'NotAllowedError') {
         errorMessage = '请允许访问摄像头和麦克风权限';
       } else if (error.name === 'NotFoundError') {
@@ -980,7 +990,7 @@ export class ChatAPPModal {
       } else {
         errorMessage = '无法访问摄像头或麦克风，请检查设备连接';
       }
-      
+
       this.deviceError = errorMessage;
       this.showRecordingUI = false;
       ErrorEventBus.emitError({
@@ -993,7 +1003,7 @@ export class ChatAPPModal {
         component: 'pcm-app-chat-modal',
         title: errorMessage
       });
-      
+
     }
   }
 
@@ -1307,21 +1317,21 @@ export class ChatAPPModal {
         // 获取当前光标位置
         const textarea = event.target as HTMLTextAreaElement;
         const cursorPosition = textarea.selectionStart;
-        
+
         // 在光标位置插入换行符
         const beforeCursor = this.textAnswer.substring(0, cursorPosition);
         const afterCursor = this.textAnswer.substring(cursorPosition);
         this.textAnswer = beforeCursor + '\n' + afterCursor;
-        
+
         // 阻止默认行为
         event.preventDefault();
-        
+
         // 在下一个事件循环中设置光标位置
         setTimeout(() => {
           const newPosition = cursorPosition + 1;
           textarea.setSelectionRange(newPosition, newPosition);
         }, 0);
-        
+
         return;
       } else {
         // 阻止默认的换行行为
@@ -1610,6 +1620,137 @@ export class ChatAPPModal {
     }
   }
 
+  // 处理历史会话按钮点击
+  private handleHistoryClick = () => {
+    console.log('点击历史会话按钮');
+    this.isHistoryDrawerOpen = true;
+    this.loadHistoryConversations();
+  };
+
+  // 获取历史会话列表
+  private async loadHistoryConversations() {
+    if (!this.botId) {
+      console.warn('没有提供botId，无法获取历史会话');
+      return;
+    }
+
+    this.isLoadingConversations = true;
+    
+    try {
+      const result = await sendHttpRequest({
+        url: '/sdk/v1/chat/conversations',
+        method: 'GET',
+        data: {
+          bot_id: this.botId,
+          limit: 50, // 获取最近50个会话
+          page: 1
+        }
+      });
+
+      if (result.success && result.data) {
+        const conversations = result.data.data || [];
+        
+        // 格式化会话数据
+        this.historyConversations = conversations.map((conv: any) => {
+          // 处理时间戳，确保它是有效的数字
+          let createdTime: Date;
+          let timeDisplay = '未知时间';
+          
+          try {
+            // 确保 created_at 是一个有效的时间戳
+            const timestamp = typeof conv.created_at === 'string' ? parseInt(conv.created_at) : conv.created_at;
+            
+            if (isNaN(timestamp) || timestamp <= 0) {
+              console.warn('无效的时间戳:', conv.created_at);
+              createdTime = new Date();
+            } else {
+              // Unix时间戳转换为JavaScript Date对象（乘以1000转换为毫秒）
+              createdTime = new Date(timestamp * 1000);
+            }
+            
+            // 验证日期是否有效
+            if (isNaN(createdTime.getTime())) {
+              console.warn('无效的日期对象:', conv.created_at);
+              createdTime = new Date();
+            }
+            
+            const now = new Date();
+            const diffTime = now.getTime() - createdTime.getTime();
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            // 格式化时间显示
+            if (diffDays === 0) {
+              // 今天
+              timeDisplay = `今天 ${createdTime.getHours().toString().padStart(2, '0')}:${createdTime.getMinutes().toString().padStart(2, '0')}`;
+            } else if (diffDays === 1) {
+              // 昨天
+              timeDisplay = `昨天 ${createdTime.getHours().toString().padStart(2, '0')}:${createdTime.getMinutes().toString().padStart(2, '0')}`;
+            } else if (diffDays > 0 && diffDays < 7) {
+              // 一周内
+              const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+              timeDisplay = `${weekdays[createdTime.getDay()]} ${createdTime.getHours().toString().padStart(2, '0')}:${createdTime.getMinutes().toString().padStart(2, '0')}`;
+            } else if (diffDays < 0) {
+              // 未来时间（可能是时区问题或系统时间不准确）
+              timeDisplay = `${(createdTime.getMonth() + 1).toString().padStart(2, '0')}-${createdTime.getDate().toString().padStart(2, '0')} ${createdTime.getHours().toString().padStart(2, '0')}:${createdTime.getMinutes().toString().padStart(2, '0')}`;
+            } else {
+              // 超过一周
+              timeDisplay = `${(createdTime.getMonth() + 1).toString().padStart(2, '0')}-${createdTime.getDate().toString().padStart(2, '0')} ${createdTime.getHours().toString().padStart(2, '0')}:${createdTime.getMinutes().toString().padStart(2, '0')}`;
+            }
+          } catch (error) {
+            console.error('时间格式化错误:', error, conv.created_at);
+            timeDisplay = '时间解析失败';
+          }
+
+          return {
+            id: conv.id,
+            name: conv.name || '新会话',
+            created_at: conv.created_at,
+            updated_at: conv.updated_at,
+            status: conv.status,
+            message_count: conv.message_count || 0,
+            timeDisplay
+          } as ConversationItem;
+        });
+      }
+    } catch (error) {
+      console.error('获取历史会话失败:', error);
+      SentryReporter.captureError(error, {
+        action: 'loadHistoryConversations',
+        component: 'pcm-app-chat-modal',
+        title: '获取历史会话失败'
+      });
+      ErrorEventBus.emitError({
+        error: error,
+        message: '获取历史会话失败'
+      });
+    } finally {
+      this.isLoadingConversations = false;
+    }
+  }
+
+  // 切换到指定会话
+  private handleSwitchConversation = (conversationId: string) => {
+    if (conversationId === this.conversationId) {
+      // 如果点击的是当前会话，直接关闭抽屉
+      this.isHistoryDrawerOpen = false;
+      return;
+    }
+
+    // 切换到新会话
+    this.conversationId = conversationId;
+    this.messages = [];
+    this.currentStreamingMessage = null;
+    this.isTaskCompleted = false;
+    this.currentQuestionNumber = 0;
+    
+    // 关闭抽屉
+    this.isHistoryDrawerOpen = false;
+    
+    // 加载新会话的历史消息
+    this.loadHistoryMessages();
+  };
+
+
   // 修改事件处理方法
   private handleFilePreviewRequest = (event: CustomEvent<{
     url?: string,
@@ -1676,7 +1817,7 @@ export class ChatAPPModal {
       if (this.deviceError) {
         return (
           <div class="placeholder-status error-status">
-            
+
             <p>{this.deviceError}</p>
             <div class="error-suggestions">
               <p>请尝试以下解决方案：</p>
@@ -1686,7 +1827,7 @@ export class ChatAPPModal {
                 <li>关闭其他正在使用摄像头/麦克风的应用</li>
               </ul>
             </div>
-            
+
           </div>
         );
       }
@@ -1888,6 +2029,16 @@ export class ChatAPPModal {
 
             <div class="recording-section">
               <div class="recording-container">
+                {/* 工作区 */}
+                {this.showWorkspaceHistory && (
+                  <div class="workspace-section">
+                    <div class="workspace-toolbar">
+                      <button class="workspace-button history-button" onClick={() => this.handleHistoryClick()}>
+                        <span>历史会话</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
                 {
                   this.interviewMode === 'text' && (
                     renderTextInputArea()
@@ -1903,7 +2054,7 @@ export class ChatAPPModal {
                           {renderPlaceholderStatus()}
                         </div>
                       )}
-                      
+
                     </div>
                     <div class="recording-controls">
                       {this.showRecordingUI ? (
@@ -1943,6 +2094,8 @@ export class ChatAPPModal {
                   </div>
                 )}
               </div>
+
+
             </div>
           </div>
 
@@ -1978,6 +2131,70 @@ export class ChatAPPModal {
                 <pre>{this.previewContent}</pre>
               </div>
             )}
+          </pcm-drawer>
+
+          {/* 历史会话抽屉 */}
+          <pcm-drawer
+            isOpen={this.isHistoryDrawerOpen}
+            drawerTitle="历史会话"
+            width="400px"
+            onClosed={() => {
+              this.isHistoryDrawerOpen = false;
+            }}
+          >
+            <div class="history-drawer-content">
+
+              {/* 会话列表 */}
+              <div class="conversation-list">
+                {this.isLoadingConversations ? (
+                  <div class="loading-conversations">
+                    <div class="loading-spinner-small"></div>
+                    <p>加载中...</p>
+                  </div>
+                ) : this.historyConversations.length === 0 ? (
+                  <div class="empty-conversations">
+                    <p>暂无历史会话</p>
+                  </div>
+                ) : (
+                  this.historyConversations.map((conversation) => (
+                    <div 
+                      key={conversation.id}
+                      class={{
+                        'conversation-item': true,
+                        'active': conversation.id === this.conversationId
+                      }}
+                      onClick={() => this.handleSwitchConversation(conversation.id)}
+                    >
+                      <div class="conversation-info">
+                        <div class="conversation-title">{conversation.name}</div>
+                        <div class="conversation-meta">
+                          <span class="conversation-time">{conversation.timeDisplay}</span>
+                          {conversation.message_count > 0 && (
+                            <span class="message-count">{conversation.message_count}条消息</span>
+                          )}
+                          {conversation.status && (
+                            <span class={{
+                              'conversation-status': true,
+                              'completed': conversation.status === '结束',
+                              'running': conversation.status === '进行中'
+                            }}>
+                              {conversation.status}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      {conversation.id === this.conversationId && (
+                        <div class="current-indicator">
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
           </pcm-drawer>
         </div>
       </div>

@@ -80,6 +80,11 @@ export class JlppModal {
     @Prop() customInputs: Record<string, string> = {};
 
     /**
+     * 是否显示工作区历史会话按钮
+     */
+    @Prop() showWorkspaceHistory: boolean = false;
+
+    /**
      * 上传成功事件
      */
     @Event() uploadSuccess: EventEmitter<FileUploadResponse>;
@@ -434,8 +439,8 @@ export class JlppModal {
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
                                 enableTTS={false}
-                                enableVoice={false}
                                 filePreviewMode={this.filePreviewMode}
+                                showWorkspaceHistory={this.showWorkspaceHistory}
                                 botId="3022316191018881"
                                 customInputs={this.conversationId ? {} : {
                                     ...this.customInputs,

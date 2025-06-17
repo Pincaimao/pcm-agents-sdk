@@ -79,6 +79,11 @@ export class QgqjlModal {
     @Prop() customInputs: Record<string, string> = {};
 
     /**
+     * 是否显示工作区历史会话按钮
+     */
+    @Prop() showWorkspaceHistory: boolean = false;
+
+    /**
      * 上传成功事件
      */
     @Event() uploadSuccess: EventEmitter<FileUploadResponse>;
@@ -432,6 +437,7 @@ export class QgqjlModal {
                                 isShowHeader={this.isShowHeader}
                                 isNeedClose={this.isShowHeader}
                                 fullscreen={this.fullscreen}
+                                showWorkspaceHistory={this.showWorkspaceHistory}
                                 botId="45444431062634496"
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}

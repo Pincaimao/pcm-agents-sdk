@@ -122,6 +122,7 @@ export class ChatMessageComponent {
     // 渲染用户消息部分
     private renderUserMessage() {
         if (!this.message?.query?.trim()) return null;
+        const htmlContent = this.message.query ? marked(this.message.query) : '';
 
         return (
             <div class={{ 'user-message-container': true }}>
@@ -131,7 +132,7 @@ export class ChatMessageComponent {
                     </div>
                 )}
                 <div class="message-bubble user-message">
-                    <div>{this.message.query}</div>
+                    <div innerHTML={htmlContent}></div>
                     {this.renderInputs()}
                 </div>
             </div>

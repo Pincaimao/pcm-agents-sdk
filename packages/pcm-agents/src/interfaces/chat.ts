@@ -79,3 +79,43 @@ export interface ChatMessage {
    */
   showRetryButton?: boolean;
 } 
+
+/**
+ * 历史会话项接口
+ */
+export interface ConversationItem {
+  /**
+   * 会话ID
+   */
+  id: string;
+  
+  /**
+   * 会话标题
+   */
+  name: string;
+  
+  /**
+   * 创建时间
+   */
+  created_at: number;
+  
+  /**
+   * 更新时间
+   */
+  updated_at: number;
+  
+  /**
+   * 会话状态
+   */
+  status?: string;
+  
+  /**
+   * 消息数量
+   */
+  message_count?: number;
+  
+  /**
+   * 格式化的时间显示
+   */
+  timeDisplay?: string;
+} 

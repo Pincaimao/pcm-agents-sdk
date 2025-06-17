@@ -81,6 +81,11 @@ export class ZyghModal {
      */
     @Prop() customInputs: Record<string, string> = {};
 
+    /**
+     * 是否显示工作区历史会话按钮
+     */
+    @Prop() showWorkspaceHistory: boolean = false;
+
 
     /**
      * 上传成功事件
@@ -447,6 +452,7 @@ export class ZyghModal {
                                 icon={this.icon}
                                 isShowHeader={this.isShowHeader}
                                 isNeedClose={this.isShowHeader}
+                                showWorkspaceHistory={this.showWorkspaceHistory}
                                 botId="3022316191018898"
                                 fullscreen={this.fullscreen}
                                 conversationId={this.conversationId}
