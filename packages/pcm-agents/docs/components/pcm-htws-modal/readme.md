@@ -8,20 +8,21 @@
 
 ## Properties
 
-| Property             | Attribute           | Description                                    | Type                       | Default     |
-| -------------------- | ------------------- | ---------------------------------------------- | -------------------------- | ----------- |
-| `conversationId`     | `conversation-id`   | 会话ID，传入继续对话，否则创建新会话                            | `string`                   | `undefined` |
-| `customInputs`       | `custom-inputs`     | 自定义输入参数，传入customInputs.input时，会自动切换到自由输入模式<br> | `{ [x: string]: string; }` | `{}`        |
-| `defaultQuery`       | `default-query`     | 默认查询文本                                         | `string`                   | `'请开始分析'`   |
-| `filePreviewMode`    | `file-preview-mode` | 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开    | `"drawer" \| "window"`     | `'window'`  |
-| `fullscreen`         | `fullscreen`        | 是否以全屏模式打开，移动端建议设置为true                         | `boolean`                  | `false`     |
-| `icon`               | `icon`              | 应用图标URL                                        | `string`                   | `undefined` |
-| `isNeedClose`        | `is-need-close`     | 是否展示右上角的关闭按钮                                   | `boolean`                  | `true`      |
-| `isOpen`             | `is-open`           | 是否显示聊天模态框                                      | `boolean`                  | `false`     |
-| `isShowHeader`       | `is-show-header`    | 是否展示顶部标题栏                                      | `boolean`                  | `true`      |
-| `modalTitle`         | `modal-title`       | 模态框标题                                          | `string`                   | `'劳动合同卫士'`  |
-| `token` _(required)_ | `token`             | SDK鉴权密钥                                        | `string`                   | `undefined` |
-| `zIndex`             | `z-index`           | 聊天框的页面层级                                       | `number`                   | `1000`      |
+| Property               | Attribute                | Description                                    | Type                       | Default     |
+| ---------------------- | ------------------------ | ---------------------------------------------- | -------------------------- | ----------- |
+| `conversationId`       | `conversation-id`        | 会话ID，传入继续对话，否则创建新会话                            | `string`                   | `undefined` |
+| `customInputs`         | `custom-inputs`          | 自定义输入参数，传入customInputs.input时，会自动切换到自由输入模式<br> | `{ [x: string]: string; }` | `{}`        |
+| `defaultQuery`         | `default-query`          | 默认查询文本                                         | `string`                   | `'请开始分析'`   |
+| `filePreviewMode`      | `file-preview-mode`      | 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开    | `"drawer" \| "window"`     | `'window'`  |
+| `fullscreen`           | `fullscreen`             | 是否以全屏模式打开，移动端建议设置为true                         | `boolean`                  | `false`     |
+| `icon`                 | `icon`                   | 应用图标URL                                        | `string`                   | `undefined` |
+| `isNeedClose`          | `is-need-close`          | 是否展示右上角的关闭按钮                                   | `boolean`                  | `true`      |
+| `isOpen`               | `is-open`                | 是否显示聊天模态框                                      | `boolean`                  | `false`     |
+| `isShowHeader`         | `is-show-header`         | 是否展示顶部标题栏                                      | `boolean`                  | `true`      |
+| `modalTitle`           | `modal-title`            | 模态框标题                                          | `string`                   | `'劳动合同卫士'`  |
+| `showWorkspaceHistory` | `show-workspace-history` | 是否显示工作区历史会话按钮                                  | `boolean`                  | `false`     |
+| `token` _(required)_   | `token`                  | SDK鉴权密钥                                        | `string`                   | `undefined` |
+| `zIndex`               | `z-index`                | 聊天框的页面层级                                       | `number`                   | `1000`      |
 
 
 ## Events

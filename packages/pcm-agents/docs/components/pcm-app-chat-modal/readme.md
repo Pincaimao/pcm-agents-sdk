@@ -26,6 +26,7 @@
 | `modalTitle`            | `modal-title`              | 模态框标题                                       | `string`                   | `'在线客服'`                                                   |
 | `showCopyButton`        | `show-copy-button`         | 是否显示复制按钮                                    | `boolean`                  | `true`                                                     |
 | `showFeedbackButtons`   | `show-feedback-buttons`    | 是否显示点赞点踩按钮                                  | `boolean`                  | `true`                                                     |
+| `showWorkspaceHistory`  | `show-workspace-history`   | 是否显示工作区历史会话按钮                               | `boolean`                  | `false`                                                    |
 | `token`                 | `token`                    | SDK鉴权密钥                                     | `string`                   | `undefined`                                                |
 | `userAvatar`            | `user-avatar`              | 用户头像URL                                     | `string`                   | `"https://pub.pincaimao.com/static/common/i_pcm_logo.png"` |
 | `zIndex`                | `z-index`                  | 聊天框的页面层级                                    | `number`                   | `undefined`                                                |
