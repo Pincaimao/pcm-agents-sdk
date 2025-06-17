@@ -658,7 +658,7 @@
   flex-direction: column;
   width: 100%;
   height: 100%;
-  padding: 16px;
+  padding: 0px 16px 16px 16px;
   border-radius: 8px;
   border: none; /* 确保容器本身没有边框 */
 }
