@@ -627,16 +627,13 @@ export namespace Components {
          */
         "zIndex"?: number;
     }
-    /**
-     * 简历筛选
-     */
     interface PcmJlsxModal {
         /**
           * 会话ID，传入继续对话，否则创建新会话
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
+          * 自定义输入参数
          */
         "customInputs": Record<string, string>;
         /**
@@ -1486,9 +1483,6 @@ declare global {
         "tokenInvalid": void;
         "someErrorEvent": ErrorEventDetail1;
     }
-    /**
-     * 简历筛选
-     */
     interface HTMLPcmJlsxModalElement extends Components.PcmJlsxModal, HTMLStencilElement {
         addEventListener<K extends keyof HTMLPcmJlsxModalElementEventMap>(type: K, listener: (this: HTMLPcmJlsxModalElement, ev: PcmJlsxModalCustomEvent<HTMLPcmJlsxModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
@@ -2578,16 +2572,13 @@ declare namespace LocalJSX {
          */
         "zIndex"?: number;
     }
-    /**
-     * 简历筛选
-     */
     interface PcmJlsxModal {
         /**
           * 会话ID，传入继续对话，否则创建新会话
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
+          * 自定义输入参数
          */
         "customInputs"?: Record<string, string>;
         /**
@@ -3411,9 +3402,6 @@ declare module "@stencil/core" {
              * 简历匹配
              */
             "pcm-jlpp-modal": LocalJSX.PcmJlppModal & JSXBase.HTMLAttributes<HTMLPcmJlppModalElement>;
-            /**
-             * 简历筛选
-             */
             "pcm-jlsx-modal": LocalJSX.PcmJlsxModal & JSXBase.HTMLAttributes<HTMLPcmJlsxModalElement>;
             "pcm-message": LocalJSX.PcmMessage & JSXBase.HTMLAttributes<HTMLPcmMessageElement>;
             /**

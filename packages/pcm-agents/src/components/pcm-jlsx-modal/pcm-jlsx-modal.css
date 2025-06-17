@@ -1,0 +1,420 @@
+/* 任务界面专用样式 */
+
+/* 任务布局容器 */
+.task-layout {
+    width: 90%;
+    max-width: 1200px;
+    min-width: 800px;
+    height: 90vh;
+    max-height: 900px;
+}
+
+@media screen and (max-width: 1024px) {
+    .task-layout {
+        width: 95%;
+        min-width: 320px;
+    }
+}
+
+/* 任务容器 */
+.task-container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 50px);
+    overflow-y: auto;
+    gap: 20px;
+}
+
+/* 步骤头部 */
+.step-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.step-header h3 {
+    margin: 0 0 8px 0;
+    font-size: 20px;
+    color: #333;
+}
+
+.step-description {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+
+/* 步骤指示器 */
+.step-indicator {
+    background: #e6f7ff;
+    color: #1890ff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-left: 8px;
+}
+
+/* 评分标准输入区域 */
+.criteria-input-section {
+    margin-bottom: 20px;
+}
+
+.criteria-input-section label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+/* 任务信息展示区域 */
+.task-info-section {
+    flex-shrink: 0;
+}
+
+.info-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+@media screen and (max-width: 768px) {
+    .info-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+.info-card {
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #fafafa;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.card-header:hover {
+    background: #f0f0f0;
+}
+
+.card-title {
+    font-weight: 500;
+    color: #333;
+}
+
+.toggle-btn {
+    background: transparent;
+    border: none;
+    color: #1890ff;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.toggle-btn:hover {
+    background: rgba(24, 144, 255, 0.1);
+}
+
+.card-content {
+    padding: 16px;
+    border-top: 1px solid #e8e8e8;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.card-content p {
+    margin: 0;
+    line-height: 1.6;
+    color: #666;
+    font-size: 14px;
+}
+
+/* 卡片预览区域 */
+.card-preview {
+    padding: 12px 16px;
+    border-top: 1px solid #e8e8e8;
+}
+
+.preview-text {
+    margin: 0;
+    line-height: 1.5;
+    color: #666;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 抽屉内容样式 */
+.drawer-text-content {
+    line-height: 1.6;
+    color: #333;
+    font-size: 14px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* 上传区域 */
+.upload-section {
+    flex-shrink: 0;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.section-header h4 {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+}
+
+.count-badge {
+    background: #1890ff;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.selected-files {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fafafa;
+}
+
+.upload-btn {
+    margin-top: 12px;
+    padding: 8px 16px;
+    background: #1890ff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    align-self: flex-start;
+}
+
+.upload-btn:hover {
+    background: #40a9ff;
+}
+
+.upload-btn:disabled {
+    background: #d9d9d9;
+    cursor: not-allowed;
+}
+
+/* 简历表格区域 */
+.resume-table-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.table-container {
+    flex: 1;
+    overflow: auto;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    background: white;
+}
+
+.resume-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.resume-table th {
+    background: #fafafa;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 500;
+    color: #333;
+    border-bottom: 1px solid #e8e8e8;
+    position: sticky;
+    top: 0;
+    z-index: 0;
+}
+
+.resume-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+}
+
+.resume-table tr:hover {
+    background: #f9f9f9;
+}
+
+/* 表格单元格样式 */
+.filename-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 200px;
+}
+
+.filename-cell span:last-child {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.talent-info-cell {
+    max-width: 180px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.score-cell {
+    text-align: center;
+}
+
+.score-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 12px;
+}
+
+.score-badge.excellent {
+    background: #f6ffed;
+    color: #52c41a;
+    border: 1px solid #b7eb8f;
+}
+
+.score-badge.good {
+    background: #e6f7ff;
+    color: #1890ff;
+    border: 1px solid #91d5ff;
+}
+
+.score-badge.average {
+    background: #fff7e6;
+    color: #fa8c16;
+    border: 1px solid #ffd591;
+}
+
+.score-badge.below-average {
+    background: #fff1f0;
+    color: #f5222d;
+    border: 1px solid #ffa39e;
+}
+
+.score-badge.poor {
+    background: #f5f5f5;
+    color: #8c8c8c;
+    border: 1px solid #d9d9d9;
+}
+
+.detail-cell {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.action-cell {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.action-btn {
+    padding: 4px 8px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+.view-btn {
+    background: #e6f7ff;
+    color: #1890ff;
+}
+
+.view-btn:hover {
+    background: #bae7ff;
+}
+
+.delete-btn {
+    background: #fff1f0;
+    color: #f5222d;
+}
+
+.delete-btn:hover {
+    background: #ffccc7;
+}
+
+/* 空状态 */
+.empty-row {
+    text-align: center;
+    padding: 40px 20px !important;
+    border-bottom: none !important;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: #999;
+}
+
+.empty-state p {
+    margin: 0;
+}
+
+.empty-hint {
+    font-size: 12px;
+}
+
+/* 响应式表格 */
+@media screen and (max-width: 768px) {
+    .task-container {
+        padding: 16px;
+        gap: 16px;
+    }
+    
+    .resume-table {
+        font-size: 12px;
+    }
+    
+    .resume-table th,
+    .resume-table td {
+        padding: 8px 12px;
+    }
+    
+    .filename-cell,
+    .talent-info-cell,
+    .detail-cell {
+        max-width: 120px;
+    }
+    
+    .action-cell {
+        flex-direction: column;
+        gap: 4px;
+    }
+}
