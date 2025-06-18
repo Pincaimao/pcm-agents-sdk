@@ -71,6 +71,11 @@ export class ZhanshiMnmsModal {
     @Prop() defaultQuery: string = '请开始模拟面试';
 
     /**
+     * 视频录制最大时长（秒）默认120
+     */
+    @Prop() maxRecordingTime: number = 120;
+
+    /**
      * 是否以全屏模式打开，移动端建议设置为true
      */
     @Prop() fullscreen: boolean = false;
@@ -246,6 +251,7 @@ export class ZhanshiMnmsModal {
                                 botId="3022316191018903"
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
+                                maxRecordingTime={this.maxRecordingTime}
                                 enableTTS={false}
                                 customInputs={this.conversationId ? {} : {
                                     ...this.customInputs,

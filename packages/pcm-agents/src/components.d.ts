@@ -55,6 +55,10 @@ export namespace Components {
          */
         "isShowHeader": boolean;
         /**
+          * 视频录制最大时长（秒）默认120
+         */
+        "maxRecordingTime": number;
+        /**
           * 模态框标题
          */
         "modalTitle": string;
@@ -1736,6 +1740,10 @@ declare namespace LocalJSX {
           * 是否展示顶部标题栏
          */
         "isShowHeader"?: boolean;
+        /**
+          * 视频录制最大时长（秒）默认120
+         */
+        "maxRecordingTime"?: number;
         /**
           * 模态框标题
          */
