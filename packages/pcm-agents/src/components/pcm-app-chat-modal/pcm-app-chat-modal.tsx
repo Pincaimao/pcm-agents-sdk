@@ -1116,7 +1116,7 @@ export class ChatAPPModal {
     }
   }
 
-  // 修改音频转文字方法
+  // 修改音视频转文字方法
   private async convertAudioToText(cosKey: string): Promise<string | null> {
     try {
       const result = await sendHttpRequest<{ text: string }>({
