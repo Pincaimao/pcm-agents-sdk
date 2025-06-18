@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
-import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, fetchAgentInfo, synthesizeAudio } from '../../utils/utils';
+import { sendSSERequest, sendHttpRequest, uploadFileToBackend, fetchAgentInfo, synthesizeAudio } from '../../utils/utils';
 import { ChatMessage, ConversationItem } from '../../interfaces/chat';
 import {
   StreamCompleteEventData,
@@ -492,9 +492,6 @@ export class ChatAPPModal {
         }
 
         if (data.event === 'message') {
-          const inputMessage: UserInputMessageType = { message: message };
-          convertWorkflowStreamNodeToMessageRound('message', inputMessage, data);
-
           if (data.event === 'agent_message' || data.event === 'message') {
             if (data.answer) {
               answer += data.answer;

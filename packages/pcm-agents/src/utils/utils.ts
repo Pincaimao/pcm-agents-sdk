@@ -39,26 +39,6 @@ export interface MessageRound extends UserInputMessageType {
   error?: any;
 }
 
-/**
- * 将工作流节点转换为消息轮次
- * @param message_event 消息事件类型
- * @param inputMessage 用户输入消息
- * @param streamNode 工作流节点
- * @returns 消息轮次
- */
-export const convertWorkflowStreamNodeToMessageRound = (message_event: string, inputMessage: UserInputMessageType, streamNode: WorkFlowNode): MessageRound => {
-  const messageRound: MessageRound = {
-    ...inputMessage,
-  };
-  if (message_event === 'workflow_finished') messageRound.answer = streamNode.data?.outputs?.answer;
-  if (message_event === 'agent_message' || message_event === 'message') messageRound.answer = streamNode?.answer;
-  messageRound.id = streamNode.message_id;
-  messageRound.conversation_id = streamNode.conversation_id;
-  messageRound.created_at = streamNode.created_at;
-  messageRound.status = streamNode.data?.status;
-  messageRound.error = streamNode.data?.error;
-  return messageRound;
-};
 
 /**
  * SSE 流式请求配置接口
