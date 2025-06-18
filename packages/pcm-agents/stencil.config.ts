@@ -4,7 +4,7 @@ import { reactOutputTarget } from '@stencil/react-output-target';
 import { vueOutputTarget } from '@stencil/vue-output-target';
 import { readFileSync } from 'fs';
 import dotenvPlugin from 'rollup-plugin-dotenv';
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 
 // 加载 .env 文件
 dotenv.config();
