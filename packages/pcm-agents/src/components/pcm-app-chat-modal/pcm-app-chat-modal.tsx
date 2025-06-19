@@ -2125,7 +2125,7 @@ export class ChatAPPModal {
 
             {this.previewContentType === 'text' && this.previewContent && (
               <div class="text-preview-container">
-                <pre>{this.previewContent}</pre>
+                <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>{this.previewContent}</pre>
               </div>
             )}
           </pcm-drawer>

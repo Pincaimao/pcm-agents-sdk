@@ -137,7 +137,7 @@
 
   <pcm-mnms-modal id="pcm-mnms-modal-text" modal-title="模拟面试（文字）" show-copy-button="false" 
     show-feedback-buttons="false" show-workspace-history="true"
-    icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id="1b555dd5-740d-4d92-966c-062cabdde750" fullscreen="true"
+    icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" conversation-id="" fullscreen="true"
     interview-mode="text" default-query="请您提问">
   </pcm-mnms-modal>
 
@@ -194,7 +194,7 @@
 
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NTAzMTk1NTR9.Z0TjLfHXRkUEA7korDuYKSxHPSG27BUzXuiWepr-Wxo";
+    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NTA0MDgyOTN9.VLTW17Of8IroZPXb5vl_arBH-2HH3X5seGPP5RdBQu4";
     const SHARED_TOKEN_NEW = "11"
     let stream = null;
     const urlParams = new URLSearchParams(window.location.search);
@@ -639,12 +639,12 @@
       
 
       // 设置自定义输入
-      mnmsModal.customInputs = {
-        job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广",
+      // mnmsModal.customInputs = {
+      //   job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广",
         // file_url: "/resources/file/20250416/d258f91a1ff6061822f00b4e245dbd00.pdf",
         // file_name: "简历.pdf",
         // resume_content: JSON.stringify(resume_content)
-      };
+      // };
     };
 
     // 简历匹配模态框处理
