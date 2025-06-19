@@ -1,6 +1,7 @@
 // 导入环境变量
 import { API_DOMAIN } from './env';
 import { authStore } from '../../store/auth.store'; // 导入 authStore
+import { configStore } from '../../store/config.store';
 
 export { API_DOMAIN };
 
@@ -38,26 +39,6 @@ export interface MessageRound extends UserInputMessageType {
   error?: any;
 }
 
-/**
- * 将工作流节点转换为消息轮次
- * @param message_event 消息事件类型
- * @param inputMessage 用户输入消息
- * @param streamNode 工作流节点
- * @returns 消息轮次
- */
-export const convertWorkflowStreamNodeToMessageRound = (message_event: string, inputMessage: UserInputMessageType, streamNode: WorkFlowNode): MessageRound => {
-  const messageRound: MessageRound = {
-    ...inputMessage,
-  };
-  if (message_event === 'workflow_finished') messageRound.answer = streamNode.data?.outputs?.answer;
-  if (message_event === 'agent_message' || message_event === 'message') messageRound.answer = streamNode?.answer;
-  messageRound.id = streamNode.message_id;
-  messageRound.conversation_id = streamNode.conversation_id;
-  messageRound.created_at = streamNode.created_at;
-  messageRound.status = streamNode.data?.status;
-  messageRound.error = streamNode.data?.error;
-  return messageRound;
-};
 
 /**
  * SSE 流式请求配置接口
@@ -206,7 +187,7 @@ export const sendSSERequest = async (config: SSERequestConfig, isRetry = false):
     console.error('SSE 请求错误:', error);
 
     // 如果是超时错误且不是重试请求，则重试一次
-    if (error instanceof Error && error.message.includes('请求超时') && !isRetry) {
+    if (!isRetry) {
       console.log('SSE请求超时，正在重试...');
       syncDelay(1000); // 延迟1秒后重试
       return sendSSERequest(config, true);
@@ -370,7 +351,7 @@ export const sendHttpRequest = async <T = any>(config: HttpRequestConfig, isRetr
     console.error('HTTP请求错误:', error);
 
     // 如果是超时错误且允许重试，则重试一次
-    if (error instanceof Error && error.message.includes('请求超时') && isRetry) {
+    if (isRetry) {
       console.log('HTTP请求超时，正在重试...');
       syncDelay(1000); // 延迟1秒后重试
       return sendHttpRequest(config, false);
@@ -414,6 +395,8 @@ export const verifyApiKey = async (token: string): Promise<boolean> => {
     syncDelay(500);
     return false;
   } else {
+    
+    configStore.setItem('pcm-sdk-CUser', `${response.data.user}(${response.data.chat_user})`);
     return response.success;
   }
 };
@@ -484,6 +467,53 @@ export const calculateFileSHA256 = async (file: File): Promise<string> => {
 };
 
 /**
+ * 带重试机制的文件上传请求
+ * @param url 上传URL
+ * @param file 要上传的文件
+ * @param contentType 内容类型
+ * @param maxRetries 最大重试次数
+ * @returns Promise<Response>
+ */
+export const uploadFileWithRetry = async (
+  url: string, 
+  file: File, 
+  contentType: string = 'application/octet-stream', 
+  maxRetries: number = 2
+): Promise<Response> => {
+  let retries = 0;
+  
+  while (true) {
+    try {
+      const response = await fetchWithTimeout(url, {
+        method: 'PUT',
+        body: file, // 直接发送文件内容，不使用FormData
+        headers: {
+          'Content-Type': contentType,
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`文件上传失败: ${response.status} ${response.statusText}`);
+      }
+      
+      return response;
+    } catch (error) {
+      retries++;
+      console.error(`文件上传错误(尝试 ${retries}/${maxRetries}):`, error);
+      
+      // 如果已达到最大重试次数，则抛出错误
+      if (retries >= maxRetries) {
+        throw error;
+      }
+      
+      // 重试前延迟，每次重试增加延迟时间
+      const delayTime = 1000 * retries;
+      syncDelay(delayTime);
+    }
+  }
+};
+
+/**
  * 通过后端API上传文件
  * @param file 要上传的文件
  * @param headers 可选的请求头
@@ -510,6 +540,7 @@ export const uploadFileToBackend = async (file: File, headers?: Record<string, s
       url: '/sdk/v1/files/generate-upload-url',
       method: 'POST',
       data: {
+        ...params,
         filename: file.name,
         filesize: file.size,
         sha256: sha256,
@@ -523,27 +554,12 @@ export const uploadFileToBackend = async (file: File, headers?: Record<string, s
     const generate = uploadUrlResponse.data;
 
     if (generate.is_deleted != 1) {
-      // 第二步：直接上传文件到腾讯云
-      const formData = new FormData();
-      formData.append('file', file);
-
-      // 添加额外参数到 formData
-      if (params) {
-        Object.entries(params).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            formData.append(key, String(value));
-          }
-        });
-      }
-      console.log(file.type);
-      
-      const uploadResponse = await fetch(generate.upload_url, {
-        method: 'PUT',
-        body: file, // 直接发送文件内容，不使用FormData
-        headers: {
-          'Content-Type': generate.content_type || 'application/octet-stream',
-        },
-      });
+      // 第二步：使用带重试机制的方法上传文件到腾讯云
+      const uploadResponse = await uploadFileWithRetry(
+        generate.upload_url,
+        file,
+        generate.content_type || 'application/octet-stream'
+      );
 
       if (!uploadResponse.ok) {
         throw new Error(`文件上传到腾讯云失败: ${uploadResponse.status} ${uploadResponse.statusText}`);
@@ -621,12 +637,58 @@ export const synthesizeAudio = async (text: string, token?: string, isRetry = fa
     console.error('语音合成错误:', error);
 
     // 如果是超时错误且不是重试请求，则重试一次
-    if (error instanceof Error && error.message.includes('请求超时') && !isRetry) {
+    if (!isRetry) {
       console.log('语音合成请求超时，正在重试...');
       syncDelay(1000); // 延迟1秒后重试
       return synthesizeAudio(text, token, true);
     }
 
     throw error;
+  }
+};
+
+/**
+ * 获取COS文件的预签名URL
+ * @param cosKey COS文件key
+ * @param headers 可选的请求头
+ * @returns Promise<string | null> 返回预签名URL，失败时返回null
+ */
+export const getCosPresignedUrl = async (cosKey: string, headers?: Record<string, string>): Promise<string | null> => {
+  try {
+    const response = await sendHttpRequest<{ file_url: string }>({
+      url: '/sdk/v1/files/presigned-url',
+      method: 'GET',
+      params: {
+        cos_key: cosKey
+      },
+      headers
+    });
+
+    if (response.success && response.data?.file_url) {
+      return response.data.file_url;
+    }
+    return null;
+  } catch (error) {
+    console.error('获取预签名URL失败:', error);
+    return null;
+  }
+};
+
+/**
+ * 获取COS文件的预览URL（用于文档预览）
+ * @param cosKey COS文件key
+ * @param headers 可选的请求头
+ * @returns Promise<string | null> 返回预览URL，失败时返回null
+ */
+export const getCosPreviewUrl = async (cosKey: string, headers?: Record<string, string>): Promise<string | null> => {
+  try {
+    const fileUrl = await getCosPresignedUrl(cosKey, headers);
+    if (fileUrl) {
+      return `${fileUrl}${fileUrl.includes('?') ? '&' : '?'}ci-process=doc-preview&copyable=1&dstType=html`;
+    }
+    return null;
+  } catch (error) {
+    console.error('获取预览URL失败:', error);
+    return null;
   }
 };

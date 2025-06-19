@@ -9,6 +9,7 @@ import {
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store';
 import { configStore } from '../../../store/config.store';
+import { SentryReporter } from '../../utils/sentry-reporter';
 
 /**
  * 模拟面试
@@ -77,10 +78,18 @@ export class MnmsZpModal {
 
     /**
      * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br>
-     * 传入customInputs.file_url时，会隐藏简历上传区域。<br>
-     * 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。
+     * 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br>
+     * 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br>
+     * customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br>
+     * customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。
      */
     @Prop() customInputs: Record<string, string> = {};
+
+    /**
+     * 是否显示工作区历史会话按钮
+     */
+    @Prop() showWorkspaceHistory: boolean = false;
+
 
     /**
      * 上传成功事件
@@ -162,8 +171,33 @@ export class MnmsZpModal {
         }
     }
 
-    componentWillLoad() {
 
+    @Watch('isOpen')
+    async handleIsOpenChange(newValue: boolean) {
+        if (!newValue) {
+            // 重置状态
+            this.clearSelectedFile();
+            this.showChatModal = false;
+            this.jobDescription = '';
+
+        } else {
+            if (this.customInputs && this.customInputs.job_info) {
+                this.jobDescription = this.customInputs.job_info;
+            }
+
+            await verifyApiKey(this.token);
+
+            // 如果同时有 file_url 和 job_info，或者有会话ID，直接显示聊天模态框
+            if (((this.customInputs?.file_url || this.customInputs?.resume_content) && this.customInputs?.job_info) || this.conversationId) {
+                this.showChatModal = true;
+            }
+        }
+    }
+
+    
+
+    componentWillLoad() {
+      
         // 将 zIndex 存入配置缓存
         if (this.zIndex) {
             configStore.setItem('modal-zIndex', this.zIndex);
@@ -196,7 +230,6 @@ export class MnmsZpModal {
     }
 
     private handleClose = () => {
-        this.isOpen = false;
         this.modalClosed.emit();
     };
 
@@ -230,7 +263,7 @@ export class MnmsZpModal {
             // 使用 uploadFileToBackend 工具函数上传文件
             const result = await uploadFileToBackend(this.selectedFile, {
             }, {
-                'tags': 'resume'
+                'tags': ['resume']
             });
 
             this.uploadedFileInfo = result;
@@ -238,11 +271,14 @@ export class MnmsZpModal {
         } catch (error) {
             console.error('文件上传错误:', error);
             this.clearSelectedFile();
+            SentryReporter.captureError(error, {
+                action: 'uploadFile',
+                component: 'pcm-mnms-zp-modal',
+                title: '文件上传失败'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-mnms-zp-modal[uploadFile]',
                 error: error,
-                message: '文件上传失败，请重试',
-                type: 'ui'
+                message: '文件上传失败，请重试'
             });
         } finally {
             this.isUploading = false;
@@ -255,11 +291,9 @@ export class MnmsZpModal {
     };
 
     private handleStartInterview = async () => {
-        if (!this.selectedFile) {
-            alert('请上传简历');
-            return;
-        }
-
+        // 判断是否隐藏简历上传区域
+        const hideResumeUpload = Boolean(this.customInputs && (this.customInputs.file_url || this.customInputs.resume_content));
+        
         // 如果没有预设的job_info，则需要检查用户输入
         if (!this.customInputs?.job_info && !this.jobDescription.trim()) {
             alert('请输入职位描述');
@@ -269,8 +303,8 @@ export class MnmsZpModal {
         this.isSubmitting = true;
 
         try {
-            // 如果还没上传，先上传文件
-            if (!this.uploadedFileInfo) {
+            // 如果需要上传文件且还没上传，先上传文件（简历为选填）
+            if (!hideResumeUpload && this.selectedFile && !this.uploadedFileInfo) {
                 await this.uploadFile();
                 if (!this.uploadedFileInfo) {
                     this.isSubmitting = false;
@@ -278,72 +312,22 @@ export class MnmsZpModal {
                 }
             }
 
-            // 使用预设的job_info或用户输入的jobDescription
-            // const jobInfo = this.customInputs?.job_info || this.jobDescription;
-
-            // console.log('传递的customInputs:', {
-            //     ...this.customInputs,
-            //     file_url: this.uploadedFileInfo.cos_key,
-            //     job_info: jobInfo
-            // });
-
             // 直接显示聊天模态框
             this.showChatModal = true;
         } catch (error) {
             console.error('开始面试时出错:', error);
+            SentryReporter.captureError(error, {
+                action: 'handleStartInterview',
+                component: 'pcm-mnms-zp-modal',
+                title: '开始面试时出错'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-mnms-zp-modal[handleStartInterview]',
                 error: error,
-                message: '开始面试时出错，请重试',
-                type: 'ui'
+                message: '开始面试时出错，请重试'
             });
         } finally {
             this.isSubmitting = false;
         }
-    };
-
-    @Watch('isOpen')
-    async handleIsOpenChange(newValue: boolean) {
-        if (!newValue) {
-            // 重置状态
-            this.clearSelectedFile();
-            this.showChatModal = false;
-            this.jobDescription = '';
-
-        } else {
-            if (this.customInputs && this.customInputs.job_info) {
-                this.jobDescription = this.customInputs.job_info;
-            }
-
-            await verifyApiKey(this.token);
-
-            // 如果同时有 file_url 和 job_info，或者有会话ID，直接显示聊天模态框
-            if ((this.customInputs?.file_url && this.customInputs?.job_info) || this.conversationId) {
-                this.showChatModal = true;
-            }
-        }
-    }
-
-
-    // 处理流式输出完成事件
-    private handleStreamComplete = (event: CustomEvent) => {
-        // 将事件转发出去
-        this.streamComplete.emit(event.detail);
-    };
-
-    // 处理会话开始事件
-    private handleConversationStart = (event: CustomEvent) => {
-        this.conversationStart.emit(event.detail);
-    };
-
-    // 处理面试完成事件
-    private handleInterviewComplete = (event: CustomEvent) => {
-        this.interviewComplete.emit(event.detail);
-    };
-
-
-    private handleRecordingError = (event: CustomEvent) => {
-        this.recordingError.emit(event.detail);
     };
 
 
@@ -372,11 +356,11 @@ export class MnmsZpModal {
         // 修正这里的逻辑，确保当 customInputs.job_info 存在时，hideJdInput 为 true
         const hideJdInput = Boolean(this.customInputs && this.customInputs.job_info);
         
-        // 判断是否隐藏简历上传区域
-        const hideResumeUpload = Boolean(this.customInputs && this.customInputs.file_url);
+        // 判断是否隐藏简历上传区域 - 当有file_url或resume_content时都隐藏
+        const hideResumeUpload = Boolean(this.customInputs && (this.customInputs.file_url || this.customInputs.resume_content));
         
-        // 判断是否同时提供了file_url和job_info
-        const hasFileAndJob = Boolean(this.customInputs?.file_url && this.customInputs?.job_info);
+        // 判断是否同时提供了(file_url或resume_content)和job_info
+        const hasFileAndJob = Boolean((this.customInputs?.file_url || this.customInputs?.resume_content) && this.customInputs?.job_info);
 
         return (
             <div class={overlayClass} style={modalStyle}>
@@ -413,10 +397,10 @@ export class MnmsZpModal {
                                 </div>
                             )}
 
-                            {/* 简历上传区域 - 仅在没有customInputs.file_url时显示 */}
+                            {/* 简历上传区域 - 仅在没有customInputs.file_url或customInputs.resume_content时显示 */}
                             {!hideResumeUpload && (
                                 <div class="resume-upload-section">
-                                    <label>上传简历</label>
+                                    <label>上传简历（选填）</label>
                                     <div class="upload-area" onClick={this.handleUploadClick}>
                                         {this.selectedFile ? (
                                             <div class="file-item">
@@ -442,7 +426,7 @@ export class MnmsZpModal {
 
                             <button
                                 class="submit-button"
-                                disabled={(!hideResumeUpload && !this.selectedFile) || (!hideJdInput && !this.jobDescription.trim()) || this.isUploading || this.isSubmitting}
+                                disabled={(!hideJdInput && !this.jobDescription.trim()) || this.isUploading || this.isSubmitting}
                                 onClick={this.handleStartInterview}
                             >
                                 {this.isUploading ? '上传中...' : this.isSubmitting ? '处理中...' : '开始分析'}
@@ -482,10 +466,11 @@ export class MnmsZpModal {
                                 isShowHeader={this.isShowHeader}
                                 isNeedClose={this.isShowHeader}
                                 fullscreen={this.fullscreen}
+                                showWorkspaceHistory={this.showWorkspaceHistory}
                                 botId="3022316191018907"
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
-                                enableVoice={false}
+                                enableTTS={false}
                                 filePreviewMode={this.filePreviewMode}
                                 showCopyButton={this.showCopyButton}
                                 showFeedbackButtons={this.showFeedbackButtons}
@@ -493,15 +478,10 @@ export class MnmsZpModal {
                                     ...this.customInputs,
                                     file_url: this.customInputs?.file_url || this.uploadedFileInfo?.cos_key,
                                     file_name: this.customInputs?.file_name || this.uploadedFileInfo?.file_name,
-                                    job_info: this.customInputs?.job_info || this.jobDescription
+                                    job_info: this.customInputs?.job_info || this.jobDescription,
+                                    resume_content: this.customInputs?.resume_content
                                 }}
                                 interviewMode={this.interviewMode}
-                                showProgressBar={false}
-                                onModalClosed={this.handleClose}
-                                onStreamComplete={this.handleStreamComplete}
-                                onConversationStart={this.handleConversationStart}
-                                onInterviewComplete={this.handleInterviewComplete}
-                                onRecordingError={this.handleRecordingError}
                             ></pcm-app-chat-modal>
                         </div>
                     )}

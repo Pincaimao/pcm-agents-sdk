@@ -4,6 +4,7 @@ import { ConversationStartEventData, InterviewCompleteEventData, StreamCompleteE
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store';
 import { configStore } from '../../../store/config.store';
+import { SentryReporter } from '../../utils/sentry-reporter';
 
 /**
  * 职位生成组件
@@ -71,10 +72,14 @@ export class PcmJdModal {
     @Prop() fullscreen: boolean = false;
 
     /**
-     * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
-     * 
+     * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br>
      */
     @Prop() customInputs: Record<string, string> = {};
+
+    /**
+     * 是否显示工作区历史会话按钮
+     */
+    @Prop() showWorkspaceHistory: boolean = false;
 
     /**
      * 流式输出完成事件
@@ -162,8 +167,9 @@ export class PcmJdModal {
             authStore.setToken(newToken);
         }
     }
-    componentWillLoad() {
+  
 
+    componentWillLoad() {
         // 将 zIndex 存入配置缓存
         if (this.zIndex) {
             configStore.setItem('modal-zIndex', this.zIndex);
@@ -227,7 +233,6 @@ export class PcmJdModal {
     ];
 
     private handleClose = () => {
-        this.isOpen = false;
         this.modalClosed.emit();
     };
 
@@ -260,7 +265,7 @@ export class PcmJdModal {
     };
 
     private async handlePositionAnalysis(jobName: string) {
-        if (!jobName) return;
+        if (!jobName.trim()) return;
 
         this.isLoading = true;
 
@@ -309,13 +314,15 @@ export class PcmJdModal {
                     this.shuffledTagGroups = shuffled;
                     this.selectedAITags = initialSelectedTags;
                 } catch (error) {
-                    ErrorEventBus.emitError({
-                        source: 'pcm-jd-modal[handlePositionAnalysis]',
-                        error: error,
-                        message: '解析前置标签时错误',
-                        type: 'ui'
+                    SentryReporter.captureError(error, {
+                        action: 'handlePositionAnalysis',
+                        component: 'pcm-jd-modal',
+                        title: '解析前置标签时错误'
                     });
-
+                    ErrorEventBus.emitError({
+                        error: error,
+                        message: '解析前置标签时错误'
+                    });
                 }
             }
         } catch (error) {
@@ -408,11 +415,14 @@ export class PcmJdModal {
             this.jobDescription = jobInfo;
         } catch (error) {
             console.error('提交结构化数据时出错:', error);
+            SentryReporter.captureError(error, {
+                action: 'handleSubmitStructured',
+                component: 'pcm-jd-modal',
+                title: '提交数据时出错'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-jd-modal[handleSubmitStructured]',
                 error: error,
-                message: '提交数据时出错，请重试',
-                type: 'ui'
+                message: '提交数据时出错，请重试'
             });
         } finally {
             this.isSubmitting = false;
@@ -435,11 +445,14 @@ export class PcmJdModal {
             this.showChatModal = true;
         } catch (error) {
             console.error('提交自由输入数据时出错:', error);
+            SentryReporter.captureError(error, {
+                action: 'handleSubmitFree',
+                component: 'pcm-jd-modal',
+                title: '提交数据时出错'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-jd-modal[handleSubmitFree]',
                 error: error,
-                message: '提交数据时出错，请重试',
-                type: 'ui'
+                message: '提交数据时出错，请重试'
             });
         } finally {
             this.isSubmitting = false;
@@ -480,23 +493,6 @@ export class PcmJdModal {
             }
         }
     }
-
-
-    // 处理流式输出完成事件
-    private handleStreamComplete = (event: CustomEvent) => {
-        // 将事件转发出去
-        this.streamComplete.emit(event.detail);
-    };
-
-    // 处理会话开始事件
-    private handleConversationStart = (event: CustomEvent) => {
-        this.conversationStart.emit(event.detail);
-    };
-
-    // 处理面试完成事件
-    private handleInterviewComplete = (event: CustomEvent) => {
-        this.interviewComplete.emit(event.detail);
-    };
 
 
     // 渲染标签组
@@ -771,6 +767,7 @@ export class PcmJdModal {
                                 isShowHeader={this.isShowHeader}
                                 isNeedClose={this.isShowHeader}
                                 fullscreen={this.fullscreen}
+                                showWorkspaceHistory={this.showWorkspaceHistory}
                                 botId="3022316191018873"
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
@@ -781,10 +778,6 @@ export class PcmJdModal {
                                     job_info: this.customInputs?.job_info || this.jobDescription
                                 }}
                                 interviewMode="text"
-                                onModalClosed={this.handleClose}
-                                onStreamComplete={this.handleStreamComplete}
-                                onConversationStart={this.handleConversationStart}
-                                onInterviewComplete={this.handleInterviewComplete}
                             ></pcm-app-chat-modal>
                         </div>
                     )}

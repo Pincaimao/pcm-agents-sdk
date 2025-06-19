@@ -1,0 +1,64 @@
+.pcm-message {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100%);
+  background-color: #fff;
+  padding: 10px 16px;
+  border-radius: 4px;
+  box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  pointer-events: all;
+  z-index: 1010;
+  opacity: 0;
+  transition: all 0.3s;
+}
+
+.pcm-message-visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.pcm-message-content {
+  display: flex;
+  align-items: center;
+}
+
+.pcm-message-icon {
+  margin-right: 8px;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.pcm-message-success .pcm-message-icon {
+  color: #52c41a;
+}
+
+.pcm-message-error .pcm-message-icon {
+  color: #ff4d4f;
+}
+
+.pcm-message-warning .pcm-message-icon {
+  color: #faad14;
+}
+
+.pcm-message-info .pcm-message-icon {
+  color: #1890ff;
+}
+
+.pcm-message-text {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.pcm-message-container {
+  position: fixed;
+  top: 20px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  z-index: 1010;
+} 
+

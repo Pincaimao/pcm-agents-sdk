@@ -4,6 +4,10 @@ import { reactOutputTarget } from '@stencil/react-output-target';
 import { vueOutputTarget } from '@stencil/vue-output-target';
 import { readFileSync } from 'fs';
 import dotenvPlugin from 'rollup-plugin-dotenv';
+import * as dotenv from 'dotenv';
+
+// 加载 .env 文件
+dotenv.config();
 
 export const config: Config = {
   namespace: 'pcm-agents',
@@ -73,7 +77,12 @@ export const config: Config = {
       key: readFileSync('C:/Users/Administrator/Downloads/webarcx_com.key', 'utf8'),
     },
   },
+  globalScript: 'src/utils/init.ts',
   plugins: [
-    dotenvPlugin()
+    dotenvPlugin(),
   ],
+  // 将环境变量传递给构建过程
+  env: {
+    API_DOMAIN: process.env.API_DOMAIN || 'https://api.pincaimao.com/agents/platform'
+  }
 };

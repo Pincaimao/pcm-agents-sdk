@@ -11,6 +11,7 @@ import { PcmHtwsModal as PcmHtwsModalElement } from "pcm-agents/dist/components/
 import { PcmHyzjModal as PcmHyzjModalElement } from "pcm-agents/dist/components/pcm-hyzj-modal.js";
 import { PcmJdModal as PcmJdModalElement } from "pcm-agents/dist/components/pcm-jd-modal.js";
 import { PcmJlppModal as PcmJlppModalElement } from "pcm-agents/dist/components/pcm-jlpp-modal.js";
+import { PcmMessage as PcmMessageElement } from "pcm-agents/dist/components/pcm-message.js";
 import { PcmMnctModal as PcmMnctModalElement } from "pcm-agents/dist/components/pcm-mnct-modal.js";
 import { PcmMnmsModal as PcmMnmsModalElement } from "pcm-agents/dist/components/pcm-mnms-modal.js";
 import { PcmMnmsVideoModal as PcmMnmsVideoModalElement } from "pcm-agents/dist/components/pcm-mnms-video-modal.js";
@@ -54,6 +55,7 @@ type PcmChatMessageEvents = {
         content?: string;
         contentType: 'file' | 'markdown' | 'text';
     }>>;
+    onRetryRequest: EventName<CustomEvent<string>>;
 };
 export declare const PcmChatMessage: StencilReactComponent<PcmChatMessageElement, PcmChatMessageEvents>;
 type PcmDrawerEvents = {
@@ -66,6 +68,7 @@ type PcmHrChatModalEvents = {
     onModalClosed: EventName<CustomEvent<void>>;
     onStreamComplete: EventName<PcmHrChatModalCustomEvent<StreamCompleteEventData>>;
     onConversationStart: EventName<PcmHrChatModalCustomEvent<ConversationStartEventData>>;
+    onSomeErrorEvent: EventName<PcmHrChatModalCustomEvent<ErrorEventDetail>>;
     onInterviewComplete: EventName<PcmHrChatModalCustomEvent<InterviewCompleteEventData>>;
     onRecordingError: EventName<CustomEvent<{
         type: string;
@@ -118,6 +121,8 @@ type PcmJlppModalEvents = {
     onSomeErrorEvent: EventName<PcmJlppModalCustomEvent<ErrorEventDetail>>;
 };
 export declare const PcmJlppModal: StencilReactComponent<PcmJlppModalElement, PcmJlppModalEvents>;
+type PcmMessageEvents = NonNullable<unknown>;
+export declare const PcmMessage: StencilReactComponent<PcmMessageElement, PcmMessageEvents>;
 type PcmMnctModalEvents = {
     onModalClosed: EventName<CustomEvent<void>>;
     onUploadSuccess: EventName<PcmMnctModalCustomEvent<FileUploadResponse>>;

@@ -32,7 +32,7 @@
 
 /* 用户消息气泡样式 */
 .user-message {
-  padding: 15px 10px;
+  padding: 5px 10px;
   background: #f5f7ff;
   font-size: 14px;
   color: #1F2328;
@@ -466,4 +466,90 @@
 
 .assistant-avatar {
   margin-right: 8px;
+}
+
+.retry-button {
+  background-color: #ff6b35 !important;
+  color: white !important;
+  border: none !important;
+}
+
+.retry-button:hover {
+  background-color: #e55a2b !important;
+}
+
+.retry-button .button-icon {
+  margin-right: 4px;
+}
+
+/* 视频容器样式 */
+.video-inputs-container {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+}
+
+.video-container {
+  margin-top: 0px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: #000;
+  width: 250px;
+  height: auto;
+  max-height: 250px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.video-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.video-container video {
+  display: block;
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  border-radius: 8px;
+}
+
+.video-container video:focus {
+  outline: none;
+}
+
+/* 视频加载状态样式 */
+.video-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  color: #666;
+  font-size: 14px;
+}
+
+.loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e9ecef;
+  border-top: 2px solid #1677ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .video-container {
+    width: 100%;
+    max-width: 300px;
+  }
 }

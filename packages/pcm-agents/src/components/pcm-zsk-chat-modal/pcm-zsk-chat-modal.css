@@ -1,5 +1,6 @@
 :host {
   display: block;
+  font-size: 16px;
 }
 
     
@@ -19,10 +20,15 @@
   -webkit-overflow-scrolling: touch; /* 增强iOS滚动体验 */
 }
 
-/* 全屏模式下取消 padding */
+/* 全屏模式下的overlay样式 */
 .fullscreen-overlay {
   padding: 0;
+  /* 改为基于父组件的全屏 */
+  position: absolute;
+  width: 100%;
+  height: calc(100% - 10px);
 }
+
 
 .modal-container {
   background: white;
@@ -35,17 +41,16 @@
   margin: auto;
 }
 
-/* 全屏模式样式 */
+/* 全屏模式样式 - 改为基于父组件 */
 .modal-container.fullscreen {
-  width: 100vw;
+  width: 100%;
   max-width: none;
   height: 100%;
   border-radius: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  max-height: 100vh;
+  max-height: 100%;
 }
 
 /* 确保内容区域也使用 flex 布局并占满剩余空间 */
@@ -653,7 +658,7 @@
   flex-direction: column;
   width: 100%;
   height: 100%;
-  padding: 16px;
+  padding: 0px 16px 16px 16px;
   border-radius: 8px;
   border: none; /* 确保容器本身没有边框 */
 }
@@ -815,18 +820,19 @@
 @media screen and (max-width: 768px) {
   .pc-layout {
     width: 95%;
-    /* height: 90vh; */
   }
 
   .modal-overlay {
-    padding: 0;
+    padding: 10px 0px 0px 0px;
   }
 
   .modal-container.fullscreen {
-    /* 支持 iOS Safari */
-    height: -webkit-fill-available;
-    max-height: -webkit-fill-available;
-    /* 确保内容不会被顶部状态栏和底部工具栏遮挡 */
+    /* 移动端也基于父组件尺寸 */
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    border-radius: 16px 16px 0 0;
+    /* 保留安全区域支持 */
     padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
   }
 

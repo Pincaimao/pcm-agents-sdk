@@ -4,6 +4,7 @@ import { ConversationStartEventData, InterviewCompleteEventData, StreamCompleteE
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store';
 import { configStore } from '../../../store/config.store';
+import { SentryReporter } from '../../utils/sentry-reporter';
 
 /**
  * 模拟出题大师
@@ -71,9 +72,17 @@ export class MnctModal {
     @Prop() fullscreen: boolean = false;
 
     /**
-     * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
+     * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br>
+     * 传入customInputs.file_url时，会隐藏简历上传区域。<br>
+     * 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
      */
     @Prop() customInputs: Record<string, string> = {};
+
+    /**
+     * 是否显示工作区历史会话按钮
+     */
+    @Prop() showWorkspaceHistory: boolean = false;
+
 
     /**
      * 上传成功事件
@@ -135,6 +144,32 @@ export class MnctModal {
         }
     }
 
+
+    
+    @Watch('isOpen')
+    async handleIsOpenChange(newValue: boolean) {
+        if (!newValue) {
+            // 重置状态
+            this.clearSelectedFile();
+            this.showChatModal = false;
+            this.jobDescription = '';
+
+        } else {
+            if (this.customInputs && this.customInputs.job_info) {
+                this.jobDescription = this.customInputs.job_info;
+            }
+
+            await verifyApiKey(this.token);
+
+            // 如果有会话ID或者同时有file_url和job_info，直接显示聊天模态框
+            if (this.conversationId || (this.customInputs?.file_url && this.customInputs?.job_info)) {
+                this.showChatModal = true;
+            }
+        }
+    }
+
+
+
     componentWillLoad() {
 
         // 将 zIndex 存入配置缓存
@@ -167,7 +202,6 @@ export class MnctModal {
 
 
     private handleClose = () => {
-        this.isOpen = false;
         this.modalClosed.emit();
     };
 
@@ -201,7 +235,7 @@ export class MnctModal {
             // 使用 uploadFileToBackend 工具函数上传文件
             const result = await uploadFileToBackend(this.selectedFile, {
             }, {
-                'tags': 'resume'
+                'tags': ['resume']
             });
 
             this.uploadedFileInfo = result;
@@ -209,11 +243,14 @@ export class MnctModal {
         } catch (error) {
             console.error('文件上传错误:', error);
             this.clearSelectedFile();
+            SentryReporter.captureError(error, {
+                action: 'uploadFile',
+                component: 'pcm-mnct-modal',
+                title: '文件上传失败'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-mnct-modal[uploadFile]',
                 error: error,
-                message: '文件上传失败，请重试',
-                type: 'ui'
+                message: '文件上传失败，请重试'
             });
         } finally {
             this.isUploading = false;
@@ -249,67 +286,22 @@ export class MnctModal {
                 }
             }
 
-            // 使用预设的job_info或用户输入的jobDescription
-            // const jobInfo = this.customInputs?.job_info || this.jobDescription;
-
-            // console.log('传递的customInputs:', {
-            //     ...this.customInputs,
-            //     file_url: this.uploadedFileInfo.cos_key,
-            //     job_info: jobInfo
-            // });
-
             // 直接显示聊天模态框
             this.showChatModal = true;
         } catch (error) {
             console.error('开始面试时出错:', error);
+            SentryReporter.captureError(error, {
+                action: 'handleStartInterview',
+                component: 'pcm-mnct-modal',
+                title: '开始面试时出错'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-mnct-modal[handleStartInterview]',
                 error: error,
-                message: '开始面试时出错，请重试',
-                type: 'ui'
+                message: '开始面试时出错，请重试'
             });
         } finally {
             this.isSubmitting = false;
         }
-    };
-
-    @Watch('isOpen')
-    async handleIsOpenChange(newValue: boolean) {
-        if (!newValue) {
-            // 重置状态
-            this.clearSelectedFile();
-            this.showChatModal = false;
-            this.jobDescription = '';
-
-        } else {
-            if (this.customInputs && this.customInputs.job_info) {
-                this.jobDescription = this.customInputs.job_info;
-            }
-
-            await verifyApiKey(this.token);
-
-            if (this.conversationId) {
-                // 如果有会话ID，直接显示聊天模态框
-                this.showChatModal = true;
-            }
-        }
-    }
-
-
-    // 处理流式输出完成事件
-    private handleStreamComplete = (event: CustomEvent) => {
-        // 将事件转发出去
-        this.streamComplete.emit(event.detail);
-    };
-
-    // 处理会话开始事件
-    private handleConversationStart = (event: CustomEvent) => {
-        this.conversationStart.emit(event.detail);
-    };
-
-    // 处理面试完成事件
-    private handleInterviewComplete = (event: CustomEvent) => {
-        this.interviewComplete.emit(event.detail);
     };
 
 
@@ -335,8 +327,14 @@ export class MnctModal {
         // 显示加载状态
         const isLoading = this.conversationId && !this.showChatModal;
 
-        // 修正这里的逻辑，确保当 customInputs.job_info 存在时，hideJdInput 为 true
+        // 判断是否隐藏JD输入区域
         const hideJdInput = Boolean(this.customInputs && this.customInputs.job_info);
+        
+        // 判断是否隐藏简历上传区域
+        const hideResumeUpload = Boolean(this.customInputs && this.customInputs.file_url);
+        
+        // 判断是否同时提供了file_url和job_info
+        const hasFileAndJob = Boolean(this.customInputs?.file_url && this.customInputs?.job_info);
 
         return (
             <div class={overlayClass} style={modalStyle}>
@@ -355,8 +353,8 @@ export class MnctModal {
                         </div>
                     )}
 
-                    {/* 上传界面 - 仅在不显示聊天模态框且没有会话ID时显示 */}
-                    {!this.showChatModal && !this.conversationId && (
+                    {/* 上传界面 - 仅在不显示聊天模态框且没有会话ID且没有同时提供file_url和job_info时显示 */}
+                    {!this.showChatModal && !this.conversationId && !hasFileAndJob && (
                         <div class="input-container">
                             {/* JD输入区域 - 仅在没有customInputs.job_info时显示 */}
                             {!hideJdInput && (
@@ -373,34 +371,38 @@ export class MnctModal {
                                 </div>
                             )}
 
-                            {/* 简历上传区域 */}
-                            <div class="resume-upload-section">
-                                <label>上传简历</label>
-                                <div class="upload-area" onClick={this.handleUploadClick}>
-                                    {this.selectedFile ? (
-                                        <div class="file-item">
-                                            <div class="file-item-content">
-                                                <span class="file-icon">📝</span>
-                                                <span class="file-name">{this.selectedFile.name}</span>
+                            {/* 简历上传区域 - 仅在没有customInputs.file_url时显示 */}
+                            {!hideResumeUpload && (
+                                <div class="resume-upload-section">
+                                    <label>上传简历</label>
+                                    <div class="upload-area" onClick={this.handleUploadClick}>
+                                        {this.selectedFile ? (
+                                            <div class="file-item">
+                                                <div class="file-item-content">
+                                                    <span class="file-icon">📝</span>
+                                                    <span class="file-name">{this.selectedFile.name}</span>
+                                                </div>
+                                                <button class="remove-file" onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    this.clearSelectedFile();
+                                                }}>×</button>
                                             </div>
-                                            <button class="remove-file" onClick={(e) => {
-                                                e.stopPropagation();
-                                                this.clearSelectedFile();
-                                            }}>×</button>
-                                        </div>
-                                    ) : (
-                                        <div class="upload-placeholder">
-                                            <img src='https://pub.pincaimao.com/static/web/images/home/i_upload.png'></img>
-                                            <p class='upload-text'>点击上传简历</p>
-                                            <p class="upload-hint">支持 txt、markdown、pdf、docx、doc、md 格式</p>
-                                        </div>
-                                    )}
+                                        ) : (
+                                            <div class="upload-placeholder">
+                                                <img src='https://pub.pincaimao.com/static/web/images/home/i_upload.png'></img>
+                                                <p class='upload-text'>点击上传简历</p>
+                                                <p class="upload-hint">支持 txt、markdown、pdf、docx、doc、md 格式</p>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             <button
                                 class="submit-button"
-                                disabled={!this.selectedFile || (!hideJdInput && !this.jobDescription.trim()) || this.isUploading || this.isSubmitting}
+                                disabled={((!hideResumeUpload && !this.selectedFile) || 
+                                           (!hideJdInput && !this.jobDescription.trim())) || 
+                                           this.isUploading || this.isSubmitting}
                                 onClick={this.handleStartInterview}
                             >
                                 {this.isUploading ? '上传中...' : this.isSubmitting ? '处理中...' : '开始分析'}
@@ -440,6 +442,7 @@ export class MnctModal {
                                 isShowHeader={this.isShowHeader}
                                 isNeedClose={this.isShowHeader}
                                 fullscreen={this.fullscreen}
+                                showWorkspaceHistory={this.showWorkspaceHistory}
                                 botId="3022316191018876"
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
@@ -447,15 +450,11 @@ export class MnctModal {
                                 enableVoice={false}
                                 customInputs={this.conversationId ? {} : {
                                     ...this.customInputs,
-                                    file_url: this.uploadedFileInfo?.cos_key,
-                                    file_name: this.uploadedFileInfo?.file_name,
+                                    file_url: this.customInputs?.file_url || this.uploadedFileInfo?.cos_key,
+                                    file_name: this.customInputs?.file_name || this.uploadedFileInfo?.file_name,
                                     job_info: this.customInputs?.job_info || this.jobDescription
                                 }}
                                 interviewMode="text"
-                                onModalClosed={this.handleClose}
-                                onStreamComplete={this.handleStreamComplete}
-                                onConversationStart={this.handleConversationStart}
-                                onInterviewComplete={this.handleInterviewComplete}
                             ></pcm-app-chat-modal>
                         </div>
                     )}

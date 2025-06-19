@@ -97,6 +97,10 @@
   color: #00000066;
 }
 
+.placeholder-status p{
+  font-size: 16px;
+}
+
 .waiting-message p {
   margin: 0;
   font-size: 16px;
@@ -157,6 +161,10 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.header-left div {
+  font-size: 16px;
 }
 
 .header-icon {

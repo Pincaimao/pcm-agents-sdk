@@ -2,8 +2,9 @@ import { Component, Prop, h, Element, Event, EventEmitter, State } from '@stenci
 import { marked } from 'marked';
 import extendedTables from 'marked-extended-tables';
 import { ChatMessage } from '../../interfaces/chat';
-import { sendHttpRequest } from '../../utils/utils';
+import { sendHttpRequest, getCosPresignedUrl, getCosPreviewUrl } from '../../utils/utils';
 import { ErrorEventBus } from '../../utils/error-event';
+import { SentryReporter } from '../../utils/sentry-reporter';
 
 @Component({
     tag: 'pcm-chat-message',
@@ -40,6 +41,11 @@ export class ChatMessageComponent {
     @State() feedbackStatus: 'like' | 'dislike' | null = null;
 
     /**
+     * 视频播放URLs缓存
+     */
+    @State() videoUrls: { [key: string]: string } = {};
+
+    /**
      * 用户头像URL
      */
     @Prop() userAvatar?: string;
@@ -68,6 +74,11 @@ export class ChatMessageComponent {
         contentType: 'file' | 'markdown' | 'text'
     }>;
 
+    /**
+     * 重试事件
+     */
+    @Event() retryRequest: EventEmitter<string>; // 传递消息ID
+
     constructor() {
         // 配置 marked 选项
         marked.use(extendedTables);
@@ -81,6 +92,7 @@ export class ChatMessageComponent {
      * 组件加载时检查消息是否已有反馈状态
      */
     componentWillLoad() {
+
         // 如果消息已经有反馈状态，初始化feedbackStatus
         if (this.message && this.message.feedback) {
             this.feedbackStatus = this.message.feedback.rating as 'like' | 'dislike' | null;
@@ -99,10 +111,8 @@ export class ChatMessageComponent {
                 .catch(err => {
                     // 使用全局事件总线发送错误
                     ErrorEventBus.emitError({
-                        source: 'pcm-chat-message[copyMessageContent]',
                         error: err,
                         message: '复制内容失败',
-                        type: 'ui'
                     });
                     console.error('复制失败:', err);
                 });
@@ -112,6 +122,7 @@ export class ChatMessageComponent {
     // 渲染用户消息部分
     private renderUserMessage() {
         if (!this.message?.query?.trim()) return null;
+        const htmlContent = this.message.query ? marked(this.message.query) : '';
 
         return (
             <div class={{ 'user-message-container': true }}>
@@ -121,7 +132,7 @@ export class ChatMessageComponent {
                     </div>
                 )}
                 <div class="message-bubble user-message">
-                    <div>{this.message.query}</div>
+                    <div innerHTML={htmlContent}></div>
                     {this.renderInputs()}
                 </div>
             </div>
@@ -155,6 +166,20 @@ export class ChatMessageComponent {
                     </div>
                     {!showLoading && this.message.answer && !this.message.isStreaming && (
                         <div class="message-actions">
+                            {/* 根据父组件传入的属性决定是否显示重试按钮 */}
+                            {this.message.showRetryButton && (
+                                <button class="action-button retry-button" onClick={() => this.handleRetry()} title="重试">
+                                    <span class="button-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="23 4 23 10 17 10"></polyline>
+                                            <polyline points="1 20 1 14 7 14"></polyline>
+                                            <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+                                        </svg>
+                                    </span>
+                                    重试
+                                </button>
+                            )}
+
                             {this.showCopyButton && (
                                 <button class="action-button" onClick={() => this.copyMessageContent()} title="复制内容">
                                     <span class="button-icon">
@@ -199,39 +224,11 @@ export class ChatMessageComponent {
         );
     }
 
-
     private getFileName(fileUrl: string): string {
         const parts = fileUrl.split('/');
         return parts[parts.length - 1];
     }
 
-    // 获取预览URL
-    private async getCosPreviewUrl(cosKey: string): Promise<string | null> {
-        try {
-            const result = await sendHttpRequest<{ file_url: string }>({
-                url: '/sdk/v1/files/presigned-url',
-                method: 'GET',
-                params: {
-                    cos_key: cosKey
-                }
-            });
-
-            if (result.success && result.data?.file_url) {
-                const baseUrl = result.data.file_url;
-                return `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}ci-process=doc-preview&copyable=1&dstType=html`;
-            }
-            return null;
-        } catch (error) {
-            ErrorEventBus.emitError({
-                source: 'pcm-chat-message[getCosPreviewUrl]',
-                error,
-                message: '获取预览URL失败',
-                type: 'network'
-            });
-            console.error('获取预览URL失败:', error);
-            return null;
-        }
-    }
 
     // 添加处理文本内容点击的方法
     private handleContentClick(title: string, content: string, contentType: 'markdown' | 'text' = 'text') {
@@ -240,12 +237,26 @@ export class ChatMessageComponent {
             content: content,
             contentType: contentType
         });
+    }
 
+    // 加载视频播放URL
+    private async loadVideoUrl(cosKey: string) {
+        if (this.videoUrls[cosKey]) {
+            return; // 已经加载过了
+        }
+
+        const videoUrl = await getCosPresignedUrl(cosKey);
+        if (videoUrl) {
+            this.videoUrls = {
+                ...this.videoUrls,
+                [cosKey]: videoUrl
+            };
+        }
     }
 
     // 修改处理文件点击的方法
     private async handleFileClick(fileUrl: string, fileName: string) {
-        const previewUrl = await this.getCosPreviewUrl(fileUrl);
+        const previewUrl = await getCosPreviewUrl(fileUrl);
         if (previewUrl) {
             if (this.filePreviewMode === 'drawer') {
                 this.filePreviewRequest.emit({
@@ -258,11 +269,14 @@ export class ChatMessageComponent {
             }
         } else {
             console.error('无法获取预览URL');
+            SentryReporter.captureError('无法获取预览URL', {
+                action: 'handleFileClick',
+                component: 'pcm-chat-message',
+                title: '无法获取预览URL'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-chat-message[handleFileClick]',
                 error: '无法获取预览URL',
                 message: '无法获取预览URL',
-                type: 'network'
             });
         }
     }
@@ -301,7 +315,53 @@ export class ChatMessageComponent {
                 {Object.keys(this.message.inputs).map((key, index) => {
                     const value = this.message.inputs[key];
                     if (value && !key.startsWith('hide_') && key !== 'answer') {
-                        if (key === 'file_url') {
+                        if (key === 'video_url') {
+                            // 渲染视频播放区域
+                            const cosKey = value;
+                            const videoUrl = this.videoUrls[cosKey];
+
+                            // 如果还没有加载视频URL，异步加载
+                            if (!videoUrl) {
+                                this.loadVideoUrl(cosKey);
+                            }
+
+                            return (
+                                <div class="video-inputs-container">
+                                    <div key={index} class="video-container">
+                                        {videoUrl ? (
+                                            <video
+                                                key={cosKey}
+                                                controls
+                                                preload="metadata"
+                                                onLoadedMetaData={(e) => {
+                                                    // 确保进度条正确显示
+                                                    const video = e.target as HTMLVideoElement;
+                                                    video.currentTime = 0.01;
+                                                }}
+                                                controlsList="nodownload"
+                                                style={{
+                                                    width: '250px',
+                                                    height: 'auto',
+                                                    maxHeight: '250px',
+                                                    borderRadius: '8px',
+                                                    marginTop: '8px'
+                                                }}
+                                            >
+                                                <source src={videoUrl} type="video/webm" />
+                                                <source src={videoUrl} type="video/mp4" />
+                                                <source src={videoUrl} type="video/ogg" />
+                                                您的浏览器不支持视频播放。
+                                            </video>
+                                        ) : (
+                                            <div class="video-loading">
+                                                <div class="loading-spinner"></div>
+                                                <span>正在加载视频...</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        } else if (key === 'file_url') {
                             // 优先使用 file_name 属性，如果不存在则从 file_url 提取文件名
                             const fileName = this.message.inputs.file_name || this.getFileName(value);
                             return this.renderFileItem(fileName, value, index);
@@ -378,11 +438,14 @@ export class ChatMessageComponent {
     private async submitFeedback(rating: 'like' | 'dislike' | null) {
         if (!this.message.id) {
             console.error('消息ID不存在，无法提交反馈');
+            SentryReporter.captureError('消息ID不存在，无法提交反馈', {
+                action: 'submitFeedback',
+                component: 'pcm-chat-message',
+                title: '无法提交反馈'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-chat-message[submitFeedback]',
                 error: '消息ID不存在，无法提交反馈',
                 message: '消息ID不存在，无法提交反馈',
-                type: 'ui'
             });
             return;
         }
@@ -418,6 +481,20 @@ export class ChatMessageComponent {
             }
         } catch (error) {
             console.error('提交反馈时发生错误:', error);
+            SentryReporter.captureError(error, {
+                action: 'submitFeedback',
+                component: 'pcm-chat-message',
+                title: '提交反馈失败'
+            });
+        }
+    }
+
+    /**
+     * 处理重试操作
+     */
+    private handleRetry() {
+        if (this.message.id) {
+            this.retryRequest.emit(this.message.id);
         }
     }
 

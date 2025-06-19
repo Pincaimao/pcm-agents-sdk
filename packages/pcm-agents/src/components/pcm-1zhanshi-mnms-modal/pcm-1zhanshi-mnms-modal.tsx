@@ -71,12 +71,17 @@ export class ZhanshiMnmsModal {
     @Prop() defaultQuery: string = '请开始模拟面试';
 
     /**
+     * 视频录制最大时长（秒）默认120
+     */
+    @Prop() maxRecordingTime: number = 120;
+
+    /**
      * 是否以全屏模式打开，移动端建议设置为true
      */
     @Prop() fullscreen: boolean = false;
 
     /**
-     * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
+     * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br>
      */
     @Prop() customInputs: Record<string, string> = {};
 
@@ -109,11 +114,6 @@ export class ZhanshiMnmsModal {
      * 错误事件
      */
     @Event() someErrorEvent: EventEmitter<ErrorEventDetail>;
-
-    /**
-     * 面试模式：text - 文本模式，video - 视频模式
-     */
-    @Prop() interviewMode: 'text' | 'video' = 'text';
 
     /**
      * 录制错误事件
@@ -174,7 +174,6 @@ export class ZhanshiMnmsModal {
     }
 
     private handleClose = () => {
-        this.isOpen = false;
         this.modalClosed.emit();
     };
 
@@ -190,28 +189,6 @@ export class ZhanshiMnmsModal {
             this.showChatModal = true;
         }
     }
-
-
-    // 处理流式输出完成事件
-    private handleStreamComplete = (event: CustomEvent) => {
-        // 将事件转发出去
-        this.streamComplete.emit(event.detail);
-    };
-
-    // 处理会话开始事件
-    private handleConversationStart = (event: CustomEvent) => {
-        this.conversationStart.emit(event.detail);
-    };
-
-    // 处理面试完成事件
-    private handleInterviewComplete = (event: CustomEvent) => {
-        this.interviewComplete.emit(event.detail);
-    };
-
-
-    private handleRecordingError = (event: CustomEvent) => {
-        this.recordingError.emit(event.detail);
-    };
 
 
     render() {
@@ -274,19 +251,14 @@ export class ZhanshiMnmsModal {
                                 botId="3022316191018903"
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
-                                enableVoice={false}
+                                maxRecordingTime={this.maxRecordingTime}
+                                enableTTS={false}
                                 customInputs={this.conversationId ? {} : {
                                     ...this.customInputs,
                                     file_url: this.uploadedFileInfo?.cos_key,
                                     file_name: this.uploadedFileInfo?.file_name,
                                 }}
-                                interviewMode={this.interviewMode}
-                                showProgressBar={false}
-                                onModalClosed={this.handleClose}
-                                onStreamComplete={this.handleStreamComplete}
-                                onConversationStart={this.handleConversationStart}
-                                onInterviewComplete={this.handleInterviewComplete}
-                                onRecordingError={this.handleRecordingError}
+                                interviewMode='video'
                             ></pcm-app-chat-modal>
                         </div>
                     )}

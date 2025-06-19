@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
-import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, verifyApiKey } from '../../utils/utils';
+import { sendSSERequest, sendHttpRequest, uploadFileToBackend, verifyApiKey } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
 import { ConversationStartEventData, StreamCompleteEventData } from '../../components';
 import { authStore } from '../../../store/auth.store';
@@ -147,13 +147,12 @@ export class ChatKBModal {
   @State() isSubmittingText: boolean = false;
 
   /**
-   * 自定义智能体inputs输入参数:
-   * 1. show_suggested_questions: 是否显示推荐问题
+   * 自定义智能体inputs输入参数:<br>
+   * 1. show_suggested_questions: 是否显示推荐问题<br>
    */
   @Prop() customInputs: Record<string, string> = {
     show_suggested_questions: 'false',
   };
-
 
   // 添加推荐问题和引用文档状态
   @State() suggestedQuestions: string[] = [];
@@ -222,6 +221,7 @@ export class ChatKBModal {
     }
   }
 
+
   componentWillLoad() {
 
     // 将 zIndex 存入配置缓存
@@ -273,7 +273,7 @@ export class ChatKBModal {
       id: `temp-${Date.now()}`,  // 临时ID，将被服务器返回的ID替换
       conversation_id: this.conversationId,  // 会话ID
       parent_message_id: "00000000-0000-0000-0000-000000000000", // 默认父消息ID
-      inputs: this.customInputs || {},  // 输入参数
+      inputs: this.customInputs || {},  // 使用解析后的输入参数
       query: queryText,  // 用户输入的消息内容
       answer: '',  // 初始为空
       message_files: [],  // 消息附件
@@ -401,8 +401,6 @@ export class ChatKBModal {
         }
 
         if (data.event === 'message') {
-          const inputMessage: UserInputMessageType = { message: message };
-          convertWorkflowStreamNodeToMessageRound('message', inputMessage, data);
 
           if (data.event === 'agent_message' || data.event === 'message') {
             if (data.answer) {
@@ -860,7 +858,7 @@ export class ChatKBModal {
       // 上传音频文件
       const fileInfo = await uploadFileToBackend(audioFile, {
       }, {
-        'tags': 'audio'
+        'tags': ['audio']
       });
 
       // 调用音频转文字API

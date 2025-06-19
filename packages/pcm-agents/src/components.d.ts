@@ -27,7 +27,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br>
          */
         "customInputs": Record<string, string>;
         /**
@@ -43,10 +43,6 @@ export namespace Components {
          */
         "icon"?: string;
         /**
-          * 面试模式：text - 文本模式，video - 视频模式
-         */
-        "interviewMode": 'text' | 'video';
-        /**
           * 是否展示右上角的关闭按钮
          */
         "isNeedClose": boolean;
@@ -58,6 +54,10 @@ export namespace Components {
           * 是否展示顶部标题栏
          */
         "isShowHeader": boolean;
+        /**
+          * 视频录制最大时长（秒）默认120
+         */
+        "maxRecordingTime": number;
         /**
           * 模态框标题
          */
@@ -121,10 +121,6 @@ export namespace Components {
          */
         "interviewMode": 'video' | 'text';
         /**
-          * 是否通过对话轮数控制结束
-         */
-        "isControlByQuestionNumber": boolean;
-        /**
           * 是否展示右上角的关闭按钮
          */
         "isNeedClose": boolean;
@@ -157,17 +153,13 @@ export namespace Components {
          */
         "showFeedbackButtons": boolean;
         /**
-          * 是否显示进度条 true: 显示进度条 false: 隐藏进度条
+          * 是否显示工作区历史会话按钮
          */
-        "showProgressBar": boolean;
+        "showWorkspaceHistory": boolean;
         /**
           * SDK鉴权密钥
          */
         "token"?: string;
-        /**
-          * 控制对话轮数
-         */
-        "totalQuestions": number;
         /**
           * 用户头像URL
          */
@@ -440,7 +432,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.input时，会自动切换到自由输入模式
+          * 自定义输入参数，传入customInputs.input时，会自动切换到自由输入模式<br>
          */
         "customInputs": Record<string, string>;
         /**
@@ -475,6 +467,10 @@ export namespace Components {
           * 模态框标题
          */
         "modalTitle": string;
+        /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory": boolean;
         /**
           * SDK鉴权密钥
          */
@@ -493,7 +489,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数
+          * 自定义输入参数<br> 传入customInputs.file_url时，会直接开始聊天。<br>
          */
         "customInputs": Record<string, string>;
         /**
@@ -528,6 +524,10 @@ export namespace Components {
           * 模态框标题
          */
         "modalTitle": string;
+        /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory": boolean;
         /**
           * SDK鉴权密钥
          */
@@ -546,7 +546,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br>
          */
         "customInputs": Record<string, string>;
         /**
@@ -581,6 +581,10 @@ export namespace Components {
           * 模态框标题
          */
         "modalTitle": string;
+        /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory": boolean;
         /**
           * SDK鉴权密钥
          */
@@ -599,7 +603,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
          */
         "customInputs": Record<string, string>;
         /**
@@ -635,6 +639,10 @@ export namespace Components {
          */
         "modalTitle": string;
         /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory": boolean;
+        /**
           * SDK鉴权密钥
          */
         "token": string;
@@ -642,6 +650,13 @@ export namespace Components {
           * 聊天框的页面层级
          */
         "zIndex"?: number;
+    }
+    interface PcmMessage {
+        "close": () => Promise<void>;
+        "content": string;
+        "duration": number;
+        "show": () => Promise<void>;
+        "type": 'success' | 'error' | 'info' | 'warning';
     }
     /**
      * 模拟出题大师
@@ -652,7 +667,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
          */
         "customInputs": Record<string, string>;
         /**
@@ -687,6 +702,10 @@ export namespace Components {
           * 模态框标题
          */
         "modalTitle": string;
+        /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory": boolean;
         /**
           * SDK鉴权密钥
          */
@@ -705,7 +724,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。
          */
         "customInputs": Record<string, string>;
         /**
@@ -753,6 +772,10 @@ export namespace Components {
          */
         "showFeedbackButtons": boolean;
         /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory": boolean;
+        /**
           * SDK鉴权密钥
          */
         "token": string;
@@ -770,7 +793,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。
          */
         "customInputs": Record<string, string>;
         /**
@@ -789,10 +812,6 @@ export namespace Components {
           * 应用图标URL
          */
         "icon"?: string;
-        /**
-          * 面试模式：text - 文本模式，video - 视频模式
-         */
-        "interviewMode": 'text' | 'video';
         /**
           * 是否展示右上角的关闭按钮
          */
@@ -835,7 +854,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。
          */
         "customInputs": Record<string, string>;
         /**
@@ -883,6 +902,10 @@ export namespace Components {
          */
         "showFeedbackButtons": boolean;
         /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory": boolean;
+        /**
           * SDK鉴权密钥
          */
         "token": string;
@@ -900,7 +923,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_urls时，会隐藏简历上传区域。<br> 传入customInputs.file_urls和customInputs.job_info时，会直接开始聊天。<br>
          */
         "customInputs": Record<string, string>;
         /**
@@ -935,6 +958,10 @@ export namespace Components {
           * 模态框标题
          */
         "modalTitle": string;
+        /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory": boolean;
         /**
           * SDK鉴权密钥
          */
@@ -953,7 +980,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
          */
         "customInputs": Record<string, string>;
         /**
@@ -989,6 +1016,10 @@ export namespace Components {
          */
         "modalTitle": string;
         /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory": boolean;
+        /**
           * SDK鉴权密钥
          */
         "token": string;
@@ -1003,7 +1034,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义智能体inputs输入参数: 1. show_suggested_questions: 是否显示推荐问题
+          * 自定义智能体inputs输入参数:<br> 1. show_suggested_questions: 是否显示推荐问题<br>
          */
         "customInputs": Record<string, string>;
         /**
@@ -1053,7 +1084,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"
+          * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
          */
         "customInputs": Record<string, string>;
         /**
@@ -1088,6 +1119,10 @@ export namespace Components {
           * 模态框标题
          */
         "modalTitle": string;
+        /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory": boolean;
         /**
           * SDK鉴权密钥
          */
@@ -1260,6 +1295,7 @@ declare global {
         content?: string,
         contentType: 'file' | 'markdown' | 'text'
     };
+        "retryRequest": string;
     }
     interface HTMLPcmChatMessageElement extends Components.PcmChatMessage, HTMLStencilElement {
         addEventListener<K extends keyof HTMLPcmChatMessageElementEventMap>(type: K, listener: (this: HTMLPcmChatMessageElement, ev: PcmChatMessageCustomEvent<HTMLPcmChatMessageElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -1302,6 +1338,7 @@ declare global {
         "modalClosed": void;
         "streamComplete": StreamCompleteEventData1;
         "conversationStart": ConversationStartEventData1;
+        "someErrorEvent": ErrorEventDetail1;
         "interviewComplete": InterviewCompleteEventData1;
         "recordingError": {
     type: string;
@@ -1430,6 +1467,12 @@ declare global {
     var HTMLPcmJlppModalElement: {
         prototype: HTMLPcmJlppModalElement;
         new (): HTMLPcmJlppModalElement;
+    };
+    interface HTMLPcmMessageElement extends Components.PcmMessage, HTMLStencilElement {
+    }
+    var HTMLPcmMessageElement: {
+        prototype: HTMLPcmMessageElement;
+        new (): HTMLPcmMessageElement;
     };
     interface HTMLPcmMnctModalElementEventMap {
         "modalClosed": void;
@@ -1649,6 +1692,7 @@ declare global {
         "pcm-hyzj-modal": HTMLPcmHyzjModalElement;
         "pcm-jd-modal": HTMLPcmJdModalElement;
         "pcm-jlpp-modal": HTMLPcmJlppModalElement;
+        "pcm-message": HTMLPcmMessageElement;
         "pcm-mnct-modal": HTMLPcmMnctModalElement;
         "pcm-mnms-modal": HTMLPcmMnmsModalElement;
         "pcm-mnms-video-modal": HTMLPcmMnmsVideoModalElement;
@@ -1669,7 +1713,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br>
          */
         "customInputs"?: Record<string, string>;
         /**
@@ -1685,10 +1729,6 @@ declare namespace LocalJSX {
          */
         "icon"?: string;
         /**
-          * 面试模式：text - 文本模式，video - 视频模式
-         */
-        "interviewMode"?: 'text' | 'video';
-        /**
           * 是否展示右上角的关闭按钮
          */
         "isNeedClose"?: boolean;
@@ -1700,6 +1740,10 @@ declare namespace LocalJSX {
           * 是否展示顶部标题栏
          */
         "isShowHeader"?: boolean;
+        /**
+          * 视频录制最大时长（秒）默认120
+         */
+        "maxRecordingTime"?: number;
         /**
           * 模态框标题
          */
@@ -1795,10 +1839,6 @@ declare namespace LocalJSX {
          */
         "interviewMode"?: 'video' | 'text';
         /**
-          * 是否通过对话轮数控制结束
-         */
-        "isControlByQuestionNumber"?: boolean;
-        /**
           * 是否展示右上角的关闭按钮
          */
         "isNeedClose"?: boolean;
@@ -1859,17 +1899,13 @@ declare namespace LocalJSX {
          */
         "showFeedbackButtons"?: boolean;
         /**
-          * 是否显示进度条 true: 显示进度条 false: 隐藏进度条
+          * 是否显示工作区历史会话按钮
          */
-        "showProgressBar"?: boolean;
+        "showWorkspaceHistory"?: boolean;
         /**
           * SDK鉴权密钥
          */
         "token"?: string;
-        /**
-          * 控制对话轮数
-         */
-        "totalQuestions"?: number;
         /**
           * 用户头像URL
          */
@@ -2015,6 +2051,10 @@ declare namespace LocalJSX {
          */
         "onMessageChange"?: (event: PcmChatMessageCustomEvent<Partial<ChatMessage>>) => void;
         /**
+          * 重试事件
+         */
+        "onRetryRequest"?: (event: PcmChatMessageCustomEvent<string>) => void;
+        /**
           * 是否显示复制按钮
          */
         "showCopyButton"?: boolean;
@@ -2158,6 +2198,10 @@ declare namespace LocalJSX {
     details?: any;
   }>) => void;
         /**
+          * 错误事件
+         */
+        "onSomeErrorEvent"?: (event: PcmHrChatModalCustomEvent<ErrorEventDetail1>) => void;
+        /**
           * 一轮对话结束时的回调
          */
         "onStreamComplete"?: (event: PcmHrChatModalCustomEvent<StreamCompleteEventData1>) => void;
@@ -2195,7 +2239,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.input时，会自动切换到自由输入模式
+          * 自定义输入参数，传入customInputs.input时，会自动切换到自由输入模式<br>
          */
         "customInputs"?: Record<string, string>;
         /**
@@ -2259,6 +2303,10 @@ declare namespace LocalJSX {
          */
         "onUploadSuccess"?: (event: PcmHtwsModalCustomEvent<FileUploadResponse>) => void;
         /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory"?: boolean;
+        /**
           * SDK鉴权密钥
          */
         "token": string;
@@ -2276,7 +2324,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数
+          * 自定义输入参数<br> 传入customInputs.file_url时，会直接开始聊天。<br>
          */
         "customInputs"?: Record<string, string>;
         /**
@@ -2340,6 +2388,10 @@ declare namespace LocalJSX {
          */
         "onUploadSuccess"?: (event: PcmHyzjModalCustomEvent<FileUploadResponse>) => void;
         /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory"?: boolean;
+        /**
           * SDK鉴权密钥
          */
         "token": string;
@@ -2357,7 +2409,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br>
          */
         "customInputs"?: Record<string, string>;
         /**
@@ -2417,6 +2469,10 @@ declare namespace LocalJSX {
          */
         "onTokenInvalid"?: (event: PcmJdModalCustomEvent<void>) => void;
         /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory"?: boolean;
+        /**
           * SDK鉴权密钥
          */
         "token": string;
@@ -2434,7 +2490,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
          */
         "customInputs"?: Record<string, string>;
         /**
@@ -2498,6 +2554,10 @@ declare namespace LocalJSX {
          */
         "onUploadSuccess"?: (event: PcmJlppModalCustomEvent<FileUploadResponse>) => void;
         /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory"?: boolean;
+        /**
           * SDK鉴权密钥
          */
         "token": string;
@@ -2505,6 +2565,11 @@ declare namespace LocalJSX {
           * 聊天框的页面层级
          */
         "zIndex"?: number;
+    }
+    interface PcmMessage {
+        "content"?: string;
+        "duration"?: number;
+        "type"?: 'success' | 'error' | 'info' | 'warning';
     }
     /**
      * 模拟出题大师
@@ -2515,7 +2580,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
          */
         "customInputs"?: Record<string, string>;
         /**
@@ -2579,6 +2644,10 @@ declare namespace LocalJSX {
          */
         "onUploadSuccess"?: (event: PcmMnctModalCustomEvent<FileUploadResponse>) => void;
         /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory"?: boolean;
+        /**
           * SDK鉴权密钥
          */
         "token": string;
@@ -2596,7 +2665,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。
          */
         "customInputs"?: Record<string, string>;
         /**
@@ -2676,6 +2745,10 @@ declare namespace LocalJSX {
          */
         "showFeedbackButtons"?: boolean;
         /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory"?: boolean;
+        /**
           * SDK鉴权密钥
          */
         "token": string;
@@ -2693,7 +2766,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。
          */
         "customInputs"?: Record<string, string>;
         /**
@@ -2712,10 +2785,6 @@ declare namespace LocalJSX {
           * 应用图标URL
          */
         "icon"?: string;
-        /**
-          * 面试模式：text - 文本模式，video - 视频模式
-         */
-        "interviewMode"?: 'text' | 'video';
         /**
           * 是否展示右上角的关闭按钮
          */
@@ -2790,7 +2859,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。
          */
         "customInputs"?: Record<string, string>;
         /**
@@ -2870,6 +2939,10 @@ declare namespace LocalJSX {
          */
         "showFeedbackButtons"?: boolean;
         /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory"?: boolean;
+        /**
           * SDK鉴权密钥
          */
         "token": string;
@@ -2887,7 +2960,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_urls时，会隐藏简历上传区域。<br> 传入customInputs.file_urls和customInputs.job_info时，会直接开始聊天。<br>
          */
         "customInputs"?: Record<string, string>;
         /**
@@ -2951,6 +3024,10 @@ declare namespace LocalJSX {
          */
         "onUploadSuccess"?: (event: PcmMsbgModalCustomEvent<FileUploadResponse>) => void;
         /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory"?: boolean;
+        /**
           * SDK鉴权密钥
          */
         "token": string;
@@ -2968,7 +3045,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
          */
         "customInputs"?: Record<string, string>;
         /**
@@ -3032,6 +3109,10 @@ declare namespace LocalJSX {
          */
         "onUploadSuccess"?: (event: PcmQgqjlModalCustomEvent<FileUploadResponse>) => void;
         /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory"?: boolean;
+        /**
           * SDK鉴权密钥
          */
         "token": string;
@@ -3046,7 +3127,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义智能体inputs输入参数: 1. show_suggested_questions: 是否显示推荐问题
+          * 自定义智能体inputs输入参数:<br> 1. show_suggested_questions: 是否显示推荐问题<br>
          */
         "customInputs"?: Record<string, string>;
         /**
@@ -3116,7 +3197,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"
+          * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
          */
         "customInputs"?: Record<string, string>;
         /**
@@ -3183,6 +3264,10 @@ declare namespace LocalJSX {
          */
         "onUploadSuccess"?: (event: PcmZyghModalCustomEvent<FileUploadResponse>) => void;
         /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory"?: boolean;
+        /**
           * SDK鉴权密钥
          */
         "token": string;
@@ -3203,6 +3288,7 @@ declare namespace LocalJSX {
         "pcm-hyzj-modal": PcmHyzjModal;
         "pcm-jd-modal": PcmJdModal;
         "pcm-jlpp-modal": PcmJlppModal;
+        "pcm-message": PcmMessage;
         "pcm-mnct-modal": PcmMnctModal;
         "pcm-mnms-modal": PcmMnmsModal;
         "pcm-mnms-video-modal": PcmMnmsVideoModal;
@@ -3255,6 +3341,7 @@ declare module "@stencil/core" {
              * 简历匹配
              */
             "pcm-jlpp-modal": LocalJSX.PcmJlppModal & JSXBase.HTMLAttributes<HTMLPcmJlppModalElement>;
+            "pcm-message": LocalJSX.PcmMessage & JSXBase.HTMLAttributes<HTMLPcmMessageElement>;
             /**
              * 模拟出题大师
              */

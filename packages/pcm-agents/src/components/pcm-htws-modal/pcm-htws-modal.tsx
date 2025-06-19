@@ -4,6 +4,7 @@ import { ConversationStartEventData, InterviewCompleteEventData, StreamCompleteE
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store';
 import { configStore } from '../../../store/config.store';
+import { SentryReporter } from '../../utils/sentry-reporter';
 
 /**
  * 劳动合同卫士
@@ -71,9 +72,14 @@ export class HtwsModal {
     @Prop() fullscreen: boolean = false;
 
     /**
-     * 自定义输入参数，传入customInputs.input时，会自动切换到自由输入模式
+     * 自定义输入参数，传入customInputs.input时，会自动切换到自由输入模式<br>
      */
     @Prop() customInputs: Record<string, string> = {};
+
+    /**
+     * 是否显示工作区历史会话按钮
+     */
+    @Prop() showWorkspaceHistory: boolean = false;
 
     /**
      * 上传成功事件
@@ -173,7 +179,6 @@ export class HtwsModal {
     }
 
     private handleClose = () => {
-        this.isOpen = false;
         this.modalClosed.emit();
     };
 
@@ -207,7 +212,7 @@ export class HtwsModal {
             // 使用 uploadFileToBackend 工具函数上传文件
             const result = await uploadFileToBackend(this.selectedFile, {
             }, {
-                'tags': 'other'
+                'tags': ['other']
             });
 
             this.uploadedFileInfo = result;
@@ -215,11 +220,14 @@ export class HtwsModal {
         } catch (error) {
             console.error('文件上传错误:', error);
             this.clearSelectedFile();
+            SentryReporter.captureError(error, {
+                action: 'uploadFile',
+                component: 'pcm-htws-modal',
+                title: '文件上传失败'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-htws-modal[uploadFile]',
                 error: error,
-                message: '文件上传失败，请重试',
-                type: 'ui'
+                message: '文件上传失败，请重试'
             });
         } finally {
             this.isUploading = false;
@@ -266,11 +274,14 @@ export class HtwsModal {
             this.showChatModal = true;
         } catch (error) {
             console.error('开始分析时出错:', error);
+            SentryReporter.captureError(error, {
+                action: 'handleStartInterview',
+                component: 'pcm-htws-modal',
+                title: '开始分析时出错'
+            });
             ErrorEventBus.emitError({
-                source: 'pcm-htws-modal[handleStartInterview]',
                 error: error,
-                message: '开始分析时出错，请重试',
-                type: 'ui'
+                message: '开始分析时出错，请重试'
             });
         } finally {
             this.isSubmitting = false;
@@ -300,22 +311,6 @@ export class HtwsModal {
         }
     }
 
-    // 处理流式输出完成事件
-    private handleStreamComplete = (event: CustomEvent) => {
-        // 将事件转发出去
-        this.streamComplete.emit(event.detail);
-    };
-
-    // 处理会话开始事件
-    private handleConversationStart = (event: CustomEvent) => {
-        this.conversationStart.emit(event.detail);
-    };
-
-    // 处理面试完成事件
-    private handleInterviewComplete = (event: CustomEvent) => {
-        this.interviewComplete.emit(event.detail);
-    };
-
 
     render() {
         if (!this.isOpen) return null;
@@ -323,8 +318,6 @@ export class HtwsModal {
         const modalStyle = {
             zIndex: String(this.zIndex)
         };
-
-        console.log('showChatModal:', this.showChatModal);
 
         const containerClass = {
             'modal-container': true,
@@ -472,6 +465,7 @@ export class HtwsModal {
                                 isShowHeader={this.isShowHeader}
                                 isNeedClose={this.isShowHeader}
                                 fullscreen={this.fullscreen}
+                                showWorkspaceHistory={this.showWorkspaceHistory}
                                 botId="3022316191018882"
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
@@ -480,13 +474,10 @@ export class HtwsModal {
                                 customInputs={this.conversationId ? {} : {
                                     ...this.customInputs,
                                     file_url: this.inputMode === 'upload' ? this.uploadedFileInfo?.cos_key : undefined,
+                                    file_name: this.customInputs?.file_name || this.uploadedFileInfo?.file_name,
                                     input: this.inputMode === 'free' ? this.freeInputText : undefined
                                 }}
                                 interviewMode="text"
-                                onModalClosed={this.handleClose}
-                                onStreamComplete={this.handleStreamComplete}
-                                onConversationStart={this.handleConversationStart}
-                                onInterviewComplete={this.handleInterviewComplete}
                             ></pcm-app-chat-modal>
                         </div>
                     )}

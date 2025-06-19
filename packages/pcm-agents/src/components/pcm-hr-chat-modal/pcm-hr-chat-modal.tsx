@@ -1,9 +1,10 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
-import { convertWorkflowStreamNodeToMessageRound, UserInputMessageType, sendSSERequest, sendHttpRequest, uploadFileToBackend, FileUploadResponse, synthesizeAudio, verifyApiKey } from '../../utils/utils';
+import { sendSSERequest, sendHttpRequest, uploadFileToBackend, FileUploadResponse, synthesizeAudio, verifyApiKey } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
-import { ConversationStartEventData, InterviewCompleteEventData, StreamCompleteEventData } from '../../components';
+import { ConversationStartEventData, ErrorEventDetail, InterviewCompleteEventData, StreamCompleteEventData } from '../../components';
 import { authStore } from '../../../store/auth.store';
 import { configStore } from '../../../store/config.store';
+import { SentryReporter } from '../../utils/sentry-reporter';
 
 @Component({
   tag: 'pcm-hr-chat-modal',
@@ -96,9 +97,18 @@ export class ChatHRModal {
    */
   @Event() conversationStart: EventEmitter<ConversationStartEventData>;
 
+
+  /**
+     * 错误事件
+     */
+  @Event() someErrorEvent: EventEmitter<ErrorEventDetail>;
+
   @State() selectedFile: File | null = null;
   @State() isUploading: boolean = false;
   @State() uploadedFileInfo: FileUploadResponse[] = [];
+
+  @State() aiException: boolean = false;
+
 
   /**
    * 首次对话提问文本
@@ -138,7 +148,7 @@ export class ChatHRModal {
   @State() recordingStartTime: number = 0;
   @State() waitingToRecord: boolean = false;
   @State() waitingTimer: any = null;
-  @State() waitingTimeLeft: number = 10; // 等待时间（秒）
+  @State() waitingTimeLeft: number = 15; // 等待时间（秒）
 
   // 添加一个新的私有属性来存储视频元素的引用
   private videoRef: HTMLVideoElement | null = null;
@@ -239,11 +249,22 @@ export class ChatHRModal {
    * 是否显示题干内容
    */
   @Prop() displayContentStatus: boolean = true;
+  // 添加新的状态属性来跟踪任务是否已完成
+  @State() isTaskCompleted: boolean = false;
 
   private tokenInvalidListener: () => void;
 
   // 添加新的状态来追踪用户交互
   @State() isUserScrolling: boolean = false;
+
+  // 添加焦点状态跟踪
+  @State() isPageFocused: boolean = true;
+  @State() isWindowVisible: boolean = true;
+
+  // 事件监听器引用
+  private visibilityChangeListener: () => void;
+  private blurListener: () => void;
+  private focusListener: () => void;
 
   @Watch('token')
   handleTokenChange(newToken: string) {
@@ -269,6 +290,48 @@ export class ChatHRModal {
       this.tokenInvalid.emit();
     };
     document.addEventListener('pcm-token-invalid', this.tokenInvalidListener);
+
+    // 添加页面可见性变化监听
+    this.visibilityChangeListener = () => {
+      const isVisible = !document.hidden;
+      this.isWindowVisible = isVisible;
+
+      if (!isVisible) {
+        SentryReporter.captureMessage('用户失去焦点 - 页面隐藏', {
+          action: 'visibilityChange',
+          component: 'pcm-hr-chat-modal',
+          type: 'visibility_hidden',
+          timestamp: Date.now(),
+          isRecording: this.isRecording,
+          currentQuestionNumber: this.currentQuestionNumber,
+          conversationId: this.conversationId
+        });
+      }
+    };
+
+    // 添加窗口失去焦点监听
+    this.blurListener = () => {
+      this.isPageFocused = false;
+      SentryReporter.captureMessage('用户失去焦点 - 窗口失焦', {
+        action: 'windowBlur',
+        component: 'pcm-hr-chat-modal',
+        type: 'window_blur',
+        timestamp: Date.now(),
+        isRecording: this.isRecording,
+        currentQuestionNumber: this.currentQuestionNumber,
+        conversationId: this.conversationId
+      });
+    };
+
+    // 添加窗口获得焦点监听
+    this.focusListener = () => {
+      this.isPageFocused = true;
+    };
+
+    // 绑定事件监听器
+    document.addEventListener('visibilitychange', this.visibilityChangeListener);
+    window.addEventListener('blur', this.blurListener);
+    window.addEventListener('focus', this.focusListener);
   }
 
 
@@ -292,7 +355,7 @@ export class ChatHRModal {
     try {
       const result = await uploadFileToBackend(this.selectedFile, {
       }, {
-        'tags': 'resume'
+        'tags': ['resume']
       });
 
       if (result) {
@@ -306,7 +369,15 @@ export class ChatHRModal {
     } catch (error) {
       console.error('文件上传错误:', error);
       this.clearSelectedFile();
-      alert(error instanceof Error ? error.message : '文件上传失败，请重试');
+      this.someErrorEvent.emit({
+        error: error,
+        message: '文件上传失败，请重试'
+      });
+      SentryReporter.captureError(error, {
+        action: 'uploadFile',
+        component: 'pcm-hr-chat-modal',
+        title: '文件上传失败'
+      });
     } finally {
       this.isUploading = false;
     }
@@ -368,17 +439,20 @@ export class ChatHRModal {
     // 设置当前流式消息
     this.currentStreamingMessage = newMessage;
 
-    this.shouldAutoScroll = true;
     // 滚动到底部
-    this.scrollToBottom();
+    setTimeout(() => {
+      this.shouldAutoScroll = true;
+      this.scrollToBottom();
+    }, 200);
 
     // 如果是最后一题，直接显示结束消息并完成面试
     if (isLastQuestion) {
       this.messages = [...this.messages, newMessage];
       this.currentStreamingMessage = null;
       this.isLoading = false;
-      await this.completeInterview();
       this.currentQuestionNumber++;
+      this.isTaskCompleted = true;
+      await this.completeInterview();
       this.interviewComplete.emit({
         conversation_id: this.conversationId,
         total_questions: this.totalQuestions
@@ -432,12 +506,21 @@ export class ChatHRModal {
           console.log('获取到 LLMText:', llmText);
         }
 
+        if (data.event === 'node_finished' && data.data.title && data.data.title.includes('异常请重试')) {
+          console.log('检测到异常请重试事件:', data);
+          this.currentStreamingMessage.showRetryButton = true;
+          this.aiException = true;
+        }
+        if (data.event === 'node_finished' && data.data.title && data.data.title.includes('题号赋值')) {
+          // 增加题目计数
+          this.currentQuestionNumber = data.data.process_data.questions_number - 1;
+        }
+
         if (data.event === 'message') {
-          const inputMessage: UserInputMessageType = { message: message };
-          convertWorkflowStreamNodeToMessageRound('message', inputMessage, data);
 
           if (data.event === 'agent_message' || data.event === 'message') {
             if (data.answer) {
+
               answer += data.answer;
               const updatedMessage: ChatMessage = {
                 ...this.currentStreamingMessage,
@@ -462,7 +545,17 @@ export class ChatHRModal {
       },
       onError: (error) => {
         console.error('发生错误:', error);
-        alert(error instanceof Error ? error.message : '消息发送失败，请稍后再试');
+        this.someErrorEvent.emit({
+          error: error,
+          message: '消息发送失败，请稍后再试'
+        });
+        SentryReporter.captureError(error, {
+          action: 'sendMessageToAPI',
+          component: 'pcm-hr-chat-modal',
+          message: message,
+          title: '消息发送失败'
+        });
+
         this.messages = [...this.messages, {
           ...newMessage,
           answer: '抱歉，发生了错误，请稍后再试。',
@@ -478,38 +571,42 @@ export class ChatHRModal {
 
         // 获取最新的AI回复内容
         const latestAIMessage = this.currentStreamingMessage;
-
-        // 更新消息列表
-        this.messages = [...this.messages, this.currentStreamingMessage];
+        latestAIMessage.isStreaming = false;
         this.currentStreamingMessage = null;
 
-        // 增加题目计数
-        this.currentQuestionNumber++;
+        // 更新消息列表
+        this.messages = [...this.messages, latestAIMessage];
 
-        // 只有在启用音频功能时才进行语音合成和播放
-        if (this.enableAudio && latestAIMessage && latestAIMessage.answer) {
-          // 优先使用 LLMText，如果没有则使用 answer
-          const textForSynthesis = llmText || latestAIMessage.answer;
 
-          if (textForSynthesis) {
-            // 合成语音
-            const audioUrl = await synthesizeAudio(textForSynthesis);
 
-            if (this.enableVoice) {
-              // 自动播放语音
-              await this.playAudio(audioUrl);
-              // 自动播放模式下，播放完成后立即开始等待录制
-              this.startWaitingToRecord();
-            } else {
-              // 只保存音频URL，不自动播放
-              this.audioUrl = audioUrl;
-              // 非自动播放模式下，不立即开始等待录制
+        if (!this.aiException) {
+
+          // 只有在启用音频功能时才进行语音合成和播放
+          if (this.enableAudio && latestAIMessage && latestAIMessage.answer) {
+            // 优先使用 LLMText，如果没有则使用 answer
+            const textForSynthesis = llmText || latestAIMessage.answer;
+
+            if (textForSynthesis) {
+              // 合成语音
+              const audioUrl = await synthesizeAudio(textForSynthesis);
+
+              if (this.enableVoice) {
+                // 自动播放语音
+                await this.playAudio(audioUrl);
+                // 自动播放模式下，播放完成后立即开始等待录制
+                this.startWaitingToRecord();
+              } else {
+                // 只保存音频URL，不自动播放
+                this.audioUrl = audioUrl;
+                // 非自动播放模式下，不立即开始等待录制
+              }
             }
+          } else if (!this.enableAudio) {
+            // 如果禁用音频功能，直接开始等待录制
+            this.startWaitingToRecord();
           }
-        } else if (!this.enableAudio) {
-          // 如果禁用音频功能，直接开始等待录制
-          this.startWaitingToRecord();
         }
+
       }
     });
   }
@@ -528,6 +625,16 @@ export class ChatHRModal {
       });
     } catch (error) {
       console.error('保存答案失败:', error);
+      this.someErrorEvent.emit({
+        error: error,
+        message: '保存答案失败，请稍后再试'
+      });
+      SentryReporter.captureError(error, {
+        action: 'saveAnswer',
+        component: 'pcm-hr-chat-modal',
+        conversationId: conversationId,
+        title: '保存答案失败'
+      });
     }
   }
 
@@ -593,9 +700,22 @@ export class ChatHRModal {
 
     this.isLoadingHistory = true;
     console.log('加载历史消息...');
+    let interviewStatus = false;
 
     try {
-      const response = await sendHttpRequest({
+      // 首先获取面试状态
+      const interviewStatusResponse = await sendHttpRequest({
+        url: `/sdk/v1/hr_competition/${this.conversationId}`,
+        method: 'GET'
+      });
+
+      // 处理面试状态
+      if (interviewStatusResponse.success && interviewStatusResponse.data && interviewStatusResponse.data.ended == 1) {
+        interviewStatus = true;
+      }
+
+      // 获取历史消息
+      const messagesResponse = await sendHttpRequest({
         url: '/sdk/v1/chat/messages',
         method: 'GET',
         data: {
@@ -605,8 +725,8 @@ export class ChatHRModal {
         }
       });
 
-      if (response.success && response.data) {
-        const historyData = response.data.data || [];
+      if (messagesResponse.success && messagesResponse.data) {
+        const historyData = messagesResponse.data.data || [];
         const formattedMessages: ChatMessage[] = historyData.map(msg => {
           const time = new Date(msg.created_at * 1000);
           const hours = time.getHours().toString().padStart(2, '0');
@@ -624,20 +744,43 @@ export class ChatHRModal {
         });
 
         this.messages = formattedMessages;
-        // 根据历史消息计算当前题目序号
-        this.currentQuestionNumber = this.messages.length > 0 ? this.messages.length : 0;
+
+        // 根据历史消息计算当前题目序号，排除错误消息
+        const validMessages = formattedMessages.filter(msg =>
+          // 排除请求超时或错误消息
+          !(msg.answer && (
+            msg.answer.includes("请求超时") ||
+            msg.answer.includes("网络有点拥堵") ||
+            msg.status === 'error'
+          ))
+        );
+        console.log('this.messages', validMessages);
+
+        // 设置当前题目序号
+        this.currentQuestionNumber = validMessages.length > 0 ? validMessages.length : 0;
       }
+
     } catch (error) {
-      console.error('加载历史消息失败:', error);
-      alert(error instanceof Error ? error.message : '加载历史消息失败，请刷新重试');
+      console.error('加载历史消息或面试状态失败:', error);
+      this.someErrorEvent.emit({
+        error: error,
+        message: '加载历史消息失败，请刷新重试'
+      });
+      SentryReporter.captureError(error, {
+        action: 'loadHistoryMessages',
+        component: 'pcm-hr-chat-modal',
+        conversationId: this.conversationId,
+        title: '加载历史消息失败'
+      });
     } finally {
       this.isLoadingHistory = false;
+
       setTimeout(async () => {
         this.shouldAutoScroll = true;
         this.scrollToBottom();
 
-        // 如果有会话ID，处理继续答题的逻辑
-        if (this.conversationId && this.messages.length > 0 && this.currentQuestionNumber <= this.totalQuestions) {
+        // 如果有会话ID且面试未完成，处理继续答题的逻辑
+        if (this.conversationId && this.messages.length > 0 && !interviewStatus) {
           const lastAIMessage = this.messages[this.messages.length - 1];
 
           // 如果有AI消息且启用音频功能，准备播放语音
@@ -660,8 +803,14 @@ export class ChatHRModal {
           } else {
             this.sendMessageToAPI("下一题");
           }
+        } else if (interviewStatus) {
+          this.currentQuestionNumber++;
+          this.isTaskCompleted = true;
+          setTimeout(() => {
+            this.interviewComplete.emit();
+          }, 100);
         }
-      }, 200);
+      }, 300);
     }
   }
 
@@ -734,7 +883,7 @@ export class ChatHRModal {
     }
 
     this.waitingToRecord = true;
-    this.waitingTimeLeft = 10;
+    this.waitingTimeLeft = 15;
 
     this.waitingTimer = setInterval(() => {
       this.waitingTimeLeft--;
@@ -830,7 +979,6 @@ export class ChatHRModal {
           // 根据实际使用的MIME类型创建Blob
           const blobType = mimeType || 'video/mp4';
           const blob = new Blob(chunks, { type: blobType });
-          console.log(blob.size);
 
           if (blob.size === 0) {
             // 通知父组件录制的视频为空
@@ -863,6 +1011,11 @@ export class ChatHRModal {
             details: error
           });
           this.showRecordingUI = false;
+          SentryReporter.captureError(error, {
+            action: 'uploadRecordedVideo',
+            component: 'pcm-hr-chat-modal',
+            title: '处理录制视频时出错'
+          });
         }
       };
 
@@ -889,6 +1042,11 @@ export class ChatHRModal {
           details: startError
         });
         this.showRecordingUI = false;
+        SentryReporter.captureError(startError, {
+          action: 'startRecording',
+          component: 'pcm-hr-chat-modal',
+          title: '开始录制失败'
+        });
         return;
       }
 
@@ -910,13 +1068,19 @@ export class ChatHRModal {
 
     } catch (error) {
       console.error('无法访问摄像头或麦克风:', error);
+      this.showRecordingUI = false;
+
       // 通知父组件无法访问媒体设备
       this.recordingError.emit({
         type: 'media_access_failed',
         message: '无法访问摄像头或麦克风，请确保已授予权限',
         details: error
       });
-      this.showRecordingUI = false;
+      SentryReporter.captureError(error, {
+        action: 'startRecording',
+        component: 'pcm-hr-chat-modal',
+        title: '无法访问摄像头或麦克风'
+      });
     }
   }
 
@@ -931,6 +1095,15 @@ export class ChatHRModal {
           videoElement.srcObject = stream;
           videoElement.play().catch(err => {
             console.error('视频播放失败:', err);
+            this.someErrorEvent.emit({
+              error: err,
+              message: '视频播放失败'
+            });
+            SentryReporter.captureError(err, {
+              action: 'setupVideoPreview',
+              component: 'pcm-hr-chat-modal',
+              title: '录制视频显示失败'
+            });
           });
         } catch (e) {
           console.warn('设置srcObject失败，尝试替代方法:', e);
@@ -947,6 +1120,15 @@ export class ChatHRModal {
             };
           } catch (urlError) {
             console.error('创建对象URL失败:', urlError);
+            this.someErrorEvent.emit({
+              error: urlError,
+              message: '创建对象URL失败'
+            });
+            SentryReporter.captureError(urlError, {
+              action: 'setupVideoPreview',
+              component: 'pcm-hr-chat-modal',
+              title: '创建对象URL失败'
+            });
           }
         }
       } else {
@@ -1033,7 +1215,7 @@ export class ChatHRModal {
       // 使用uploadFileToBackend上传视频
       const result = await uploadFileToBackend(videoFile, {
       }, {
-        'tags': 'other'
+        'tags': ['other']
       });
 
       if (result) {
@@ -1049,6 +1231,11 @@ export class ChatHRModal {
         type: 'upload_failed',
         message: '视频上传失败',
         details: error
+      });
+      SentryReporter.captureError(error, {
+        action: 'uploadRecordedVideo',
+        component: 'pcm-hr-chat-modal',
+        title: '视频上传失败'
       });
     } finally {
       this.isUploadingVideo = false;
@@ -1077,6 +1264,16 @@ export class ChatHRModal {
       });
     } catch (error) {
       console.error('保存视频答案失败:', error);
+      this.someErrorEvent.emit({
+        error: error,
+        message: '保存视频答案失败'
+      });
+      SentryReporter.captureError(error, {
+        action: 'saveVideoAnswer',
+        component: 'pcm-hr-chat-modal',
+        conversationId: this.conversationId,
+        title: '保存视频答案失败'
+      });
     }
   }
 
@@ -1094,6 +1291,16 @@ export class ChatHRModal {
       });
     } catch (error) {
       console.error('发送面试完成请求失败:', error);
+      this.someErrorEvent.emit({
+        error: error,
+        message: '发送面试完成请求失败'
+      });
+      SentryReporter.captureError(error, {
+        action: 'completeInterview',
+        component: 'pcm-hr-chat-modal',
+        conversationId: this.conversationId,
+        title: '发送面试完成请求失败'
+      });
     }
   }
 
@@ -1120,6 +1327,15 @@ export class ChatHRModal {
         console.error('音频播放错误');
         this.isPlayingAudio = false;
         this.audioUrl = null;
+        this.someErrorEvent.emit({
+          error: '音频播放错误',
+          message: '音频播放错误'
+        });
+        SentryReporter.captureMessage('音频播放错误', {
+          action: 'playAudio',
+          component: 'pcm-hr-chat-modal',
+          title: '音频播放错误'
+        });
         resolve();
       };
 
@@ -1127,6 +1343,15 @@ export class ChatHRModal {
         console.error('音频播放失败:', error);
         this.isPlayingAudio = false;
         this.audioUrl = null;
+        this.someErrorEvent.emit({
+          error: error,
+          message: '音频播放失败'
+        });
+        SentryReporter.captureError(error, {
+          title: '音频播放失败',
+          action: 'playAudio',
+          component: 'pcm-hr-chat-modal',
+        });
         resolve();
       });
     });
@@ -1161,6 +1386,17 @@ export class ChatHRModal {
 
     // 停止录制
     this.stopRecording();
+
+    // 移除焦点相关事件监听器
+    if (this.visibilityChangeListener) {
+      document.removeEventListener('visibilitychange', this.visibilityChangeListener);
+    }
+    if (this.blurListener) {
+      window.removeEventListener('blur', this.blurListener);
+    }
+    if (this.focusListener) {
+      window.removeEventListener('focus', this.focusListener);
+    }
   }
 
   // 修改手动播放音频的方法
@@ -1169,6 +1405,29 @@ export class ChatHRModal {
       await this.playAudio(this.audioUrl);
       // 手动播放完成后开始等待录制
       this.startWaitingToRecord();
+    }
+  };
+
+  private handleRetryRequest = (messageId: string) => {
+    // 找到需要重试的消息
+    const messageToRetry = this.messages.find(msg => msg.id === messageId);
+
+    if (messageToRetry) {
+      // 隐藏重试按钮
+      this.aiException = false;
+
+      // 更新消息对象，隐藏重试按钮
+      const updatedMessages = this.messages.map(msg =>
+        msg.id === messageId
+          ? { ...msg, showRetryButton: false }
+          : msg
+      );
+
+      // 更新消息列表
+      this.messages = updatedMessages;
+
+      // 发送重试请求
+      this.sendMessageToAPI(messageToRetry.query);
     }
   };
 
@@ -1218,6 +1477,14 @@ export class ChatHRModal {
 
     // 渲染占位符状态信息
     const renderPlaceholderStatus = () => {
+
+      if (this.isTaskCompleted) {
+        return (
+          <div class="placeholder-status">
+            <p>面试已完成，感谢您的参与！</p>
+          </div>
+        );
+      }
       // 正在播放音频
       if (this.isPlayingAudio) {
         return (
@@ -1384,6 +1651,9 @@ export class ChatHRModal {
                       <div id={`message_${message.id}`} key={message.id}>
                         <pcm-chat-message
                           message={message}
+                          onRetryRequest={(event) => this.handleRetryRequest(event.detail)}
+                          showCopyButton={false}
+                          showFeedbackButtons={false}
                           onMessageChange={(event) => {
                             const updatedMessages = this.messages.map(msg =>
                               msg.id === message.id ? { ...msg, ...event.detail } : msg

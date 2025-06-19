@@ -1,8 +1,6 @@
 export interface ErrorEventDetail {
-  source: string;
   error: any;
   message: string;
-  type: 'api' | 'ui' | 'network' | 'other';
 }
 
 export class ErrorEventBus {
