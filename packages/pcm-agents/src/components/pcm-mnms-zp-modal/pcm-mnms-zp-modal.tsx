@@ -20,7 +20,7 @@ import { Message } from '../../services/message.service';
     styleUrls: ['pcm-mnms-zp-modal.css', '../../global/global.css'],
     shadow: true,
 })
-export class MnmsModal {
+export class MnmsZpModal {
     /**
      * 模态框标题
      */
