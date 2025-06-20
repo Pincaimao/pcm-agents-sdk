@@ -1,0 +1,127 @@
+.mobile-upload {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 4px;
+}
+
+.btn {
+    position: relative;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.btn:hover::after {
+    background-color: rgba(0,0,0,0.04);
+}
+
+.btn-link {
+    color: #0D75FB;
+}
+
+.btn-default {
+    background-color: #ffffff;
+    color: #0D75FB;
+    border: 1px solid #0D75FB;
+}
+
+.btn-primary {
+    background-color: #0D75FB;
+    color: #ffffff;
+}
+
+
+.loading {
+    font-size: 12px;
+    color: #999999;
+}
+
+.mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+}
+
+.mask .upload-wrapper {
+    width: 540px;
+    max-width: 80%;
+    max-height: 80%;
+    background-color: #ffffff;
+    padding: 32px 24px;
+    border-radius: 16px;
+    overflow-y: auto;
+}
+
+.mask .upload-wrapper .upload-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.time-expire {
+    margin: 8px 0;
+    text-align: center;
+    font-size: 12px;
+    color: #555555;
+}
+
+.time-count-down {
+    margin-left: 8px;
+    color: #0D75FB;
+}
+
+.alert-tip {
+    margin-top: 8px;
+    text-align: center;
+    font-size: 12px;
+    color: #999999;
+}
+
+.qrcode-wrapper {
+    width: 160px;
+    height: 160px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #e5e5e5;
+    border-radius: 4px;
+    padding: 1px;
+}
+
+.qrcode-wrapper .qrcode {
+    width: 100%;
+    height: 100%;
+}
+
+.modal-footer {
+    margin-top: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-footer .btn {
+    min-width: 100px;
+}

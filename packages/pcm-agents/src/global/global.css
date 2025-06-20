@@ -171,6 +171,7 @@
     color: #949AA5;
     margin-top: 8px;
     padding: 0px 10px;
+    text-align: center;
 }
 
 
@@ -227,6 +228,8 @@
     margin-left: 8px;
     border-radius: 4px;
     transition: all 0.2s;
+    min-width: 30px;
+    min-height: 30px;
 }
 
 .remove-file:hover {

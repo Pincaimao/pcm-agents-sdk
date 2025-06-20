@@ -1,9 +1,9 @@
 // 导入环境变量
-import { API_DOMAIN } from './env';
+import { API_DOMAIN, PCM_DOMAIN } from './env';
 import { authStore } from '../../store/auth.store'; // 导入 authStore
 import { configStore } from '../../store/config.store';
 
-export { API_DOMAIN };
+export { API_DOMAIN, PCM_DOMAIN };
 
 export function format(first?: string, middle?: string, last?: string): string {
   return (first || '') + (middle ? ` ${middle}` : '') + (last ? ` ${last}` : '');
@@ -276,9 +276,9 @@ export const sendHttpRequest = async <T = any>(config: HttpRequestConfig, isRetr
       headers: formData
         ? { ...headers }
         : {
-            'Content-Type': 'application/json',
-            ...headers,
-          },
+          'Content-Type': 'application/json',
+          ...headers,
+        },
     };
 
     // 处理请求体
@@ -395,7 +395,7 @@ export const verifyApiKey = async (token: string): Promise<boolean> => {
     syncDelay(500);
     return false;
   } else {
-    
+
     configStore.setItem('pcm-sdk-CUser', `${response.data.user}(${response.data.chat_user})`);
     return response.success;
   }
@@ -436,10 +436,27 @@ export interface FileUploadResponse {
   cos_key: string;
   /** 文件名称 */
   file_name: string;
-  /** 文件大小（带单位的字符串，如 "1.5MB"） */
-  file_size: string;
+  /** 文件大小 */
+  file_size: any;
   /** 文件扩展名 */
   ext: string;
+}
+
+export enum FileUploadState {
+  Init = 'init',
+  Uploading = 'uploading',
+  Success = 'success',
+  Failed = 'failed',
+}
+
+export interface FileUploadResponseWithState {
+  file?: File;
+  file_name?: string;
+  file_size?: number;
+  state: FileUploadState;
+  ext?: string;
+  cos_key?: string;
+  error?: Error;
 }
 
 /**
@@ -475,13 +492,13 @@ export const calculateFileSHA256 = async (file: File): Promise<string> => {
  * @returns Promise<Response>
  */
 export const uploadFileWithRetry = async (
-  url: string, 
-  file: File, 
-  contentType: string = 'application/octet-stream', 
+  url: string,
+  file: File,
+  contentType: string = 'application/octet-stream',
   maxRetries: number = 2
 ): Promise<Response> => {
   let retries = 0;
-  
+
   while (true) {
     try {
       const response = await fetchWithTimeout(url, {
@@ -491,21 +508,21 @@ export const uploadFileWithRetry = async (
           'Content-Type': contentType,
         }
       });
-      
+
       if (!response.ok) {
         throw new Error(`文件上传失败: ${response.status} ${response.statusText}`);
       }
-      
+
       return response;
     } catch (error) {
       retries++;
       console.error(`文件上传错误(尝试 ${retries}/${maxRetries}):`, error);
-      
+
       // 如果已达到最大重试次数，则抛出错误
       if (retries >= maxRetries) {
         throw error;
       }
-      
+
       // 重试前延迟，每次重试增加延迟时间
       const delayTime = 1000 * retries;
       syncDelay(delayTime);
@@ -692,3 +709,46 @@ export const getCosPreviewUrl = async (cosKey: string, headers?: Record<string, 
     return null;
   }
 };
+
+
+/**
+ * 格式化文件大小
+ * @param size 文件大小（单位B）
+ * @returns 格式化后的文件大小字符串，如 "12.3MB"
+ */
+
+export const formatFileSize = (size?: number) => {
+  if (!size && size !== 0) {
+    return null;
+  }
+  const numSize = Number(size);
+  if (isNaN(numSize)) return null;
+  if (size < 1024) {
+    return size + "B";
+  }
+  if (size < 1024 * 1024) {
+    return (size / 1024).toFixed(1) + "KB";
+  }
+  return (size / 1024 / 1024).toFixed(1) + "MB";
+};
+
+/**
+ * 判断当前设备是PC还是移动端
+ * @returns {boolean} true表示是移动端，false表示是PC端
+ */
+export const isMobile = (): boolean => {
+  const userAgentInfo = navigator.userAgent;
+  const mobileAgents = ['Android', 'iPhone', 'iPad', 'iPod', 'Windows Phone', 'BlackBerry', 'SymbianOS', 'MicroMessenger'];
+  let isMobileFlag = false;
+  for (let i = 0; i < mobileAgents.length; i++) {
+    if (userAgentInfo.indexOf(mobileAgents[i]) > -1) {
+      isMobileFlag = true;
+      break;
+    }
+  }
+  if (!isMobileFlag) {
+    isMobileFlag = window.innerWidth < 768;
+  }
+
+  return isMobileFlag;
+}
