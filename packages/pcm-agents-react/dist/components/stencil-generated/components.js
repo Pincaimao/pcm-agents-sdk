@@ -16,8 +16,12 @@ import { PcmMnctModal as PcmMnctModalElement, defineCustomElement as definePcmMn
 import { PcmMnmsModal as PcmMnmsModalElement, defineCustomElement as definePcmMnmsModal } from "pcm-agents/dist/components/pcm-mnms-modal.js";
 import { PcmMnmsVideoModal as PcmMnmsVideoModalElement, defineCustomElement as definePcmMnmsVideoModal } from "pcm-agents/dist/components/pcm-mnms-video-modal.js";
 import { PcmMnmsZpModal as PcmMnmsZpModalElement, defineCustomElement as definePcmMnmsZpModal } from "pcm-agents/dist/components/pcm-mnms-zp-modal.js";
+import { PcmMobileInputBtn as PcmMobileInputBtnElement, defineCustomElement as definePcmMobileInputBtn } from "pcm-agents/dist/components/pcm-mobile-input-btn.js";
+import { PcmMobileUploadBtn as PcmMobileUploadBtnElement, defineCustomElement as definePcmMobileUploadBtn } from "pcm-agents/dist/components/pcm-mobile-upload-btn.js";
 import { PcmMsbgModal as PcmMsbgModalElement, defineCustomElement as definePcmMsbgModal } from "pcm-agents/dist/components/pcm-msbg-modal.js";
 import { PcmQgqjlModal as PcmQgqjlModalElement, defineCustomElement as definePcmQgqjlModal } from "pcm-agents/dist/components/pcm-qgqjl-modal.js";
+import { PcmTimeCountDown as PcmTimeCountDownElement, defineCustomElement as definePcmTimeCountDown } from "pcm-agents/dist/components/pcm-time-count-down.js";
+import { PcmUpload as PcmUploadElement, defineCustomElement as definePcmUpload } from "pcm-agents/dist/components/pcm-upload.js";
 import { PcmZskChatModal as PcmZskChatModalElement, defineCustomElement as definePcmZskChatModal } from "pcm-agents/dist/components/pcm-zsk-chat-modal.js";
 import { PcmZyghModal as PcmZyghModalElement, defineCustomElement as definePcmZyghModal } from "pcm-agents/dist/components/pcm-zygh-modal.js";
 import React from 'react';
@@ -233,6 +237,20 @@ export const PcmMnmsZpModal = createComponent({
     },
     defineCustomElement: definePcmMnmsZpModal
 });
+export const PcmMobileInputBtn = createComponent({
+    tagName: 'pcm-mobile-input-btn',
+    elementClass: PcmMobileInputBtnElement,
+    react: React,
+    events: { onOk: 'ok' },
+    defineCustomElement: definePcmMobileInputBtn
+});
+export const PcmMobileUploadBtn = createComponent({
+    tagName: 'pcm-mobile-upload-btn',
+    elementClass: PcmMobileUploadBtnElement,
+    react: React,
+    events: { onOk: 'ok' },
+    defineCustomElement: definePcmMobileUploadBtn
+});
 export const PcmMsbgModal = createComponent({
     tagName: 'pcm-msbg-modal',
     elementClass: PcmMsbgModalElement,
@@ -262,6 +280,23 @@ export const PcmQgqjlModal = createComponent({
         onSomeErrorEvent: 'someErrorEvent'
     },
     defineCustomElement: definePcmQgqjlModal
+});
+export const PcmTimeCountDown = createComponent({
+    tagName: 'pcm-time-count-down',
+    elementClass: PcmTimeCountDownElement,
+    react: React,
+    events: { onFinished: 'finished' },
+    defineCustomElement: definePcmTimeCountDown
+});
+export const PcmUpload = createComponent({
+    tagName: 'pcm-upload',
+    elementClass: PcmUploadElement,
+    react: React,
+    events: {
+        onUploadFailed: 'uploadFailed',
+        onUploadChange: 'uploadChange'
+    },
+    defineCustomElement: definePcmUpload
 });
 export const PcmZskChatModal = createComponent({
     tagName: 'pcm-zsk-chat-modal',
