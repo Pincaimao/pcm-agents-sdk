@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
-import { uploadFileToBackend, FileUploadResponse, verifyApiKey } from '../../utils/utils';
+import { FileUploadResponse, verifyApiKey } from '../../utils/utils';
 import {
     StreamCompleteEventData,
     ConversationStartEventData,
@@ -9,7 +9,7 @@ import {
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store';
 import { configStore } from '../../../store/config.store';
-import { SentryReporter } from '../../utils/sentry-reporter';
+import { Message } from '../../services/message.service';
 
 /**
  * 模拟面试
@@ -20,7 +20,7 @@ import { SentryReporter } from '../../utils/sentry-reporter';
     styleUrls: ['pcm-mnms-zp-modal.css', '../../global/global.css'],
     shadow: true,
 })
-export class MnmsZpModal {
+export class MnmsModal {
     /**
      * 模态框标题
      */
@@ -90,6 +90,15 @@ export class MnmsZpModal {
      */
     @Prop() showWorkspaceHistory: boolean = false;
 
+    /**
+     * 是否开启移动端上传（仅PC端生效）
+     */
+    @Prop() mobileJdInputAble: boolean = false;
+
+    /**
+     * 是否开启移动端上传（仅PC端生效）
+     */
+    @Prop() mobileUploadAble: boolean = false;
 
     /**
      * 上传成功事件
@@ -176,7 +185,6 @@ export class MnmsZpModal {
     async handleIsOpenChange(newValue: boolean) {
         if (!newValue) {
             // 重置状态
-            this.clearSelectedFile();
             this.showChatModal = false;
             this.jobDescription = '';
 
@@ -194,10 +202,11 @@ export class MnmsZpModal {
         }
     }
 
-    
+
 
     componentWillLoad() {
-      
+
+
         // 将 zIndex 存入配置缓存
         if (this.zIndex) {
             configStore.setItem('modal-zIndex', this.zIndex);
@@ -233,103 +242,27 @@ export class MnmsZpModal {
         this.modalClosed.emit();
     };
 
-    private handleFileChange = (event: Event) => {
-        const input = event.target as HTMLInputElement;
-        if (input.files && input.files.length > 0) {
-            this.selectedFile = input.files[0];
-        }
-    };
-
-    private handleUploadClick = () => {
-        const fileInput = this.hostElement.shadowRoot?.querySelector('.file-input') as HTMLInputElement;
-        fileInput?.click();
-    };
-
-    private clearSelectedFile = () => {
-        this.selectedFile = null;
-        this.uploadedFileInfo = null;
-        const fileInput = this.hostElement.shadowRoot?.querySelector('.file-input') as HTMLInputElement;
-        if (fileInput) {
-            fileInput.value = '';
-        }
-    };
-
-    private async uploadFile() {
-        if (!this.selectedFile) return;
-
-        this.isUploading = true;
-
-        try {
-            // 使用 uploadFileToBackend 工具函数上传文件
-            const result = await uploadFileToBackend(this.selectedFile, {
-            }, {
-                'tags': ['resume']
-            });
-
-            this.uploadedFileInfo = result;
-            this.uploadSuccess.emit(result);
-        } catch (error) {
-            console.error('文件上传错误:', error);
-            this.clearSelectedFile();
-            SentryReporter.captureError(error, {
-                action: 'uploadFile',
-                component: 'pcm-mnms-zp-modal',
-                title: '文件上传失败'
-            });
-            ErrorEventBus.emitError({
-                error: error,
-                message: '文件上传失败，请重试'
-            });
-        } finally {
-            this.isUploading = false;
-        }
-    }
-
     private handleJobDescriptionChange = (event: Event) => {
         const textarea = event.target as HTMLTextAreaElement;
         this.jobDescription = textarea.value;
     };
 
     private handleStartInterview = async () => {
-        // 判断是否隐藏简历上传区域
-        const hideResumeUpload = Boolean(this.customInputs && (this.customInputs.file_url || this.customInputs.resume_content));
-        
         // 如果没有预设的job_info，则需要检查用户输入
         if (!this.customInputs?.job_info && !this.jobDescription.trim()) {
             alert('请输入职位描述');
             return;
         }
-
         this.isSubmitting = true;
-
-        try {
-            // 如果需要上传文件且还没上传，先上传文件（简历为选填）
-            if (!hideResumeUpload && this.selectedFile && !this.uploadedFileInfo) {
-                await this.uploadFile();
-                if (!this.uploadedFileInfo) {
-                    this.isSubmitting = false;
-                    return; // 上传失败
-                }
-            }
-
-            // 直接显示聊天模态框
-            this.showChatModal = true;
-        } catch (error) {
-            console.error('开始面试时出错:', error);
-            SentryReporter.captureError(error, {
-                action: 'handleStartInterview',
-                component: 'pcm-mnms-zp-modal',
-                title: '开始面试时出错'
-            });
-            ErrorEventBus.emitError({
-                error: error,
-                message: '开始面试时出错，请重试'
-            });
-        } finally {
-            this.isSubmitting = false;
+        // 判断文件是否正在上传
+        if (await this.pcmUploadRef?.getIsUploading?.()) {
+            Message.info('文件上传中，请稍后');
+            return;
         }
+        this.showChatModal = true;
     };
 
+    private pcmUploadRef;
 
     render() {
         if (!this.isOpen) return null;
@@ -355,10 +288,10 @@ export class MnmsZpModal {
 
         // 修正这里的逻辑，确保当 customInputs.job_info 存在时，hideJdInput 为 true
         const hideJdInput = Boolean(this.customInputs && this.customInputs.job_info);
-        
+
         // 判断是否隐藏简历上传区域 - 当有file_url或resume_content时都隐藏
         const hideResumeUpload = Boolean(this.customInputs && (this.customInputs.file_url || this.customInputs.resume_content));
-        
+
         // 判断是否同时提供了(file_url或resume_content)和job_info
         const hasFileAndJob = Boolean((this.customInputs?.file_url || this.customInputs?.resume_content) && this.customInputs?.job_info);
 
@@ -386,6 +319,16 @@ export class MnmsZpModal {
                             {!hideJdInput && (
                                 <div class="jd-input-section">
                                     <label htmlFor="job-description">请输入职位描述 (JD)</label>
+                                    {
+                                        !!this.mobileJdInputAble && (
+                                            <pcm-mobile-input-btn
+                                                name="职位描述"
+                                                onOk={(e) => {
+                                                    this.jobDescription = e.detail;
+                                                }}
+                                            />
+                                        )
+                                    }
                                     <textarea
                                         id="job-description"
                                         class="job-description-textarea"
@@ -398,31 +341,26 @@ export class MnmsZpModal {
                             )}
 
                             {/* 简历上传区域 - 仅在没有customInputs.file_url或customInputs.resume_content时显示 */}
-                            {!hideResumeUpload && (
-                                <div class="resume-upload-section">
-                                    <label>上传简历（选填）</label>
-                                    <div class="upload-area" onClick={this.handleUploadClick}>
-                                        {this.selectedFile ? (
-                                            <div class="file-item">
-                                                <div class="file-item-content">
-                                                    <span class="file-icon">📝</span>
-                                                    <span class="file-name">{this.selectedFile.name}</span>
-                                                </div>
-                                                <button class="remove-file" onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    this.clearSelectedFile();
-                                                }}>×</button>
-                                            </div>
-                                        ) : (
-                                            <div class="upload-placeholder">
-                                                <img src='https://pub.pincaimao.com/static/web/images/home/i_upload.png'></img>
-                                                <p class='upload-text'>点击上传简历</p>
-                                                <p class="upload-hint">支持 txt、markdown、pdf、docx、doc、md 格式</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
+                            {
+                                !hideResumeUpload && (
+                                    <pcm-upload
+                                        ref={el => this.pcmUploadRef = el}
+                                        maxFileSize={15 * 1024 * 1024}
+                                        multiple={false}
+                                        mobileUploadAble={this.mobileUploadAble}
+                                        labelText="上传简历（选填）"
+                                        acceptFileSuffixList={['.txt', '.md', '.pdf', '.docx', '.doc']}
+                                        uploadParams={{
+                                            tags: ['resume'],
+                                        }}
+                                        onUploadChange={(e) => {
+                                            const result: FileUploadResponse[] = e.detail ?? [];
+                                            this.uploadedFileInfo = result[0];
+                                            this.uploadSuccess.emit(this.uploadedFileInfo);
+                                        }}
+                                    />
+                                )
+                            }
 
                             <button
                                 class="submit-button"
@@ -439,12 +377,6 @@ export class MnmsZpModal {
                                     <a href="https://www.pincaimao.com" target="_blank" rel="noopener noreferrer">Hunan-PinCaiMao-202412310003</a>
                                 </p>
                             </div>
-
-                            <input
-                                type="file"
-                                class="file-input"
-                                onChange={this.handleFileChange}
-                            />
                         </div>
                     )}
 
