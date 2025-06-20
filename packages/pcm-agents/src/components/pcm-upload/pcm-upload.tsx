@@ -4,6 +4,11 @@ import { Message } from "../../services/message.service";
 import { SentryReporter } from "../../utils/sentry-reporter";
 
 
+export type UploadFailedEvent = {
+    error: Error;
+    message: string;
+}
+
 @Component({
     tag: 'pcm-upload',
     styleUrls: ['pcm-upload.css', '../../global/global.css'],

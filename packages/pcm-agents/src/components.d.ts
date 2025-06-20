@@ -10,12 +10,14 @@ import { ConversationStartEventData, InterviewCompleteEventData, RecordingErrorE
 import { ErrorEventDetail } from "./utils/error-event";
 import { ChatMessage } from "./interfaces/chat";
 import { ConversationStartEventData as ConversationStartEventData1, ErrorEventDetail as ErrorEventDetail1, InterviewCompleteEventData as InterviewCompleteEventData1, StreamCompleteEventData as StreamCompleteEventData1 } from "./components";
+import { UploadFailedEvent } from "./components/pcm-upload/pcm-upload";
 import { CareerPlanType } from "./components/pcm-zygh-modal/pcm-zygh-modal";
 export { FileUploadResponse } from "./utils/utils";
 export { ConversationStartEventData, InterviewCompleteEventData, RecordingErrorEventData, RecordingStatusChangeEventData, StreamCompleteEventData } from "./interfaces/events";
 export { ErrorEventDetail } from "./utils/error-event";
 export { ChatMessage } from "./interfaces/chat";
 export { ConversationStartEventData as ConversationStartEventData1, ErrorEventDetail as ErrorEventDetail1, InterviewCompleteEventData as InterviewCompleteEventData1, StreamCompleteEventData as StreamCompleteEventData1 } from "./components";
+export { UploadFailedEvent } from "./components/pcm-upload/pcm-upload";
 export { CareerPlanType } from "./components/pcm-zygh-modal/pcm-zygh-modal";
 export namespace Components {
     /**
