@@ -42,6 +42,7 @@ Type: `Promise<boolean>`
 ### Used by
 
  - [pcm-mnms-modal](../pcm-mnms-modal)
+ - [pcm-mnms-zp-modal](../pcm-mnms-zp-modal)
 
 ### Depends on
 
@@ -53,6 +54,7 @@ graph TD;
   pcm-upload --> pcm-mobile-upload-btn
   pcm-mobile-upload-btn --> pcm-time-count-down
   pcm-mnms-modal --> pcm-upload
+  pcm-mnms-zp-modal --> pcm-upload
   style pcm-upload fill:#f9f,stroke:#333,stroke-width:4px
 ```
 

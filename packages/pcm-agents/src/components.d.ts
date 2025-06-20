@@ -1066,6 +1066,16 @@ export namespace Components {
          */
         "isShowHeader": boolean;
         /**
+          * 是否开启移动端上传（仅PC端生效）
+          * @default false
+         */
+        "mobileJdInputAble": boolean;
+        /**
+          * 是否开启移动端上传（仅PC端生效）
+          * @default false
+         */
+        "mobileUploadAble": boolean;
+        /**
           * 模态框标题
           * @default '模拟面试'
          */
@@ -3478,6 +3488,16 @@ declare namespace LocalJSX {
           * @default true
          */
         "isShowHeader"?: boolean;
+        /**
+          * 是否开启移动端上传（仅PC端生效）
+          * @default false
+         */
+        "mobileJdInputAble"?: boolean;
+        /**
+          * 是否开启移动端上传（仅PC端生效）
+          * @default false
+         */
+        "mobileUploadAble"?: boolean;
         /**
           * 模态框标题
           * @default '模拟面试'

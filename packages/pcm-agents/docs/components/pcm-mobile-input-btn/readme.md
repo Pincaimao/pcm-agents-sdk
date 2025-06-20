@@ -25,6 +25,7 @@
 ### Used by
 
  - [pcm-mnms-modal](../pcm-mnms-modal)
+ - [pcm-mnms-zp-modal](../pcm-mnms-zp-modal)
 
 ### Depends on
 
@@ -35,6 +36,7 @@
 graph TD;
   pcm-mobile-input-btn --> pcm-time-count-down
   pcm-mnms-modal --> pcm-mobile-input-btn
+  pcm-mnms-zp-modal --> pcm-mobile-input-btn
   style pcm-mobile-input-btn fill:#f9f,stroke:#333,stroke-width:4px
 ```
 

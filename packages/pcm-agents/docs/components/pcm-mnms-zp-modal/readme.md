@@ -20,6 +20,8 @@
 | `isNeedClose`          | `is-need-close`          | 是否展示右上角的关闭按钮                                                                                                                                                                                                                                                                                                                                                                                    | `boolean`                  | `true`      |
 | `isOpen`               | `is-open`                | 是否显示聊天模态框                                                                                                                                                                                                                                                                                                                                                                                       | `boolean`                  | `false`     |
 | `isShowHeader`         | `is-show-header`         | 是否展示顶部标题栏                                                                                                                                                                                                                                                                                                                                                                                       | `boolean`                  | `true`      |
+| `mobileJdInputAble`    | `mobile-jd-input-able`   | 是否开启移动端上传（仅PC端生效）                                                                                                                                                                                                                                                                                                                                                                               | `boolean`                  | `false`     |
+| `mobileUploadAble`     | `mobile-upload-able`     | 是否开启移动端上传（仅PC端生效）                                                                                                                                                                                                                                                                                                                                                                               | `boolean`                  | `false`     |
 | `modalTitle`           | `modal-title`            | 模态框标题                                                                                                                                                                                                                                                                                                                                                                                           | `string`                   | `'模拟面试'`    |
 | `showCopyButton`       | `show-copy-button`       | 是否显示复制按钮                                                                                                                                                                                                                                                                                                                                                                                        | `boolean`                  | `true`      |
 | `showFeedbackButtons`  | `show-feedback-buttons`  | 是否显示点赞点踩按钮                                                                                                                                                                                                                                                                                                                                                                                      | `boolean`                  | `true`      |
@@ -46,12 +48,19 @@
 
 ### Depends on
 
+- [pcm-mobile-input-btn](../pcm-mobile-input-btn)
+- [pcm-upload](../pcm-upload)
 - [pcm-app-chat-modal](../pcm-app-chat-modal)
 
 ### Graph
 ```mermaid
 graph TD;
+  pcm-mnms-zp-modal --> pcm-mobile-input-btn
+  pcm-mnms-zp-modal --> pcm-upload
   pcm-mnms-zp-modal --> pcm-app-chat-modal
+  pcm-mobile-input-btn --> pcm-time-count-down
+  pcm-upload --> pcm-mobile-upload-btn
+  pcm-mobile-upload-btn --> pcm-time-count-down
   pcm-app-chat-modal --> pcm-chat-message
   pcm-app-chat-modal --> pcm-drawer
   style pcm-mnms-zp-modal fill:#f9f,stroke:#333,stroke-width:4px
