@@ -5,6 +5,7 @@ import { PcmAppChatModal as PcmAppChatModalElement } from "pcm-agents/dist/compo
 import { PcmButton as PcmButtonElement } from "pcm-agents/dist/components/pcm-button.js";
 import { PcmCard as PcmCardElement } from "pcm-agents/dist/components/pcm-card.js";
 import { PcmChatMessage as PcmChatMessageElement } from "pcm-agents/dist/components/pcm-chat-message.js";
+import { PcmConfirmModal as PcmConfirmModalElement } from "pcm-agents/dist/components/pcm-confirm-modal.js";
 import { PcmDrawer as PcmDrawerElement } from "pcm-agents/dist/components/pcm-drawer.js";
 import { PcmHrChatModal as PcmHrChatModalElement } from "pcm-agents/dist/components/pcm-hr-chat-modal.js";
 import { PcmHtwsModal as PcmHtwsModalElement } from "pcm-agents/dist/components/pcm-htws-modal.js";
@@ -62,6 +63,14 @@ type PcmChatMessageEvents = {
     onRetryRequest: EventName<CustomEvent<string>>;
 };
 export declare const PcmChatMessage: StencilReactComponent<PcmChatMessageElement, PcmChatMessageEvents>;
+type PcmConfirmModalEvents = {
+    onOk: EventName<CustomEvent<void>>;
+    onCancel: EventName<CustomEvent<void>>;
+    onClosed: EventName<CustomEvent<void>>;
+    onAfterOpen: EventName<CustomEvent<void>>;
+    onAfterClose: EventName<CustomEvent<void>>;
+};
+export declare const PcmConfirmModal: StencilReactComponent<PcmConfirmModalElement, PcmConfirmModalEvents>;
 type PcmDrawerEvents = {
     onClosed: EventName<CustomEvent<void>>;
     onAfterOpen: EventName<CustomEvent<void>>;

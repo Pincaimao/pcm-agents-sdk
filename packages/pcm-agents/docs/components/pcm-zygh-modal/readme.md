@@ -46,6 +46,7 @@ graph TD;
   pcm-zygh-modal --> pcm-app-chat-modal
   pcm-app-chat-modal --> pcm-chat-message
   pcm-app-chat-modal --> pcm-drawer
+  pcm-app-chat-modal --> pcm-confirm-modal
   style pcm-zygh-modal fill:#f9f,stroke:#333,stroke-width:4px
 ```
 

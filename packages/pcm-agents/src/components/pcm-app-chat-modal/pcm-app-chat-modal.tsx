@@ -295,6 +295,10 @@ export class ChatAPPModal {
   @State() historyConversations: ConversationItem[] = [];
   @State() isLoadingConversations: boolean = false;
 
+  // 添加二次确认相关状态
+  @State() showConfirmModal: boolean = false;
+  @State() skipConfirmThisInterview: boolean = false;
+
   @Watch('token')
   handleTokenChange(newToken: string) {
     // 当传入的 token 变化时，更新 authStore 中的 token
@@ -1116,6 +1120,42 @@ export class ChatAPPModal {
     }
   }
 
+  // 处理停止录制按钮点击
+  private handleStopRecording = () => {
+    // 如果已经设置了跳过确认，直接停止录制
+    if (this.skipConfirmThisInterview) {
+      this.stopRecording();
+      return;
+    }
+
+    // 否则显示确认模态框
+    this.showConfirmModal = true;
+  };
+
+
+  // 处理"本次面试不再提醒"复选框变化
+  private handleSkipConfirmChange = (event: Event) => {
+    const checkbox = event.target as HTMLInputElement;
+    this.skipConfirmThisInterview = checkbox.checked;
+  };
+
+
+  // 处理确认模态框的取消事件
+  private handleConfirmModalCancel = () => {
+    this.showConfirmModal = false;
+  };
+
+  // 处理确认模态框的OK事件
+  private handleConfirmModalOk = () => {
+    this.showConfirmModal = false;
+    this.stopRecording();
+  };
+
+  // 处理确认模态框的Cancel事件
+  private handleConfirmModalCancelEvent = () => {
+    this.showConfirmModal = false;
+  };
+
   // 修改音视频转文字方法
   private async convertAudioToText(cosKey: string): Promise<string | null> {
     try {
@@ -1632,7 +1672,7 @@ export class ChatAPPModal {
     }
 
     this.isLoadingConversations = true;
-    
+
     try {
       const result = await sendHttpRequest({
         url: '/sdk/v1/chat/conversations',
@@ -1646,17 +1686,17 @@ export class ChatAPPModal {
 
       if (result.success && result.data) {
         const conversations = result.data.data || [];
-        
+
         // 格式化会话数据
         this.historyConversations = conversations.map((conv: any) => {
           // 处理时间戳，确保它是有效的数字
           let createdTime: Date;
           let timeDisplay = '未知时间';
-          
+
           try {
             // 确保 created_at 是一个有效的时间戳
             const timestamp = typeof conv.created_at === 'string' ? parseInt(conv.created_at) : conv.created_at;
-            
+
             if (isNaN(timestamp) || timestamp <= 0) {
               console.warn('无效的时间戳:', conv.created_at);
               createdTime = new Date();
@@ -1664,17 +1704,17 @@ export class ChatAPPModal {
               // Unix时间戳转换为JavaScript Date对象（乘以1000转换为毫秒）
               createdTime = new Date(timestamp * 1000);
             }
-            
+
             // 验证日期是否有效
             if (isNaN(createdTime.getTime())) {
               console.warn('无效的日期对象:', conv.created_at);
               createdTime = new Date();
             }
-            
+
             const now = new Date();
             const diffTime = now.getTime() - createdTime.getTime();
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            
+
             // 格式化时间显示
             if (diffDays === 0) {
               // 今天
@@ -1739,10 +1779,10 @@ export class ChatAPPModal {
     this.currentStreamingMessage = null;
     this.isTaskCompleted = false;
     this.currentQuestionNumber = 0;
-    
+
     // 关闭抽屉
     this.isHistoryDrawerOpen = false;
-    
+
     // 加载新会话的历史消息
     this.loadHistoryMessages();
   };
@@ -2057,7 +2097,7 @@ export class ChatAPPModal {
                       {this.showRecordingUI ? (
                         <button
                           class="stop-recording-button"
-                          onClick={() => this.stopRecording()}
+                          onClick={() => this.handleStopRecording()}
                         >
                           完成本题回答
                         </button>
@@ -2154,7 +2194,7 @@ export class ChatAPPModal {
                   </div>
                 ) : (
                   this.historyConversations.map((conversation) => (
-                    <div 
+                    <div
                       key={conversation.id}
                       class={{
                         'conversation-item': true,
@@ -2183,7 +2223,7 @@ export class ChatAPPModal {
                       {conversation.id === this.conversationId && (
                         <div class="current-indicator">
                           <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                           </svg>
                         </div>
                       )}
@@ -2194,6 +2234,95 @@ export class ChatAPPModal {
             </div>
           </pcm-drawer>
         </div>
+
+        {/* 二次确认模态框 */}
+        <pcm-confirm-modal
+          isOpen={this.showConfirmModal}
+          modalTitle="确认完成回答？"
+          okText="确认完成"
+          cancelText="继续录制"
+          okType="danger"
+          onOk={this.handleConfirmModalOk}
+          onCancel={this.handleConfirmModalCancelEvent}
+          onClosed={this.handleConfirmModalCancel}
+        >
+          <div style={{ marginBottom: '16px' }}>
+            <div style={{
+              fontSize: '14px',
+              color: '#1890ff',
+              fontWeight: '500',
+              marginBottom: '16px',
+              textAlign: 'center'
+            }}>
+              当前录制时长：{(() => {
+                // 计算实际的录制时长（秒）
+                const elapsedSeconds = this.recordingStartTime > 0
+                  ? Math.floor((Date.now() - this.recordingStartTime) / 1000)
+                  : 0;
+                const minutes = Math.floor(elapsedSeconds / 60);
+                const seconds = elapsedSeconds % 60;
+                return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+              })()}
+            </div>
+
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '12px 16px',
+              background: '#fff7e6',
+              border: '1px solid #ffec99',
+              borderRadius: '6px',
+              color: '#d46b08',
+              fontSize: '14px',
+              marginBottom: '16px'
+            }}>
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
+              </svg>
+              <span>注意：录制仍在进行中</span>
+            </div>
+
+
+
+            <div style={{
+              fontSize: '16px',
+              color: '#595959',
+              lineHeight: '1.5',
+              marginBottom: '16px'
+            }}>
+              点击"确认完成"将结束本题回答
+            </div>
+
+            <label style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              cursor: 'pointer',
+              padding: '8px 0',
+              userSelect: 'none'
+            }}>
+              <input
+                type="checkbox"
+                style={{
+                  width: '16px',
+                  height: '16px',
+                  accentColor: '#1890ff',
+                  cursor: 'pointer',
+                  margin: '0'
+                }}
+                checked={this.skipConfirmThisInterview}
+                onChange={this.handleSkipConfirmChange}
+              />
+              <span style={{
+                fontSize: '14px',
+                color: '#595959',
+                cursor: 'pointer',
+                lineHeight: '1.4'
+              }}>本次面试不再提醒</span>
+            </label>
+          </div>
+        </pcm-confirm-modal>
       </div>
     );
   }

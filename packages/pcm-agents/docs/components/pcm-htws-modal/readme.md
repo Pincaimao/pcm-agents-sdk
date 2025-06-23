@@ -50,6 +50,7 @@ graph TD;
   pcm-htws-modal --> pcm-app-chat-modal
   pcm-app-chat-modal --> pcm-chat-message
   pcm-app-chat-modal --> pcm-drawer
+  pcm-app-chat-modal --> pcm-confirm-modal
   style pcm-htws-modal fill:#f9f,stroke:#333,stroke-width:4px
 ```
 

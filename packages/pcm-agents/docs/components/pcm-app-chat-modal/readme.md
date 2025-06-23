@@ -66,12 +66,14 @@
 
 - [pcm-chat-message](../pcm-chat-message)
 - [pcm-drawer](../pcm-drawer)
+- [pcm-confirm-modal](../pcm-confirm-modal)
 
 ### Graph
 ```mermaid
 graph TD;
   pcm-app-chat-modal --> pcm-chat-message
   pcm-app-chat-modal --> pcm-drawer
+  pcm-app-chat-modal --> pcm-confirm-modal
   pcm-1zhanshi-mnms-modal --> pcm-app-chat-modal
   pcm-htws-modal --> pcm-app-chat-modal
   pcm-hyzj-modal --> pcm-app-chat-modal

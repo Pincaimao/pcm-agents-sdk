@@ -15,6 +15,7 @@ import { PcmAppChatModal as PcmAppChatModalElement, defineCustomElement as defin
 import { PcmButton as PcmButtonElement, defineCustomElement as definePcmButton } from "pcm-agents/dist/components/pcm-button.js";
 import { PcmCard as PcmCardElement, defineCustomElement as definePcmCard } from "pcm-agents/dist/components/pcm-card.js";
 import { PcmChatMessage as PcmChatMessageElement, defineCustomElement as definePcmChatMessage } from "pcm-agents/dist/components/pcm-chat-message.js";
+import { PcmConfirmModal as PcmConfirmModalElement, defineCustomElement as definePcmConfirmModal } from "pcm-agents/dist/components/pcm-confirm-modal.js";
 import { PcmDrawer as PcmDrawerElement, defineCustomElement as definePcmDrawer } from "pcm-agents/dist/components/pcm-drawer.js";
 import { PcmHrChatModal as PcmHrChatModalElement, defineCustomElement as definePcmHrChatModal } from "pcm-agents/dist/components/pcm-hr-chat-modal.js";
 import { PcmHtwsModal as PcmHtwsModalElement, defineCustomElement as definePcmHtwsModal } from "pcm-agents/dist/components/pcm-htws-modal.js";
@@ -136,6 +137,29 @@ export const PcmChatMessage: StencilReactComponent<PcmChatMessageElement, PcmCha
         onRetryRequest: 'retryRequest'
     } as PcmChatMessageEvents,
     defineCustomElement: definePcmChatMessage
+});
+
+type PcmConfirmModalEvents = {
+    onOk: EventName<CustomEvent<void>>,
+    onCancel: EventName<CustomEvent<void>>,
+    onClosed: EventName<CustomEvent<void>>,
+    onAfterOpen: EventName<CustomEvent<void>>,
+    onAfterClose: EventName<CustomEvent<void>>
+};
+
+export const PcmConfirmModal: StencilReactComponent<PcmConfirmModalElement, PcmConfirmModalEvents> = /*@__PURE__*/ createComponent<PcmConfirmModalElement, PcmConfirmModalEvents>({
+    tagName: 'pcm-confirm-modal',
+    elementClass: PcmConfirmModalElement,
+    // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
+    react: React,
+    events: {
+        onOk: 'ok',
+        onCancel: 'cancel',
+        onClosed: 'closed',
+        onAfterOpen: 'afterOpen',
+        onAfterClose: 'afterClose'
+    } as PcmConfirmModalEvents,
+    defineCustomElement: definePcmConfirmModal
 });
 
 type PcmDrawerEvents = {

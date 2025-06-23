@@ -63,6 +63,7 @@ graph TD;
   pcm-mobile-upload-btn --> pcm-time-count-down
   pcm-app-chat-modal --> pcm-chat-message
   pcm-app-chat-modal --> pcm-drawer
+  pcm-app-chat-modal --> pcm-confirm-modal
   style pcm-mnms-zp-modal fill:#f9f,stroke:#333,stroke-width:4px
 ```
 

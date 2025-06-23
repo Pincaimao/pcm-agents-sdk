@@ -1,0 +1,244 @@
+:host {
+  display: block;
+}
+
+.confirm-modal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  overflow: visible;
+}
+
+.confirm-modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.mask-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.confirm-modal-content {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.confirm-modal-content.centered {
+  align-items: center;
+}
+
+.modal-content-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-wrapper {
+  background: white;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  transform: scale(0.9) translateY(-20px);
+  transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.modal-content-visible .modal-wrapper {
+  transform: scale(1) translateY(0);
+}
+
+.modal-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid #f0f0f0;
+  background: #fff;
+}
+
+.modal-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.85);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.modal-body {
+  padding: 24px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.modal-footer {
+  padding: 10px 16px;
+  text-align: right;
+  background: transparent;
+  border-top: 1px solid #f0f0f0;
+  border-radius: 0 0 8px 8px;
+}
+
+.modal-button {
+  line-height: 1.5;
+  position: relative;
+  display: inline-block;
+  font-weight: 400;
+  white-space: nowrap;
+  text-align: center;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+  user-select: none;
+  touch-action: manipulation;
+  height: 32px;
+  padding: 4px 15px;
+  font-size: 14px;
+  border-radius: 6px;
+  outline: 0;
+  margin-left: 8px;
+}
+
+.cancel-button {
+  color: rgba(0, 0, 0, 0.65);
+  border-color: #d9d9d9;
+  background: #fff;
+}
+
+.cancel-button:hover {
+  color: #40a9ff;
+  border-color: #40a9ff;
+}
+
+.cancel-button:active {
+  color: #096dd9;
+  border-color: #096dd9;
+}
+
+.ok-button {
+  color: #fff;
+  background: #1890ff;
+  border-color: #1890ff;
+}
+
+.ok-button:hover {
+  background: #40a9ff;
+  border-color: #40a9ff;
+}
+
+.ok-button:active {
+  background: #096dd9;
+  border-color: #096dd9;
+}
+
+.ok-primary {
+  background: #1890ff;
+  border-color: #1890ff;
+}
+
+.ok-primary:hover {
+  background: #40a9ff;
+  border-color: #40a9ff;
+}
+
+.ok-primary:active {
+  background: #096dd9;
+  border-color: #096dd9;
+}
+
+.ok-danger {
+  background: #ff4d4f;
+  border-color: #ff4d4f;
+}
+
+.ok-danger:hover {
+  background: #ff7875;
+  border-color: #ff7875;
+}
+
+.ok-danger:active {
+  background: #d9363e;
+  border-color: #d9363e;
+}
+
+.ok-default {
+  color: rgba(0, 0, 0, 0.65);
+  background: #fff;
+  border-color: #d9d9d9;
+}
+
+.ok-default:hover {
+  color: #40a9ff;
+  border-color: #40a9ff;
+}
+
+.ok-default:active {
+  color: #096dd9;
+  border-color: #096dd9;
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+  .confirm-modal-content {
+    padding: 16px;
+  }
+  
+  .confirm-modal-content.centered {
+    padding: 16px;
+  }
+  
+  .modal-wrapper {
+    max-width: none;
+    margin: 0 auto;
+  }
+  
+  .modal-header {
+    padding: 12px 16px;
+  }
+  
+  .modal-title {
+    font-size: 16px;
+  }
+  
+  .modal-body {
+    padding: 16px;
+  }
+  
+  .modal-footer {
+    padding: 8px 12px 12px;
+  }
+  
+  .modal-button {
+    height: 36px;
+    font-size: 16px;
+    margin-left: 8px;
+    margin-top: 8px;
+  }
+}
+
+/* 无障碍支持 */
+@media (prefers-reduced-motion: reduce) {
+  .confirm-modal-mask,
+  .confirm-modal-content,
+  .modal-wrapper,
+  .modal-button {
+    transition: none;
+  }
+} 

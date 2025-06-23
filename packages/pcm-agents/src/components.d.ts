@@ -30,17 +30,14 @@ export namespace Components {
         "conversationId"?: string;
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br>
-          * @default {}
          */
         "customInputs": Record<string, string>;
         /**
           * 默认查询文本
-          * @default '请开始模拟面试'
          */
         "defaultQuery": string;
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen": boolean;
         /**
@@ -49,27 +46,22 @@ export namespace Components {
         "icon"?: string;
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose": boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen": boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader": boolean;
         /**
           * 视频录制最大时长（秒）默认120
-          * @default 120
          */
         "maxRecordingTime": number;
         /**
           * 模态框标题
-          * @default '模拟面试'
          */
         "modalTitle": string;
         /**
@@ -78,7 +70,6 @@ export namespace Components {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
@@ -97,37 +88,30 @@ export namespace Components {
         "conversationId"?: string;
         /**
           * 录制倒计时提醒时间（秒） 当剩余时间小于此值时，显示倒计时警告
-          * @default 30
          */
         "countdownWarningTime": number;
         /**
           * 自定义智能体inputs输入参数
-          * @default {}
          */
         "customInputs": Record<string, string>;
         /**
           * 默认发送文本
-          * @default '你好！聘才猫'
          */
         "defaultQuery": string;
         /**
           * 是否启用语音播报功能 true: 启用语音合成 false: 禁用语音合成
-          * @default false
          */
         "enableTTS": boolean;
         /**
           * 是否自动播放语音问题
-          * @default false
          */
         "enableVoice": boolean;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode": 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen": boolean;
         /**
@@ -136,52 +120,42 @@ export namespace Components {
         "icon"?: string;
         /**
           * 面试模式 video: 视频面试模式 text: 文字面试模式
-          * @default 'video'
          */
         "interviewMode": 'video' | 'text';
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose": boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen": boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader": boolean;
         /**
           * 语音录制最大时长（秒）
-          * @default 60
          */
         "maxAudioRecordingTime": number;
         /**
           * 视频录制最大时长（秒）
-          * @default 120
          */
         "maxRecordingTime": number;
         /**
           * 模态框标题
-          * @default '在线客服'
          */
         "modalTitle": string;
         /**
           * 是否显示复制按钮
-          * @default true
          */
         "showCopyButton": boolean;
         /**
           * 是否显示点赞点踩按钮
-          * @default true
          */
         "showFeedbackButtons": boolean;
         /**
           * 是否显示工作区历史会话按钮
-          * @default false
          */
         "showWorkspaceHistory": boolean;
         /**
@@ -190,7 +164,6 @@ export namespace Components {
         "token"?: string;
         /**
           * 用户头像URL
-          * @default "https://pub.pincaimao.com/static/common/i_pcm_logo.png"
          */
         "userAvatar"?: string;
         /**
@@ -205,67 +178,54 @@ export namespace Components {
     interface PcmButton {
         /**
           * 自定义按钮背景色
-          * @default ''
          */
         "backgroundColor": string;
         /**
           * 是否为块级按钮（宽度撑满父元素）
-          * @default false
          */
         "block": boolean;
         /**
           * 自定义按钮边框颜色
-          * @default ''
          */
         "borderColor": string;
         /**
           * 自定义按钮圆角大小（像素）
-          * @default null
          */
         "borderRadius": number;
         /**
           * 按钮边框样式 可选值: 'solid', 'dashed', 'dotted', 'none'
-          * @default 'solid'
          */
         "borderStyle": 'solid' | 'dashed' | 'dotted' | 'none';
         /**
           * 是否为禁用状态
-          * @default false
          */
         "disabled": boolean;
         /**
           * 设置按钮的图标 使用图标的URL或者base64字符串
-          * @default 'https://pub.pincaimao.com/static/common/i_pcm_logo.png'
          */
         "icon": string;
         /**
           * 是否为加载状态
-          * @default false
          */
         "loading": boolean;
         /**
           * 自定义按钮形状 可选值: 'default', 'circle', 'round'
-          * @default 'default'
          */
         "shape": 'default' | 'circle' | 'round';
         /**
           * 按钮尺寸 可选值: 'large', 'middle', 'small'
-          * @default 'middle'
          */
         "size": 'large' | 'middle' | 'small';
         /**
           * 自定义按钮文字颜色
-          * @default ''
          */
         "textColor": string;
         /**
           * 按钮类型 可选值: 'primary', 'default', 'dashed', 'text', 'link'
-          * @default 'default'
          */
         "type": 'primary' | 'default' | 'dashed' | 'text' | 'link';
         /**
           * 按钮宽度（像素或百分比）
-          * @default ''
          */
         "width": string;
     }
@@ -276,42 +236,34 @@ export namespace Components {
     interface PcmCard {
         /**
           * 自定义作者名称
-          * @default ''
          */
         "author": string;
         /**
           * 自定义作者头像URL
-          * @default ''
          */
         "authorAvatarUrl": string;
         /**
           * 智能体ID
-          * @default ''
          */
         "botId": string;
         /**
           * 自定义卡片标题
-          * @default ''
          */
         "cardTitle": string;
         /**
           * 自定义右侧标签
-          * @default ''
          */
         "customChatTag": string;
         /**
           * 自定义卡片描述
-          * @default ''
          */
         "description": string;
         /**
           * 自定义卡片图标URL
-          * @default ''
          */
         "iconUrl": string;
         /**
           * 是否显示右侧对话标签
-          * @default false
          */
         "showChatTag": boolean;
         /**
@@ -320,7 +272,6 @@ export namespace Components {
         "token": string;
         /**
           * 自定义立即使用按钮文本
-          * @default '立即使用'
          */
         "useButtonText": string;
     }
@@ -335,7 +286,6 @@ export namespace Components {
         "botId"?: string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode": 'drawer' | 'window';
         /**
@@ -344,12 +294,10 @@ export namespace Components {
         "message": ChatMessage;
         /**
           * 是否显示复制按钮
-          * @default true
          */
         "showCopyButton": boolean;
         /**
           * 是否显示点赞点踩按钮
-          * @default true
          */
         "showFeedbackButtons": boolean;
         /**
@@ -358,13 +306,62 @@ export namespace Components {
         "userAvatar"?: string;
     }
     /**
+     * 确认模态框组件
+     * 通用的确认对话框组件，类似 Ant Design 的 Modal 组件
+     */
+    interface PcmConfirmModal {
+        /**
+          * 取消按钮文本
+         */
+        "cancelText": string;
+        /**
+          * 是否居中显示
+         */
+        "centered": boolean;
+        /**
+          * 关闭模态框
+         */
+        "close": () => Promise<void>;
+        /**
+          * 模态框是否可见
+         */
+        "isOpen": boolean;
+        /**
+          * 是否显示蒙层
+         */
+        "mask": boolean;
+        /**
+          * 点击蒙层是否允许关闭
+         */
+        "maskClosable": boolean;
+        /**
+          * 模态框标题
+         */
+        "modalTitle": string;
+        /**
+          * 确认按钮文本
+         */
+        "okText": string;
+        /**
+          * 确认按钮类型
+         */
+        "okType": 'default' | 'primary' | 'danger';
+        /**
+          * 打开模态框
+         */
+        "open": () => Promise<void>;
+        /**
+          * 父级模态框的z-index值，确认模态框会在此基础上增加层级
+         */
+        "parentZIndex"?: number;
+    }
+    /**
      * 抽屉组件
      * 从屏幕边缘滑出的浮层面板，类似 Ant Design 的 Drawer 组件
      */
     interface PcmDrawer {
         /**
           * 是否显示关闭按钮
-          * @default true
          */
         "closable": boolean;
         /**
@@ -373,27 +370,22 @@ export namespace Components {
         "close": () => Promise<void>;
         /**
           * 抽屉标题
-          * @default ''
          */
         "drawerTitle": string;
         /**
           * 高度，在 placement 为 top 或 bottom 时使用
-          * @default '378px'
          */
         "height": string;
         /**
           * 抽屉是否可见
-          * @default false
          */
         "isOpen": boolean;
         /**
           * 是否显示蒙层
-          * @default true
          */
         "mask": boolean;
         /**
           * 点击蒙层是否允许关闭
-          * @default true
          */
         "maskClosable": boolean;
         /**
@@ -402,14 +394,12 @@ export namespace Components {
         "open": () => Promise<void>;
         /**
           * 宽度，可以是像素值或百分比
-          * @default '378px'
          */
         "width": string;
     }
     interface PcmHrChatModal {
         /**
           * 回调地址，用于接收报告的通知（toEmail和callbackUrl不能同时为空，举例：https://www.example.com/callback）
-          * @default ''
          */
         "callbackUrl": string;
         /**
@@ -418,32 +408,26 @@ export namespace Components {
         "conversationId"?: string;
         /**
           * 录制倒计时提醒时间（秒） 当剩余时间小于此值时，显示倒计时警告
-          * @default 30
          */
         "countdownWarningTime": number;
         /**
           * 首次对话提问文本
-          * @default '请开始出题'
          */
         "defaultQuery": string;
         /**
           * 是否显示题干内容
-          * @default true
          */
         "displayContentStatus": boolean;
         /**
           * 是否启用音频播放功能（包括自动播放和手动播放）
-          * @default true
          */
         "enableAudio": boolean;
         /**
           * 是否自动播放语音问题
-          * @default true
          */
         "enableVoice": boolean;
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen": boolean;
         /**
@@ -452,37 +436,30 @@ export namespace Components {
         "icon"?: string;
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose": boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen": boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader": boolean;
         /**
           * 视频录制最大时长（秒）
-          * @default 120
          */
         "maxRecordingTime": number;
         /**
           * 模态框标题
-          * @default '金牌HR大赛'
          */
         "modalTitle": string;
         /**
           * 是否需要上传简历
-          * @default false
          */
         "requireResume": boolean;
         /**
           * 接收报告的邮箱地址（toEmail和callbackUrl不能同时为空）
-          * @default ''
          */
         "toEmail": string;
         /**
@@ -491,12 +468,10 @@ export namespace Components {
         "token": string;
         /**
           * 总题目数量
-          * @default 2
          */
         "totalQuestions": number;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
@@ -510,22 +485,18 @@ export namespace Components {
         "conversationId"?: string;
         /**
           * 自定义输入参数，传入customInputs.input时，会自动切换到自由输入模式<br>
-          * @default {}
          */
         "customInputs": Record<string, string>;
         /**
           * 默认查询文本
-          * @default '请开始分析'
          */
         "defaultQuery": string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode": 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen": boolean;
         /**
@@ -534,27 +505,22 @@ export namespace Components {
         "icon"?: string;
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose": boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen": boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader": boolean;
         /**
           * 模态框标题
-          * @default '劳动合同卫士'
          */
         "modalTitle": string;
         /**
           * 是否显示工作区历史会话按钮
-          * @default false
          */
         "showWorkspaceHistory": boolean;
         /**
@@ -563,7 +529,6 @@ export namespace Components {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
@@ -577,22 +542,18 @@ export namespace Components {
         "conversationId"?: string;
         /**
           * 自定义输入参数<br> 传入customInputs.file_url时，会直接开始聊天。<br>
-          * @default {}
          */
         "customInputs": Record<string, string>;
         /**
           * 默认查询文本
-          * @default '请开始总结'
          */
         "defaultQuery": string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode": 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen": boolean;
         /**
@@ -601,27 +562,22 @@ export namespace Components {
         "icon"?: string;
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose": boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen": boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader": boolean;
         /**
           * 模态框标题
-          * @default '会议总结助手'
          */
         "modalTitle": string;
         /**
           * 是否显示工作区历史会话按钮
-          * @default false
          */
         "showWorkspaceHistory": boolean;
         /**
@@ -630,7 +586,6 @@ export namespace Components {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
@@ -644,22 +599,18 @@ export namespace Components {
         "conversationId"?: string;
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br>
-          * @default {}
          */
         "customInputs": Record<string, string>;
         /**
           * 默认查询文本
-          * @default '请帮我生成职位信息'
          */
         "defaultQuery": string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode": 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen": boolean;
         /**
@@ -668,27 +619,22 @@ export namespace Components {
         "icon"?: string;
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose": boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen": boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader": boolean;
         /**
           * 模态框标题
-          * @default '职位生成'
          */
         "modalTitle": string;
         /**
           * 是否显示工作区历史会话按钮
-          * @default false
          */
         "showWorkspaceHistory": boolean;
         /**
@@ -697,7 +643,6 @@ export namespace Components {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
@@ -711,22 +656,18 @@ export namespace Components {
         "conversationId"?: string;
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
-          * @default {}
          */
         "customInputs": Record<string, string>;
         /**
           * 默认查询文本
-          * @default '请开始分析'
          */
         "defaultQuery": string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode": 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen": boolean;
         /**
@@ -735,27 +676,22 @@ export namespace Components {
         "icon"?: string;
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose": boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen": boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader": boolean;
         /**
           * 模态框标题
-          * @default '简历剖析助手'
          */
         "modalTitle": string;
         /**
           * 是否显示工作区历史会话按钮
-          * @default false
          */
         "showWorkspaceHistory": boolean;
         /**
@@ -764,24 +700,14 @@ export namespace Components {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
     interface PcmMessage {
         "close": () => Promise<void>;
-        /**
-          * @default ''
-         */
         "content": string;
-        /**
-          * @default 3000
-         */
         "duration": number;
         "show": () => Promise<void>;
-        /**
-          * @default 'info'
-         */
         "type": 'success' | 'error' | 'info' | 'warning';
     }
     /**
@@ -794,22 +720,18 @@ export namespace Components {
         "conversationId"?: string;
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
-          * @default {}
          */
         "customInputs": Record<string, string>;
         /**
           * 默认查询文本
-          * @default '请开始出题'
          */
         "defaultQuery": string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode": 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen": boolean;
         /**
@@ -818,27 +740,22 @@ export namespace Components {
         "icon"?: string;
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose": boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen": boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader": boolean;
         /**
           * 模态框标题
-          * @default '面试出题大师'
          */
         "modalTitle": string;
         /**
           * 是否显示工作区历史会话按钮
-          * @default false
          */
         "showWorkspaceHistory": boolean;
         /**
@@ -847,7 +764,6 @@ export namespace Components {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
@@ -861,22 +777,18 @@ export namespace Components {
         "conversationId"?: string;
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。
-          * @default {}
          */
         "customInputs": Record<string, string>;
         /**
           * 默认查询文本
-          * @default '请开始模拟面试'
          */
         "defaultQuery": string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode": 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen": boolean;
         /**
@@ -885,52 +797,42 @@ export namespace Components {
         "icon"?: string;
         /**
           * 面试模式：text - 文本模式，video - 视频模式
-          * @default 'text'
          */
         "interviewMode": 'text' | 'video';
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose": boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen": boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader": boolean;
         /**
           * 是否开启移动端上传（仅PC端生效）
-          * @default false
          */
         "mobileJdInputAble": boolean;
         /**
           * 是否开启移动端上传（仅PC端生效）
-          * @default false
          */
         "mobileUploadAble": boolean;
         /**
           * 模态框标题
-          * @default '模拟面试'
          */
         "modalTitle": string;
         /**
           * 是否显示复制按钮
-          * @default true
          */
         "showCopyButton": boolean;
         /**
           * 是否显示点赞点踩按钮
-          * @default true
          */
         "showFeedbackButtons": boolean;
         /**
           * 是否显示工作区历史会话按钮
-          * @default false
          */
         "showWorkspaceHistory": boolean;
         /**
@@ -939,7 +841,6 @@ export namespace Components {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
@@ -953,22 +854,18 @@ export namespace Components {
         "conversationId"?: string;
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。
-          * @default {}
          */
         "customInputs": Record<string, string>;
         /**
           * 默认查询文本
-          * @default '请开始模拟面试'
          */
         "defaultQuery": string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode": 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen": boolean;
         /**
@@ -977,32 +874,26 @@ export namespace Components {
         "icon"?: string;
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose": boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen": boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader": boolean;
         /**
           * 模态框标题
-          * @default '模拟面试'
          */
         "modalTitle": string;
         /**
           * 是否显示复制按钮
-          * @default true
          */
         "showCopyButton": boolean;
         /**
           * 是否显示点赞点踩按钮
-          * @default true
          */
         "showFeedbackButtons": boolean;
         /**
@@ -1011,7 +902,6 @@ export namespace Components {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
@@ -1025,22 +915,18 @@ export namespace Components {
         "conversationId"?: string;
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。
-          * @default {}
          */
         "customInputs": Record<string, string>;
         /**
           * 默认查询文本
-          * @default '请开始模拟面试'
          */
         "defaultQuery": string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode": 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen": boolean;
         /**
@@ -1049,52 +935,42 @@ export namespace Components {
         "icon"?: string;
         /**
           * 面试模式：text - 文本模式，video - 视频模式
-          * @default 'text'
          */
         "interviewMode": 'text' | 'video';
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose": boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen": boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader": boolean;
         /**
           * 是否开启移动端上传（仅PC端生效）
-          * @default false
          */
         "mobileJdInputAble": boolean;
         /**
           * 是否开启移动端上传（仅PC端生效）
-          * @default false
          */
         "mobileUploadAble": boolean;
         /**
           * 模态框标题
-          * @default '模拟面试'
          */
         "modalTitle": string;
         /**
           * 是否显示复制按钮
-          * @default true
          */
         "showCopyButton": boolean;
         /**
           * 是否显示点赞点踩按钮
-          * @default true
          */
         "showFeedbackButtons": boolean;
         /**
           * 是否显示工作区历史会话按钮
-          * @default false
          */
         "showWorkspaceHistory": boolean;
         /**
@@ -1103,23 +979,17 @@ export namespace Components {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
     interface PcmMobileInputBtn {
         /**
           * 最大文件大小
-          * @default undefined
          */
         "maxLength": number;
-        /**
-          * @default ''
-         */
         "name": string;
         /**
           * 最大文件数
-          * @default 8
          */
         "rows": number;
         /**
@@ -1134,22 +1004,18 @@ export namespace Components {
     interface PcmMobileUploadBtn {
         /**
           * 支持的文件后缀列表（需要带上小数点.）
-          * @default []
          */
         "acceptFileSuffixList": string[];
         /**
           * 最大文件数
-          * @default Infinity
          */
         "maxFileCount": number;
         /**
           * 最大文件大小
-          * @default Infinity
          */
         "maxFileSize": number;
         /**
           * 是否支持多文件上传
-          * @default false
          */
         "multiple": boolean;
         /**
@@ -1171,22 +1037,18 @@ export namespace Components {
         "conversationId"?: string;
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_urls时，会隐藏简历上传区域。<br> 传入customInputs.file_urls和customInputs.job_info时，会直接开始聊天。<br>
-          * @default {}
          */
         "customInputs": Record<string, string>;
         /**
           * 默认查询文本
-          * @default '请开始分析'
          */
         "defaultQuery": string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode": 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen": boolean;
         /**
@@ -1195,27 +1057,22 @@ export namespace Components {
         "icon"?: string;
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose": boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen": boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader": boolean;
         /**
           * 模态框标题
-          * @default '面试报告'
          */
         "modalTitle": string;
         /**
           * 是否显示工作区历史会话按钮
-          * @default false
          */
         "showWorkspaceHistory": boolean;
         /**
@@ -1224,7 +1081,6 @@ export namespace Components {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
@@ -1238,22 +1094,18 @@ export namespace Components {
         "conversationId"?: string;
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
-          * @default {}
          */
         "customInputs": Record<string, string>;
         /**
           * 默认查询文本
-          * @default '请开始出题'
          */
         "defaultQuery": string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode": 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen": boolean;
         /**
@@ -1262,27 +1114,22 @@ export namespace Components {
         "icon"?: string;
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose": boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen": boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader": boolean;
         /**
           * 模态框标题
-          * @default '千岗千简历'
          */
         "modalTitle": string;
         /**
           * 是否显示工作区历史会话按钮
-          * @default false
          */
         "showWorkspaceHistory": boolean;
         /**
@@ -1291,7 +1138,6 @@ export namespace Components {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
@@ -1304,33 +1150,27 @@ export namespace Components {
     interface PcmUpload {
         /**
           * 支持的文件后缀列表（需要带上小数点.）
-          * @default []
          */
         "acceptFileSuffixList": string[];
         "getIsUploading": () => Promise<boolean>;
         /**
           * label内容
-          * @default '上传文件'
          */
         "labelText": string;
         /**
           * 最大文件数
-          * @default Infinity
          */
         "maxFileCount": number;
         /**
           * 最大文件大小
-          * @default Infinity
          */
         "maxFileSize": number;
         /**
           * 是否开启移动端上传（仅PC端生效）
-          * @default false
          */
         "mobileUploadAble": boolean;
         /**
           * 是否支持多文件上传
-          * @default false
          */
         "multiple": boolean;
         /**
@@ -1349,7 +1189,6 @@ export namespace Components {
         "conversationId"?: string;
         /**
           * 自定义智能体inputs输入参数:<br> 1. show_suggested_questions: 是否显示推荐问题<br>
-          * @default {     show_suggested_questions: 'false',   }
          */
         "customInputs": Record<string, string>;
         /**
@@ -1358,7 +1197,6 @@ export namespace Components {
         "employeeId": string;
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen": boolean;
         /**
@@ -1367,22 +1205,18 @@ export namespace Components {
         "icon"?: string;
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose": boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen": boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader": boolean;
         /**
           * 语音录制最大时长（秒）
-          * @default 60
          */
         "maxAudioRecordingTime": number;
         /**
@@ -1395,7 +1229,6 @@ export namespace Components {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
@@ -1406,22 +1239,18 @@ export namespace Components {
         "conversationId"?: string;
         /**
           * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
-          * @default {}
          */
         "customInputs": Record<string, string>;
         /**
           * 默认查询文本
-          * @default '请开始规划'
          */
         "defaultQuery": string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode": 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen": boolean;
         /**
@@ -1430,27 +1259,22 @@ export namespace Components {
         "icon"?: string;
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose": boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen": boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader": boolean;
         /**
           * 模态框标题
-          * @default '职业规划助手'
          */
         "modalTitle": string;
         /**
           * 是否显示工作区历史会话按钮
-          * @default false
          */
         "showWorkspaceHistory": boolean;
         /**
@@ -1459,7 +1283,6 @@ export namespace Components {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
@@ -1479,6 +1302,10 @@ export interface PcmCardCustomEvent<T> extends CustomEvent<T> {
 export interface PcmChatMessageCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmChatMessageElement;
+}
+export interface PcmConfirmModalCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLPcmConfirmModalElement;
 }
 export interface PcmDrawerCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -1657,6 +1484,31 @@ declare global {
     var HTMLPcmChatMessageElement: {
         prototype: HTMLPcmChatMessageElement;
         new (): HTMLPcmChatMessageElement;
+    };
+    interface HTMLPcmConfirmModalElementEventMap {
+        "ok": void;
+        "cancel": void;
+        "closed": void;
+        "afterOpen": void;
+        "afterClose": void;
+    }
+    /**
+     * 确认模态框组件
+     * 通用的确认对话框组件，类似 Ant Design 的 Modal 组件
+     */
+    interface HTMLPcmConfirmModalElement extends Components.PcmConfirmModal, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLPcmConfirmModalElementEventMap>(type: K, listener: (this: HTMLPcmConfirmModalElement, ev: PcmConfirmModalCustomEvent<HTMLPcmConfirmModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLPcmConfirmModalElementEventMap>(type: K, listener: (this: HTMLPcmConfirmModalElement, ev: PcmConfirmModalCustomEvent<HTMLPcmConfirmModalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLPcmConfirmModalElement: {
+        prototype: HTMLPcmConfirmModalElement;
+        new (): HTMLPcmConfirmModalElement;
     };
     interface HTMLPcmDrawerElementEventMap {
         "closed": void;
@@ -2102,6 +1954,7 @@ declare global {
         "pcm-button": HTMLPcmButtonElement;
         "pcm-card": HTMLPcmCardElement;
         "pcm-chat-message": HTMLPcmChatMessageElement;
+        "pcm-confirm-modal": HTMLPcmConfirmModalElement;
         "pcm-drawer": HTMLPcmDrawerElement;
         "pcm-hr-chat-modal": HTMLPcmHrChatModalElement;
         "pcm-htws-modal": HTMLPcmHtwsModalElement;
@@ -2134,17 +1987,14 @@ declare namespace LocalJSX {
         "conversationId"?: string;
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br>
-          * @default {}
          */
         "customInputs"?: Record<string, string>;
         /**
           * 默认查询文本
-          * @default '请开始模拟面试'
          */
         "defaultQuery"?: string;
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen"?: boolean;
         /**
@@ -2153,27 +2003,22 @@ declare namespace LocalJSX {
         "icon"?: string;
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose"?: boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen"?: boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader"?: boolean;
         /**
           * 视频录制最大时长（秒）默认120
-          * @default 120
          */
         "maxRecordingTime"?: number;
         /**
           * 模态框标题
-          * @default '模拟面试'
          */
         "modalTitle"?: string;
         /**
@@ -2214,7 +2059,6 @@ declare namespace LocalJSX {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
@@ -2233,37 +2077,30 @@ declare namespace LocalJSX {
         "conversationId"?: string;
         /**
           * 录制倒计时提醒时间（秒） 当剩余时间小于此值时，显示倒计时警告
-          * @default 30
          */
         "countdownWarningTime"?: number;
         /**
           * 自定义智能体inputs输入参数
-          * @default {}
          */
         "customInputs"?: Record<string, string>;
         /**
           * 默认发送文本
-          * @default '你好！聘才猫'
          */
         "defaultQuery"?: string;
         /**
           * 是否启用语音播报功能 true: 启用语音合成 false: 禁用语音合成
-          * @default false
          */
         "enableTTS"?: boolean;
         /**
           * 是否自动播放语音问题
-          * @default false
          */
         "enableVoice"?: boolean;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode"?: 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen"?: boolean;
         /**
@@ -2272,37 +2109,30 @@ declare namespace LocalJSX {
         "icon"?: string;
         /**
           * 面试模式 video: 视频面试模式 text: 文字面试模式
-          * @default 'video'
          */
         "interviewMode"?: 'video' | 'text';
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose"?: boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen"?: boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader"?: boolean;
         /**
           * 语音录制最大时长（秒）
-          * @default 60
          */
         "maxAudioRecordingTime"?: number;
         /**
           * 视频录制最大时长（秒）
-          * @default 120
          */
         "maxRecordingTime"?: number;
         /**
           * 模态框标题
-          * @default '在线客服'
          */
         "modalTitle"?: string;
         /**
@@ -2335,17 +2165,14 @@ declare namespace LocalJSX {
         "onTokenInvalid"?: (event: PcmAppChatModalCustomEvent<void>) => void;
         /**
           * 是否显示复制按钮
-          * @default true
          */
         "showCopyButton"?: boolean;
         /**
           * 是否显示点赞点踩按钮
-          * @default true
          */
         "showFeedbackButtons"?: boolean;
         /**
           * 是否显示工作区历史会话按钮
-          * @default false
          */
         "showWorkspaceHistory"?: boolean;
         /**
@@ -2354,7 +2181,6 @@ declare namespace LocalJSX {
         "token"?: string;
         /**
           * 用户头像URL
-          * @default "https://pub.pincaimao.com/static/common/i_pcm_logo.png"
          */
         "userAvatar"?: string;
         /**
@@ -2369,67 +2195,54 @@ declare namespace LocalJSX {
     interface PcmButton {
         /**
           * 自定义按钮背景色
-          * @default ''
          */
         "backgroundColor"?: string;
         /**
           * 是否为块级按钮（宽度撑满父元素）
-          * @default false
          */
         "block"?: boolean;
         /**
           * 自定义按钮边框颜色
-          * @default ''
          */
         "borderColor"?: string;
         /**
           * 自定义按钮圆角大小（像素）
-          * @default null
          */
         "borderRadius"?: number;
         /**
           * 按钮边框样式 可选值: 'solid', 'dashed', 'dotted', 'none'
-          * @default 'solid'
          */
         "borderStyle"?: 'solid' | 'dashed' | 'dotted' | 'none';
         /**
           * 是否为禁用状态
-          * @default false
          */
         "disabled"?: boolean;
         /**
           * 设置按钮的图标 使用图标的URL或者base64字符串
-          * @default 'https://pub.pincaimao.com/static/common/i_pcm_logo.png'
          */
         "icon"?: string;
         /**
           * 是否为加载状态
-          * @default false
          */
         "loading"?: boolean;
         /**
           * 自定义按钮形状 可选值: 'default', 'circle', 'round'
-          * @default 'default'
          */
         "shape"?: 'default' | 'circle' | 'round';
         /**
           * 按钮尺寸 可选值: 'large', 'middle', 'small'
-          * @default 'middle'
          */
         "size"?: 'large' | 'middle' | 'small';
         /**
           * 自定义按钮文字颜色
-          * @default ''
          */
         "textColor"?: string;
         /**
           * 按钮类型 可选值: 'primary', 'default', 'dashed', 'text', 'link'
-          * @default 'default'
          */
         "type"?: 'primary' | 'default' | 'dashed' | 'text' | 'link';
         /**
           * 按钮宽度（像素或百分比）
-          * @default ''
          */
         "width"?: string;
     }
@@ -2440,37 +2253,30 @@ declare namespace LocalJSX {
     interface PcmCard {
         /**
           * 自定义作者名称
-          * @default ''
          */
         "author"?: string;
         /**
           * 自定义作者头像URL
-          * @default ''
          */
         "authorAvatarUrl"?: string;
         /**
           * 智能体ID
-          * @default ''
          */
         "botId"?: string;
         /**
           * 自定义卡片标题
-          * @default ''
          */
         "cardTitle"?: string;
         /**
           * 自定义右侧标签
-          * @default ''
          */
         "customChatTag"?: string;
         /**
           * 自定义卡片描述
-          * @default ''
          */
         "description"?: string;
         /**
           * 自定义卡片图标URL
-          * @default ''
          */
         "iconUrl"?: string;
         /**
@@ -2479,7 +2285,6 @@ declare namespace LocalJSX {
         "onTokenInvalid"?: (event: PcmCardCustomEvent<void>) => void;
         /**
           * 是否显示右侧对话标签
-          * @default false
          */
         "showChatTag"?: boolean;
         /**
@@ -2488,7 +2293,6 @@ declare namespace LocalJSX {
         "token": string;
         /**
           * 自定义立即使用按钮文本
-          * @default '立即使用'
          */
         "useButtonText"?: string;
     }
@@ -2503,7 +2307,6 @@ declare namespace LocalJSX {
         "botId"?: string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode"?: 'drawer' | 'window';
         /**
@@ -2526,12 +2329,10 @@ declare namespace LocalJSX {
         "onRetryRequest"?: (event: PcmChatMessageCustomEvent<string>) => void;
         /**
           * 是否显示复制按钮
-          * @default true
          */
         "showCopyButton"?: boolean;
         /**
           * 是否显示点赞点踩按钮
-          * @default true
          */
         "showFeedbackButtons"?: boolean;
         /**
@@ -2540,38 +2341,94 @@ declare namespace LocalJSX {
         "userAvatar"?: string;
     }
     /**
+     * 确认模态框组件
+     * 通用的确认对话框组件，类似 Ant Design 的 Modal 组件
+     */
+    interface PcmConfirmModal {
+        /**
+          * 取消按钮文本
+         */
+        "cancelText"?: string;
+        /**
+          * 是否居中显示
+         */
+        "centered"?: boolean;
+        /**
+          * 模态框是否可见
+         */
+        "isOpen"?: boolean;
+        /**
+          * 是否显示蒙层
+         */
+        "mask"?: boolean;
+        /**
+          * 点击蒙层是否允许关闭
+         */
+        "maskClosable"?: boolean;
+        /**
+          * 模态框标题
+         */
+        "modalTitle"?: string;
+        /**
+          * 确认按钮文本
+         */
+        "okText"?: string;
+        /**
+          * 确认按钮类型
+         */
+        "okType"?: 'default' | 'primary' | 'danger';
+        /**
+          * 模态框关闭后的回调
+         */
+        "onAfterClose"?: (event: PcmConfirmModalCustomEvent<void>) => void;
+        /**
+          * 模态框打开后的回调
+         */
+        "onAfterOpen"?: (event: PcmConfirmModalCustomEvent<void>) => void;
+        /**
+          * 取消按钮点击事件
+         */
+        "onCancel"?: (event: PcmConfirmModalCustomEvent<void>) => void;
+        /**
+          * 模态框关闭后的回调
+         */
+        "onClosed"?: (event: PcmConfirmModalCustomEvent<void>) => void;
+        /**
+          * 确认按钮点击事件
+         */
+        "onOk"?: (event: PcmConfirmModalCustomEvent<void>) => void;
+        /**
+          * 父级模态框的z-index值，确认模态框会在此基础上增加层级
+         */
+        "parentZIndex"?: number;
+    }
+    /**
      * 抽屉组件
      * 从屏幕边缘滑出的浮层面板，类似 Ant Design 的 Drawer 组件
      */
     interface PcmDrawer {
         /**
           * 是否显示关闭按钮
-          * @default true
          */
         "closable"?: boolean;
         /**
           * 抽屉标题
-          * @default ''
          */
         "drawerTitle"?: string;
         /**
           * 高度，在 placement 为 top 或 bottom 时使用
-          * @default '378px'
          */
         "height"?: string;
         /**
           * 抽屉是否可见
-          * @default false
          */
         "isOpen"?: boolean;
         /**
           * 是否显示蒙层
-          * @default true
          */
         "mask"?: boolean;
         /**
           * 点击蒙层是否允许关闭
-          * @default true
          */
         "maskClosable"?: boolean;
         /**
@@ -2588,14 +2445,12 @@ declare namespace LocalJSX {
         "onClosed"?: (event: PcmDrawerCustomEvent<void>) => void;
         /**
           * 宽度，可以是像素值或百分比
-          * @default '378px'
          */
         "width"?: string;
     }
     interface PcmHrChatModal {
         /**
           * 回调地址，用于接收报告的通知（toEmail和callbackUrl不能同时为空，举例：https://www.example.com/callback）
-          * @default ''
          */
         "callbackUrl"?: string;
         /**
@@ -2604,32 +2459,26 @@ declare namespace LocalJSX {
         "conversationId"?: string;
         /**
           * 录制倒计时提醒时间（秒） 当剩余时间小于此值时，显示倒计时警告
-          * @default 30
          */
         "countdownWarningTime"?: number;
         /**
           * 首次对话提问文本
-          * @default '请开始出题'
          */
         "defaultQuery"?: string;
         /**
           * 是否显示题干内容
-          * @default true
          */
         "displayContentStatus"?: boolean;
         /**
           * 是否启用音频播放功能（包括自动播放和手动播放）
-          * @default true
          */
         "enableAudio"?: boolean;
         /**
           * 是否自动播放语音问题
-          * @default true
          */
         "enableVoice"?: boolean;
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen"?: boolean;
         /**
@@ -2638,27 +2487,22 @@ declare namespace LocalJSX {
         "icon"?: string;
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose"?: boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen"?: boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader"?: boolean;
         /**
           * 视频录制最大时长（秒）
-          * @default 120
          */
         "maxRecordingTime"?: number;
         /**
           * 模态框标题
-          * @default '金牌HR大赛'
          */
         "modalTitle"?: string;
         /**
@@ -2702,12 +2546,10 @@ declare namespace LocalJSX {
         "onTokenInvalid"?: (event: PcmHrChatModalCustomEvent<void>) => void;
         /**
           * 是否需要上传简历
-          * @default false
          */
         "requireResume"?: boolean;
         /**
           * 接收报告的邮箱地址（toEmail和callbackUrl不能同时为空）
-          * @default ''
          */
         "toEmail"?: string;
         /**
@@ -2716,12 +2558,10 @@ declare namespace LocalJSX {
         "token": string;
         /**
           * 总题目数量
-          * @default 2
          */
         "totalQuestions"?: number;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
@@ -2735,22 +2575,18 @@ declare namespace LocalJSX {
         "conversationId"?: string;
         /**
           * 自定义输入参数，传入customInputs.input时，会自动切换到自由输入模式<br>
-          * @default {}
          */
         "customInputs"?: Record<string, string>;
         /**
           * 默认查询文本
-          * @default '请开始分析'
          */
         "defaultQuery"?: string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode"?: 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen"?: boolean;
         /**
@@ -2759,22 +2595,18 @@ declare namespace LocalJSX {
         "icon"?: string;
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose"?: boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen"?: boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader"?: boolean;
         /**
           * 模态框标题
-          * @default '劳动合同卫士'
          */
         "modalTitle"?: string;
         /**
@@ -2807,7 +2639,6 @@ declare namespace LocalJSX {
         "onUploadSuccess"?: (event: PcmHtwsModalCustomEvent<FileUploadResponse>) => void;
         /**
           * 是否显示工作区历史会话按钮
-          * @default false
          */
         "showWorkspaceHistory"?: boolean;
         /**
@@ -2816,7 +2647,6 @@ declare namespace LocalJSX {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
@@ -2830,22 +2660,18 @@ declare namespace LocalJSX {
         "conversationId"?: string;
         /**
           * 自定义输入参数<br> 传入customInputs.file_url时，会直接开始聊天。<br>
-          * @default {}
          */
         "customInputs"?: Record<string, string>;
         /**
           * 默认查询文本
-          * @default '请开始总结'
          */
         "defaultQuery"?: string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode"?: 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen"?: boolean;
         /**
@@ -2854,22 +2680,18 @@ declare namespace LocalJSX {
         "icon"?: string;
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose"?: boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen"?: boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader"?: boolean;
         /**
           * 模态框标题
-          * @default '会议总结助手'
          */
         "modalTitle"?: string;
         /**
@@ -2902,7 +2724,6 @@ declare namespace LocalJSX {
         "onUploadSuccess"?: (event: PcmHyzjModalCustomEvent<FileUploadResponse>) => void;
         /**
           * 是否显示工作区历史会话按钮
-          * @default false
          */
         "showWorkspaceHistory"?: boolean;
         /**
@@ -2911,7 +2732,6 @@ declare namespace LocalJSX {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
@@ -2925,22 +2745,18 @@ declare namespace LocalJSX {
         "conversationId"?: string;
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br>
-          * @default {}
          */
         "customInputs"?: Record<string, string>;
         /**
           * 默认查询文本
-          * @default '请帮我生成职位信息'
          */
         "defaultQuery"?: string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode"?: 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen"?: boolean;
         /**
@@ -2949,22 +2765,18 @@ declare namespace LocalJSX {
         "icon"?: string;
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose"?: boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen"?: boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader"?: boolean;
         /**
           * 模态框标题
-          * @default '职位生成'
          */
         "modalTitle"?: string;
         /**
@@ -2993,7 +2805,6 @@ declare namespace LocalJSX {
         "onTokenInvalid"?: (event: PcmJdModalCustomEvent<void>) => void;
         /**
           * 是否显示工作区历史会话按钮
-          * @default false
          */
         "showWorkspaceHistory"?: boolean;
         /**
@@ -3002,7 +2813,6 @@ declare namespace LocalJSX {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
@@ -3016,22 +2826,18 @@ declare namespace LocalJSX {
         "conversationId"?: string;
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
-          * @default {}
          */
         "customInputs"?: Record<string, string>;
         /**
           * 默认查询文本
-          * @default '请开始分析'
          */
         "defaultQuery"?: string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode"?: 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen"?: boolean;
         /**
@@ -3040,22 +2846,18 @@ declare namespace LocalJSX {
         "icon"?: string;
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose"?: boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen"?: boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader"?: boolean;
         /**
           * 模态框标题
-          * @default '简历剖析助手'
          */
         "modalTitle"?: string;
         /**
@@ -3088,7 +2890,6 @@ declare namespace LocalJSX {
         "onUploadSuccess"?: (event: PcmJlppModalCustomEvent<FileUploadResponse>) => void;
         /**
           * 是否显示工作区历史会话按钮
-          * @default false
          */
         "showWorkspaceHistory"?: boolean;
         /**
@@ -3097,22 +2898,12 @@ declare namespace LocalJSX {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
     interface PcmMessage {
-        /**
-          * @default ''
-         */
         "content"?: string;
-        /**
-          * @default 3000
-         */
         "duration"?: number;
-        /**
-          * @default 'info'
-         */
         "type"?: 'success' | 'error' | 'info' | 'warning';
     }
     /**
@@ -3125,22 +2916,18 @@ declare namespace LocalJSX {
         "conversationId"?: string;
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
-          * @default {}
          */
         "customInputs"?: Record<string, string>;
         /**
           * 默认查询文本
-          * @default '请开始出题'
          */
         "defaultQuery"?: string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode"?: 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen"?: boolean;
         /**
@@ -3149,22 +2936,18 @@ declare namespace LocalJSX {
         "icon"?: string;
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose"?: boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen"?: boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader"?: boolean;
         /**
           * 模态框标题
-          * @default '面试出题大师'
          */
         "modalTitle"?: string;
         /**
@@ -3197,7 +2980,6 @@ declare namespace LocalJSX {
         "onUploadSuccess"?: (event: PcmMnctModalCustomEvent<FileUploadResponse>) => void;
         /**
           * 是否显示工作区历史会话按钮
-          * @default false
          */
         "showWorkspaceHistory"?: boolean;
         /**
@@ -3206,7 +2988,6 @@ declare namespace LocalJSX {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
@@ -3220,22 +3001,18 @@ declare namespace LocalJSX {
         "conversationId"?: string;
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。
-          * @default {}
          */
         "customInputs"?: Record<string, string>;
         /**
           * 默认查询文本
-          * @default '请开始模拟面试'
          */
         "defaultQuery"?: string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode"?: 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen"?: boolean;
         /**
@@ -3244,37 +3021,30 @@ declare namespace LocalJSX {
         "icon"?: string;
         /**
           * 面试模式：text - 文本模式，video - 视频模式
-          * @default 'text'
          */
         "interviewMode"?: 'text' | 'video';
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose"?: boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen"?: boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader"?: boolean;
         /**
           * 是否开启移动端上传（仅PC端生效）
-          * @default false
          */
         "mobileJdInputAble"?: boolean;
         /**
           * 是否开启移动端上传（仅PC端生效）
-          * @default false
          */
         "mobileUploadAble"?: boolean;
         /**
           * 模态框标题
-          * @default '模拟面试'
          */
         "modalTitle"?: string;
         /**
@@ -3311,17 +3081,14 @@ declare namespace LocalJSX {
         "onUploadSuccess"?: (event: PcmMnmsModalCustomEvent<FileUploadResponse>) => void;
         /**
           * 是否显示复制按钮
-          * @default true
          */
         "showCopyButton"?: boolean;
         /**
           * 是否显示点赞点踩按钮
-          * @default true
          */
         "showFeedbackButtons"?: boolean;
         /**
           * 是否显示工作区历史会话按钮
-          * @default false
          */
         "showWorkspaceHistory"?: boolean;
         /**
@@ -3330,7 +3097,6 @@ declare namespace LocalJSX {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
@@ -3344,22 +3110,18 @@ declare namespace LocalJSX {
         "conversationId"?: string;
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。
-          * @default {}
          */
         "customInputs"?: Record<string, string>;
         /**
           * 默认查询文本
-          * @default '请开始模拟面试'
          */
         "defaultQuery"?: string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode"?: 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen"?: boolean;
         /**
@@ -3368,22 +3130,18 @@ declare namespace LocalJSX {
         "icon"?: string;
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose"?: boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen"?: boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader"?: boolean;
         /**
           * 模态框标题
-          * @default '模拟面试'
          */
         "modalTitle"?: string;
         /**
@@ -3420,12 +3178,10 @@ declare namespace LocalJSX {
         "onUploadSuccess"?: (event: PcmMnmsVideoModalCustomEvent<FileUploadResponse>) => void;
         /**
           * 是否显示复制按钮
-          * @default true
          */
         "showCopyButton"?: boolean;
         /**
           * 是否显示点赞点踩按钮
-          * @default true
          */
         "showFeedbackButtons"?: boolean;
         /**
@@ -3434,7 +3190,6 @@ declare namespace LocalJSX {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
@@ -3448,22 +3203,18 @@ declare namespace LocalJSX {
         "conversationId"?: string;
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。
-          * @default {}
          */
         "customInputs"?: Record<string, string>;
         /**
           * 默认查询文本
-          * @default '请开始模拟面试'
          */
         "defaultQuery"?: string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode"?: 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen"?: boolean;
         /**
@@ -3472,37 +3223,30 @@ declare namespace LocalJSX {
         "icon"?: string;
         /**
           * 面试模式：text - 文本模式，video - 视频模式
-          * @default 'text'
          */
         "interviewMode"?: 'text' | 'video';
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose"?: boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen"?: boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader"?: boolean;
         /**
           * 是否开启移动端上传（仅PC端生效）
-          * @default false
          */
         "mobileJdInputAble"?: boolean;
         /**
           * 是否开启移动端上传（仅PC端生效）
-          * @default false
          */
         "mobileUploadAble"?: boolean;
         /**
           * 模态框标题
-          * @default '模拟面试'
          */
         "modalTitle"?: string;
         /**
@@ -3539,17 +3283,14 @@ declare namespace LocalJSX {
         "onUploadSuccess"?: (event: PcmMnmsZpModalCustomEvent<FileUploadResponse>) => void;
         /**
           * 是否显示复制按钮
-          * @default true
          */
         "showCopyButton"?: boolean;
         /**
           * 是否显示点赞点踩按钮
-          * @default true
          */
         "showFeedbackButtons"?: boolean;
         /**
           * 是否显示工作区历史会话按钮
-          * @default false
          */
         "showWorkspaceHistory"?: boolean;
         /**
@@ -3558,24 +3299,18 @@ declare namespace LocalJSX {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
     interface PcmMobileInputBtn {
         /**
           * 最大文件大小
-          * @default undefined
          */
         "maxLength"?: number;
-        /**
-          * @default ''
-         */
         "name"?: string;
         "onOk"?: (event: PcmMobileInputBtnCustomEvent<string>) => void;
         /**
           * 最大文件数
-          * @default 8
          */
         "rows"?: number;
         /**
@@ -3590,22 +3325,18 @@ declare namespace LocalJSX {
     interface PcmMobileUploadBtn {
         /**
           * 支持的文件后缀列表（需要带上小数点.）
-          * @default []
          */
         "acceptFileSuffixList"?: string[];
         /**
           * 最大文件数
-          * @default Infinity
          */
         "maxFileCount"?: number;
         /**
           * 最大文件大小
-          * @default Infinity
          */
         "maxFileSize"?: number;
         /**
           * 是否支持多文件上传
-          * @default false
          */
         "multiple"?: boolean;
         "onOk"?: (event: PcmMobileUploadBtnCustomEvent<any[]>) => void;
@@ -3628,22 +3359,18 @@ declare namespace LocalJSX {
         "conversationId"?: string;
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_urls时，会隐藏简历上传区域。<br> 传入customInputs.file_urls和customInputs.job_info时，会直接开始聊天。<br>
-          * @default {}
          */
         "customInputs"?: Record<string, string>;
         /**
           * 默认查询文本
-          * @default '请开始分析'
          */
         "defaultQuery"?: string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode"?: 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen"?: boolean;
         /**
@@ -3652,22 +3379,18 @@ declare namespace LocalJSX {
         "icon"?: string;
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose"?: boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen"?: boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader"?: boolean;
         /**
           * 模态框标题
-          * @default '面试报告'
          */
         "modalTitle"?: string;
         /**
@@ -3700,7 +3423,6 @@ declare namespace LocalJSX {
         "onUploadSuccess"?: (event: PcmMsbgModalCustomEvent<FileUploadResponse>) => void;
         /**
           * 是否显示工作区历史会话按钮
-          * @default false
          */
         "showWorkspaceHistory"?: boolean;
         /**
@@ -3709,7 +3431,6 @@ declare namespace LocalJSX {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
@@ -3723,22 +3444,18 @@ declare namespace LocalJSX {
         "conversationId"?: string;
         /**
           * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
-          * @default {}
          */
         "customInputs"?: Record<string, string>;
         /**
           * 默认查询文本
-          * @default '请开始出题'
          */
         "defaultQuery"?: string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode"?: 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen"?: boolean;
         /**
@@ -3747,22 +3464,18 @@ declare namespace LocalJSX {
         "icon"?: string;
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose"?: boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen"?: boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader"?: boolean;
         /**
           * 模态框标题
-          * @default '千岗千简历'
          */
         "modalTitle"?: string;
         /**
@@ -3795,7 +3508,6 @@ declare namespace LocalJSX {
         "onUploadSuccess"?: (event: PcmQgqjlModalCustomEvent<FileUploadResponse>) => void;
         /**
           * 是否显示工作区历史会话按钮
-          * @default false
          */
         "showWorkspaceHistory"?: boolean;
         /**
@@ -3804,7 +3516,6 @@ declare namespace LocalJSX {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
@@ -3821,32 +3532,26 @@ declare namespace LocalJSX {
     interface PcmUpload {
         /**
           * 支持的文件后缀列表（需要带上小数点.）
-          * @default []
          */
         "acceptFileSuffixList"?: string[];
         /**
           * label内容
-          * @default '上传文件'
          */
         "labelText"?: string;
         /**
           * 最大文件数
-          * @default Infinity
          */
         "maxFileCount"?: number;
         /**
           * 最大文件大小
-          * @default Infinity
          */
         "maxFileSize"?: number;
         /**
           * 是否开启移动端上传（仅PC端生效）
-          * @default false
          */
         "mobileUploadAble"?: boolean;
         /**
           * 是否支持多文件上传
-          * @default false
          */
         "multiple"?: boolean;
         /**
@@ -3873,7 +3578,6 @@ declare namespace LocalJSX {
         "conversationId"?: string;
         /**
           * 自定义智能体inputs输入参数:<br> 1. show_suggested_questions: 是否显示推荐问题<br>
-          * @default {     show_suggested_questions: 'false',   }
          */
         "customInputs"?: Record<string, string>;
         /**
@@ -3882,7 +3586,6 @@ declare namespace LocalJSX {
         "employeeId": string;
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen"?: boolean;
         /**
@@ -3891,22 +3594,18 @@ declare namespace LocalJSX {
         "icon"?: string;
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose"?: boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen"?: boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader"?: boolean;
         /**
           * 语音录制最大时长（秒）
-          * @default 60
          */
         "maxAudioRecordingTime"?: number;
         /**
@@ -3939,7 +3638,6 @@ declare namespace LocalJSX {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
@@ -3950,22 +3648,18 @@ declare namespace LocalJSX {
         "conversationId"?: string;
         /**
           * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
-          * @default {}
          */
         "customInputs"?: Record<string, string>;
         /**
           * 默认查询文本
-          * @default '请开始规划'
          */
         "defaultQuery"?: string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
          */
         "filePreviewMode"?: 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
-          * @default false
          */
         "fullscreen"?: boolean;
         /**
@@ -3974,22 +3668,18 @@ declare namespace LocalJSX {
         "icon"?: string;
         /**
           * 是否展示右上角的关闭按钮
-          * @default true
          */
         "isNeedClose"?: boolean;
         /**
           * 是否显示聊天模态框
-          * @default false
          */
         "isOpen"?: boolean;
         /**
           * 是否展示顶部标题栏
-          * @default true
          */
         "isShowHeader"?: boolean;
         /**
           * 模态框标题
-          * @default '职业规划助手'
          */
         "modalTitle"?: string;
         /**
@@ -4025,7 +3715,6 @@ declare namespace LocalJSX {
         "onUploadSuccess"?: (event: PcmZyghModalCustomEvent<FileUploadResponse>) => void;
         /**
           * 是否显示工作区历史会话按钮
-          * @default false
          */
         "showWorkspaceHistory"?: boolean;
         /**
@@ -4034,7 +3723,6 @@ declare namespace LocalJSX {
         "token": string;
         /**
           * 聊天框的页面层级
-          * @default 1000
          */
         "zIndex"?: number;
     }
@@ -4044,6 +3732,7 @@ declare namespace LocalJSX {
         "pcm-button": PcmButton;
         "pcm-card": PcmCard;
         "pcm-chat-message": PcmChatMessage;
+        "pcm-confirm-modal": PcmConfirmModal;
         "pcm-drawer": PcmDrawer;
         "pcm-hr-chat-modal": PcmHrChatModal;
         "pcm-htws-modal": PcmHtwsModal;
@@ -4085,6 +3774,11 @@ declare module "@stencil/core" {
              */
             "pcm-card": LocalJSX.PcmCard & JSXBase.HTMLAttributes<HTMLPcmCardElement>;
             "pcm-chat-message": LocalJSX.PcmChatMessage & JSXBase.HTMLAttributes<HTMLPcmChatMessageElement>;
+            /**
+             * 确认模态框组件
+             * 通用的确认对话框组件，类似 Ant Design 的 Modal 组件
+             */
+            "pcm-confirm-modal": LocalJSX.PcmConfirmModal & JSXBase.HTMLAttributes<HTMLPcmConfirmModalElement>;
             /**
              * 抽屉组件
              * 从屏幕边缘滑出的浮层面板，类似 Ant Design 的 Drawer 组件

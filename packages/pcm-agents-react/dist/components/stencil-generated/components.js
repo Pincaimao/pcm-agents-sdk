@@ -5,6 +5,7 @@ import { PcmAppChatModal as PcmAppChatModalElement, defineCustomElement as defin
 import { PcmButton as PcmButtonElement, defineCustomElement as definePcmButton } from "pcm-agents/dist/components/pcm-button.js";
 import { PcmCard as PcmCardElement, defineCustomElement as definePcmCard } from "pcm-agents/dist/components/pcm-card.js";
 import { PcmChatMessage as PcmChatMessageElement, defineCustomElement as definePcmChatMessage } from "pcm-agents/dist/components/pcm-chat-message.js";
+import { PcmConfirmModal as PcmConfirmModalElement, defineCustomElement as definePcmConfirmModal } from "pcm-agents/dist/components/pcm-confirm-modal.js";
 import { PcmDrawer as PcmDrawerElement, defineCustomElement as definePcmDrawer } from "pcm-agents/dist/components/pcm-drawer.js";
 import { PcmHrChatModal as PcmHrChatModalElement, defineCustomElement as definePcmHrChatModal } from "pcm-agents/dist/components/pcm-hr-chat-modal.js";
 import { PcmHtwsModal as PcmHtwsModalElement, defineCustomElement as definePcmHtwsModal } from "pcm-agents/dist/components/pcm-htws-modal.js";
@@ -80,6 +81,19 @@ export const PcmChatMessage = createComponent({
         onRetryRequest: 'retryRequest'
     },
     defineCustomElement: definePcmChatMessage
+});
+export const PcmConfirmModal = createComponent({
+    tagName: 'pcm-confirm-modal',
+    elementClass: PcmConfirmModalElement,
+    react: React,
+    events: {
+        onOk: 'ok',
+        onCancel: 'cancel',
+        onClosed: 'closed',
+        onAfterOpen: 'afterOpen',
+        onAfterClose: 'afterClose'
+    },
+    defineCustomElement: definePcmConfirmModal
 });
 export const PcmDrawer = createComponent({
     tagName: 'pcm-drawer',
