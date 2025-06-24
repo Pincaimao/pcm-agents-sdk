@@ -547,14 +547,17 @@ export class ChatAPPModal {
       },
       onComplete: async () => {
         this.isLoading = false;
-        // 发送第一条消息后，清空 customInputs
-        // setTimeout(() => {
-        //   if (this.customInputs) {
-        //     Object.keys(this.customInputs).forEach(key => {
-        //       delete this.customInputs[key];
-        //     });
-        //   }
-        // }, 1000); // 给一些时间让第一条消息处理完成
+        // 根据currentQuestionNumber判断是否清空customInputs
+        if (this.currentQuestionNumber === 0) {
+          //  发送第一条消息后，清空 customInputs
+          setTimeout(() => {
+            if (this.customInputs) {
+              Object.keys(this.customInputs).forEach(key => {
+                delete this.customInputs[key];
+              });
+            }
+          }, 1000); // 给一些时间让第一条消息处理完成
+        }
 
         // 获取最新的AI回复内容
         const latestAIMessage = this.currentStreamingMessage;
@@ -564,8 +567,7 @@ export class ChatAPPModal {
         // 更新消息列表
         this.messages = [...this.messages, latestAIMessage];
 
-
-        // 增加题目计数
+        // 增加计数
         this.currentQuestionNumber++;
 
         if (this.isTaskCompleted) {
@@ -720,6 +722,9 @@ export class ChatAPPModal {
         });
 
         this.messages = formattedMessages;
+
+        // 根据历史消息数量设置currentQuestionNumber
+        this.currentQuestionNumber = formattedMessages.length || 0;
       }
     } catch (error) {
       console.error('加载历史消息或会话状态失败:', error);
