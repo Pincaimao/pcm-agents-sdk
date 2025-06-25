@@ -200,8 +200,13 @@
     background: #fafafa;
 }
 
-.upload-btn {
+.upload-actions {
+    display: flex;
+    gap: 12px;
     margin-top: 12px;
+}
+
+.upload-btn {
     padding: 8px 16px;
     background: #1890ff;
     color: white;
@@ -209,7 +214,7 @@
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.2s;
-    align-self: flex-start;
+    font-size: 14px;
 }
 
 .upload-btn:hover {
@@ -217,6 +222,26 @@
 }
 
 .upload-btn:disabled {
+    background: #d9d9d9;
+    cursor: not-allowed;
+}
+
+.analyze-btn {
+    padding: 8px 16px;
+    background: #52c41a;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 14px;
+}
+
+.analyze-btn:hover {
+    background: #73d13d;
+}
+
+.analyze-btn:disabled {
     background: #d9d9d9;
     cursor: not-allowed;
 }
@@ -286,9 +311,6 @@
     text-overflow: ellipsis;
 }
 
-.score-cell {
-    text-align: center;
-}
 
 .score-badge {
     display: inline-block;
@@ -328,6 +350,39 @@
     border: 1px solid #d9d9d9;
 }
 
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 12px;
+}
+
+.status-badge.status-pending {
+    background: #f0f0f0;
+    color: #8c8c8c;
+    border: 1px solid #d9d9d9;
+}
+
+.status-badge.status-analyzing {
+    background: #e6f7ff;
+    color: #1890ff;
+    border: 1px solid #91d5ff;
+}
+
+.status-badge.status-completed {
+    background: #f6ffed;
+    color: #52c41a;
+    border: 1px solid #b7eb8f;
+}
+
+.status-badge.status-failed {
+    background: #fff1f0;
+    color: #f5222d;
+    border: 1px solid #ffa39e;
+}
+
 .detail-cell {
     max-width: 200px;
     white-space: nowrap;
@@ -335,19 +390,99 @@
     text-overflow: ellipsis;
 }
 
+.detail-content {
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.detail-content:hover {
+    color: #40a9ff;
+}
+
 .action-cell {
     display: flex;
     gap: 8px;
-    justify-content: flex-end;
+    position: relative;
 }
 
-.action-btn {
-    padding: 4px 8px;
-    border: none;
+.action-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-trigger {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    background: #f0f0f0;
+    border: 1px solid #d9d9d9;
     border-radius: 4px;
     cursor: pointer;
     font-size: 12px;
+    color: #595959;
     transition: all 0.2s;
+    min-width: 60px;
+    justify-content: center;
+}
+
+.dropdown-trigger:hover {
+    background: #e6e6e6;
+    border-color: #bfbfbf;
+    color: #333;
+}
+
+.dropdown-trigger svg {
+    transition: transform 0.2s;
+    margin-left: 4px;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 9999;
+    min-width: 120px;
+    background: white;
+    border: 1px solid #e8e8e8;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-bottom: 1px solid #f5f5f5;
+    white-space: nowrap;
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.dropdown-item:hover {
+    background: #f5f5f5;
+}
+
+.dropdown-item.danger {
+    color: #f5222d;
+}
+
+.dropdown-item.danger:hover {
+    background: #fff1f0;
+    color: #cf1322;
+}
+
+.dropdown-item svg {
+    flex-shrink: 0;
 }
 
 .view-btn {
@@ -418,3 +553,5 @@
         gap: 4px;
     }
 }
+
+

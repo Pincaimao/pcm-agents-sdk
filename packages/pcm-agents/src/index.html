@@ -180,9 +180,9 @@
       is-open="true"
       modal-title="简历筛选"
       icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
-      token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NDY1ODMwOTJ9.Ye3-jxmZDaT8JubQLq7bAOh3mR3Ma6F3OjwH0G7k4AM"
+      token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NTA5MTkxMzh9.fnwH0J_fdyNWGU9f02qW-piI9XA57YgmG-A3bJDPxpc"
       fullscreen="false"
-  ></pcm-jlsx-modal> 
+  ></pcm-jlsx-modal>  
 
   <!-- 添加千岗千简历模态框组件 -->
   <pcm-qgqjl-modal id="pcm-qgqjl-modal" modal-title="千岗千简历" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
@@ -191,7 +191,7 @@
 
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc1MDc0ODY3MH0.EFKSHDyg6d9FVtNlZx-J_AIh0w854id-0bbeKkSSJS0";
+    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NTA5MTkxMzh9.fnwH0J_fdyNWGU9f02qW-piI9XA57YgmG-A3bJDPxpc";
     const SHARED_TOKEN_NEW = "11"
     let stream = null;
     const urlParams = new URLSearchParams(window.location.search);
@@ -432,11 +432,11 @@
       });
 
       // 设置自定义输入
-      // mnmsModal.customInputs = {
-      //   job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广",
-      //   file_url: "/resources/file/20250416/d258f91a1ff6061822f00b4e245dbd00.pdf",
-      //   file_name: "简历.pdf"
-      // };
+      mnmsModal.customInputs = {
+        job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广",
+        file_url: "/resources/file/20250416/d258f91a1ff6061822f00b4e245dbd00.pdf",
+        file_name: "简历.pdf"
+      };
     };
 
 

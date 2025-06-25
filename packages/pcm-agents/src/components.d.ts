@@ -705,6 +705,10 @@ export namespace Components {
     }
     interface PcmJlsxModal {
         /**
+          * 智能体ID，用于简历筛选
+         */
+        "botId": string;
+        /**
           * 会话ID，传入继续对话，否则创建新会话
          */
         "conversationId"?: string;
@@ -2980,6 +2984,10 @@ declare namespace LocalJSX {
         "zIndex"?: number;
     }
     interface PcmJlsxModal {
+        /**
+          * 智能体ID，用于简历筛选
+         */
+        "botId"?: string;
         /**
           * 会话ID，传入继续对话，否则创建新会话
          */
