@@ -115,6 +115,7 @@
         <button class="pcm-button" id="open-zsk-chat">数字员工</button>
         <button class="pcm-button" id="open-jd-chat">JD生成</button>
         <button class="pcm-button" id="open-qgqjl-chat">千岗千简历</button>
+        <button class="pcm-button" id="open-jlsx-chat">简历筛选</button>
       </div>
 
      
@@ -177,10 +178,9 @@
 
 
    <pcm-jlsx-modal
-      is-open="true"
+      id="pcm-jlsx-modal"
       modal-title="简历筛选"
       icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
-      token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NTA5MTkxMzh9.fnwH0J_fdyNWGU9f02qW-piI9XA57YgmG-A3bJDPxpc"
       fullscreen="false"
   ></pcm-jlsx-modal>  
 
@@ -191,7 +191,7 @@
 
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NTA5MTkxMzh9.fnwH0J_fdyNWGU9f02qW-piI9XA57YgmG-A3bJDPxpc";
+    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NTEwMDYyMTF9.s_xm4SxGjpP-dGCEdb5ZwDNqLs0tJVJkiYAEgZiTtGo";
     const SHARED_TOKEN_NEW = "11"
     let stream = null;
     const urlParams = new URLSearchParams(window.location.search);
@@ -223,7 +223,7 @@
       handlePcmCard();
       handleVideoChatModal();
       handleQgqjlModal(); // 添加千岗千简历模态框处理
-
+      handleJlsxModal();
     });
 
     // 为所有组件设置共享的 token
@@ -242,7 +242,8 @@
         'pcm-jd-modal',
         'pcm-card',
         'pcm-video-chat-modal',
-        'pcm-qgqjl-modal' // 添加千岗千简历组件
+        'pcm-qgqjl-modal', // 添加千岗千简历组件
+        'pcm-jlsx-modal'
       ];
 
       components.forEach(id => {
@@ -1195,6 +1196,36 @@
       //   mode_type: "0"
       // };
     };
+
+    // 简历筛选模态框处理
+    const handleJlsxModal = () => {
+      const jlsxModal = document.getElementById('pcm-jlsx-modal');
+      const openJlsxButton = document.getElementById('open-jlsx-chat');
+      if (!jlsxModal || !openJlsxButton) return;
+
+      // 设置事件监听
+      jlsxModal.addEventListener('modalClosed', () => {
+        console.log('简历筛选窗口已关闭');
+        jlsxModal.isOpen = false;
+      });
+
+
+      jlsxModal.addEventListener('tokenInvalid', () => {
+        console.log('SDK密钥验证失败');
+        jlsxModal.setAttribute('token', SHARED_TOKEN_NEW);
+      });
+
+      jlsxModal.addEventListener('someErrorEvent', (event) => {
+        console.log('错误事件:', event.detail);
+      });
+
+      // 打开简历筛选按钮事件监听
+      openJlsxButton.addEventListener('click', () => {
+        jlsxModal.isOpen = true;
+      });
+    }
+
+    
  
     
     // 处理职位按钮点击

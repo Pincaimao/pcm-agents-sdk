@@ -44,3 +44,63 @@ export interface RecordingStatusChangeEventData {
   status: 'started' | 'stopped' | 'paused' | 'resumed' | 'failed';
   details?: any;
 }
+
+/**
+ * 任务创建完成事件的数据类型
+ */
+export interface TaskCreatedEventData {
+  task_id: number;
+  job_description: string;
+  evaluation_criteria: Array<{
+    name: string;
+    value: number;
+    description: string;
+  }>;
+  create_time: string;
+}
+
+/**
+ * 简历分析开始事件的数据类型
+ */
+export interface ResumeAnalysisStartEventData {
+  task_id: number;
+  resume_count: number;
+  resume_files: Array<{
+    file_name: string;
+    file_url: string;
+  }>;
+}
+
+/**
+ * 简历分析完成事件的数据类型
+ */
+export interface ResumeAnalysisCompleteEventData {
+  task_id: number;
+  total_resumes: number;
+  analyzed_resumes: number;
+  failed_resumes: number;
+  average_score: number;
+  highest_score: number;
+}
+
+
+/**
+ * 任务切换事件的数据类型
+ */
+export interface TaskSwitchEventData {
+  previous_task_id?: number;
+  current_task_id: number;
+  task_title?: string;
+  switch_time: string;
+}
+
+/**
+ * 简历删除事件的数据类型
+ */
+export interface ResumeDeletedEventData {
+  task_id: number;
+  resume_id: string;
+  resume_name: string;
+  delete_time: string;
+}
+

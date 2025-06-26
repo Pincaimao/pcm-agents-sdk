@@ -1,6 +1,13 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
 import { uploadFileToBackend, FileUploadResponse, verifyApiKey, sendHttpRequest, sendSSERequest, getCosPreviewUrl } from '../../utils/utils';
-import { ConversationStartEventData, ErrorEventDetail, InterviewCompleteEventData, StreamCompleteEventData } from '../../components';
+import { ConversationStartEventData, ErrorEventDetail } from '../../components';
+import { 
+    TaskCreatedEventData,
+    ResumeAnalysisStartEventData,
+    ResumeAnalysisCompleteEventData,
+    TaskSwitchEventData,
+    ResumeDeletedEventData,
+} from '../../interfaces/events';
 import { ErrorEventBus } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store';
 import { configStore } from '../../../store/config.store';
@@ -72,6 +79,30 @@ interface ResumePageData {
     size: number;
     pages: number;
     records: ResumeRecord[];
+}
+
+// 定义历史任务接口
+interface HistoryTask {
+    id: number;
+    create_at: string;
+    update_at: string;
+    jd_id: number;
+    user_id: number;
+    chat_user_id: string;
+    extra: string;
+    title?: string | null;
+    job_info?: string; // 可能需要从其他API获取
+    resume_count?: number; // 简历数量
+    timeDisplay?: string; // 格式化的时间显示
+}
+
+// 定义历史任务分页数据接口
+interface HistoryTaskPageData {
+    total: number;
+    page: number;
+    size: number;
+    pages: number;
+    records: HistoryTask[];
 }
 
 @Component({
@@ -146,19 +177,10 @@ export class JlsxModal {
     @Event() uploadSuccess: EventEmitter<FileUploadResponse>;
 
     /**
-     * 流式输出完成事件
-     */
-    @Event() streamComplete: EventEmitter<StreamCompleteEventData>;
-
-    /**
      * 新会话开始的回调，只会在一轮对话开始时触发一次
      */
     @Event() conversationStart: EventEmitter<ConversationStartEventData>;
 
-    /**
-     * 当聊天完成时触发
-     */
-    @Event() interviewComplete: EventEmitter<InterviewCompleteEventData>;
 
     /**
      * SDK密钥验证失败事件
@@ -169,6 +191,33 @@ export class JlsxModal {
     * 错误事件
     */
     @Event() someErrorEvent: EventEmitter<ErrorEventDetail>;
+
+    /**
+     * 任务创建完成事件
+     */
+    @Event() taskCreated: EventEmitter<TaskCreatedEventData>;
+
+    /**
+     * 简历分析开始事件
+     */
+    @Event() resumeAnalysisStart: EventEmitter<ResumeAnalysisStartEventData>;
+
+    /**
+     * 简历分析完成事件
+     */
+    @Event() resumeAnalysisComplete: EventEmitter<ResumeAnalysisCompleteEventData>;
+
+
+    /**
+     * 任务切换事件
+     */
+    @Event() taskSwitch: EventEmitter<TaskSwitchEventData>;
+
+    /**
+     * 简历删除事件
+     */
+    @Event() resumeDeleted: EventEmitter<ResumeDeletedEventData>;
+
 
     /**
      * 附件预览模式
@@ -216,6 +265,14 @@ export class JlsxModal {
     @State() activeDropdownId: string | null = null;
     @State() deletingRecordId: string | null = null; // 正在删除的记录ID
     @State() sortOrder: 'none' | 'asc' | 'desc' = 'none'; // 评估分数排序状态
+
+    // 添加任务管理相关状态
+    @State() isTaskHistoryDrawerOpen: boolean = false;
+    @State() historyTasks: HistoryTask[] = [];
+    @State() isLoadingHistoryTasks: boolean = false;
+    @State() taskHistoryCurrentPage: number = 1;
+    @State() taskHistoryPageSize: number = 10;
+    @State() taskHistoryTotal: number = 0;
 
     // 使用 @Element 装饰器获取组件的 host 元素
     @Element() hostElement: HTMLElement;
@@ -326,6 +383,12 @@ export class JlsxModal {
         this.activeDropdownId = null;
         this.deletingRecordId = null;
         this.sortOrder = 'none';
+        this.isTaskHistoryDrawerOpen = false;
+        this.historyTasks = [];
+        this.isLoadingHistoryTasks = false;
+        this.taskHistoryCurrentPage = 1;
+        this.taskHistoryPageSize = 10;
+        this.taskHistoryTotal = 0;
     };
 
     private handleClose = () => {
@@ -384,8 +447,14 @@ export class JlsxModal {
                 this.currentTask = response.data;
                 // 切换到任务界面
                 this.currentStep = 'task';
-                // 加载简历列表
-                await this.loadResumeList();
+
+                // 触发任务创建完成事件
+                this.taskCreated.emit({
+                    task_id: response.data.id,
+                    job_description: this.jobDescription,
+                    evaluation_criteria: this.evaluationCriteria,
+                    create_time: new Date().toISOString()
+                });
             } else {
                 throw new Error(response.message || '创建任务失败');
             }
@@ -594,6 +663,14 @@ export class JlsxModal {
                     this.filteredResumeRecords = this.filteredResumeRecords.filter(record => record.id !== recordId);
                     this.showMessage('删除成功', 'success');
 
+                    // 触发简历删除事件
+                    this.resumeDeleted.emit({
+                        task_id: this.currentTask!.id,
+                        resume_id: recordId,
+                        resume_name: filteredRecord.fileName,
+                        delete_time: new Date().toISOString()
+                    });
+
                     // 重新加载列表以更新总数
                     await this.loadResumeList();
                 } else {
@@ -669,7 +746,7 @@ export class JlsxModal {
                 </div>
 
                 <div class="jd-input-section">
-                    <label htmlFor="job-description">职位描述 (JD) *</label>
+                    <label htmlFor="job-description">职位描述 (JD)</label>
                     <textarea
                         id="job-description"
                         class="job-description-textarea"
@@ -682,7 +759,7 @@ export class JlsxModal {
 
                 <div class="criteria-input-section">
                     <div class="criteria-header">
-                        <label htmlFor="evaluation-criteria">评分标准 *</label>
+                        <label htmlFor="evaluation-criteria">评分标准</label>
                         <div class="criteria-actions">
                             <span class={`total-weight ${this.getTotalWeight() !== 100 ? 'invalid' : ''}`}>
                                 总权重: {this.getTotalWeight()}%
@@ -876,28 +953,28 @@ export class JlsxModal {
                                 <tr>
                                     <th>简历文件名</th>
                                     <th>人才信息</th>
-                                    <th 
+                                    <th
                                         class={`sortable-header ${this.sortOrder !== 'none' ? 'active' : ''}`}
                                         onClick={this.handleSortByScore}
                                     >
                                         <span class="header-content">
                                             评估分数
                                             <span class="sort-icons">
-                                                <svg 
-                                                    class={`sort-icon ${this.sortOrder === 'asc' ? 'active' : ''}`} 
-                                                    width="12" 
-                                                    height="12" 
+                                                <svg
+                                                    class={`sort-icon ${this.sortOrder === 'asc' ? 'active' : ''}`}
+                                                    width="12"
+                                                    height="12"
                                                     viewBox="0 0 12 12"
                                                 >
-                                                    <path d="M6 3l4 4H2z" fill="currentColor"/>
+                                                    <path d="M6 3l4 4H2z" fill="currentColor" />
                                                 </svg>
-                                                <svg 
-                                                    class={`sort-icon ${this.sortOrder === 'desc' ? 'active' : ''}`} 
-                                                    width="12" 
-                                                    height="12" 
+                                                <svg
+                                                    class={`sort-icon ${this.sortOrder === 'desc' ? 'active' : ''}`}
+                                                    width="12"
+                                                    height="12"
                                                     viewBox="0 0 12 12"
                                                 >
-                                                    <path d="M6 9L2 5h8z" fill="currentColor"/>
+                                                    <path d="M6 9L2 5h8z" fill="currentColor" />
                                                 </svg>
                                             </span>
                                         </span>
@@ -1037,7 +1114,7 @@ export class JlsxModal {
                             </button>
                         </div>
                     )}
-                    <div style={{height: '100px',width: '100%'}}>
+                    <div style={{ height: '100px', width: '100%' }}>
 
                     </div>
                 </div>
@@ -1102,7 +1179,7 @@ export class JlsxModal {
         } else {
             this.sortOrder = 'none';
         }
-        
+
         // 重置到第一页并重新加载数据
         this.currentPage = 1;
         this.loadResumeList();
@@ -1131,7 +1208,7 @@ export class JlsxModal {
             const response = await sendHttpRequest<ResumePageData>({
                 url: '/sdk/v1/agent/app_filter_resume/page',
                 method: 'GET',
-                params: params
+                data: params
             });
 
             if (response.success && response.data) {
@@ -1169,6 +1246,7 @@ export class JlsxModal {
 
                 this.filteredResumeRecords = transformedRecords;
                 this.totalRecords = response.data.total || 0;
+
             }
         } catch (error) {
             console.error('加载简历列表失败:', error);
@@ -1254,6 +1332,16 @@ export class JlsxModal {
                 .map(criteria => `- ${criteria.name}(占比${criteria.value}%)：${criteria.description}`)
                 .join(' \n');
 
+            // 触发简历分析开始事件
+            this.resumeAnalysisStart.emit({
+                task_id: this.currentTask.id,
+                resume_count: filteredFileUrls.length,
+                resume_files: pendingRecords.map(record => ({
+                    file_name: record.fileName,
+                    file_url: record.file_url || record.fileInfo?.cos_key || ''
+                })).filter(file => filteredFileUrls.includes(file.file_url))
+            });
+
             // 3. 调用简历筛选接口，使用过滤后的文件URL列表
             await sendSSERequest({
                 url: '/sdk/v1/chat/chat-messages',
@@ -1280,12 +1368,9 @@ export class JlsxModal {
 
                     // 重新加载简历列表（从API获取筛选后的结果）
                     await this.loadResumeList();
-                    this.streamComplete.emit({
-                        conversation_id: this.conversationId || '',
-                        event: 'analysis_complete',
-                        message_id: '',
-                        id: ''
-                    });
+
+                    // 触发简历分析完成事件
+                    this.emitAnalysisCompleteEvent();
                 },
                 onError: (error) => {
                     console.error('简历分析失败:', error);
@@ -1329,6 +1414,184 @@ export class JlsxModal {
         }
     };
 
+    // 处理任务管理按钮点击
+    private handleTaskHistoryClick = () => {
+        console.log('点击任务管理按钮');
+        this.isTaskHistoryDrawerOpen = true;
+        this.loadHistoryTasks();
+    };
+
+    // 加载历史任务列表
+    private async loadHistoryTasks() {
+        this.isLoadingHistoryTasks = true;
+
+        try {
+            const result = await sendHttpRequest<HistoryTaskPageData>({
+                url: '/sdk/v1/agent/app_filter_task/page',
+                method: 'GET',
+                data: {
+                    page: this.taskHistoryCurrentPage,
+                    size: this.taskHistoryPageSize
+                }
+            });
+
+            if (result.success && result.data) {
+                // 格式化任务数据
+                this.historyTasks = result.data.records.map((task: any) => {
+                    // 处理时间戳，API返回的是字符串格式时间
+                    let createdTime: Date;
+                    let timeDisplay = '未知时间';
+
+                    try {
+                        // 直接解析字符串时间格式 "2025-06-26 15:57:57"
+                        createdTime = new Date(task.create_at);
+
+                        // 验证日期是否有效
+                        if (isNaN(createdTime.getTime())) {
+                            console.warn('无效的日期对象:', task.create_at);
+                            createdTime = new Date();
+                        }
+
+                        const now = new Date();
+                        const diffTime = now.getTime() - createdTime.getTime();
+                        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+                        // 格式化时间显示
+                        if (diffDays === 0) {
+                            // 今天
+                            timeDisplay = `今天 ${createdTime.getHours().toString().padStart(2, '0')}:${createdTime.getMinutes().toString().padStart(2, '0')}`;
+                        } else if (diffDays === 1) {
+                            // 昨天
+                            timeDisplay = `昨天 ${createdTime.getHours().toString().padStart(2, '0')}:${createdTime.getMinutes().toString().padStart(2, '0')}`;
+                        } else if (diffDays > 0 && diffDays < 7) {
+                            // 一周内
+                            const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+                            timeDisplay = `${weekdays[createdTime.getDay()]} ${createdTime.getHours().toString().padStart(2, '0')}:${createdTime.getMinutes().toString().padStart(2, '0')}`;
+                        } else if (diffDays < 0) {
+                            // 未来时间（可能是时区问题或系统时间不准确）
+                            timeDisplay = `${(createdTime.getMonth() + 1).toString().padStart(2, '0')}-${createdTime.getDate().toString().padStart(2, '0')} ${createdTime.getHours().toString().padStart(2, '0')}:${createdTime.getMinutes().toString().padStart(2, '0')}`;
+                        } else {
+                            // 超过一周
+                            timeDisplay = `${(createdTime.getMonth() + 1).toString().padStart(2, '0')}-${createdTime.getDate().toString().padStart(2, '0')} ${createdTime.getHours().toString().padStart(2, '0')}:${createdTime.getMinutes().toString().padStart(2, '0')}`;
+                        }
+                    } catch (error) {
+                        console.error('时间格式化错误:', error, task.create_at);
+                        timeDisplay = '时间解析失败';
+                    }
+
+                    return {
+                        ...task,
+                        timeDisplay
+                    } as HistoryTask;
+                });
+
+                this.taskHistoryTotal = result.data.total || 0;
+            }
+        } catch (error) {
+            console.error('获取历史任务失败:', error);
+            SentryReporter.captureError(error, {
+                action: 'loadHistoryTasks',
+                component: 'pcm-jlsx-modal',
+                title: '获取历史任务失败'
+            });
+            ErrorEventBus.emitError({
+                error: error,
+                message: '获取历史任务失败'
+            });
+        } finally {
+            this.isLoadingHistoryTasks = false;
+        }
+    }
+
+    // 切换到指定任务
+    private handleSwitchTask = async (task: HistoryTask) => {
+        if (task.id === this.currentTask?.id) {
+            // 如果点击的是当前任务，直接关闭抽屉
+            this.isTaskHistoryDrawerOpen = false;
+            return;
+        }
+
+        try {
+            // 调用 app_filter_task/query 接口获取完整任务信息
+            const taskDetailResponse = await sendHttpRequest<any>({
+                url: `/sdk/v1/agent/app_filter_task/query/${task.id}`,
+                method: 'GET'
+            });
+
+            if (!taskDetailResponse.success || !taskDetailResponse.data) {
+                throw new Error(taskDetailResponse.message || '获取任务详情失败');
+            }
+
+            const taskDetail = taskDetailResponse.data;
+
+            // 解析评分标准
+            let evaluationCriteria: EvaluationCriteria[] = [];
+            if (taskDetail.extra) {
+                try {
+                    evaluationCriteria = JSON.parse(taskDetail.extra);
+                } catch (e) {
+                    console.warn('解析评分标准失败:', e);
+                }
+            }
+
+            // 构建任务对象，使用FilterTask接口格式
+            this.currentTask = {
+                id: taskDetail.id,
+                jd_id: taskDetail.jd_id,
+                user_id: taskDetail.user_id,
+                extra: taskDetail.extra,
+                create_at: taskDetail.create_at,
+                update_at: taskDetail.update_at
+            };
+
+            // 使用从API获取的完整信息
+            this.jobDescription = taskDetail.jd_info.description || '';
+            this.evaluationCriteria = evaluationCriteria.length > 0 ? evaluationCriteria : this.evaluationCriteria;
+            
+            // 切换到任务界面
+            this.currentStep = 'task';
+            
+            // 重置简历相关状态
+            this.uploadedResumeRecords = [];
+            this.filteredResumeRecords = [];
+            this.currentPage = 1;
+            this.totalRecords = 0;
+            
+            // 关闭抽屉
+            this.isTaskHistoryDrawerOpen = false;
+
+            // 加载该任务的简历列表
+            await this.loadResumeList();
+
+            // 触发任务切换事件
+            this.taskSwitch.emit({
+                previous_task_id: this.currentTask ? this.currentTask.id : undefined,
+                current_task_id: taskDetail.id,
+                task_title: `任务 #${taskDetail.id}`,
+                switch_time: new Date().toISOString()
+            });
+
+            this.showMessage('切换任务成功', 'success');
+        } catch (error) {
+            console.error('切换任务失败:', error);
+            SentryReporter.captureError(error, {
+                action: 'handleSwitchTask',
+                component: 'pcm-jlsx-modal',
+                title: '切换任务失败'
+            });
+            ErrorEventBus.emitError({
+                error: error,
+                message: '切换任务失败'
+            });
+        }
+    };
+
+    // 任务历史分页处理
+    private handleTaskHistoryPageChange = async (page: number) => {
+        this.taskHistoryCurrentPage = page;
+        await this.loadHistoryTasks();
+    };
+
     private handleDocumentClick = (event: Event) => {
         // 处理点击外部关闭下拉菜单的逻辑
         const target = event.target as HTMLElement;
@@ -1338,6 +1601,34 @@ export class JlsxModal {
         if (!dropdown && this.activeDropdownId) {
             this.activeDropdownId = null;
         }
+    };
+
+    private emitAnalysisCompleteEvent = () => {
+        if (!this.currentTask) return;
+
+        // 计算分析统计数据
+        const allResumes = this.resumeRecords;
+        const analyzedResumes = allResumes.filter(record => 
+            record.evaluate_status === 1 && typeof record.score === 'number'
+        );
+        const failedResumes = allResumes.filter(record => record.evaluate_status === -1);
+        
+        // 计算评分统计
+        const scores = analyzedResumes.map(record => record.score).filter(score => typeof score === 'number') as number[];
+        const averageScore = scores.length > 0 ? scores.reduce((sum, score) => sum + score, 0) / scores.length : 0;
+        const highestScore = scores.length > 0 ? Math.max(...scores) : 0;
+        
+
+        // 触发简历分析完成事件
+        this.resumeAnalysisComplete.emit({
+            task_id: this.currentTask.id,
+            total_resumes: allResumes.length,
+            analyzed_resumes: analyzedResumes.length,
+            failed_resumes: failedResumes.length,
+            average_score: Math.round(averageScore * 100) / 100, // 保留两位小数
+            highest_score: highestScore,
+        });
+
     };
 
     render() {
@@ -1367,12 +1658,13 @@ export class JlsxModal {
                             <div class="header-left">
                                 {this.icon && <img src={this.icon} class="header-icon" alt="应用图标" />}
                                 <div>{this.modalTitle}</div>
-                                {this.currentStep === 'input' && (
-                                    <span class="step-indicator">创建任务</span>
-                                )}
-                                {this.currentStep === 'task' && (
-                                    <span class="step-indicator">任务管理</span>
-                                )}
+                                <span 
+                                        class="step-indicator clickable" 
+                                        onClick={this.handleTaskHistoryClick}
+                                        title="点击查看任务管理"
+                                    >
+                                        任务管理
+                                    </span>
                             </div>
                             {this.isNeedClose && (
                                 <button class="close-button" onClick={this.handleClose}>
@@ -1435,6 +1727,80 @@ export class JlsxModal {
                                     height="100%"
                                     style={{ border: 'none', height: 'calc(100vh - 120px)' }}
                                 ></iframe>
+                            </div>
+                        )}
+                    </div>
+                </pcm-drawer>
+
+                {/* 任务管理抽屉 */}
+                <pcm-drawer
+                    isOpen={this.isTaskHistoryDrawerOpen}
+                    drawerTitle="任务管理"
+                    width="500px"
+                    onClosed={() => {
+                        this.isTaskHistoryDrawerOpen = false;
+                    }}
+                >
+                    <div class="task-history-drawer-content">
+                        {/* 任务列表 */}
+                        <div class="task-list">
+                            {this.isLoadingHistoryTasks ? (
+                                <div class="loading-tasks">
+                                    <div class="loading-spinner-small"></div>
+                                    <p>加载中...</p>
+                                </div>
+                            ) : this.historyTasks.length === 0 ? (
+                                <div class="empty-tasks">
+                                    <p>暂无历史任务</p>
+                                </div>
+                            ) : (
+                                this.historyTasks.map((task) => (
+                                    <div
+                                        key={task.id}
+                                        class={{
+                                            'task-item': true,
+                                            'active': task.id === this.currentTask?.id
+                                        }}
+                                        onClick={() => this.handleSwitchTask(task)}
+                                    >
+                                        <div class="task-info">
+                                            <div class="task-header">
+                                                <div class="task-id">{task.title || `任务 #${task.id}`}</div>
+                                                <div class="task-time">{task.timeDisplay}</div>
+                                            </div>
+                                        </div>
+                                        {task.id === this.currentTask?.id && (
+                                            <div class="current-task-indicator">
+                                                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                                                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                                </svg>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))
+                            )}
+                        </div>
+
+                        {/* 分页 */}
+                        {this.taskHistoryTotal > this.taskHistoryPageSize && (
+                            <div class="task-pagination">
+                                <button
+                                    class="page-btn"
+                                    disabled={this.taskHistoryCurrentPage === 1}
+                                    onClick={() => this.handleTaskHistoryPageChange(this.taskHistoryCurrentPage - 1)}
+                                >
+                                    上一页
+                                </button>
+                                <span class="page-info">
+                                    第 {this.taskHistoryCurrentPage} 页，共 {Math.ceil(this.taskHistoryTotal / this.taskHistoryPageSize)} 页
+                                </span>
+                                <button
+                                    class="page-btn"
+                                    disabled={this.taskHistoryCurrentPage >= Math.ceil(this.taskHistoryTotal / this.taskHistoryPageSize)}
+                                    onClick={() => this.handleTaskHistoryPageChange(this.taskHistoryCurrentPage + 1)}
+                                >
+                                    下一页
+                                </button>
                             </div>
                         )}
                     </div>
