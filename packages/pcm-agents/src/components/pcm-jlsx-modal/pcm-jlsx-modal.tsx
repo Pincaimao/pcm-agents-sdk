@@ -1,6 +1,6 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
 import { uploadFileToBackend, FileUploadResponse, verifyApiKey, sendHttpRequest, sendSSERequest, getCosPreviewUrl } from '../../utils/utils';
-import { ConversationStartEventData, ErrorEventDetail } from '../../components';
+import { ErrorEventDetail } from '../../components';
 import { 
     TaskCreatedEventData,
     ResumeAnalysisStartEventData,
@@ -152,16 +152,6 @@ export class JlsxModal {
     @Prop() isNeedClose: boolean = true;
 
     /**
-     * 会话ID，传入继续对话，否则创建新会话
-     */
-    @Prop({ mutable: true }) conversationId?: string;
-
-    /**
-     * 默认查询文本
-     */
-    @Prop() defaultQuery: string = '请开始分析';
-
-    /**
      * 是否以全屏模式打开，移动端建议设置为true
      */
     @Prop() fullscreen: boolean = false;
@@ -175,12 +165,6 @@ export class JlsxModal {
      * 上传成功事件
      */
     @Event() uploadSuccess: EventEmitter<FileUploadResponse>;
-
-    /**
-     * 新会话开始的回调，只会在一轮对话开始时触发一次
-     */
-    @Event() conversationStart: EventEmitter<ConversationStartEventData>;
-
 
     /**
      * SDK密钥验证失败事件
@@ -207,7 +191,6 @@ export class JlsxModal {
      */
     @Event() resumeAnalysisComplete: EventEmitter<ResumeAnalysisCompleteEventData>;
 
-
     /**
      * 任务切换事件
      */
@@ -217,14 +200,6 @@ export class JlsxModal {
      * 简历删除事件
      */
     @Event() resumeDeleted: EventEmitter<ResumeDeletedEventData>;
-
-
-    /**
-     * 附件预览模式
-     * 'drawer': 在右侧抽屉中预览
-     * 'window': 在新窗口中打开
-     */
-    @Prop() filePreviewMode: 'drawer' | 'window' = 'window';
 
     /**
      * 智能体ID，用于简历筛选
