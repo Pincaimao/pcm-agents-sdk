@@ -1,12 +1,12 @@
 /* 任务界面专用样式 */
-
+.pc-layout{
+    max-width:none;
+}
 /* 任务布局容器 */
 .task-layout {
     width: 90%;
     max-width: 1200px;
     min-width: 800px;
-    height: 90vh;
-    max-height: 900px;
 }
 
 @media screen and (max-width: 1024px) {
@@ -24,6 +24,11 @@
     height: calc(100% - 50px);
     overflow-y: auto;
     gap: 20px;
+}
+
+.upload-area{
+    max-height: 300px;
+    overflow-y: auto;
 }
 
 /* 步骤头部 */
@@ -256,7 +261,6 @@
 
 .table-container {
     flex: 1;
-    overflow: auto;
     border: 1px solid #e8e8e8;
     border-radius: 8px;
     background: white;
@@ -282,10 +286,12 @@
 
 .resume-table td {
     padding: 12px 16px;
-    border-bottom: 1px solid #f0f0f0;
     vertical-align: middle;
 }
 
+.resume-table tr {
+    border-bottom: 1px solid #f0f0f0;
+}
 .resume-table tr:hover {
     background: #f9f9f9;
 }
@@ -551,6 +557,354 @@
     .action-cell {
         flex-direction: column;
         gap: 4px;
+    }
+}
+
+/* 评分标准表格样式 */
+.criteria-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.criteria-header label {
+    margin: 0;
+    font-weight: 500;
+    color: #333;
+}
+
+.criteria-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.total-weight {
+    font-size: 14px;
+    color: #52c41a;
+    font-weight: 500;
+}
+
+.total-weight.invalid {
+    color: #f5222d;
+}
+
+.add-criteria-btn {
+    padding: 6px 12px;
+    background: #1890ff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.2s;
+}
+
+.add-criteria-btn:hover {
+    background: #40a9ff;
+}
+
+.criteria-table-container {
+    border: 1px solid #e8e8e8;
+    border-radius: 6px;
+    overflow: hidden;
+    background: white;
+    margin-bottom: 12px;
+}
+
+.criteria-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 14px;
+}
+
+.criteria-table th {
+    background: #fafafa;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 500;
+    color: #333;
+    border-bottom: 1px solid #e8e8e8;
+    border-right: 1px solid #e8e8e8;
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+.criteria-table th:last-child {
+    border-right: none;
+}
+
+.criteria-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    border-right: 1px solid #f0f0f0;
+    vertical-align: middle;
+}
+
+.criteria-table td:last-child {
+    border-right: none;
+}
+
+.criteria-table tr:last-child td {
+    border-bottom: none;
+}
+
+.criteria-name-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.criteria-name-input:focus {
+    border-color: #40a9ff;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.criteria-value-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.criteria-value-input:focus {
+    border-color: #40a9ff;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.criteria-description-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.5;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.criteria-description-input:focus {
+    border-color: #40a9ff;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.remove-criteria-btn {
+    width: 28px;
+    height: 28px;
+    background: #fff1f0;
+    color: #f5222d;
+    border: 1px solid #ffa39e;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    margin: 0 auto;
+}
+
+.remove-criteria-btn:hover:not(:disabled) {
+    background: #ffccc7;
+    border-color: #ff7875;
+}
+
+.remove-criteria-btn:disabled {
+    background: #f5f5f5;
+    color: #bfbfbf;
+    border-color: #d9d9d9;
+    cursor: not-allowed;
+}
+
+.criteria-warning {
+    color: #fa8c16;
+    font-size: 13px;
+    margin: 8px 0 0 0;
+    padding: 8px 12px;
+    background: #fff7e6;
+    border: 1px solid #ffd591;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+    .criteria-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .criteria-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .criteria-table th,
+    .criteria-table td {
+        padding: 10px 8px;
+        font-size: 12px;
+        vertical-align: middle;
+    }
+    
+    .criteria-table th:nth-child(1) { width: 20%; }
+    .criteria-table th:nth-child(2) { width: 15%; }
+    .criteria-table th:nth-child(3) { width: 55%; }
+    .criteria-table th:nth-child(4) { width: 10%; }
+    
+    .criteria-name-input,
+    .criteria-value-input,
+    .criteria-description-input {
+        font-size: 12px;
+        padding: 6px 8px;
+    }
+    
+    .criteria-description-input {
+        min-height: 60px;
+    }
+    
+    .remove-criteria-btn {
+        width: 24px;
+        height: 24px;
+        font-size: 14px;
+    }
+}
+
+/* 表格排序样式 */
+.sortable-header {
+    cursor: pointer !important;
+    user-select: none;
+    transition: background-color 0.2s;
+}
+
+.sortable-header:hover {
+    background: #f0f0f0 !important;
+}
+
+.sortable-header.active {
+    background: #e6f7ff !important;
+    color: #1890ff;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.sort-icons {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin-left: 8px;
+    opacity: 0.6;
+}
+
+.sortable-header:hover .sort-icons {
+    opacity: 1;
+}
+
+.sort-icon {
+    transition: color 0.2s;
+    color: #bfbfbf;
+}
+
+.sort-icon.active {
+    color: #1890ff;
+}
+
+/* 分页样式 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 0;
+    margin-top: 16px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.page-btn {
+    padding: 8px 16px;
+    background: #fff;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    transition: all 0.2s;
+    min-width: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+}
+
+.page-btn:hover:not(:disabled) {
+    border-color: #40a9ff;
+    color: #40a9ff;
+    background: #f6f8ff;
+}
+
+.page-btn:disabled {
+    background: #f5f5f5;
+    border-color: #d9d9d9;
+    color: #bfbfbf;
+    cursor: not-allowed;
+}
+
+.page-info {
+    font-size: 14px;
+    color: #666;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    height: 36px;
+    white-space: nowrap;
+}
+
+/* 移动端分页适配 */
+@media screen and (max-width: 768px) {
+    .pagination {
+        gap: 12px;
+        padding: 16px 0;
+        flex-wrap: wrap;
+    }
+    
+    .page-btn {
+        min-width: 70px;
+        padding: 6px 12px;
+        font-size: 13px;
+        height: 32px;
+    }
+    
+    .page-info {
+        font-size: 13px;
+        padding: 0 8px;
+        height: 32px;
+        order: 3;
+        width: 100%;
+        justify-content: center;
+        margin-top: 8px;
     }
 }
 

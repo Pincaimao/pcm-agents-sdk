@@ -41,7 +41,6 @@ interface ResumeRecord {
     task_id?: number;
     file_url?: string;
     analysis_result?: string;
-    status?: 'pending' | 'analyzing' | 'completed' | 'failed';
     // 添加API返回的原始字段
     user_id?: number;
     jd_id?: number;
@@ -50,7 +49,7 @@ interface ResumeRecord {
     resume_file_name?: string;
     resume_data?: string;
     evaluate?: string;
-    evaluate_status?: any;
+    evaluate_status?: 0 | 1 | -1; // 筛选状态：0-筛选中，1-筛选完成，-1-筛选失败
     resume_raw?: any;
     create_at?: string;
     app_code?: any;
@@ -77,7 +76,7 @@ interface ResumePageData {
 
 @Component({
     tag: 'pcm-jlsx-modal',
-    styleUrls: ['pcm-jlsx-modal.css', '../../global/global.css', '../../global/markdown.css'],
+    styleUrls: ['../../global/global.css', 'pcm-jlsx-modal.css', '../../global/markdown.css'],
     shadow: true,
 })
 export class JlsxModal {
@@ -188,7 +187,7 @@ export class JlsxModal {
     @State() jobDescription: string = '';
     @State() evaluationCriteria: EvaluationCriteria[] = [
         { name: '基础信息', value: 10, description: '评估简历中姓名、联系方式、性别、年龄等基础信息是否完整且准确。完整准确的基础信息有助于招聘方快速识别和联系求职者，是简历的基本要素。若基础信息缺失或有误，可能影响后续沟通与评估流程。' },
-        { name: '教育背景', value: 20, description: '主要考察毕业院校、专业、入学及毕业时间、学历层次等内容。毕业院校的知名度与专业的匹配度，一定程度上反映求职者的知识储备基础和专业素养。学历层次及相关课程成绩，能辅助判断求职者在专业领域的学习深度与能力水平。' },
+        { name: '教育背景', value: 20, description: '主要考察毕业院校、专业、入学及毕业时间、学历层次等内容。毕业院校的知名度与专业的匹配度，一定程度上反映求职者在知识储备基础和专业素养。学历层次及相关课程成绩，能辅助判断求职者在专业领域的学习深度与能力水平。' },
         { name: '职业履历', value: 30, description: '重点评估过往工作经历的连贯性、职位晋升轨迹、工作内容与目标岗位的相关性。丰富且相关的职业履历，展现出求职者在实际工作场景中的实践经验与解决问题能力，连贯的工作经历能体现其稳定性与忠诚度。' },
         { name: '专业技能', value: 20, description: '评估求职者所掌握的专业技能，包括软件操作能力、语言能力、专业资质证书等。这些技能直接反映求职者在特定领域的专业程度，是能否胜任目标岗位的关键因素之一，与目标岗位匹配的专业技能越多、水平越高，竞争力越强。' },
         { name: '项目成果', value: 15, description: '考量求职者参与项目的数量、在项目中承担的角色及取得的成果。通过项目成果可了解其在团队协作、项目管理、创新思维等方面的能力，突出的项目成果能直观展示求职者在实际工作中的价值创造能力。' },
@@ -196,7 +195,11 @@ export class JlsxModal {
     ];
     @State() isSubmitting: boolean = false;
     @State() isUploading: boolean = false;
-    @State() resumeRecords: ResumeRecord[] = [];
+
+    // 分别存储上传后未筛选的简历和已筛选的简历
+    @State() uploadedResumeRecords: ResumeRecord[] = []; // 上传后未筛选的简历
+    @State() filteredResumeRecords: ResumeRecord[] = []; // 已经筛选的简历（从API加载）
+
     @State() selectedFiles: File[] = [];
     @State() showJdDrawer: boolean = false;
     @State() showCriteriaDrawer: boolean = false;
@@ -211,12 +214,19 @@ export class JlsxModal {
     @State() previewType: 'markdown' | 'file' = 'markdown';
     @State() previewUrl: string = '';
     @State() activeDropdownId: string | null = null;
+    @State() deletingRecordId: string | null = null; // 正在删除的记录ID
+    @State() sortOrder: 'none' | 'asc' | 'desc' = 'none'; // 评估分数排序状态
 
     // 使用 @Element 装饰器获取组件的 host 元素
     @Element() hostElement: HTMLElement;
 
     private tokenInvalidListener: () => void;
     private removeErrorListener: () => void;
+
+    // 计算属性：获取所有简历记录（用于显示）
+    private get resumeRecords(): ResumeRecord[] {
+        return [...this.uploadedResumeRecords, ...this.filteredResumeRecords];
+    }
 
     constructor() {
         // 配置 marked 选项
@@ -259,7 +269,7 @@ export class JlsxModal {
         if (this.token) {
             authStore.setToken(this.token);
         }
-        
+
         // 添加全局token无效事件监听器
         this.tokenInvalidListener = () => {
             this.tokenInvalid.emit();
@@ -290,7 +300,7 @@ export class JlsxModal {
         this.jobDescription = '';
         this.evaluationCriteria = [
             { name: '基础信息', value: 10, description: '评估简历中姓名、联系方式、性别、年龄等基础信息是否完整且准确。完整准确的基础信息有助于招聘方快速识别和联系求职者，是简历的基本要素。若基础信息缺失或有误，可能影响后续沟通与评估流程。' },
-            { name: '教育背景', value: 20, description: '主要考察毕业院校、专业、入学及毕业时间、学历层次等内容。毕业院校的知名度与专业的匹配度，一定程度上反映求职者的知识储备基础和专业素养。学历层次及相关课程成绩，能辅助判断求职者在专业领域的学习深度与能力水平。' },
+            { name: '教育背景', value: 20, description: '主要考察毕业院校、专业、入学及毕业时间、学历层次等内容。毕业院校的知名度与专业的匹配度，一定程度上反映求职者在知识储备基础和专业素养。学历层次及相关课程成绩，能辅助判断求职者在专业领域的学习深度与能力水平。' },
             { name: '职业履历', value: 30, description: '重点评估过往工作经历的连贯性、职位晋升轨迹、工作内容与目标岗位的相关性。丰富且相关的职业履历，展现出求职者在实际工作场景中的实践经验与解决问题能力，连贯的工作经历能体现其稳定性与忠诚度。' },
             { name: '专业技能', value: 20, description: '评估求职者所掌握的专业技能，包括软件操作能力、语言能力、专业资质证书等。这些技能直接反映求职者在特定领域的专业程度，是能否胜任目标岗位的关键因素之一，与目标岗位匹配的专业技能越多、水平越高，竞争力越强。' },
             { name: '项目成果', value: 15, description: '考量求职者参与项目的数量、在项目中承担的角色及取得的成果。通过项目成果可了解其在团队协作、项目管理、创新思维等方面的能力，突出的项目成果能直观展示求职者在实际工作中的价值创造能力。' },
@@ -298,7 +308,8 @@ export class JlsxModal {
         ];
         this.isSubmitting = false;
         this.isUploading = false;
-        this.resumeRecords = [];
+        this.uploadedResumeRecords = [];
+        this.filteredResumeRecords = [];
         this.selectedFiles = [];
         this.showJdDrawer = false;
         this.showCriteriaDrawer = false;
@@ -313,6 +324,8 @@ export class JlsxModal {
         this.previewType = 'markdown';
         this.previewUrl = '';
         this.activeDropdownId = null;
+        this.deletingRecordId = null;
+        this.sortOrder = 'none';
     };
 
     private handleClose = () => {
@@ -324,14 +337,33 @@ export class JlsxModal {
         this.jobDescription = textarea.value;
     };
 
+    /**
+     * 显示消息提示
+     * @param content 消息内容
+     * @param type 消息类型
+     * @param duration 显示时长，0表示不自动关闭
+     */
+    private showMessage = (content: string, type: 'success' | 'error' | 'info' | 'warning' = 'info', duration: number = 3000) => {
+        const messageEl = document.createElement('pcm-message');
+        messageEl.content = content;
+        messageEl.type = type;
+        messageEl.duration = duration;
+
+        // 添加到页面顶部
+        document.body.appendChild(messageEl);
+
+        // 调用显示方法
+        messageEl.show();
+    };
+
     private handleCreateTask = async () => {
         if (!this.jobDescription.trim()) {
-            alert('请输入职位描述');
+            this.showMessage('请输入职位描述', 'warning');
             return;
         }
 
         if (this.evaluationCriteria.length === 0) {
-            alert('请输入评分标准');
+            this.showMessage('请输入评分标准', 'warning');
             return;
         }
 
@@ -375,7 +407,7 @@ export class JlsxModal {
 
     private handleFileChange = (event: Event) => {
         const input = event.target as HTMLInputElement;
-        
+
         if (input.files && input.files.length > 0) {
             this.selectedFiles = Array.from(input.files);
             this.selectedFiles = [...this.selectedFiles];
@@ -397,12 +429,12 @@ export class JlsxModal {
 
     private uploadResumes = async () => {
         if (this.selectedFiles.length === 0) {
-            alert('请选择简历文件');
+            this.showMessage('请选择简历文件', 'warning');
             return;
         }
 
         if (!this.currentTask) {
-            alert('请先创建任务');
+            this.showMessage('请先创建任务', 'warning');
             return;
         }
 
@@ -412,26 +444,26 @@ export class JlsxModal {
             // 为每个文件调用uploadFileToBackend获取cos_key
             const uploadPromises = this.selectedFiles.map(async (file) => {
                 const result = await uploadFileToBackend(file, {}, { 'tags': ['resume'] });
-                
+
                 // 创建新的简历记录
                 const record: ResumeRecord = {
                     id: Date.now() + Math.random().toString(),
                     fileName: file.name,
                     talentInfo: '等待分析...',
-                    score: 0,
+                    score: undefined,
                     scoreDetail: '等待分析...',
                     uploadTime: new Date(),
                     fileInfo: result,
                     task_id: this.currentTask!.id,
                     file_url: result.cos_key,
-                    status: 'pending'
+                    evaluate_status: undefined // 新上传的简历默认为未开始状态
                 };
 
                 return record;
             });
 
             const newRecords = await Promise.all(uploadPromises);
-            this.resumeRecords = [...this.resumeRecords, ...newRecords];
+            this.uploadedResumeRecords = [...this.uploadedResumeRecords, ...newRecords];
             this.selectedFiles = [];
 
             // 清空文件输入
@@ -445,7 +477,7 @@ export class JlsxModal {
                 this.uploadSuccess.emit(record.fileInfo);
             });
 
-            alert(`成功上传 ${newRecords.length} 个简历文件！`);
+            this.showMessage(`成功上传 ${newRecords.length} 个简历文件！`, 'success');
 
         } catch (error) {
             console.error('文件上传错误:', error);
@@ -497,13 +529,8 @@ export class JlsxModal {
     };
 
     private toggleDropdown = (recordId: string) => {
-        console.log('点击操作按钮，recordId:', recordId, '当前activeDropdownId:', this.activeDropdownId);
         const newActiveId = this.activeDropdownId === recordId ? null : recordId;
         this.activeDropdownId = newActiveId;
-        console.log('更新后的activeDropdownId:', this.activeDropdownId);
-        
-        // 强制触发重新渲染
-        this.activeDropdownId = this.activeDropdownId;
     };
 
     private handleViewEvaluate = (record: ResumeRecord) => {
@@ -527,7 +554,7 @@ export class JlsxModal {
                         previewUrl
                     );
                 } else {
-                    alert('无法获取简历预览，请稍后重试');
+                    this.showMessage('无法获取简历预览，请稍后重试', 'error');
                 }
             } catch (error) {
                 console.error('获取简历预览失败:', error);
@@ -542,15 +569,95 @@ export class JlsxModal {
                 });
             }
         } else {
-            alert('简历文件不存在');
+            this.showMessage('简历文件不存在', 'error');
         }
     };
 
-    private handleDeleteRecord = (recordId: string) => {
+    private handleDeleteRecord = async (recordId: string) => {
         this.activeDropdownId = null; // 关闭下拉菜单
-        if (confirm('确定要删除这条记录吗？')) {
-            this.resumeRecords = this.resumeRecords.filter(record => record.id !== recordId);
+
+        // 检查记录是否在filteredResumeRecords中（来自API）
+        const filteredRecord = this.filteredResumeRecords.find(record => record.id === recordId);
+
+        if (filteredRecord) {
+            // 如果是API加载的记录，调用删除接口
+            this.deletingRecordId = recordId;
+
+            try {
+                const response = await sendHttpRequest({
+                    url: `/sdk/v1/agent/app_filter_resume/delete/${recordId}`,
+                    method: 'DELETE'
+                });
+
+                if (response.success) {
+                    // 删除成功，从列表中移除
+                    this.filteredResumeRecords = this.filteredResumeRecords.filter(record => record.id !== recordId);
+                    this.showMessage('删除成功', 'success');
+
+                    // 重新加载列表以更新总数
+                    await this.loadResumeList();
+                } else {
+                    throw new Error(response.message || '删除失败');
+                }
+            } catch (error) {
+                console.error('删除记录失败:', error);
+                SentryReporter.captureError(error, {
+                    action: 'handleDeleteRecord',
+                    component: 'pcm-jlsx-modal',
+                    title: '删除记录失败',
+                    recordId: recordId
+                });
+                this.showMessage('删除失败，请重试', 'error');
+            } finally {
+                this.deletingRecordId = null;
+            }
+        } else {
+            // 如果是本地上传的记录，直接从列表中移除
+            this.uploadedResumeRecords = this.uploadedResumeRecords.filter(record => record.id !== recordId);
+            this.showMessage('删除成功', 'success');
         }
+    };
+
+    private handleEvaluationCriteriaNameChange = (index: number, value: string) => {
+        const newCriteria = [...this.evaluationCriteria];
+        newCriteria[index].name = value;
+        this.evaluationCriteria = newCriteria;
+    };
+
+    private handleEvaluationCriteriaValueChange = (index: number, value: string) => {
+        const newCriteria = [...this.evaluationCriteria];
+        const numValue = parseInt(value) || 0;
+        newCriteria[index].value = Math.max(0, Math.min(100, numValue)); // 限制在0-100之间
+        this.evaluationCriteria = newCriteria;
+    };
+
+    private handleEvaluationCriteriaDescriptionChange = (index: number, value: string) => {
+        const newCriteria = [...this.evaluationCriteria];
+        newCriteria[index].description = value;
+        this.evaluationCriteria = newCriteria;
+    };
+
+    private addEvaluationCriteria = () => {
+        const newCriteria = [...this.evaluationCriteria];
+        newCriteria.push({
+            name: '',
+            value: 0,
+            description: ''
+        });
+        this.evaluationCriteria = newCriteria;
+    };
+
+    private removeEvaluationCriteria = (index: number) => {
+        if (this.evaluationCriteria.length <= 1) {
+            this.showMessage('至少需要保留一个评分标准', 'warning');
+            return;
+        }
+        const newCriteria = this.evaluationCriteria.filter((_, i) => i !== index);
+        this.evaluationCriteria = newCriteria;
+    };
+
+    private getTotalWeight = (): number => {
+        return this.evaluationCriteria.reduce((sum, criteria) => sum + criteria.value, 0);
     };
 
     private renderInputStep() {
@@ -574,21 +681,91 @@ export class JlsxModal {
                 </div>
 
                 <div class="criteria-input-section">
-                    <label htmlFor="evaluation-criteria">评分标准 *</label>
-                    <div class="criteria-preview">
-                        {this.evaluationCriteria.map((criteria, index) => (
-                            <div class="criteria-item" key={index}>
-                                <span class="criteria-name">{criteria.name}</span>
-                                <span class="criteria-weight">{criteria.value}%</span>
-                            </div>
-                        ))}
+                    <div class="criteria-header">
+                        <label htmlFor="evaluation-criteria">评分标准 *</label>
+                        <div class="criteria-actions">
+                            <span class={`total-weight ${this.getTotalWeight() !== 100 ? 'invalid' : ''}`}>
+                                总权重: {this.getTotalWeight()}%
+                            </span>
+                            <button
+                                type="button"
+                                class="add-criteria-btn"
+                                onClick={this.addEvaluationCriteria}
+                            >
+                                + 添加标准
+                            </button>
+                        </div>
                     </div>
-                    <p class="criteria-note">默认评分标准，可在任务创建后调整</p>
+
+                    <div class="criteria-table-container">
+                        <table class="criteria-table">
+                            <thead>
+                                <tr>
+                                    <th style={{ width: '25%' }}>标准名称</th>
+                                    <th style={{ width: '15%' }}>权重(%)</th>
+                                    <th style={{ width: '50%' }}>描述</th>
+                                    <th style={{ width: '10%' }}>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {this.evaluationCriteria.map((criteria, index) => (
+                                    <tr key={index}>
+                                        <td>
+                                            <input
+                                                type="text"
+                                                class="criteria-name-input"
+                                                placeholder="请输入标准名称"
+                                                value={criteria.name}
+                                                onInput={(e) => this.handleEvaluationCriteriaNameChange(index, (e.target as HTMLInputElement).value)}
+                                            />
+                                        </td>
+                                        <td>
+                                            <input
+                                                type="number"
+                                                class="criteria-value-input"
+                                                placeholder="0"
+                                                min="0"
+                                                max="100"
+                                                value={criteria.value}
+                                                onInput={(e) => this.handleEvaluationCriteriaValueChange(index, (e.target as HTMLInputElement).value)}
+                                            />
+                                        </td>
+                                        <td>
+                                            <textarea
+                                                class="criteria-description-input"
+                                                placeholder="请输入评分标准描述"
+                                                rows={2}
+                                                value={criteria.description}
+                                                onInput={(e) => this.handleEvaluationCriteriaDescriptionChange(index, (e.target as HTMLTextAreaElement).value)}
+                                            ></textarea>
+                                        </td>
+                                        <td>
+                                            <button
+                                                type="button"
+                                                class="remove-criteria-btn"
+                                                disabled={this.evaluationCriteria.length <= 1}
+                                                onClick={() => this.removeEvaluationCriteria(index)}
+                                                title={this.evaluationCriteria.length <= 1 ? '至少需要保留一个评分标准' : '删除此标准'}
+                                            >
+                                                ×
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {this.getTotalWeight() !== 100 && (
+                        <p class="criteria-warning">
+                            ⚠️ 权重总和应为100%，当前为{this.getTotalWeight()}%
+                        </p>
+                    )}
                 </div>
 
                 <button
                     class="submit-button"
-                    disabled={!this.jobDescription.trim() || this.evaluationCriteria.length === 0 || this.isSubmitting}
+                    disabled={!this.jobDescription.trim() || this.evaluationCriteria.length === 0 || this.getTotalWeight() !== 100 || this.isSubmitting}
                     onClick={this.handleCreateTask}
                 >
                     {this.isSubmitting ? '创建中...' : '创建任务'}
@@ -638,7 +815,7 @@ export class JlsxModal {
                     <div class="section-header">
                         <h4>上传简历</h4>
                     </div>
-                    
+
                     <div class="upload-area" onClick={this.handleUploadClick}>
                         {this.selectedFiles.length > 0 ? (
                             <div class="selected-files">
@@ -674,13 +851,13 @@ export class JlsxModal {
                                 {this.isUploading ? '上传中...' : `上传 ${this.selectedFiles.length} 个文件`}
                             </button>
                         )}
-                        
-                        {this.resumeRecords.some(record => record.status === 'pending' || record.status === 'failed') && (
+
+                        {this.uploadedResumeRecords.some(record => record.evaluate_status !== 1 && record.evaluate_status !== 0) && (
                             <button
                                 class="analyze-btn"
                                 onClick={this.startAnalysis}
                             >
-                                {`开始分析 (${this.resumeRecords.filter(record => record.status === 'pending' || record.status === 'failed').length} 个待分析)` }
+                                {`开始分析 (${this.uploadedResumeRecords.filter(record => record.evaluate_status !== 1 && record.evaluate_status !== 0).length} 个待分析)`}
                             </button>
                         )}
                     </div>
@@ -690,7 +867,7 @@ export class JlsxModal {
                 <div class="resume-table-section">
                     <div class="section-header">
                         <h4>简历列表</h4>
-                        <span class="record-count">共 {this.totalRecords} 条记录</span>
+                        <span class="record-count">已筛选{this.totalRecords} 条记录</span>
                     </div>
 
                     <div class="table-container">
@@ -699,7 +876,32 @@ export class JlsxModal {
                                 <tr>
                                     <th>简历文件名</th>
                                     <th>人才信息</th>
-                                    <th>评估分数</th>
+                                    <th 
+                                        class={`sortable-header ${this.sortOrder !== 'none' ? 'active' : ''}`}
+                                        onClick={this.handleSortByScore}
+                                    >
+                                        <span class="header-content">
+                                            评估分数
+                                            <span class="sort-icons">
+                                                <svg 
+                                                    class={`sort-icon ${this.sortOrder === 'asc' ? 'active' : ''}`} 
+                                                    width="12" 
+                                                    height="12" 
+                                                    viewBox="0 0 12 12"
+                                                >
+                                                    <path d="M6 3l4 4H2z" fill="currentColor"/>
+                                                </svg>
+                                                <svg 
+                                                    class={`sort-icon ${this.sortOrder === 'desc' ? 'active' : ''}`} 
+                                                    width="12" 
+                                                    height="12" 
+                                                    viewBox="0 0 12 12"
+                                                >
+                                                    <path d="M6 9L2 5h8z" fill="currentColor"/>
+                                                </svg>
+                                            </span>
+                                        </span>
+                                    </th>
                                     <th>评估详情</th>
                                     <th>状态</th>
                                     <th>操作</th>
@@ -725,25 +927,25 @@ export class JlsxModal {
                                             <td class="talent-info-cell" title={record.talentInfo}>{record.talentInfo}</td>
                                             <td class="score-cell">
                                                 <span class={`score-badge ${this.getScoreClass(record.score)}`}>
-                                                    {record.score > 0 ? record.score : '--'}
+                                                    {typeof record.score === 'number' ? record.score : '--'}
                                                 </span>
                                             </td>
                                             <td class="detail-cell" title={record.scoreDetail}>
-                                                <span 
-                                                    class="detail-content" 
+                                                <span
+                                                    class="detail-content"
                                                     onClick={() => this.handleViewEvaluate(record)}
                                                 >
                                                     {record.scoreDetail}
                                                 </span>
                                             </td>
                                             <td class="status-cell">
-                                                <span class={`status-badge status-${record.status || 'pending'}`}>
-                                                    {this.getStatusText(record.status || 'pending')}
+                                                <span class={`status-badge status-${this.getEvaluateStatusClass(record.evaluate_status)}`}>
+                                                    {this.getEvaluateStatusText(record.evaluate_status)}
                                                 </span>
                                             </td>
                                             <td class="action-cell">
                                                 <div class="action-dropdown">
-                                                    <button 
+                                                    <button
                                                         class="action-btn dropdown-trigger"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
@@ -752,12 +954,12 @@ export class JlsxModal {
                                                     >
                                                         操作
                                                         <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                                                            <path d="M7 10l5 5 5-5z"/>
+                                                            <path d="M7 10l5 5 5-5z" />
                                                         </svg>
                                                     </button>
                                                     {this.activeDropdownId === record.id && (
                                                         <div class="dropdown-menu">
-                                                            <div 
+                                                            <div
                                                                 class="dropdown-item"
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
@@ -765,11 +967,11 @@ export class JlsxModal {
                                                                 }}
                                                             >
                                                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                                                    <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2a1 1 0 0 0-2 0v2H8V2a1 1 0 0 0-2 0v2H5a3 3 0 0 0-3 3v11a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3zM4 18V9h16v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/>
+                                                                    <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2a1 1 0 0 0-2 0v2H8V2a1 1 0 0 0-2 0v2H5a3 3 0 0 0-3 3v11a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3zM4 18V9h16v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z" />
                                                                 </svg>
                                                                 评估详情
                                                             </div>
-                                                            <div 
+                                                            <div
                                                                 class="dropdown-item"
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
@@ -777,21 +979,30 @@ export class JlsxModal {
                                                                 }}
                                                             >
                                                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
+                                                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z" />
                                                                 </svg>
                                                                 简历详情
                                                             </div>
-                                                            <div 
-                                                                class="dropdown-item danger"
+                                                            <div
+                                                                class={`dropdown-item danger ${this.deletingRecordId === record.id ? 'disabled' : ''}`}
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
-                                                                    this.handleDeleteRecord(record.id);
+                                                                    if (this.deletingRecordId !== record.id) {
+                                                                        this.handleDeleteRecord(record.id);
+                                                                    }
                                                                 }}
                                                             >
-                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                                                    <path d="M19 7l-.867 12.142A2 2 0 0 1 16.138 21H7.862a2 2 0 0 1-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16"/>
-                                                                </svg>
-                                                                删除
+                                                                {this.deletingRecordId === record.id ? (
+                                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="loading-spinner">
+                                                                        <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16z" opacity="0.25" />
+                                                                        <path d="M12 2C17.523 2 22 6.477 22 12h-2a8 8 0 0 0-8-8V2z" />
+                                                                    </svg>
+                                                                ) : (
+                                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                                        <path d="M19 7l-.867 12.142A2 2 0 0 1 16.138 21H7.862a2 2 0 0 1-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16" />
+                                                                    </svg>
+                                                                )}
+                                                                {this.deletingRecordId === record.id ? '删除中...' : '删除'}
                                                             </div>
                                                         </div>
                                                     )}
@@ -807,8 +1018,8 @@ export class JlsxModal {
                     {/* 分页 */}
                     {this.totalRecords > this.pageSize && (
                         <div class="pagination">
-                            <button 
-                                class="page-btn" 
+                            <button
+                                class="page-btn"
                                 disabled={this.currentPage === 1}
                                 onClick={() => this.changePage(this.currentPage - 1)}
                             >
@@ -817,8 +1028,8 @@ export class JlsxModal {
                             <span class="page-info">
                                 第 {this.currentPage} 页，共 {Math.ceil(this.totalRecords / this.pageSize)} 页
                             </span>
-                            <button 
-                                class="page-btn" 
+                            <button
+                                class="page-btn"
                                 disabled={this.currentPage >= Math.ceil(this.totalRecords / this.pageSize)}
                                 onClick={() => this.changePage(this.currentPage + 1)}
                             >
@@ -826,6 +1037,9 @@ export class JlsxModal {
                             </button>
                         </div>
                     )}
+                    <div style={{height: '100px',width: '100%'}}>
+
+                    </div>
                 </div>
 
                 <input
@@ -856,14 +1070,22 @@ export class JlsxModal {
             .join('\n\n');
     }
 
-    private getStatusText(status: string): string {
+    private getEvaluateStatusText(evaluate_status?: 0 | 1 | -1): string {
         const statusMap = {
-            'pending': '待分析',
-            'analyzing': '分析中',
-            'completed': '已完成',
-            'failed': '分析失败'
+            0: '筛选中',
+            1: '筛选完成',
+            [-1]: '筛选失败'
         };
-        return statusMap[status] || '未知';
+        return statusMap[evaluate_status] || '待分析';
+    }
+
+    private getEvaluateStatusClass(evaluate_status?: 0 | 1 | -1): string {
+        const classMap = {
+            0: 'analyzing',     // 筛选中
+            1: 'completed',     // 筛选完成
+            [-1]: 'failed'      // 筛选失败
+        };
+        return classMap[evaluate_status] || 'pending'; // 默认为待分析
     }
 
     private changePage = async (page: number) => {
@@ -871,6 +1093,20 @@ export class JlsxModal {
         await this.loadResumeList();
     };
 
+    private handleSortByScore = () => {
+        // 切换排序状态：none -> desc -> asc -> none
+        if (this.sortOrder === 'none') {
+            this.sortOrder = 'desc';
+        } else if (this.sortOrder === 'desc') {
+            this.sortOrder = 'asc';
+        } else {
+            this.sortOrder = 'none';
+        }
+        
+        // 重置到第一页并重新加载数据
+        this.currentPage = 1;
+        this.loadResumeList();
+    };
 
     /**
      * 加载简历列表
@@ -879,14 +1115,23 @@ export class JlsxModal {
         if (!this.currentTask) return;
 
         try {
+            const params: any = {
+                task_id: this.currentTask.id,
+                page: this.currentPage,
+                size: this.pageSize
+            };
+
+            // 添加排序参数
+            if (this.sortOrder === 'desc') {
+                params.order_by = 'score_desc';
+            } else if (this.sortOrder === 'asc') {
+                params.order_by = 'score_asc';
+            }
+
             const response = await sendHttpRequest<ResumePageData>({
                 url: '/sdk/v1/agent/app_filter_resume/page',
                 method: 'GET',
-                params: {
-                    task_id: this.currentTask.id,
-                    page: this.currentPage,
-                    size: this.pageSize
-                }
+                params: params
             });
 
             if (response.success && response.data) {
@@ -899,24 +1144,16 @@ export class JlsxModal {
                             const resumeData = JSON.parse(record.resume_data);
                             const result = resumeData.result;
                             if (result) {
-                                const name = result.name || '未知';
+                                const tel = result.phone || result.email || '未知';
                                 const degree = result.degree || '未知';
                                 const college = result.college || '未知';
                                 const workYear = result.work_year || '0';
                                 const workPosition = result.work_position || '未知职位';
-                                talentInfo = `${name} | ${degree} | ${college} | ${workYear}年经验 | ${workPosition}`;
+                                talentInfo = `${tel} | ${degree} | ${college} | ${workYear}年经验 | ${workPosition}`;
                             }
                         } catch (error) {
                             console.warn('解析简历数据失败:', error);
                         }
-                    }
-
-                    // 确定状态
-                    let status: 'pending' | 'analyzing' | 'completed' | 'failed' = 'pending';
-                    if (record.score > 0 && record.evaluate) {
-                        status = 'completed';
-                    } else if (record.error_info) {
-                        status = 'failed';
                     }
 
                     return {
@@ -926,12 +1163,11 @@ export class JlsxModal {
                         talentInfo: talentInfo,
                         scoreDetail: record.evaluate || '等待分析...',
                         uploadTime: record.create_at ? new Date(record.create_at) : new Date(),
-                        file_url: record.resume_file_url,
-                        status: status
+                        file_url: record.resume_file_url
                     };
                 });
 
-                this.resumeRecords = transformedRecords;
+                this.filteredResumeRecords = transformedRecords;
                 this.totalRecords = response.data.total || 0;
             }
         } catch (error) {
@@ -944,17 +1180,17 @@ export class JlsxModal {
      */
     private startAnalysis = async () => {
         if (!this.currentTask) {
-            alert('任务信息不存在');
+            this.showMessage('任务信息不存在', 'error');
             return;
         }
 
-        // 获取所有待分析的简历
-        const pendingRecords = this.resumeRecords.filter(record => 
-            record.status === 'pending' || record.status === 'failed'
+        // 获取所有待分析的简历（从上传的简历中获取）
+        const pendingRecords = this.uploadedResumeRecords.filter(record =>
+            record.evaluate_status !== 1 && record.evaluate_status !== 0  // 筛选状态不是"筛选完成"和"筛选中"的记录
         );
 
         if (pendingRecords.length === 0) {
-            alert('没有需要分析的简历');
+            this.showMessage('没有需要分析的简历', 'warning');
             return;
         }
 
@@ -963,10 +1199,10 @@ export class JlsxModal {
         try {
             // 将待分析的记录状态设置为分析中
             pendingRecords.forEach(record => {
-                record.status = 'analyzing';
+                record.evaluate_status = 0; // 设置为筛选中
             });
             // 触发界面更新
-            this.resumeRecords = [...this.resumeRecords];
+            this.uploadedResumeRecords = [...this.uploadedResumeRecords];
 
             // 收集所有待分析的简历文件URL
             const resumeFileUrls = pendingRecords
@@ -974,12 +1210,12 @@ export class JlsxModal {
                 .filter(url => url); // 过滤掉空值
 
             if (resumeFileUrls.length === 0) {
-                alert('简历文件URL获取失败');
+                this.showMessage('简历文件URL获取失败', 'error');
                 return;
             }
 
             // 1. 先调用清理重复简历接口
-            const clearResponse = await sendHttpRequest({
+            const clearResponse = await sendHttpRequest<string[]>({
                 url: '/sdk/v1/agent/app_filter_resume/clear_repeated_resumes',
                 method: 'POST',
                 data: {
@@ -992,12 +1228,33 @@ export class JlsxModal {
                 throw new Error(clearResponse.message || '简历校验失败');
             }
 
+            // 检查返回的数据
+            const filteredFileUrls = clearResponse.data || [];
+            console.log('过滤后的简历文件URLs:', filteredFileUrls);
+
+            // 根据API返回的结果标记被过滤的简历
+            if (filteredFileUrls.length === 0) {
+                // 如果返回空数组，说明所有简历都是重复的
+                this.showMessage('已清除重复上传的简历，没有新的简历需要分析', 'info');
+                // 将所有待分析的简历从上传列表中移除（因为它们是重复的）
+                this.uploadedResumeRecords = []
+                return;
+            } else {
+                // 如果部分重复，直接用过滤后的文件URLs重新构建上传记录列表
+                // 同时保留那些正在筛选中的简历
+                this.uploadedResumeRecords = this.uploadedResumeRecords.filter(record => {
+                    const fileUrl = record.file_url || record.fileInfo?.cos_key;
+                    // 保留过滤后的有效文件URLs 或者 正在筛选中的简历
+                    return filteredFileUrls.includes(fileUrl) || record.evaluate_status === 0;
+                });
+            }
+
             // 2. 构建评分规则字符串
             const ruleString = this.evaluationCriteria
                 .map(criteria => `- ${criteria.name}(占比${criteria.value}%)：${criteria.description}`)
                 .join(' \n');
 
-            // 3. 调用简历筛选接口
+            // 3. 调用简历筛选接口，使用过滤后的文件URL列表
             await sendSSERequest({
                 url: '/sdk/v1/chat/chat-messages',
                 method: 'POST',
@@ -1009,7 +1266,7 @@ export class JlsxModal {
                         job_info: this.jobDescription,
                         jd_id: this.currentTask.id,
                         task_id: this.currentTask.id,
-                        file_urls: resumeFileUrls.join(','),
+                        file_urls: filteredFileUrls.join(','), // 使用过滤后的文件URL
                         rule: ruleString
                     }
                 },
@@ -1018,7 +1275,10 @@ export class JlsxModal {
                     console.log('分析进度:', data);
                 },
                 onComplete: async () => {
-                    // 分析完成，重新加载简历列表
+                    // 分析完成，将已完成的简历从上传列表移到已筛选列表
+                    this.uploadedResumeRecords = this.uploadedResumeRecords.filter(record => record.evaluate_status !== 0);
+
+                    // 重新加载简历列表（从API获取筛选后的结果）
                     await this.loadResumeList();
                     this.streamComplete.emit({
                         conversation_id: this.conversationId || '',
@@ -1031,13 +1291,18 @@ export class JlsxModal {
                     console.error('简历分析失败:', error);
                     // 将分析失败的记录状态设置为failed
                     pendingRecords.forEach(record => {
-                        record.status = 'failed';
+                        record.evaluate_status = -1; // 设置为筛选失败
                     });
-                    this.resumeRecords = [...this.resumeRecords];
-                    
+                    this.uploadedResumeRecords = [...this.uploadedResumeRecords];
+
+                    SentryReporter.captureError(error, {
+                        action: 'startAnalysis',
+                        component: 'pcm-jlsx-modal',
+                        title: '开始分析失败'
+                    });
                     ErrorEventBus.emitError({
                         error: error,
-                        message: '简历分析失败，请重试'
+                        message: '开始分析失败，请重试'
                     });
                 }
             });
@@ -1046,10 +1311,10 @@ export class JlsxModal {
             console.error('开始分析失败:', error);
             // 将分析失败的记录状态设置为failed
             pendingRecords.forEach(record => {
-                record.status = 'failed';
+                record.evaluate_status = -1; // 设置为筛选失败
             });
-            this.resumeRecords = [...this.resumeRecords];
-            
+            this.uploadedResumeRecords = [...this.uploadedResumeRecords];
+
             SentryReporter.captureError(error, {
                 action: 'startAnalysis',
                 component: 'pcm-jlsx-modal',
@@ -1068,7 +1333,7 @@ export class JlsxModal {
         // 处理点击外部关闭下拉菜单的逻辑
         const target = event.target as HTMLElement;
         const dropdown = target.closest('.action-dropdown');
-        
+
         // 如果点击的不是下拉菜单区域，则关闭所有下拉菜单
         if (!dropdown && this.activeDropdownId) {
             this.activeDropdownId = null;
@@ -1157,7 +1422,7 @@ export class JlsxModal {
                 >
                     <div class="drawer-content">
                         {this.previewType === 'markdown' ? (
-                            <div 
+                            <div
                                 class="markdown-content markdown-body"
                                 innerHTML={marked(this.previewContent)}
                             ></div>
