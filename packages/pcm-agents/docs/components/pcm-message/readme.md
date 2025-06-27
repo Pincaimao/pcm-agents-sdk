@@ -34,6 +34,19 @@ Type: `Promise<void>`
 
 
 
+## Dependencies
+
+### Used by
+
+ - [pcm-jlsx-modal](../pcm-jlsx-modal)
+
+### Graph
+```mermaid
+graph TD;
+  pcm-jlsx-modal --> pcm-message
+  style pcm-message fill:#f9f,stroke:#333,stroke-width:4px
+```
+
 ----------------------------------------------
 
 *Built with [StencilJS](https://stenciljs.com/)*

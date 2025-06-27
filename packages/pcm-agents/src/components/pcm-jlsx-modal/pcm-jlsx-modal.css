@@ -178,6 +178,7 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 12px;
+    flex-shrink: 0;
 }
 
 .section-header h4 {
@@ -264,6 +265,8 @@
     border: 1px solid #e8e8e8;
     border-radius: 8px;
     background: white;
+    overflow-x: auto;
+    min-height: 400px;
 }
 
 .resume-table {
@@ -279,18 +282,17 @@
     font-weight: 500;
     color: #333;
     border-bottom: 1px solid #e8e8e8;
-    position: sticky;
-    top: 0;
-    z-index: 0;
 }
 
 .resume-table td {
     padding: 12px 16px;
     vertical-align: middle;
+    height: 60px;
 }
 
 .resume-table tr {
     border-bottom: 1px solid #f0f0f0;
+    height: 60px;
 }
 .resume-table tr:hover {
     background: #f9f9f9;
@@ -298,10 +300,11 @@
 
 /* 表格单元格样式 */
 .filename-cell {
-    display: flex;
-    align-items: center;
-    gap: 8px;
     max-width: 200px;
+    height: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .filename-cell span:last-child {
@@ -409,6 +412,9 @@
     display: flex;
     gap: 8px;
     position: relative;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
 }
 
 .action-dropdown {
@@ -557,6 +563,16 @@
     .action-cell {
         flex-direction: column;
         gap: 4px;
+        align-items: center;
+        justify-content: center;
+        min-width: 80px;
+        height: 100%;
+    }
+    
+    .dropdown-trigger {
+        min-width: 50px;
+        padding: 4px 8px;
+        font-size: 11px;
     }
 }
 

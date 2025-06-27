@@ -9,7 +9,7 @@
 
 import type { EventName, StencilReactComponent } from '@stencil/react-output-target/runtime';
 import { createComponent } from '@stencil/react-output-target/runtime';
-import { type CareerPlanType, type ChatMessage, type ConversationStartEventData, type ErrorEventDetail, type FileUploadResponse, type InterviewCompleteEventData, type Pcm1zhanshiMnmsModalCustomEvent, type PcmAppChatModalCustomEvent, type PcmChatMessageCustomEvent, type PcmHrChatModalCustomEvent, type PcmHtwsModalCustomEvent, type PcmHyzjModalCustomEvent, type PcmJdModalCustomEvent, type PcmJlppModalCustomEvent, type PcmJlsxModalCustomEvent, type PcmMnctModalCustomEvent, type PcmMnmsModalCustomEvent, type PcmMnmsVideoModalCustomEvent, type PcmMnmsZpModalCustomEvent, type PcmMsbgModalCustomEvent, type PcmQgqjlModalCustomEvent, type PcmUploadCustomEvent, type PcmZskChatModalCustomEvent, type PcmZyghModalCustomEvent, type RecordingErrorEventData, type RecordingStatusChangeEventData, type StreamCompleteEventData, type UploadFailedEvent } from "pcm-agents";
+import { type CareerPlanType, type ChatMessage, type ConversationStartEventData, type ErrorEventDetail, type FileUploadResponse, type InterviewCompleteEventData, type Pcm1zhanshiMnmsModalCustomEvent, type PcmAppChatModalCustomEvent, type PcmChatMessageCustomEvent, type PcmHrChatModalCustomEvent, type PcmHtwsModalCustomEvent, type PcmHyzjModalCustomEvent, type PcmJdModalCustomEvent, type PcmJlppModalCustomEvent, type PcmJlsxModalCustomEvent, type PcmMnctModalCustomEvent, type PcmMnmsModalCustomEvent, type PcmMnmsVideoModalCustomEvent, type PcmMnmsZpModalCustomEvent, type PcmMsbgModalCustomEvent, type PcmQgqjlModalCustomEvent, type PcmUploadCustomEvent, type PcmZskChatModalCustomEvent, type PcmZyghModalCustomEvent, type RecordingErrorEventData, type RecordingStatusChangeEventData, type ResumeAnalysisCompleteEventData, type ResumeAnalysisStartEventData, type ResumeDeletedEventData, type StreamCompleteEventData, type TaskCreatedEventData, type TaskSwitchEventData, type UploadFailedEvent } from "pcm-agents";
 import { Pcm1zhanshiMnmsModal as Pcm1zhanshiMnmsModalElement, defineCustomElement as definePcm1zhanshiMnmsModal } from "pcm-agents/dist/components/pcm-1zhanshi-mnms-modal.js";
 import { PcmAppChatModal as PcmAppChatModalElement, defineCustomElement as definePcmAppChatModal } from "pcm-agents/dist/components/pcm-app-chat-modal.js";
 import { PcmButton as PcmButtonElement, defineCustomElement as definePcmButton } from "pcm-agents/dist/components/pcm-button.js";
@@ -327,11 +327,13 @@ export const PcmJlppModal: StencilReactComponent<PcmJlppModalElement, PcmJlppMod
 type PcmJlsxModalEvents = {
     onModalClosed: EventName<CustomEvent<void>>,
     onUploadSuccess: EventName<PcmJlsxModalCustomEvent<FileUploadResponse>>,
-    onStreamComplete: EventName<PcmJlsxModalCustomEvent<StreamCompleteEventData>>,
-    onConversationStart: EventName<PcmJlsxModalCustomEvent<ConversationStartEventData>>,
-    onInterviewComplete: EventName<PcmJlsxModalCustomEvent<InterviewCompleteEventData>>,
     onTokenInvalid: EventName<CustomEvent<void>>,
-    onSomeErrorEvent: EventName<PcmJlsxModalCustomEvent<ErrorEventDetail>>
+    onSomeErrorEvent: EventName<PcmJlsxModalCustomEvent<ErrorEventDetail>>,
+    onTaskCreated: EventName<PcmJlsxModalCustomEvent<TaskCreatedEventData>>,
+    onResumeAnalysisStart: EventName<PcmJlsxModalCustomEvent<ResumeAnalysisStartEventData>>,
+    onResumeAnalysisComplete: EventName<PcmJlsxModalCustomEvent<ResumeAnalysisCompleteEventData>>,
+    onTaskSwitch: EventName<PcmJlsxModalCustomEvent<TaskSwitchEventData>>,
+    onResumeDeleted: EventName<PcmJlsxModalCustomEvent<ResumeDeletedEventData>>
 };
 
 export const PcmJlsxModal: StencilReactComponent<PcmJlsxModalElement, PcmJlsxModalEvents> = /*@__PURE__*/ createComponent<PcmJlsxModalElement, PcmJlsxModalEvents>({
@@ -342,11 +344,13 @@ export const PcmJlsxModal: StencilReactComponent<PcmJlsxModalElement, PcmJlsxMod
     events: {
         onModalClosed: 'modalClosed',
         onUploadSuccess: 'uploadSuccess',
-        onStreamComplete: 'streamComplete',
-        onConversationStart: 'conversationStart',
-        onInterviewComplete: 'interviewComplete',
         onTokenInvalid: 'tokenInvalid',
-        onSomeErrorEvent: 'someErrorEvent'
+        onSomeErrorEvent: 'someErrorEvent',
+        onTaskCreated: 'taskCreated',
+        onResumeAnalysisStart: 'resumeAnalysisStart',
+        onResumeAnalysisComplete: 'resumeAnalysisComplete',
+        onTaskSwitch: 'taskSwitch',
+        onResumeDeleted: 'resumeDeleted'
     } as PcmJlsxModalEvents,
     defineCustomElement: definePcmJlsxModal
 });

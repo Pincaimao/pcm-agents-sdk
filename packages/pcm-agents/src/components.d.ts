@@ -6,14 +6,14 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { FileUploadResponse } from "./utils/utils";
-import { ConversationStartEventData, InterviewCompleteEventData, RecordingErrorEventData, RecordingStatusChangeEventData, StreamCompleteEventData } from "./interfaces/events";
+import { ConversationStartEventData, InterviewCompleteEventData, RecordingErrorEventData, RecordingStatusChangeEventData, ResumeAnalysisCompleteEventData, ResumeAnalysisStartEventData, ResumeDeletedEventData, StreamCompleteEventData, TaskCreatedEventData, TaskSwitchEventData } from "./interfaces/events";
 import { ErrorEventDetail } from "./utils/error-event";
 import { ChatMessage } from "./interfaces/chat";
 import { ConversationStartEventData as ConversationStartEventData1, ErrorEventDetail as ErrorEventDetail1, InterviewCompleteEventData as InterviewCompleteEventData1, StreamCompleteEventData as StreamCompleteEventData1 } from "./components";
 import { UploadFailedEvent } from "./components/pcm-upload/pcm-upload";
 import { CareerPlanType } from "./components/pcm-zygh-modal/pcm-zygh-modal";
 export { FileUploadResponse } from "./utils/utils";
-export { ConversationStartEventData, InterviewCompleteEventData, RecordingErrorEventData, RecordingStatusChangeEventData, StreamCompleteEventData } from "./interfaces/events";
+export { ConversationStartEventData, InterviewCompleteEventData, RecordingErrorEventData, RecordingStatusChangeEventData, ResumeAnalysisCompleteEventData, ResumeAnalysisStartEventData, ResumeDeletedEventData, StreamCompleteEventData, TaskCreatedEventData, TaskSwitchEventData } from "./interfaces/events";
 export { ErrorEventDetail } from "./utils/error-event";
 export { ChatMessage } from "./interfaces/chat";
 export { ConversationStartEventData as ConversationStartEventData1, ErrorEventDetail as ErrorEventDetail1, InterviewCompleteEventData as InterviewCompleteEventData1, StreamCompleteEventData as StreamCompleteEventData1 } from "./components";
@@ -709,21 +709,9 @@ export namespace Components {
          */
         "botId": string;
         /**
-          * 会话ID，传入继续对话，否则创建新会话
-         */
-        "conversationId"?: string;
-        /**
           * 自定义输入参数
          */
         "customInputs": Record<string, string>;
-        /**
-          * 默认查询文本
-         */
-        "defaultQuery": string;
-        /**
-          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-         */
-        "filePreviewMode": 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
@@ -1728,11 +1716,13 @@ declare global {
     interface HTMLPcmJlsxModalElementEventMap {
         "modalClosed": void;
         "uploadSuccess": FileUploadResponse;
-        "streamComplete": StreamCompleteEventData1;
-        "conversationStart": ConversationStartEventData1;
-        "interviewComplete": InterviewCompleteEventData1;
         "tokenInvalid": void;
         "someErrorEvent": ErrorEventDetail1;
+        "taskCreated": TaskCreatedEventData;
+        "resumeAnalysisStart": ResumeAnalysisStartEventData;
+        "resumeAnalysisComplete": ResumeAnalysisCompleteEventData;
+        "taskSwitch": TaskSwitchEventData;
+        "resumeDeleted": ResumeDeletedEventData;
     }
     interface HTMLPcmJlsxModalElement extends Components.PcmJlsxModal, HTMLStencilElement {
         addEventListener<K extends keyof HTMLPcmJlsxModalElementEventMap>(type: K, listener: (this: HTMLPcmJlsxModalElement, ev: PcmJlsxModalCustomEvent<HTMLPcmJlsxModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -2989,21 +2979,9 @@ declare namespace LocalJSX {
          */
         "botId"?: string;
         /**
-          * 会话ID，传入继续对话，否则创建新会话
-         */
-        "conversationId"?: string;
-        /**
           * 自定义输入参数
          */
         "customInputs"?: Record<string, string>;
-        /**
-          * 默认查询文本
-         */
-        "defaultQuery"?: string;
-        /**
-          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-         */
-        "filePreviewMode"?: 'drawer' | 'window';
         /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
@@ -3029,25 +3007,33 @@ declare namespace LocalJSX {
          */
         "modalTitle"?: string;
         /**
-          * 新会话开始的回调，只会在一轮对话开始时触发一次
-         */
-        "onConversationStart"?: (event: PcmJlsxModalCustomEvent<ConversationStartEventData1>) => void;
-        /**
-          * 当聊天完成时触发
-         */
-        "onInterviewComplete"?: (event: PcmJlsxModalCustomEvent<InterviewCompleteEventData1>) => void;
-        /**
           * 当点击模态框关闭时触发
          */
         "onModalClosed"?: (event: PcmJlsxModalCustomEvent<void>) => void;
+        /**
+          * 简历分析完成事件
+         */
+        "onResumeAnalysisComplete"?: (event: PcmJlsxModalCustomEvent<ResumeAnalysisCompleteEventData>) => void;
+        /**
+          * 简历分析开始事件
+         */
+        "onResumeAnalysisStart"?: (event: PcmJlsxModalCustomEvent<ResumeAnalysisStartEventData>) => void;
+        /**
+          * 简历删除事件
+         */
+        "onResumeDeleted"?: (event: PcmJlsxModalCustomEvent<ResumeDeletedEventData>) => void;
         /**
           * 错误事件
          */
         "onSomeErrorEvent"?: (event: PcmJlsxModalCustomEvent<ErrorEventDetail1>) => void;
         /**
-          * 流式输出完成事件
+          * 任务创建完成事件
          */
-        "onStreamComplete"?: (event: PcmJlsxModalCustomEvent<StreamCompleteEventData1>) => void;
+        "onTaskCreated"?: (event: PcmJlsxModalCustomEvent<TaskCreatedEventData>) => void;
+        /**
+          * 任务切换事件
+         */
+        "onTaskSwitch"?: (event: PcmJlsxModalCustomEvent<TaskSwitchEventData>) => void;
         /**
           * SDK密钥验证失败事件
          */

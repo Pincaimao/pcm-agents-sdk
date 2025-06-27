@@ -453,8 +453,57 @@ export class JlsxModal {
         const input = event.target as HTMLInputElement;
 
         if (input.files && input.files.length > 0) {
-            this.selectedFiles = Array.from(input.files);
+            // 定义支持的文件格式
+            const supportedExtensions = ['.pdf', '.doc', '.docx', '.txt', '.md', '.ppt', '.pptx', '.jpg', '.jpeg', '.png'];
+            const supportedMimeTypes = [
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'text/plain',
+                'text/markdown',
+                'application/vnd.ms-powerpoint',
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                'image/jpeg',
+                'image/jpg',
+                'image/png',
+            ];
+
+            // 校验并过滤文件
+            const validFiles: File[] = [];
+            const invalidFiles: string[] = [];
+
+            Array.from(input.files).forEach(file => {
+                const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+                const isValidExtension = supportedExtensions.includes(fileExtension);
+                const isValidMimeType = supportedMimeTypes.includes(file.type);
+
+                // 只要扩展名或MIME类型其中一个匹配就认为是有效文件
+                if (isValidExtension || isValidMimeType) {
+                    validFiles.push(file);
+                } else {
+                    invalidFiles.push(file.name);
+                }
+            });
+
+            // 更新选中的文件
+            this.selectedFiles = validFiles;
             this.selectedFiles = [...this.selectedFiles];
+
+            // 如果有无效文件，显示提示信息
+            if (invalidFiles.length > 0) {
+                const supportedFormatsText = supportedExtensions.join('、');
+                this.showMessage(
+                    `以下文件格式不支持，已自动过滤：${invalidFiles.join('、')}。支持的格式：${supportedFormatsText}`,
+                    'warning',
+                    5000
+                );
+            }
+
+            // 如果所有文件都无效
+            if (validFiles.length === 0 && invalidFiles.length > 0) {
+                // 清空文件输入
+                input.value = '';
+            }
         } else {
             this.selectedFiles = [];
         }
@@ -888,7 +937,7 @@ export class JlsxModal {
                             <div class="upload-placeholder">
                                 <img src='https://pub.pincaimao.com/static/web/images/home/i_upload.png'></img>
                                 <p class='upload-text'>点击上传简历</p>
-                                <p class="upload-hint">支持 PDF、DOC、DOCX、TXT、MD、RTF 格式，可批量上传</p>
+                                <p class="upload-hint">支持 PDF、DOC、DOCX、TXT、MD、PPT、PPTX、JPG、JPEG、PNG 格式，可批量上传</p>
                             </div>
                         )}
                     </div>
@@ -1098,7 +1147,6 @@ export class JlsxModal {
                     type="file"
                     class="file-input"
                     multiple
-                    accept=".pdf,.doc,.docx,.txt,.md,.rtf"
                     onChange={this.handleFileChange}
                 />
             </div>
