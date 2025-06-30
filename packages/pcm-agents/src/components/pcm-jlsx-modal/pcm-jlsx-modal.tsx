@@ -157,7 +157,8 @@ export class JlsxModal {
     @Prop() fullscreen: boolean = false;
 
     /**
-     * 自定义输入参数
+     * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br>
+     * 
      */
     @Prop() customInputs: Record<string, string> = {};
 
@@ -201,10 +202,6 @@ export class JlsxModal {
      */
     @Event() resumeDeleted: EventEmitter<ResumeDeletedEventData>;
 
-    /**
-     * 智能体ID，用于简历筛选
-     */
-    @Prop() botId: string = '3022316191018874';
 
     // State 管理
     @State() currentStep: 'input' | 'task' = 'input'; // 当前步骤
@@ -1370,7 +1367,7 @@ export class JlsxModal {
                 url: '/sdk/v1/chat/chat-messages',
                 method: 'POST',
                 data: {
-                    bot_id: this.botId,
+                    bot_id: "3022316191018874",
                     response_mode: 'blocking',
                     query: '简历筛选',
                     inputs: {
