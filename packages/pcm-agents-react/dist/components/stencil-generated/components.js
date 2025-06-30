@@ -12,6 +12,7 @@ import { PcmHtwsModal as PcmHtwsModalElement, defineCustomElement as definePcmHt
 import { PcmHyzjModal as PcmHyzjModalElement, defineCustomElement as definePcmHyzjModal } from "pcm-agents/dist/components/pcm-hyzj-modal.js";
 import { PcmJdModal as PcmJdModalElement, defineCustomElement as definePcmJdModal } from "pcm-agents/dist/components/pcm-jd-modal.js";
 import { PcmJlppModal as PcmJlppModalElement, defineCustomElement as definePcmJlppModal } from "pcm-agents/dist/components/pcm-jlpp-modal.js";
+import { PcmJlsxModal as PcmJlsxModalElement, defineCustomElement as definePcmJlsxModal } from "pcm-agents/dist/components/pcm-jlsx-modal.js";
 import { PcmMessage as PcmMessageElement, defineCustomElement as definePcmMessage } from "pcm-agents/dist/components/pcm-message.js";
 import { PcmMnctModal as PcmMnctModalElement, defineCustomElement as definePcmMnctModal } from "pcm-agents/dist/components/pcm-mnct-modal.js";
 import { PcmMnmsModal as PcmMnmsModalElement, defineCustomElement as definePcmMnmsModal } from "pcm-agents/dist/components/pcm-mnms-modal.js";
@@ -180,6 +181,23 @@ export const PcmJlppModal = createComponent({
         onSomeErrorEvent: 'someErrorEvent'
     },
     defineCustomElement: definePcmJlppModal
+});
+export const PcmJlsxModal = createComponent({
+    tagName: 'pcm-jlsx-modal',
+    elementClass: PcmJlsxModalElement,
+    react: React,
+    events: {
+        onModalClosed: 'modalClosed',
+        onUploadSuccess: 'uploadSuccess',
+        onTokenInvalid: 'tokenInvalid',
+        onSomeErrorEvent: 'someErrorEvent',
+        onTaskCreated: 'taskCreated',
+        onResumeAnalysisStart: 'resumeAnalysisStart',
+        onResumeAnalysisComplete: 'resumeAnalysisComplete',
+        onTaskSwitch: 'taskSwitch',
+        onResumeDeleted: 'resumeDeleted'
+    },
+    defineCustomElement: definePcmJlsxModal
 });
 export const PcmMessage = createComponent({
     tagName: 'pcm-message',

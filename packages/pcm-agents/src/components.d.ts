@@ -709,7 +709,7 @@ export namespace Components {
          */
         "botId": string;
         /**
-          * 自定义输入参数
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br>
          */
         "customInputs": Record<string, string>;
         /**
@@ -2979,7 +2979,7 @@ declare namespace LocalJSX {
          */
         "botId"?: string;
         /**
-          * 自定义输入参数
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br>
          */
         "customInputs"?: Record<string, string>;
         /**
