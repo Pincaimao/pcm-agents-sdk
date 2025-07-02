@@ -196,42 +196,6 @@
     font-weight: 500;
 }
 
-.selected-files {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 16px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    background: #fafafa;
-}
-
-.upload-actions {
-    display: flex;
-    gap: 12px;
-    margin-top: 12px;
-}
-
-.upload-btn {
-    padding: 8px 16px;
-    background: #1890ff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    font-size: 14px;
-}
-
-.upload-btn:hover {
-    background: #40a9ff;
-}
-
-.upload-btn:disabled {
-    background: #d9d9d9;
-    cursor: not-allowed;
-}
-
 .analyze-btn {
     padding: 8px 16px;
     background: #52c41a;

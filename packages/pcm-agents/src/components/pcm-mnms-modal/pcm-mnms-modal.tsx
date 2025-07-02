@@ -91,12 +91,12 @@ export class MnmsModal {
     @Prop() showWorkspaceHistory: boolean = false;
 
     /**
-     * 是否开启移动端上传（仅PC端生效）
+     * 是否开启移动端上传JD（仅PC端生效）
      */
     @Prop() mobileJdInputAble: boolean = false;
 
     /**
-     * 是否开启移动端上传（仅PC端生效）
+     * 是否开启移动端上传简历（仅PC端生效）
      */
     @Prop() mobileUploadAble: boolean = false;
 
@@ -343,22 +343,24 @@ export class MnmsModal {
                             {/* 简历上传区域 - 仅在没有customInputs.file_url或customInputs.resume_content时显示 */}
                             {
                                 !hideResumeUpload && (
-                                    <pcm-upload
-                                        ref={el => this.pcmUploadRef = el}
-                                        maxFileSize={15 * 1024 * 1024}
-                                        multiple={false}
-                                        mobileUploadAble={this.mobileUploadAble}
-                                        labelText="上传简历（选填）"
-                                        acceptFileSuffixList={['.txt', '.md', '.pdf', '.docx', '.doc']}
-                                        uploadParams={{
-                                            tags: ['resume'],
-                                        }}
-                                        onUploadChange={(e) => {
-                                            const result: FileUploadResponse[] = e.detail ?? [];
-                                            this.uploadedFileInfo = result[0];
-                                            this.uploadSuccess.emit(this.uploadedFileInfo);
-                                        }}
-                                    />
+                                    <div class="jd-input-section">
+                                        <label>上传简历（选填）</label>
+                                        <pcm-upload
+                                            ref={el => this.pcmUploadRef = el}
+                                            maxFileSize={15 * 1024 * 1024}
+                                            multiple={false}
+                                            mobileUploadAble={this.mobileUploadAble}
+                                            acceptFileSuffixList={['.txt', '.md', '.pdf', '.docx', '.doc']}
+                                            uploadParams={{
+                                                tags: ['resume'],
+                                            }}
+                                            onUploadChange={(e) => {
+                                                const result: FileUploadResponse[] = e.detail ?? [];
+                                                this.uploadedFileInfo = result[0];
+                                                this.uploadSuccess.emit(this.uploadedFileInfo);
+                                            }}
+                                        />
+                                    </div>
                                 )
                             }
 

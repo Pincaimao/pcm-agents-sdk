@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
-import { uploadFileToBackend, FileUploadResponse, verifyApiKey, sendHttpRequest, sendSSERequest, getCosPreviewUrl } from '../../utils/utils';
+import {  FileUploadResponse, verifyApiKey, sendHttpRequest, sendSSERequest, getCosPreviewUrl } from '../../utils/utils';
 import { ErrorEventDetail } from '../../components';
 import { 
     TaskCreatedEventData,
@@ -157,10 +157,15 @@ export class JlsxModal {
     @Prop() fullscreen: boolean = false;
 
     /**
-     * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br>
+     * 自定义输入参数，传入customInputs.job_info时，会填充JD输入区域<br>
      * 
      */
     @Prop() customInputs: Record<string, string> = {};
+
+    /**
+     * 是否开启移动端上传简历（仅PC端生效）
+     */
+    @Prop() mobileUploadAble: boolean = false;
 
     /**
      * 上传成功事件
@@ -246,11 +251,17 @@ export class JlsxModal {
     @State() taskHistoryPageSize: number = 10;
     @State() taskHistoryTotal: number = 0;
 
+    // 添加简历列表加载状态
+    @State() isLoadingResumeList: boolean = false;
+
     // 使用 @Element 装饰器获取组件的 host 元素
     @Element() hostElement: HTMLElement;
 
     private tokenInvalidListener: () => void;
     private removeErrorListener: () => void;
+    
+    // 添加pcm-upload组件的引用
+    private pcmUploadRef;
 
     // 计算属性：获取所有简历记录（用于显示）
     private get resumeRecords(): ResumeRecord[] {
@@ -361,6 +372,7 @@ export class JlsxModal {
         this.taskHistoryCurrentPage = 1;
         this.taskHistoryPageSize = 10;
         this.taskHistoryTotal = 0;
+        this.isLoadingResumeList = false;
     };
 
     private handleClose = () => {
@@ -446,144 +458,6 @@ export class JlsxModal {
         }
     };
 
-    private handleFileChange = (event: Event) => {
-        const input = event.target as HTMLInputElement;
-
-        if (input.files && input.files.length > 0) {
-            // 定义支持的文件格式
-            const supportedExtensions = ['.pdf', '.doc', '.docx', '.txt', '.md', '.ppt', '.pptx', '.jpg', '.jpeg', '.png'];
-            const supportedMimeTypes = [
-                'application/pdf',
-                'application/msword',
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                'text/plain',
-                'text/markdown',
-                'application/vnd.ms-powerpoint',
-                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-                'image/jpeg',
-                'image/jpg',
-                'image/png',
-            ];
-
-            // 校验并过滤文件
-            const validFiles: File[] = [];
-            const invalidFiles: string[] = [];
-
-            Array.from(input.files).forEach(file => {
-                const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
-                const isValidExtension = supportedExtensions.includes(fileExtension);
-                const isValidMimeType = supportedMimeTypes.includes(file.type);
-
-                // 只要扩展名或MIME类型其中一个匹配就认为是有效文件
-                if (isValidExtension || isValidMimeType) {
-                    validFiles.push(file);
-                } else {
-                    invalidFiles.push(file.name);
-                }
-            });
-
-            // 更新选中的文件
-            this.selectedFiles = validFiles;
-            this.selectedFiles = [...this.selectedFiles];
-
-            // 如果有无效文件，显示提示信息
-            if (invalidFiles.length > 0) {
-                const supportedFormatsText = supportedExtensions.join('、');
-                this.showMessage(
-                    `以下文件格式不支持，已自动过滤：${invalidFiles.join('、')}。支持的格式：${supportedFormatsText}`,
-                    'warning',
-                    5000
-                );
-            }
-
-            // 如果所有文件都无效
-            if (validFiles.length === 0 && invalidFiles.length > 0) {
-                // 清空文件输入
-                input.value = '';
-            }
-        } else {
-            this.selectedFiles = [];
-        }
-    };
-
-    private handleUploadClick = () => {
-        const fileInput = this.hostElement.shadowRoot?.querySelector('.file-input') as HTMLInputElement;
-        fileInput?.click();
-    };
-
-    private removeFile = (index: number) => {
-        this.selectedFiles = this.selectedFiles.filter((_, i) => i !== index);
-        // 强制触发重新渲染
-        this.selectedFiles = [...this.selectedFiles];
-    };
-
-    private uploadResumes = async () => {
-        if (this.selectedFiles.length === 0) {
-            this.showMessage('请选择简历文件', 'warning');
-            return;
-        }
-
-        if (!this.currentTask) {
-            this.showMessage('请先创建任务', 'warning');
-            return;
-        }
-
-        this.isUploading = true;
-
-        try {
-            // 为每个文件调用uploadFileToBackend获取cos_key
-            const uploadPromises = this.selectedFiles.map(async (file) => {
-                const result = await uploadFileToBackend(file, {}, { 'tags': ['resume'] });
-
-                // 创建新的简历记录
-                const record: ResumeRecord = {
-                    id: Date.now() + Math.random().toString(),
-                    fileName: file.name,
-                    talentInfo: '等待分析...',
-                    score: undefined,
-                    scoreDetail: '等待分析...',
-                    uploadTime: new Date(),
-                    fileInfo: result,
-                    task_id: this.currentTask!.id,
-                    file_url: result.cos_key,
-                    evaluate_status: undefined // 新上传的简历默认为未开始状态
-                };
-
-                return record;
-            });
-
-            const newRecords = await Promise.all(uploadPromises);
-            this.uploadedResumeRecords = [...this.uploadedResumeRecords, ...newRecords];
-            this.selectedFiles = [];
-
-            // 清空文件输入
-            const fileInput = this.hostElement.shadowRoot?.querySelector('.file-input') as HTMLInputElement;
-            if (fileInput) {
-                fileInput.value = '';
-            }
-
-            // 触发上传成功事件
-            newRecords.forEach(record => {
-                this.uploadSuccess.emit(record.fileInfo);
-            });
-
-            this.showMessage(`成功上传 ${newRecords.length} 个简历文件！`, 'success');
-
-        } catch (error) {
-            console.error('文件上传错误:', error);
-            SentryReporter.captureError(error, {
-                action: 'uploadResumes',
-                component: 'pcm-jlsx-modal',
-                title: '文件上传失败'
-            });
-            ErrorEventBus.emitError({
-                error: error,
-                message: '文件上传失败，请重试'
-            });
-        } finally {
-            this.isUploading = false;
-        }
-    };
 
     private toggleJdDetail = () => {
         this.showJdDrawer = true;
@@ -914,46 +788,21 @@ export class JlsxModal {
                         <h4>上传简历</h4>
                     </div>
 
-                    <div class="upload-area" onClick={this.handleUploadClick}>
-                        {this.selectedFiles.length > 0 ? (
-                            <div class="selected-files">
-                                {this.selectedFiles.map((file, index) => (
-                                    <div class="file-item" key={index}>
-                                        <div class="file-item-content">
-                                            <span class="file-icon">📝</span>
-                                            <span class="file-name">{file.name}</span>
-                                        </div>
-                                        <button class="remove-file" onClick={(e) => {
-                                            e.stopPropagation();
-                                            this.removeFile(index);
-                                        }}>×</button>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div class="upload-placeholder">
-                                <img src='https://pub.pincaimao.com/static/web/images/home/i_upload.png'></img>
-                                <p class='upload-text'>点击上传简历</p>
-                                <p class="upload-hint">支持 PDF、DOC、DOCX、TXT、MD、PPT、PPTX、JPG、JPEG、PNG 格式，可批量上传</p>
-                            </div>
-                        )}
-                    </div>
+                    <pcm-upload
+                        ref={(el) => this.pcmUploadRef = el}
+                        multiple={true}
+                        maxFileSize={15 * 1024 * 1024}
+                        acceptFileSuffixList={['.pdf', '.doc', '.docx', '.txt', '.md', '.ppt', '.pptx', '.jpg', '.jpeg', '.png']}
+                        mobileUploadAble={this.mobileUploadAble}
+                        uploadParams={{ tags: ['resume'] }}
+                        onUploadChange={this.handleUploadChange}
+                    />
 
                     <div class="upload-actions">
-                        {this.selectedFiles.length > 0 && (
-                            <button
-                                class="upload-btn"
-                                disabled={this.isUploading}
-                                onClick={this.uploadResumes}
-                            >
-                                {this.isUploading ? '上传中...' : `上传 ${this.selectedFiles.length} 个文件`}
-                            </button>
-                        )}
-
                         {this.uploadedResumeRecords.some(record => record.evaluate_status !== 1 && record.evaluate_status !== 0) && (
                             <button
                                 class="analyze-btn"
-                                onClick={this.startAnalysis}
+                                onClick={this.handleStartAnalysis}
                             >
                                 {`开始分析 (${this.uploadedResumeRecords.filter(record => record.evaluate_status !== 1 && record.evaluate_status !== 0).length} 个待分析)`}
                             </button>
@@ -1006,7 +855,16 @@ export class JlsxModal {
                                 </tr>
                             </thead>
                             <tbody>
-                                {this.resumeRecords.length === 0 ? (
+                                {this.isLoadingResumeList ? (
+                                    <tr>
+                                        <td colSpan={6} class="empty-row">
+                                            <div class="empty-state">
+                                                <div class="loading-spinner-small"></div>
+                                                <p>正在加载简历数据...</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ) : this.resumeRecords.length === 0 ? (
                                     <tr>
                                         <td colSpan={6} class="empty-row">
                                             <div class="empty-state">
@@ -1139,13 +997,6 @@ export class JlsxModal {
 
                     </div>
                 </div>
-
-                <input
-                    type="file"
-                    class="file-input"
-                    multiple
-                    onChange={this.handleFileChange}
-                />
             </div>
         );
     }
@@ -1211,6 +1062,8 @@ export class JlsxModal {
     private async loadResumeList() {
         if (!this.currentTask) return;
 
+        this.isLoadingResumeList = true;
+
         try {
             const params: any = {
                 task_id: this.currentTask.id,
@@ -1270,6 +1123,8 @@ export class JlsxModal {
             }
         } catch (error) {
             console.error('加载简历列表失败:', error);
+        } finally {
+            this.isLoadingResumeList = false;
         }
     }
 
@@ -1361,6 +1216,11 @@ export class JlsxModal {
                     file_url: record.file_url || record.fileInfo?.cos_key || ''
                 })).filter(file => filteredFileUrls.includes(file.file_url))
             });
+
+            // 清除pcm-upload组件中的文件显示
+            if (this.pcmUploadRef?.clearSelectedFiles) {
+                this.pcmUploadRef.clearSelectedFiles();
+            }
 
             // 3. 调用简历筛选接口，使用过滤后的文件URL列表
             await sendSSERequest({
@@ -1649,6 +1509,86 @@ export class JlsxModal {
             highest_score: highestScore,
         });
 
+    };
+
+    /**
+     * 处理pcm-upload组件的上传变化事件
+     */
+    private handleUploadChange = (e: CustomEvent<FileUploadResponse[]>) => {
+        if (!this.currentTask) {
+            this.showMessage('请先创建任务', 'warning');
+            return;
+        }
+
+        const currentUploadResults: FileUploadResponse[] = e.detail || [];
+        
+        // 获取已存在的文件URL列表，用于比较
+        const existingFileUrls = this.uploadedResumeRecords.map(record => 
+            record.file_url || record.fileInfo?.cos_key
+        ).filter(url => url);
+        
+        // 找出新增的文件（在当前结果中但不在已存在列表中的文件）
+        const newUploadResults = currentUploadResults.filter(result => 
+            !existingFileUrls.includes(result.cos_key)
+        );
+        
+        // 找出被删除的文件（在已存在列表中但不在当前结果中的文件）
+        const currentFileUrls = currentUploadResults.map(result => result.cos_key);
+        const removedFileUrls = existingFileUrls.filter(url => 
+            !currentFileUrls.includes(url)
+        );
+        
+        // 处理新增的文件
+        if (newUploadResults.length > 0) {
+            // 为每个新上传的文件创建简历记录
+            const newRecords = newUploadResults.map(result => {
+                const record: ResumeRecord = {
+                    id: Date.now() + Math.random().toString(),
+                    fileName: result.file_name || '未知文件',
+                    talentInfo: '等待分析...',
+                    score: undefined,
+                    scoreDetail: '等待分析...',
+                    uploadTime: new Date(),
+                    fileInfo: result,
+                    task_id: this.currentTask!.id,
+                    file_url: result.cos_key,
+                    evaluate_status: undefined // 新上传的简历默认为未开始状态
+                };
+                return record;
+            });
+
+            // 添加到上传记录列表
+            this.uploadedResumeRecords = [...this.uploadedResumeRecords, ...newRecords];
+
+            // 触发上传成功事件
+            newRecords.forEach(record => {
+                this.uploadSuccess.emit(record.fileInfo);
+            });
+
+            this.showMessage(`成功上传 ${newRecords.length} 个简历文件！`, 'success');
+        }
+        
+        // 处理被删除的文件
+        if (removedFileUrls.length > 0) {
+            // 从上传记录列表中移除被删除的文件
+            this.uploadedResumeRecords = this.uploadedResumeRecords.filter(record => {
+                const fileUrl = record.file_url || record.fileInfo?.cos_key;
+                return !removedFileUrls.includes(fileUrl);
+            });
+        }
+    };
+
+    /**
+     * 开始分析简历，检查是否有文件正在上传
+     */
+    private handleStartAnalysis = async () => {
+        // 判断文件是否正在上传
+        if (await this.pcmUploadRef?.getIsUploading?.()) {
+            this.showMessage('文件上传中，请稍后', 'info');
+            return;
+        }
+
+        await this.startAnalysis();
     };
 
     render() {

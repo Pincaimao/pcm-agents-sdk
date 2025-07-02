@@ -93,7 +93,7 @@ export namespace Components {
         /**
           * 自定义智能体inputs输入参数
          */
-        "customInputs": Record<string, string>;
+        "customInputs": Record<string, any>;
         /**
           * 默认发送文本
          */
@@ -705,11 +705,7 @@ export namespace Components {
     }
     interface PcmJlsxModal {
         /**
-          * 智能体ID，用于简历筛选
-         */
-        "botId": string;
-        /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br>
+          * 自定义输入参数，传入customInputs.job_info时，会填充JD输入区域<br>
          */
         "customInputs": Record<string, string>;
         /**
@@ -732,6 +728,10 @@ export namespace Components {
           * 是否展示顶部标题栏
          */
         "isShowHeader": boolean;
+        /**
+          * 是否开启移动端上传简历（仅PC端生效）
+         */
+        "mobileUploadAble": boolean;
         /**
           * 模态框标题
          */
@@ -756,6 +756,10 @@ export namespace Components {
      * 模拟出题大师
      */
     interface PcmMnctModal {
+        /**
+          * 是否需要参考答案，默认开启
+         */
+        "canOutputAnalysis": boolean;
         /**
           * 会话ID，传入继续对话，否则创建新会话
          */
@@ -796,6 +800,10 @@ export namespace Components {
           * 模态框标题
          */
         "modalTitle": string;
+        /**
+          * 面试题数量，默认6题（范围：3-20题）
+         */
+        "questionNumber": number;
         /**
           * 是否显示工作区历史会话按钮
          */
@@ -854,11 +862,11 @@ export namespace Components {
          */
         "isShowHeader": boolean;
         /**
-          * 是否开启移动端上传（仅PC端生效）
+          * 是否开启移动端上传JD（仅PC端生效）
          */
         "mobileJdInputAble": boolean;
         /**
-          * 是否开启移动端上传（仅PC端生效）
+          * 是否开启移动端上传简历（仅PC端生效）
          */
         "mobileUploadAble": boolean;
         /**
@@ -992,11 +1000,11 @@ export namespace Components {
          */
         "isShowHeader": boolean;
         /**
-          * 是否开启移动端上传（仅PC端生效）
+          * 是否开启移动端上传JD（仅PC端生效）
          */
         "mobileJdInputAble": boolean;
         /**
-          * 是否开启移动端上传（仅PC端生效）
+          * 是否开启移动端上传简历（仅PC端生效）
          */
         "mobileUploadAble": boolean;
         /**
@@ -1194,11 +1202,11 @@ export namespace Components {
           * 支持的文件后缀列表（需要带上小数点.）
          */
         "acceptFileSuffixList": string[];
-        "getIsUploading": () => Promise<boolean>;
         /**
-          * label内容
+          * 清除已选择的文件
          */
-        "labelText": string;
+        "clearSelectedFiles": () => Promise<void>;
+        "getIsUploading": () => Promise<boolean>;
         /**
           * 最大文件数
          */
@@ -2154,7 +2162,7 @@ declare namespace LocalJSX {
         /**
           * 自定义智能体inputs输入参数
          */
-        "customInputs"?: Record<string, string>;
+        "customInputs"?: Record<string, any>;
         /**
           * 默认发送文本
          */
@@ -2975,11 +2983,7 @@ declare namespace LocalJSX {
     }
     interface PcmJlsxModal {
         /**
-          * 智能体ID，用于简历筛选
-         */
-        "botId"?: string;
-        /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br>
+          * 自定义输入参数，传入customInputs.job_info时，会填充JD输入区域<br>
          */
         "customInputs"?: Record<string, string>;
         /**
@@ -3002,6 +3006,10 @@ declare namespace LocalJSX {
           * 是否展示顶部标题栏
          */
         "isShowHeader"?: boolean;
+        /**
+          * 是否开启移动端上传简历（仅PC端生效）
+         */
+        "mobileUploadAble"?: boolean;
         /**
           * 模态框标题
          */
@@ -3060,6 +3068,10 @@ declare namespace LocalJSX {
      * 模拟出题大师
      */
     interface PcmMnctModal {
+        /**
+          * 是否需要参考答案，默认开启
+         */
+        "canOutputAnalysis"?: boolean;
         /**
           * 会话ID，传入继续对话，否则创建新会话
          */
@@ -3129,6 +3141,10 @@ declare namespace LocalJSX {
          */
         "onUploadSuccess"?: (event: PcmMnctModalCustomEvent<FileUploadResponse>) => void;
         /**
+          * 面试题数量，默认6题（范围：3-20题）
+         */
+        "questionNumber"?: number;
+        /**
           * 是否显示工作区历史会话按钮
          */
         "showWorkspaceHistory"?: boolean;
@@ -3186,11 +3202,11 @@ declare namespace LocalJSX {
          */
         "isShowHeader"?: boolean;
         /**
-          * 是否开启移动端上传（仅PC端生效）
+          * 是否开启移动端上传JD（仅PC端生效）
          */
         "mobileJdInputAble"?: boolean;
         /**
-          * 是否开启移动端上传（仅PC端生效）
+          * 是否开启移动端上传简历（仅PC端生效）
          */
         "mobileUploadAble"?: boolean;
         /**
@@ -3388,11 +3404,11 @@ declare namespace LocalJSX {
          */
         "isShowHeader"?: boolean;
         /**
-          * 是否开启移动端上传（仅PC端生效）
+          * 是否开启移动端上传JD（仅PC端生效）
          */
         "mobileJdInputAble"?: boolean;
         /**
-          * 是否开启移动端上传（仅PC端生效）
+          * 是否开启移动端上传简历（仅PC端生效）
          */
         "mobileUploadAble"?: boolean;
         /**
@@ -3684,10 +3700,6 @@ declare namespace LocalJSX {
           * 支持的文件后缀列表（需要带上小数点.）
          */
         "acceptFileSuffixList"?: string[];
-        /**
-          * label内容
-         */
-        "labelText"?: string;
         /**
           * 最大文件数
          */

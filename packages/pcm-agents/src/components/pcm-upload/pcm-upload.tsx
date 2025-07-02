@@ -23,10 +23,7 @@ export class PcmUpload {
      * 是否开启移动端上传（仅PC端生效）
      */
     @Prop() mobileUploadAble: boolean = false;
-    /**
-     * label内容
-     */
-    @Prop() labelText: string = '上传文件'
+
     /**
      * 支持的文件后缀列表（需要带上小数点.）
      */
@@ -63,6 +60,15 @@ export class PcmUpload {
     @Method()
     async getIsUploading() {
         return !!this.selectedFiles?.some(item => item.state === FileUploadState.Uploading);
+    }
+
+    /**
+     * 清除已选择的文件
+     */
+    @Method()
+    async clearSelectedFiles() {
+        this.selectedFiles = null;
+        this.clearSelectedFile(); // 同时清除input的值
     }
 
     private handleUploadClick = () => {
@@ -111,6 +117,85 @@ export class PcmUpload {
 
         if (this.multiple) {
             // 多选
+            const files = Array.from(input.files || []);
+            if (files.length === 0) return;
+
+            // 验证文件数量限制
+            const currentFileCount = this.selectedFiles?.length || 0;
+            const remainingSlots = this.maxFileCount - currentFileCount;
+            if (files.length > remainingSlots) {
+                Message.info(`最多只能上传 ${this.maxFileCount} 个文件，当前已选择 ${currentFileCount} 个`);
+                return;
+            }
+
+            const validFiles: File[] = [];
+            const invalidFiles: string[] = [];
+
+            // 验证每个文件
+            files.forEach(file => {
+                // 检测文件后缀名
+                if (this.acceptFileSuffixList?.length) {
+                    const suffix = '.' + file.name.split('.').pop()?.toLowerCase();
+                    if (!this.acceptFileSuffixList.includes(suffix)) {
+                        invalidFiles.push(`${file.name}(格式不支持)`);
+                        return;
+                    }
+                }
+                // 检测文件大小
+                if (this.maxFileSize < file.size) {
+                    invalidFiles.push(`${file.name}(文件过大)`);
+                    return;
+                }
+                validFiles.push(file);
+            });
+
+            // 提示无效文件
+            if (invalidFiles.length > 0) {
+                const supportedFormats = this.acceptFileSuffixList?.length ? this.acceptFileSuffixList.join('、') : '';
+                const maxSizeText = this.maxFileSize !== Infinity ? formatFileSize(this.maxFileSize) : '';
+                Message.info(`以下文件无法上传：${invalidFiles.join('、')}。${supportedFormats ? `支持格式：${supportedFormats}。` : ''}${maxSizeText ? `最大文件大小：${maxSizeText}。` : ''}`);
+            }
+
+            if (validFiles.length === 0) {
+                this.clearSelectedFile();
+                return;
+            }
+
+            // 为有效文件创建初始状态
+            const newFileItems: FileUploadResponseWithState[] = validFiles.map(file => ({
+                file,
+                file_name: file.name,
+                file_size: file.size,
+                state: FileUploadState.Uploading,
+                cos_key: '',
+                error: undefined,
+            }));
+
+            // 添加到现有文件列表
+            this.selectedFiles = [
+                ...(this.selectedFiles || []),
+                ...newFileItems
+            ];
+
+            // 依次上传文件
+            for (let i = 0; i < validFiles.length; i++) {
+                const file = validFiles[i];
+                const uploadResult = await this.uploadFile(file);
+
+                // 更新对应文件的状态
+                if (this.selectedFiles) {
+                    const currentFileCount = this.selectedFiles.length;
+                    const targetIndex = currentFileCount - validFiles.length + i;
+                    if (targetIndex >= 0 && targetIndex < this.selectedFiles.length) {
+                        this.selectedFiles[targetIndex] = uploadResult;
+                        // 触发重新渲染
+                        this.selectedFiles = [...this.selectedFiles];
+                    }
+                }
+            }
+
+            this.clearSelectedFile();
+            this.emitUploadChange();
         } else {
             // 单选
             const file = input.files?.[0];
@@ -144,7 +229,7 @@ export class PcmUpload {
     };
 
     private emitUploadChange = () => {
-        this.uploadChange.emit(this.selectedFiles?.map?.(item => ({
+        this.uploadChange.emit(this.selectedFiles?.filter(item => item.state === FileUploadState.Success).map?.(item => ({
             cos_key: item.cos_key,
             file_name: item.file_name,
             file_size: item.file_size,
@@ -153,7 +238,7 @@ export class PcmUpload {
     }
 
     private uploadBtn() {
-        return <div>
+        return <div style={{ width: '100%' }}>
             {
                 !!this.mobileUploadAble && <pcm-mobile-upload-btn
                     multiple={this.multiple}
@@ -177,17 +262,15 @@ export class PcmUpload {
             <div class="upload-placeholder" onClick={this.handleUploadClick}>
                 <img src='https://pub.pincaimao.com/static/web/images/home/i_upload.png'></img>
                 <p class='upload-text'>点击上传简历</p>
-                <p class="upload-hint">
-                    {
-                        !!this.acceptFileSuffixList?.length && <p>支持 {this.acceptFileSuffixList.join('、')} 格式。</p>
-                    }
-                    {
-                        !!this.maxFileSize && this.maxFileSize !== Infinity && <p>文件大小不能超过 {formatFileSize(this.maxFileSize) ?? ''}。</p>
-                    }
-                    {
-                        !!this.maxFileCount && this.maxFileCount !== Infinity && <p>最多上传 {this.maxFileCount} 个文件。</p>
-                    }
-                </p>
+                {
+                    !!this.acceptFileSuffixList?.length && <p class="upload-hint">支持 {this.acceptFileSuffixList.join('、')} 格式。</p>
+                }
+                {
+                    !!this.maxFileSize && this.maxFileSize !== Infinity && <p class="upload-hint">文件大小不能超过 {formatFileSize(this.maxFileSize) ?? ''}。</p>
+                }
+                {
+                    !!this.maxFileCount && this.maxFileCount !== Infinity && <p class="upload-hint">最多上传 {this.maxFileCount} 个文件。</p>
+                }
             </div>
         </div>
     }
@@ -196,7 +279,6 @@ export class PcmUpload {
         return (
             <div>
                 <div class="resume-upload-section">
-                    <label >{this.labelText}</label>
                     <div class="upload-area">
                         <div>
                             {
@@ -212,27 +294,30 @@ export class PcmUpload {
                                         <button class="remove-file" onClick={(e) => {
                                             e.stopPropagation();
                                             this.selectedFiles = this.selectedFiles?.filter((_, itemIndex) => index !== itemIndex);
+                                            this.emitUploadChange();
                                         }}>×</button>
                                     </div>
                                 })
                             }
                         </div>
-                        {
-                            this.multiple ? <div>
-                                {
-                                    (this.selectedFiles?.length ?? 0) < this.maxFileCount && this.uploadBtn()
-                                }
-                            </div> : <div>
-                                {
-                                    !this.selectedFiles?.length && this.uploadBtn()
-                                }
-                            </div>
-                        }
+
                     </div>
+                    {
+                        this.multiple ? <div class="upload-actions">
+                            {
+                                (this.selectedFiles?.length ?? 0) < this.maxFileCount && this.uploadBtn()
+                            }
+                        </div> : <div class="upload-actions">
+                            {
+                                !this.selectedFiles?.length && this.uploadBtn()
+                            }
+                        </div>
+                    }
                 </div>
                 <input
                     type="file"
                     class="file-input"
+                    multiple={this.multiple}
                     onChange={this.handleFileChange}
                 />
             </div>

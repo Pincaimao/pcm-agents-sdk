@@ -83,6 +83,15 @@ export class MnctModal {
      */
     @Prop() showWorkspaceHistory: boolean = false;
 
+    /**
+     * 面试题数量，默认6题（范围：3-20题）
+     */
+    @Prop({ mutable: true }) questionNumber: number = 6;
+
+    /**
+     * 是否需要参考答案，默认开启
+     */
+    @Prop({ mutable: true }) canOutputAnalysis: boolean = true;
 
     /**
      * 上传成功事件
@@ -132,7 +141,6 @@ export class MnctModal {
     @State() jobDescription: string = '';
     @State() isSubmitting: boolean = false;
 
-
     private tokenInvalidListener: () => void;
     private removeErrorListener: () => void;
 
@@ -144,8 +152,6 @@ export class MnctModal {
         }
     }
 
-
-    
     @Watch('isOpen')
     async handleIsOpenChange(newValue: boolean) {
         if (!newValue) {
@@ -168,10 +174,7 @@ export class MnctModal {
         }
     }
 
-
-
     componentWillLoad() {
-
         // 将 zIndex 存入配置缓存
         if (this.zIndex) {
             configStore.setItem('modal-zIndex', this.zIndex);
@@ -199,7 +202,6 @@ export class MnctModal {
             this.removeErrorListener();
         }
     }
-
 
     private handleClose = () => {
         this.modalClosed.emit();
@@ -262,6 +264,17 @@ export class MnctModal {
         this.jobDescription = textarea.value;
     };
 
+    private handleQuestionNumberChange = (event: Event) => {
+        const input = event.target as HTMLInputElement;
+        const value = parseInt(input.value);
+        this.questionNumber = (value >= 3 && value <= 20) ? value : 6;
+    };
+
+    private handleAnalysisToggle = (event: Event) => {
+        const input = event.target as HTMLInputElement;
+        this.canOutputAnalysis = input.checked;
+    };
+
     private handleStartInterview = async () => {
         if (!this.selectedFile) {
             alert('请上传简历');
@@ -304,14 +317,12 @@ export class MnctModal {
         }
     };
 
-
     render() {
         if (!this.isOpen) return null;
 
         const modalStyle = {
             zIndex: String(this.zIndex)
         };
-
 
         const containerClass = {
             'modal-container': true,
@@ -398,6 +409,43 @@ export class MnctModal {
                                 </div>
                             )}
 
+                            {/* 面试设置区域 */}
+                            <div class="interview-settings-section">
+                                <div class="settings-row">
+                                    <div class="question-number-section">
+                                        <label class="settings-label">面试题数量：</label>
+                                        <div class="slider-container">
+                                            <input
+                                                type="range"
+                                                min="3"
+                                                max="20"
+                                                value={this.questionNumber}
+                                                class="question-slider"
+                                                onInput={this.handleQuestionNumberChange}
+                                            />
+                                            <div class="slider-value">{this.questionNumber}题</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="settings-row">
+                                    <div class="analysis-toggle-section">
+                                        <label class="settings-label">是否需要参考答案：</label>
+                                        <div class="toggle-container">
+                                            <label class="toggle-switch">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={this.canOutputAnalysis}
+                                                    onChange={this.handleAnalysisToggle}
+                                                />
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                            <span class="toggle-text">{this.canOutputAnalysis ? '开启' : '关闭'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <button
                                 class="submit-button"
                                 disabled={((!hideResumeUpload && !this.selectedFile) || 
@@ -452,7 +500,9 @@ export class MnctModal {
                                     ...this.customInputs,
                                     file_url: this.customInputs?.file_url || this.uploadedFileInfo?.cos_key,
                                     file_name: this.customInputs?.file_name || this.uploadedFileInfo?.file_name,
-                                    job_info: this.customInputs?.job_info || this.jobDescription
+                                    job_info: this.customInputs?.job_info || this.jobDescription,
+                                    question_number: this.questionNumber,
+                                    can_outputAnalysis: this.canOutputAnalysis ? 'true' : 'false',
                                 }}
                                 interviewMode="text"
                             ></pcm-app-chat-modal>

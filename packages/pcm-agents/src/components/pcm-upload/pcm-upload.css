@@ -1,0 +1,10 @@
+.upload-area{
+    max-height: 300px;
+    overflow-y: auto;
+}
+.upload-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+    width: 100%;
+}
