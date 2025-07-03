@@ -4,32 +4,32 @@
 
 ## Properties
 
-| Property                | Attribute                  | Description                                 | Type                       | Default                                                    |
-| ----------------------- | -------------------------- | ------------------------------------------- | -------------------------- | ---------------------------------------------------------- |
-| `assistantAvatar`       | `assistant-avatar`         | 助手头像URL                                     | `string`                   | `undefined`                                                |
-| `botId`                 | `bot-id`                   | 机器人ID                                       | `string`                   | `undefined`                                                |
-| `conversationId`        | `conversation-id`          | 会话ID，传入继续对话，否则创建新会话                         | `string`                   | `undefined`                                                |
-| `countdownWarningTime`  | `countdown-warning-time`   | 录制倒计时提醒时间（秒） 当剩余时间小于此值时，显示倒计时警告             | `number`                   | `30`                                                       |
-| `customInputs`          | `custom-inputs`            | 自定义智能体inputs输入参数                            | `{ [x: string]: string; }` | `{}`                                                       |
-| `defaultQuery`          | `default-query`            | 默认发送文本                                      | `string`                   | `'你好！聘才猫'`                                                 |
-| `enableTTS`             | `enable-t-t-s`             | 是否启用语音播报功能 true: 启用语音合成 false: 禁用语音合成       | `boolean`                  | `false`                                                    |
-| `enableVoice`           | `enable-voice`             | 是否自动播放语音问题                                  | `boolean`                  | `false`                                                    |
-| `filePreviewMode`       | `file-preview-mode`        | 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开 | `"drawer" \| "window"`     | `'window'`                                                 |
-| `fullscreen`            | `fullscreen`               | 是否以全屏模式打开，移动端建议设置为true                      | `boolean`                  | `false`                                                    |
-| `icon`                  | `icon`                     | 应用图标URL                                     | `string`                   | `undefined`                                                |
-| `interviewMode`         | `interview-mode`           | 面试模式 video: 视频面试模式 text: 文字面试模式             | `"text" \| "video"`        | `'video'`                                                  |
-| `isNeedClose`           | `is-need-close`            | 是否展示右上角的关闭按钮                                | `boolean`                  | `true`                                                     |
-| `isOpen`                | `is-open`                  | 是否显示聊天模态框                                   | `boolean`                  | `false`                                                    |
-| `isShowHeader`          | `is-show-header`           | 是否展示顶部标题栏                                   | `boolean`                  | `true`                                                     |
-| `maxAudioRecordingTime` | `max-audio-recording-time` | 语音录制最大时长（秒）                                 | `number`                   | `60`                                                       |
-| `maxRecordingTime`      | `max-recording-time`       | 视频录制最大时长（秒）                                 | `number`                   | `120`                                                      |
-| `modalTitle`            | `modal-title`              | 模态框标题                                       | `string`                   | `'在线客服'`                                                   |
-| `showCopyButton`        | `show-copy-button`         | 是否显示复制按钮                                    | `boolean`                  | `true`                                                     |
-| `showFeedbackButtons`   | `show-feedback-buttons`    | 是否显示点赞点踩按钮                                  | `boolean`                  | `true`                                                     |
-| `showWorkspaceHistory`  | `show-workspace-history`   | 是否显示工作区历史会话按钮                               | `boolean`                  | `false`                                                    |
-| `token`                 | `token`                    | SDK鉴权密钥                                     | `string`                   | `undefined`                                                |
-| `userAvatar`            | `user-avatar`              | 用户头像URL                                     | `string`                   | `"https://pub.pincaimao.com/static/common/i_pcm_logo.png"` |
-| `zIndex`                | `z-index`                  | 聊天框的页面层级                                    | `number`                   | `undefined`                                                |
+| Property                | Attribute                  | Description                                 | Type                    | Default                                                    |
+| ----------------------- | -------------------------- | ------------------------------------------- | ----------------------- | ---------------------------------------------------------- |
+| `assistantAvatar`       | `assistant-avatar`         | 助手头像URL                                     | `string`                | `undefined`                                                |
+| `botId`                 | `bot-id`                   | 机器人ID                                       | `string`                | `undefined`                                                |
+| `conversationId`        | `conversation-id`          | 会话ID，传入继续对话，否则创建新会话                         | `string`                | `undefined`                                                |
+| `countdownWarningTime`  | `countdown-warning-time`   | 录制倒计时提醒时间（秒） 当剩余时间小于此值时，显示倒计时警告             | `number`                | `30`                                                       |
+| `customInputs`          | `custom-inputs`            | 自定义智能体inputs输入参数                            | `{ [x: string]: any; }` | `{}`                                                       |
+| `defaultQuery`          | `default-query`            | 默认发送文本                                      | `string`                | `'你好！聘才猫'`                                                 |
+| `enableTTS`             | `enable-t-t-s`             | 是否启用语音播报功能 true: 启用语音合成 false: 禁用语音合成       | `boolean`               | `false`                                                    |
+| `enableVoice`           | `enable-voice`             | 是否自动播放语音问题                                  | `boolean`               | `false`                                                    |
+| `filePreviewMode`       | `file-preview-mode`        | 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开 | `"drawer" \| "window"`  | `'window'`                                                 |
+| `fullscreen`            | `fullscreen`               | 是否以全屏模式打开，移动端建议设置为true                      | `boolean`               | `false`                                                    |
+| `icon`                  | `icon`                     | 应用图标URL                                     | `string`                | `undefined`                                                |
+| `interviewMode`         | `interview-mode`           | 面试模式 video: 视频面试模式 text: 文字面试模式             | `"text" \| "video"`     | `'video'`                                                  |
+| `isNeedClose`           | `is-need-close`            | 是否展示右上角的关闭按钮                                | `boolean`               | `true`                                                     |
+| `isOpen`                | `is-open`                  | 是否显示聊天模态框                                   | `boolean`               | `false`                                                    |
+| `isShowHeader`          | `is-show-header`           | 是否展示顶部标题栏                                   | `boolean`               | `true`                                                     |
+| `maxAudioRecordingTime` | `max-audio-recording-time` | 语音录制最大时长（秒）                                 | `number`                | `60`                                                       |
+| `maxRecordingTime`      | `max-recording-time`       | 视频录制最大时长（秒）                                 | `number`                | `120`                                                      |
+| `modalTitle`            | `modal-title`              | 模态框标题                                       | `string`                | `'在线客服'`                                                   |
+| `showCopyButton`        | `show-copy-button`         | 是否显示复制按钮                                    | `boolean`               | `true`                                                     |
+| `showFeedbackButtons`   | `show-feedback-buttons`    | 是否显示点赞点踩按钮                                  | `boolean`               | `true`                                                     |
+| `showWorkspaceHistory`  | `show-workspace-history`   | 是否显示工作区历史会话按钮                               | `boolean`               | `false`                                                    |
+| `token`                 | `token`                    | SDK鉴权密钥                                     | `string`                | `undefined`                                                |
+| `userAvatar`            | `user-avatar`              | 用户头像URL                                     | `string`                | `"https://pub.pincaimao.com/static/common/i_pcm_logo.png"` |
+| `zIndex`                | `z-index`                  | 聊天框的页面层级                                    | `number`                | `undefined`                                                |
 
 
 ## Events

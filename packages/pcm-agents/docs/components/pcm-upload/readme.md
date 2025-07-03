@@ -7,7 +7,6 @@
 | Property               | Attribute                 | Description         | Type                    | Default     |
 | ---------------------- | ------------------------- | ------------------- | ----------------------- | ----------- |
 | `acceptFileSuffixList` | `accept-file-suffix-list` | 支持的文件后缀列表（需要带上小数点.） | `string[]`              | `[]`        |
-| `labelText`            | `label-text`              | label内容             | `string`                | `'上传文件'`    |
 | `maxFileCount`         | `max-file-count`          | 最大文件数               | `number`                | `Infinity`  |
 | `maxFileSize`          | `max-file-size`           | 最大文件大小              | `number`                | `Infinity`  |
 | `mobileUploadAble`     | `mobile-upload-able`      | 是否开启移动端上传（仅PC端生效）   | `boolean`               | `false`     |
@@ -26,6 +25,16 @@
 
 ## Methods
 
+### `clearSelectedFiles() => Promise<void>`
+
+清除已选择的文件
+
+#### Returns
+
+Type: `Promise<void>`
+
+
+
 ### `getIsUploading() => Promise<boolean>`
 
 
@@ -41,6 +50,7 @@ Type: `Promise<boolean>`
 
 ### Used by
 
+ - [pcm-jlsx-modal](../pcm-jlsx-modal)
  - [pcm-mnms-modal](../pcm-mnms-modal)
  - [pcm-mnms-zp-modal](../pcm-mnms-zp-modal)
 
@@ -53,6 +63,7 @@ Type: `Promise<boolean>`
 graph TD;
   pcm-upload --> pcm-mobile-upload-btn
   pcm-mobile-upload-btn --> pcm-time-count-down
+  pcm-jlsx-modal --> pcm-upload
   pcm-mnms-modal --> pcm-upload
   pcm-mnms-zp-modal --> pcm-upload
   style pcm-upload fill:#f9f,stroke:#333,stroke-width:4px

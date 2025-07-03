@@ -4,18 +4,18 @@
 
 ## Properties
 
-| Property             | Attribute        | Description                                    | Type                       | Default              |
-| -------------------- | ---------------- | ---------------------------------------------- | -------------------------- | -------------------- |
-| `botId`              | `bot-id`         | 智能体ID，用于简历筛选                                   | `string`                   | `'3022316191018874'` |
-| `customInputs`       | `custom-inputs`  | 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> | `{ [x: string]: string; }` | `{}`                 |
-| `fullscreen`         | `fullscreen`     | 是否以全屏模式打开，移动端建议设置为true                         | `boolean`                  | `false`              |
-| `icon`               | `icon`           | 应用图标URL                                        | `string`                   | `undefined`          |
-| `isNeedClose`        | `is-need-close`  | 是否展示右上角的关闭按钮                                   | `boolean`                  | `true`               |
-| `isOpen`             | `is-open`        | 是否显示聊天模态框                                      | `boolean`                  | `false`              |
-| `isShowHeader`       | `is-show-header` | 是否展示顶部标题栏                                      | `boolean`                  | `true`               |
-| `modalTitle`         | `modal-title`    | 模态框标题                                          | `string`                   | `'简历筛选精灵'`           |
-| `token` _(required)_ | `token`          | SDK鉴权密钥                                        | `string`                   | `undefined`          |
-| `zIndex`             | `z-index`        | 聊天框的页面层级                                       | `number`                   | `1000`               |
+| Property             | Attribute            | Description                                    | Type                       | Default     |
+| -------------------- | -------------------- | ---------------------------------------------- | -------------------------- | ----------- |
+| `customInputs`       | `custom-inputs`      | 自定义输入参数，传入customInputs.job_info时，会填充JD输入区域<br> | `{ [x: string]: string; }` | `{}`        |
+| `fullscreen`         | `fullscreen`         | 是否以全屏模式打开，移动端建议设置为true                         | `boolean`                  | `false`     |
+| `icon`               | `icon`               | 应用图标URL                                        | `string`                   | `undefined` |
+| `isNeedClose`        | `is-need-close`      | 是否展示右上角的关闭按钮                                   | `boolean`                  | `true`      |
+| `isOpen`             | `is-open`            | 是否显示聊天模态框                                      | `boolean`                  | `false`     |
+| `isShowHeader`       | `is-show-header`     | 是否展示顶部标题栏                                      | `boolean`                  | `true`      |
+| `mobileUploadAble`   | `mobile-upload-able` | 是否开启移动端上传简历（仅PC端生效）                            | `boolean`                  | `false`     |
+| `modalTitle`         | `modal-title`        | 模态框标题                                          | `string`                   | `'简历筛选精灵'`  |
+| `token` _(required)_ | `token`              | SDK鉴权密钥                                        | `string`                   | `undefined` |
+| `zIndex`             | `z-index`            | 聊天框的页面层级                                       | `number`                   | `1000`      |
 
 
 ## Events
@@ -38,13 +38,17 @@
 ### Depends on
 
 - [pcm-message](../pcm-message)
+- [pcm-upload](../pcm-upload)
 - [pcm-drawer](../pcm-drawer)
 
 ### Graph
 ```mermaid
 graph TD;
   pcm-jlsx-modal --> pcm-message
+  pcm-jlsx-modal --> pcm-upload
   pcm-jlsx-modal --> pcm-drawer
+  pcm-upload --> pcm-mobile-upload-btn
+  pcm-mobile-upload-btn --> pcm-time-count-down
   style pcm-jlsx-modal fill:#f9f,stroke:#333,stroke-width:4px
 ```
 
