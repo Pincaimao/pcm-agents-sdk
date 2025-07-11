@@ -116,6 +116,7 @@
         <button class="pcm-button" id="open-jd-chat">JD生成</button>
         <button class="pcm-button" id="open-qgqjl-chat">千岗千简历</button>
         <button class="pcm-button" id="open-jlsx-chat">简历筛选</button>
+        <button class="pcm-button" id="open-app-chat">纯净版聊天</button>
       </div>
 
      
@@ -184,6 +185,17 @@
       fullscreen="false"
   ></pcm-jlsx-modal>  
 
+  <pcm-app-chat-modal
+      id="pcm-app-chat-modal"
+      modal-title="聊天"
+      icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
+      fullscreen="false"
+      conversation-id=""
+      bot-id="3022316191018879"
+      interview-mode="text"
+
+  ></pcm-app-chat-modal>  
+
   <!-- 添加千岗千简历模态框组件 -->
   <pcm-qgqjl-modal id="pcm-qgqjl-modal" modal-title="千岗千简历" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
     conversation-id="" fullscreen="false" default-query="请您提问">
@@ -191,7 +203,7 @@
 
   <script>
     // 定义全局 token 变量，所有组件共享使用
-    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NTE1MDkxNTZ9.yq21o8YP3Fam6-I-kOa4YAT457qJVrf_CLTbiZuZTz0";
+    const SHARED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NTIyOTA2NDZ9.KZLNx9bHdvjA7vfjD3QMGiFyt5HZpcyeOJsqemxfP7Y";
     const SHARED_TOKEN_NEW = "11"
     let stream = null;
     const urlParams = new URLSearchParams(window.location.search);
@@ -224,6 +236,7 @@
       handleVideoChatModal();
       handleQgqjlModal(); // 添加千岗千简历模态框处理
       handleJlsxModal();
+      handleAppChatModal();
     });
 
     // 为所有组件设置共享的 token
@@ -243,7 +256,8 @@
         'pcm-card',
         'pcm-video-chat-modal',
         'pcm-qgqjl-modal', // 添加千岗千简历组件
-        'pcm-jlsx-modal'
+        'pcm-jlsx-modal',
+        'pcm-app-chat-modal'
       ];
 
       components.forEach(id => {
@@ -1225,9 +1239,30 @@
       });
     }
 
+    // 聊天模态框处理
+    const handleAppChatModal = () => {
+      const appChatModal = document.getElementById('pcm-app-chat-modal');
+      const openAppChatButton = document.getElementById('open-app-chat');
+      
+      if (!appChatModal || !openAppChatButton) return;
+
+      // 设置事件监听
+      appChatModal.addEventListener('modalClosed', () => {
+        console.log('聊天窗口已关闭');
+        appChatModal.isOpen = false;
+      });
+
+      // 打开聊天按钮事件监听
+      openAppChatButton.addEventListener('click', () => {
+        appChatModal.isOpen = true;
+      });
+      appChatModal.customInputs = {
+        model: '豆包'
+      };
+    }
+
     
  
-    
     // 处理职位按钮点击
     // const handleJobButtonClick = (jobInfo, jobId) => {
     //   // 获取父容器

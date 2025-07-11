@@ -199,9 +199,9 @@ export class ChatAPPModal {
   @Prop() enableVoice: boolean = false;
 
   /**
-   * 面试模式
-   * video: 视频面试模式
-   * text: 文字面试模式
+   * 聊天模式
+   * video: 视频聊天模式
+   * text: 文字聊天模式
    */
   @Prop() interviewMode: 'video' | 'text' = 'video';
 
@@ -2062,7 +2062,7 @@ export class ChatAPPModal {
                   )}
                   {this.messages.length === 0 && !this.currentStreamingMessage && (
                     <div class="empty-state">
-                      <p>正在准备面试...</p>
+                      <p>你好，我是聘才猫，一个AI助手，很高兴认识你...</p>
                     </div>
                   )}
                 </div>
