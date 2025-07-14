@@ -17,7 +17,7 @@
 | `filePreviewMode`       | `file-preview-mode`        | 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开 | `"drawer" \| "window"`  | `'window'`                                                 |
 | `fullscreen`            | `fullscreen`               | 是否以全屏模式打开，移动端建议设置为true                      | `boolean`               | `false`                                                    |
 | `icon`                  | `icon`                     | 应用图标URL                                     | `string`                | `undefined`                                                |
-| `interviewMode`         | `interview-mode`           | 面试模式 video: 视频面试模式 text: 文字面试模式             | `"text" \| "video"`     | `'video'`                                                  |
+| `interviewMode`         | `interview-mode`           | 聊天模式 video: 视频聊天模式 text: 文字聊天模式             | `"text" \| "video"`     | `'video'`                                                  |
 | `isNeedClose`           | `is-need-close`            | 是否展示右上角的关闭按钮                                | `boolean`               | `true`                                                     |
 | `isOpen`                | `is-open`                  | 是否显示聊天模态框                                   | `boolean`               | `false`                                                    |
 | `isShowHeader`          | `is-show-header`           | 是否展示顶部标题栏                                   | `boolean`               | `true`                                                     |

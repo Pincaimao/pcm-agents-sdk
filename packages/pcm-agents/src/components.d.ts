@@ -119,7 +119,7 @@ export namespace Components {
          */
         "icon"?: string;
         /**
-          * 面试模式 video: 视频面试模式 text: 文字面试模式
+          * 聊天模式 video: 视频聊天模式 text: 文字聊天模式
          */
         "interviewMode": 'video' | 'text';
         /**
@@ -2188,7 +2188,7 @@ declare namespace LocalJSX {
          */
         "icon"?: string;
         /**
-          * 面试模式 video: 视频面试模式 text: 文字面试模式
+          * 聊天模式 video: 视频聊天模式 text: 文字聊天模式
          */
         "interviewMode"?: 'video' | 'text';
         /**
