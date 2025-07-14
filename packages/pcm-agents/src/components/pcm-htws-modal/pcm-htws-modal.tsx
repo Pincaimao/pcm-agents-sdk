@@ -471,7 +471,7 @@ export class HtwsModal {
                                 defaultQuery={this.defaultQuery}
                                 enableVoice={false}
                                 filePreviewMode={this.filePreviewMode}
-                                customInputs={this.conversationId ? {} : {
+                                customInputs={{
                                     ...this.customInputs,
                                     file_url: this.inputMode === 'upload' ? this.uploadedFileInfo?.cos_key : undefined,
                                     file_name: this.customInputs?.file_name || this.uploadedFileInfo?.file_name,

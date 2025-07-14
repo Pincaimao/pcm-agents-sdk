@@ -253,7 +253,7 @@ export class ZhanshiMnmsModal {
                                 defaultQuery={this.defaultQuery}
                                 maxRecordingTime={this.maxRecordingTime}
                                 enableTTS={false}
-                                customInputs={this.conversationId ? {} : {
+                                customInputs={{
                                     ...this.customInputs,
                                     file_url: this.uploadedFileInfo?.cos_key,
                                     file_name: this.uploadedFileInfo?.file_name,

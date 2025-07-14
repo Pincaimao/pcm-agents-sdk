@@ -212,7 +212,7 @@ export class ChatAPPModal {
   /**
    * 自定义智能体inputs输入参数
    */
-  @Prop() customInputs: Record<string, any> = {};
+  @Prop({ mutable: true }) customInputs: Record<string, any> = {};
 
   /**
    * 机器人ID
@@ -339,7 +339,7 @@ export class ChatAPPModal {
       this.tokenInvalid.emit();
     };
     document.addEventListener('pcm-token-invalid', this.tokenInvalidListener);
-
+    
     // 确保 customInputs 是一个对象
     if (!this.customInputs) {
       this.customInputs = {};
@@ -460,7 +460,7 @@ export class ChatAPPModal {
       method: 'POST',
       data: requestData,
       onMessage: (data) => {
-        console.log('收到Stream数据:', data);
+        console.log('[' + new Date().toLocaleString() + '] 收到Stream数据:', data);
 
         if (data.conversation_id && !this.conversationId) {
           this.conversationId = data.conversation_id;
@@ -549,13 +549,15 @@ export class ChatAPPModal {
         this.isLoading = false;
         // 根据currentQuestionNumber判断是否清空customInputs
         if (this.currentQuestionNumber === 0) {
-          //  发送第一条消息后，清空 customInputs
+          //  发送第一条消息后，清空指定的 customInputs 字段
           setTimeout(() => {
             if (this.customInputs) {
-              Object.keys(this.customInputs).forEach(key => {
-                delete this.customInputs[key];
-              });
+              // 只清除指定的字段，其他字段保留
+              delete this.customInputs.job_info;
+              delete this.customInputs.file_url;
+              delete this.customInputs.file_name;
             }
+            
           }, 1000); // 给一些时间让第一条消息处理完成
         }
 

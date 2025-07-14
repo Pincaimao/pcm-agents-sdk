@@ -773,7 +773,7 @@ export class PcmJdModal {
                                 defaultQuery={this.defaultQuery}
                                 enableVoice={false}
                                 filePreviewMode={this.filePreviewMode}
-                                customInputs={this.conversationId ? {} : {
+                                customInputs={{
                                     ...this.customInputs,
                                     job_info: this.customInputs?.job_info || this.jobDescription
                                 }}

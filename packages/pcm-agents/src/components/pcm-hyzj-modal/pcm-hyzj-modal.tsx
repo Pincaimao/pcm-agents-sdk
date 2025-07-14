@@ -403,7 +403,7 @@ export class HyzjModal {
                                 defaultQuery={this.defaultQuery}
                                 enableVoice={false}
                                 filePreviewMode={this.filePreviewMode}
-                                customInputs={this.conversationId ? {} : {
+                                customInputs={{
                                     ...this.customInputs,
                                     file_url: this.customInputs?.file_url || this.uploadedFileInfo?.cos_key,
                                     file_name: this.customInputs?.file_name || this.uploadedFileInfo?.file_name

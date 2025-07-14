@@ -439,7 +439,7 @@ export class MsbgModal {
                                 defaultQuery={this.defaultQuery}
                                 filePreviewMode={this.filePreviewMode}
                                 enableVoice={false}
-                                customInputs={this.conversationId ? {} : {
+                                customInputs={{
                                     ...this.customInputs,
                                     file_urls: this.customInputs?.file_urls || this.uploadedFileInfo?.cos_key,
                                     file_names: this.customInputs?.file_names || this.uploadedFileInfo?.file_name,

@@ -408,7 +408,7 @@ export class MnmsZpModal {
                                 filePreviewMode={this.filePreviewMode}
                                 showCopyButton={this.showCopyButton}
                                 showFeedbackButtons={this.showFeedbackButtons}
-                                customInputs={this.conversationId ? {} : {
+                                customInputs={{
                                     ...this.customInputs,
                                     file_url: this.customInputs?.file_url || this.uploadedFileInfo?.cos_key,
                                     file_name: this.customInputs?.file_name || this.uploadedFileInfo?.file_name,

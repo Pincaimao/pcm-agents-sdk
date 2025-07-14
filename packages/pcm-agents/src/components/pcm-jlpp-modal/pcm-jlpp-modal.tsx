@@ -442,7 +442,7 @@ export class JlppModal {
                                 filePreviewMode={this.filePreviewMode}
                                 showWorkspaceHistory={this.showWorkspaceHistory}
                                 botId="3022316191018881"
-                                customInputs={this.conversationId ? {} : {
+                                customInputs={{
                                     ...this.customInputs,
                                     file_url: this.customInputs?.file_url || this.uploadedFileInfo?.cos_key,
                                     file_name: this.customInputs?.file_name || this.uploadedFileInfo?.file_name,
