@@ -49,14 +49,13 @@ export const config: Config = {
         name: 'remove-console-log',
         transform(code, id) {
           if (process.argv.includes('--prod')) {
-            const result = code.replace(/console\.log\s*\([^)]*\)\s*;?/g, '');
-  
-            // 如果代码没有改变，返回 null
+            // 使用更安全的方式，匹配整行
+            const result = code.replace(/^\s*console\.log\(.*?\);\s*$/gm, '');
+            
             if (result === code) {
               return null;
             }
-  
-            // 返回修改后的代码和空的 sourcemap
+            
             return {
               code: result,
               map: { mappings: '' },

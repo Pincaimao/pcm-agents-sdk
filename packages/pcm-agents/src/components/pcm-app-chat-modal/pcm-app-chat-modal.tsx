@@ -460,7 +460,8 @@ export class ChatAPPModal {
       method: 'POST',
       data: requestData,
       onMessage: (data) => {
-        console.log('[' + new Date().toLocaleString() + '] 收到Stream数据:', data);
+        console.log(new Date().toLocaleString());
+        console.log('收到Stream数据:', data);
 
         if (data.conversation_id && !this.conversationId) {
           this.conversationId = data.conversation_id;
@@ -1666,7 +1667,6 @@ export class ChatAPPModal {
 
   // 处理历史会话按钮点击
   private handleHistoryClick = () => {
-    console.log('点击历史会话按钮');
     this.isHistoryDrawerOpen = true;
     this.loadHistoryConversations();
   };
