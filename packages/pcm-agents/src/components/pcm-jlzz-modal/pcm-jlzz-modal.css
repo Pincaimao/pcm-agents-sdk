@@ -1,0 +1,42 @@
+.resume-type-container {
+  display: flex;
+  flex-direction: row;
+  gap: 32px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid #f0f0f0;
+  padding-left: 4px;
+}
+
+.resume-type-item {
+  cursor: pointer;
+  font-size: 16px;
+  color: #333;
+  padding: 0 0 8px 0;
+  position: relative;
+  background: none;
+  border: none;
+  outline: none;
+  font-weight: 400;
+  transition: color 0.2s;
+}
+
+.resume-type-item.selected {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.resume-type-item.selected::after {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 2px;
+  background: #2563eb;
+  border-radius: 2px;
+}
+
+.resume-type-item:not(.selected):hover {
+  color: #2563eb;
+}
