@@ -265,7 +265,7 @@
     <script>
       // 定义全局 token 变量，所有组件共享使用
       const SHARED_TOKEN =
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NTI5MTQxMDJ9.HDhbKeVflX9utPILnAcUfbt7R7yF_Rs_d-c3e_LPzwM';
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NTMxNDcxMzh9.vx7iphdHC4s2_S5EZByadeDYdbugSFHn5ehgk-Na33A';
       const SHARED_TOKEN_NEW = '11';
       let stream = null;
       const urlParams = new URLSearchParams(window.location.search);
@@ -1231,12 +1231,14 @@
 
         // 设置事件监听
         jlzzModal.addEventListener('modalClosed', () => {
-          console.log('千岗千简历窗口已关闭');
+          console.log('简历制作窗口已关闭');
           jlzzModal.isOpen = false;
+          jlzzModal.isSuccess = false;
         });
 
         jlzzModal.addEventListener('streamComplete', event => {
           console.log('流式响应完成:', event.detail);
+          jlzzModal.isSuccess = true;
         });
 
         jlzzModal.addEventListener('conversationStart', event => {
@@ -1261,7 +1263,7 @@
           console.log('错误事件:', event.detail);
         });
 
-        // 打开千岗千简历按钮事件监听
+        // 打开简历制作按钮事件监听
         openJlzzButton.addEventListener('click', () => {
           jlzzModal.isOpen = true;
         });

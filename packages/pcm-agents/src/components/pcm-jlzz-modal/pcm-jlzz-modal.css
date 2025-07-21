@@ -40,3 +40,12 @@
 .resume-type-item:not(.selected):hover {
   color: #2563eb;
 }
+.iframe-container {
+  width: 100%;
+  height: 85vh;
+}
+
+.iframe-container iframe {
+  width: 100%;
+  height: 100%;
+}

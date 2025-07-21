@@ -1,5 +1,5 @@
 import { Component, h, Prop, Event, EventEmitter, Watch, State, Element } from '@stencil/core';
-import { uploadFileToBackend, FileUploadResponse, verifyApiKey } from '../../utils/utils';
+import { uploadFileToBackend, FileUploadResponse, verifyApiKey, PCM_DOMAIN } from '../../utils/utils';
 import { ConversationStartEventData, InterviewCompleteEventData, StreamCompleteEventData } from '../../components';
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store';
@@ -26,6 +26,11 @@ export class JlzzModal {
    * 是否显示聊天模态框
    */
   @Prop({ mutable: true }) isOpen: boolean = false;
+
+  /**
+   * 是否成功，成功展示 iframe 官网
+   */
+  @Prop({ mutable: true }) isSuccess: boolean = false;
 
   /**
    * 当点击模态框关闭时触发
@@ -127,7 +132,7 @@ export class JlzzModal {
   @Element() hostElement: HTMLElement;
 
   @State() isSubmitting: boolean = false;
-
+  @State() showIframe: boolean = false;
   private tokenInvalidListener: () => void;
   private removeErrorListener: () => void;
 
@@ -155,6 +160,13 @@ export class JlzzModal {
     }
   }
 
+  @Watch('isSuccess')
+  handleIsSuccessChange(newValue: boolean) {
+    console.log(1111);
+    if (newValue) {
+      this.showIframe = true;
+    }
+  }
   componentWillLoad() {
     // 将 zIndex 存入配置缓存
     if (this.zIndex) {
@@ -301,7 +313,7 @@ export class JlzzModal {
     const containerClass = {
       'modal-container': true,
       'fullscreen': this.fullscreen,
-      'pc-layout': true,
+      'pc-layout': !this.isSuccess,
     };
 
     const overlayClass = {
@@ -488,10 +500,15 @@ export class JlzzModal {
                 ></pcm-app-chat-modal>
               </div>
               {/* 如果不是对话模式，则展示加载中。完成之后跳转 */}
-              {this.resumeType !== 'chat' && (
+              {this.resumeType !== 'chat' && !this.showIframe && (
                 <div class="loading-container">
                   <div class="loading-spinner"></div>
                   <p class="loading-text">AI正在优化您的简历...</p>
+                </div>
+              )}
+              {this.showIframe && (
+                <div class="iframe-container">
+                  <iframe src={`${PCM_DOMAIN}/myresume?conversation_id=${this.conversationId}&isSdk=true&token=${this.token}`} frameborder="0"></iframe>
                 </div>
               )}
             </>
