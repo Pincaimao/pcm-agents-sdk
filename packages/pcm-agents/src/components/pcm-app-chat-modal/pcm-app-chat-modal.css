@@ -51,7 +51,7 @@
 }
 
 /* 确保内容区域也使用 flex 布局并占满剩余空间 */
-.modal-container.fullscreen>div:not(.modal-header):not(.initial-upload) {
+.modal-container.fullscreen > div:not(.modal-header):not(.initial-upload) {
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -74,14 +74,14 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #EAEAEA;
+  background: #eaeaea;
 }
 
 .placeholder-status {
   color: #00000066;
 }
 
-.placeholder-status p{
+.placeholder-status p {
   font-size: 16px;
 }
 
@@ -276,6 +276,21 @@
   color: #999;
   margin-top: 4px;
   display: block;
+}
+/** 结束对话按钮 */
+.cancel-button {
+  width: 150px;
+  height: 38px;
+  background: #0d75fb;
+  color: #fff;
+  border: none;
+  margin-bottom: 10px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.cancel-button.disabled {
+  background: #d9d9d9;
+  cursor: not-allowed;
 }
 
 /* 发送按钮样式 */
@@ -586,7 +601,7 @@
   text-align: center;
   color: white;
   font-size: 16px;
-  background-color: #0D75FB;
+  background-color: #0d75fb;
   border-radius: 6px;
   width: 95%;
   display: flex;
@@ -641,7 +656,7 @@
 
 .progress-bar-container {
   height: 4px;
-  background-color: #E5E5E5;
+  background-color: #e5e5e5;
   border-radius: 2px;
   overflow: hidden;
   margin-right: 10px;
@@ -650,7 +665,7 @@
 
 .progress-bar {
   height: 100%;
-  background-image: linear-gradient(111deg, #4A9FFF 0%, #1058FF 100%);
+  background-image: linear-gradient(111deg, #4a9fff 0%, #1058ff 100%);
   border-radius: 2px;
   transition: width 0.3s ease;
 }
@@ -706,7 +721,7 @@
   border-bottom: none;
 }
 
-.text-answer-input:focus+.input-toolbar {
+.text-answer-input:focus + .input-toolbar {
   border-color: rgb(74, 144, 226);
   border-top: none;
 }
@@ -882,14 +897,12 @@
   flex-shrink: 0;
 }
 
-
 /* 历史会话抽屉样式 */
 .history-drawer-content {
   height: 100%;
   display: flex;
   flex-direction: column;
 }
-
 
 .conversation-list {
   flex: 1;

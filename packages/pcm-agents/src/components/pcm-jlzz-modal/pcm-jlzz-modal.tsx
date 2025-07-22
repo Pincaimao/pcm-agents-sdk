@@ -150,11 +150,14 @@ export class JlzzModal {
       // 重置状态
       this.clearSelectedFile();
       this.showChatModal = false;
+      this.showIframe = false;
+      this.isSuccess = false;
+      this.conversationId = undefined;
+      this.resumeType = 'upload';
     } else {
       await verifyApiKey(this.token);
-
       // 如果有会话ID或者同时有file_url和job_info，直接显示聊天模态框
-      if (this.conversationId || (this.customInputs?.file_url && this.customInputs?.job_info) || this.resumeType === 'chat') {
+      if (this.conversationId || this.customInputs?.file_url || this.resumeType === 'chat') {
         this.showChatModal = true;
       }
     }
@@ -162,8 +165,7 @@ export class JlzzModal {
 
   @Watch('isSuccess')
   handleIsSuccessChange(newValue: boolean) {
-    console.log(1111);
-    if (newValue) {
+    if (newValue && this.resumeType !== 'chat') {
       this.showIframe = true;
     }
   }
@@ -303,7 +305,10 @@ export class JlzzModal {
       this.isSubmitting = false;
     }
   };
-
+  private closeResumeChat = () => {
+    this.isSuccess = false;
+    this.resumeType = 'upload';
+  };
   render() {
     if (!this.isOpen) return null;
     const modalStyle = {
@@ -333,7 +338,7 @@ export class JlzzModal {
     return (
       <div class={overlayClass} style={modalStyle}>
         <div class={containerClass}>
-          {this.isShowHeader && (
+          {this.isShowHeader && !this.showChatModal && (
             <div class="modal-header">
               <div class="header-left">
                 {this.icon && <img src={this.icon} class="header-icon" alt="应用图标" />}
@@ -348,7 +353,7 @@ export class JlzzModal {
           )}
 
           {/* 上传界面 - 仅在不显示聊天模态框且没有会话ID且没有同时提供file_url和job_info时显示 */}
-          {!this.showChatModal && !this.conversationId && !hasFileAndJob && (
+          {!this.showChatModal && !this.conversationId && !hasFileAndJob && !this.showIframe && (
             <div class="input-container">
               <div class="resume-type-container">
                 <div
@@ -497,6 +502,7 @@ export class JlzzModal {
                     mode_type: this.resumeType === 'chat' ? 1 : 0,
                   }}
                   interviewMode="text"
+                  closeResume={this.closeResumeChat}
                 ></pcm-app-chat-modal>
               </div>
               {/* 如果不是对话模式，则展示加载中。完成之后跳转 */}
@@ -507,9 +513,22 @@ export class JlzzModal {
                 </div>
               )}
               {this.showIframe && (
-                <div class="iframe-container">
-                  <iframe src={`${PCM_DOMAIN}/myresume?conversation_id=${this.conversationId}&isSdk=true&token=${this.token}`} frameborder="0"></iframe>
-                </div>
+                <>
+                  <div class="modal-header">
+                    <div class="header-left">
+                      {this.icon && <img src={this.icon} class="header-icon" alt="应用图标" />}
+                      <div>{this.modalTitle}</div>
+                    </div>
+                    {this.isNeedClose && (
+                      <button class="close-button" onClick={this.handleClose}>
+                        <span>×</span>
+                      </button>
+                    )}
+                  </div>
+                  <div class="iframe-container">
+                    <iframe src={`${PCM_DOMAIN}/myresume?conversation_id=${this.conversationId}&isSdk=true&token=${this.token}`} frameborder="0"></iframe>
+                  </div>
+                </>
               )}
             </>
           )}

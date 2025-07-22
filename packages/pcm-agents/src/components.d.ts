@@ -91,6 +91,7 @@ export namespace Components {
           * 机器人ID
          */
         "botId"?: string;
+        "closeResume"?: () => void;
         /**
           * 会话ID，传入继续对话，否则创建新会话
          */
@@ -190,7 +191,7 @@ export namespace Components {
         "token"?: string;
         /**
           * 用户头像URL
-          * @default "https://pub.pincaimao.com/static/common/i_pcm_logo.png"
+          * @default 'https://pub.pincaimao.com/static/common/i_pcm_logo.png'
          */
         "userAvatar"?: string;
         /**
@@ -2501,6 +2502,7 @@ declare namespace LocalJSX {
           * 机器人ID
          */
         "botId"?: string;
+        "closeResume"?: () => void;
         /**
           * 会话ID，传入继续对话，否则创建新会话
          */
@@ -2628,7 +2630,7 @@ declare namespace LocalJSX {
         "token"?: string;
         /**
           * 用户头像URL
-          * @default "https://pub.pincaimao.com/static/common/i_pcm_logo.png"
+          * @default 'https://pub.pincaimao.com/static/common/i_pcm_logo.png'
          */
         "userAvatar"?: string;
         /**
