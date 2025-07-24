@@ -265,7 +265,7 @@
     <script>
       // 定义全局 token 变量，所有组件共享使用
       const SHARED_TOKEN =
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NTMyMzU4MjF9.FI9ipTBwIsdHgDd5-oW6uVEr86x3ULv5eTTE93K7o-E';
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NTM0Mjg0Mzd9.dg_l17CFHoBs6Z52xbx06O0K1b3AjtvRzoPwETW7npw';
       const SHARED_TOKEN_NEW = '11';
       let stream = null;
       const urlParams = new URLSearchParams(window.location.search);
@@ -1261,7 +1261,9 @@
         jlzzModal.addEventListener('someErrorEvent', event => {
           console.log('错误事件:', event.detail);
         });
-
+        jlzzModal.addEventListener('getResumeData', event => {
+          console.log('获取简历数据:', event.detail);
+        });
         // 打开简历制作按钮事件监听
         openJlzzButton.addEventListener('click', () => {
           jlzzModal.isOpen = true;

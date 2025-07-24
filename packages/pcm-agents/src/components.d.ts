@@ -2072,6 +2072,7 @@ declare global {
         "interviewComplete": InterviewCompleteEventData1;
         "tokenInvalid": void;
         "someErrorEvent": ErrorEventDetail;
+        "getResumeData": any;
     }
     interface HTMLPcmJlzzModalElement extends Components.PcmJlzzModal, HTMLStencilElement {
         addEventListener<K extends keyof HTMLPcmJlzzModalElementEventMap>(type: K, listener: (this: HTMLPcmJlzzModalElement, ev: PcmJlzzModalCustomEvent<HTMLPcmJlzzModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -3591,6 +3592,10 @@ declare namespace LocalJSX {
           * 新会话开始的回调，只会在一轮对话开始时触发一次
          */
         "onConversationStart"?: (event: PcmJlzzModalCustomEvent<ConversationStartEventData1>) => void;
+        /**
+          * 获取简历数据事件
+         */
+        "onGetResumeData"?: (event: PcmJlzzModalCustomEvent<any>) => void;
         /**
           * 当聊天完成时触发
          */

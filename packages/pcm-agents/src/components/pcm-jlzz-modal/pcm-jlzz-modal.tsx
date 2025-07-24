@@ -1,10 +1,11 @@
 import { Component, h, Prop, Event, EventEmitter, Watch, State, Element } from '@stencil/core';
-import { uploadFileToBackend, FileUploadResponse, verifyApiKey, PCM_DOMAIN } from '../../utils/utils';
+import { uploadFileToBackend, FileUploadResponse, verifyApiKey, PCM_DOMAIN, sendHttpRequest } from '../../utils/utils';
 import { ConversationStartEventData, InterviewCompleteEventData, StreamCompleteEventData } from '../../components';
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store';
 import { configStore } from '../../../store/config.store';
 import { SentryReporter } from '../../utils/sentry-reporter';
+import { ConversationItem } from '../../interfaces/chat';
 
 @Component({
   tag: 'pcm-jlzz-modal',
@@ -115,6 +116,11 @@ export class JlzzModal {
   @Event() someErrorEvent: EventEmitter<ErrorEventDetail>;
 
   /**
+   * 获取简历数据事件
+   */
+  @Event() getResumeData: EventEmitter<any>;
+
+  /**
    * 附件预览模式
    * 'drawer': 在右侧抽屉中预览
    * 'window': 在新窗口中打开
@@ -125,7 +131,7 @@ export class JlzzModal {
   @State() isUploading: boolean = false;
   @State() uploadedFileInfo: FileUploadResponse | null = null;
   @State() showChatModal: boolean = false;
-  @State() resumeType: 'upload' | 'paste' | 'chat' = 'upload';
+  @State() resumeType: 'upload' | 'paste' | 'chat' | 'history' = 'upload';
   @State() resumeText: string = '';
 
   // 使用 @Element 装饰器获取组件的 host 元素
@@ -133,8 +139,16 @@ export class JlzzModal {
 
   @State() isSubmitting: boolean = false;
   @State() showIframe: boolean = false;
+  // 添加历史会话相关状态
+  @State() isHistoryDrawerOpen: boolean = false;
+  @State() historyConversations: ConversationItem[] = [];
+  @State() isLoadingConversations: boolean = false;
   private tokenInvalidListener: () => void;
   private removeErrorListener: () => void;
+  /**
+   * iframe DOM 引用
+   */
+  private _iframeEl?: HTMLIFrameElement;
 
   @Watch('token')
   handleTokenChange(newToken: string) {
@@ -189,6 +203,11 @@ export class JlzzModal {
     document.addEventListener('pcm-token-invalid', this.tokenInvalidListener);
   }
 
+  componentDidLoad() {
+    // 监听来自 iframe 的消息
+    window.addEventListener('message', this.handleIframeMessage);
+  }
+
   disconnectedCallback() {
     // 组件销毁时移除事件监听器
     document.removeEventListener('pcm-token-invalid', this.tokenInvalidListener);
@@ -196,13 +215,55 @@ export class JlzzModal {
     if (this.removeErrorListener) {
       this.removeErrorListener();
     }
+    window.removeEventListener('message', this.handleIframeMessage);
+  }
+
+  /**
+   * 处理 iframe 加载完成（不再直接发送 token）
+   * 由 iframe 主动 postMessage { type: 'iframeReady' } 通知父页面后再发送 token
+   */
+  private handleIframeLoad = () => {
+    console.log(this._iframeEl, 'this._iframeEl');
+    // 不再直接发送 token，等待 iframeReady 消息
+  };
+
+  /**
+   * 处理来自 iframe 的消息
+   * 支持 iframe 调用父组件方法，也支持握手机制
+   */
+  private handleIframeMessage = (event: MessageEvent) => {
+    // 允许本地和线上环境
+    const allowedOrigins = ['http://localhost:3000', PCM_DOMAIN];
+    if (!allowedOrigins.includes(event.origin)) return;
+    const { type, value } = event.data || {};
+    if (type === 'callParentMethod') {
+      this.exampleMethodFromIframe(value);
+    }
+    // 关键：收到 iframeReady 后再发送 token
+    if (type === 'iframeReady' && this._iframeEl?.contentWindow) {
+      // 动态获取 targetOrigin，兼容本地和线上
+      const targetOrigin = new URL(this._iframeEl.src).origin;
+      // 1. 先发送 parentReady，带上父页面的 origin
+      this._iframeEl.contentWindow.postMessage({ type: 'parentReady', origin: window.location.origin }, targetOrigin);
+      // 2. 再发送 token
+      this._iframeEl.contentWindow.postMessage({ type: 'setToken', token: this.token }, targetOrigin);
+      console.log('父组件已发送 token 给 iframe，targetOrigin:', targetOrigin);
+    }
+  };
+
+  /**
+   * 导出简历数据
+   * @param value 简历数据是字符串形式
+   */
+  public exampleMethodFromIframe(value: string) {
+    this.getResumeData.emit(JSON.parse(value));
   }
 
   private handleClose = () => {
     this.modalClosed.emit();
   };
   // 切换类型
-  private changeType = (type: 'upload' | 'paste' | 'chat') => {
+  private changeType = (type: 'upload' | 'paste' | 'chat' | 'history') => {
     this.resumeType = type;
   };
 
@@ -230,7 +291,107 @@ export class JlzzModal {
       fileInput.value = '';
     }
   };
+  // 获取历史会话列表
+  private async loadHistoryConversations() {
+    this.isLoadingConversations = true;
 
+    try {
+      const result = await sendHttpRequest({
+        url: '/sdk/v1/chat/conversations',
+        method: 'GET',
+        data: {
+          bot_id: '39284520284983296',
+          limit: 50, // 获取最近50个会话
+          page: 1,
+        },
+      });
+
+      if (result.success && result.data) {
+        const conversations = result.data.data || [];
+
+        // 格式化会话数据
+        this.historyConversations = conversations.map((conv: any) => {
+          // 处理时间戳，确保它是有效的数字
+          let createdTime: Date;
+          let timeDisplay = '未知时间';
+
+          try {
+            // 确保 created_at 是一个有效的时间戳
+            const timestamp = typeof conv.created_at === 'string' ? parseInt(conv.created_at) : conv.created_at;
+
+            if (isNaN(timestamp) || timestamp <= 0) {
+              console.warn('无效的时间戳:', conv.created_at);
+              createdTime = new Date();
+            } else {
+              // Unix时间戳转换为JavaScript Date对象（乘以1000转换为毫秒）
+              createdTime = new Date(timestamp * 1000);
+            }
+
+            // 验证日期是否有效
+            if (isNaN(createdTime.getTime())) {
+              console.warn('无效的日期对象:', conv.created_at);
+              createdTime = new Date();
+            }
+
+            const now = new Date();
+            const diffTime = now.getTime() - createdTime.getTime();
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            // 格式化时间显示
+            if (diffDays === 0) {
+              // 今天
+              timeDisplay = `今天 ${createdTime.getHours().toString().padStart(2, '0')}:${createdTime.getMinutes().toString().padStart(2, '0')}`;
+            } else if (diffDays === 1) {
+              // 昨天
+              timeDisplay = `昨天 ${createdTime.getHours().toString().padStart(2, '0')}:${createdTime.getMinutes().toString().padStart(2, '0')}`;
+            } else if (diffDays > 0 && diffDays < 7) {
+              // 一周内
+              const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+              timeDisplay = `${weekdays[createdTime.getDay()]} ${createdTime.getHours().toString().padStart(2, '0')}:${createdTime.getMinutes().toString().padStart(2, '0')}`;
+            } else if (diffDays < 0) {
+              // 未来时间（可能是时区问题或系统时间不准确）
+              timeDisplay = `${(createdTime.getMonth() + 1).toString().padStart(2, '0')}-${createdTime.getDate().toString().padStart(2, '0')} ${createdTime
+                .getHours()
+                .toString()
+                .padStart(2, '0')}:${createdTime.getMinutes().toString().padStart(2, '0')}`;
+            } else {
+              // 超过一周
+              timeDisplay = `${(createdTime.getMonth() + 1).toString().padStart(2, '0')}-${createdTime.getDate().toString().padStart(2, '0')} ${createdTime
+                .getHours()
+                .toString()
+                .padStart(2, '0')}:${createdTime.getMinutes().toString().padStart(2, '0')}`;
+            }
+          } catch (error) {
+            console.error('时间格式化错误:', error, conv.created_at);
+            timeDisplay = '时间解析失败';
+          }
+
+          return {
+            id: conv.id,
+            name: conv.name || '新会话',
+            created_at: conv.created_at,
+            updated_at: conv.updated_at,
+            status: conv.status,
+            message_count: conv.message_count || 0,
+            timeDisplay,
+          } as ConversationItem;
+        });
+      }
+    } catch (error) {
+      console.error('获取历史会话失败:', error);
+      SentryReporter.captureError(error, {
+        action: 'loadHistoryConversations',
+        component: 'pcm-app-chat-modal',
+        title: '获取历史会话失败',
+      });
+      ErrorEventBus.emitError({
+        error: error,
+        message: '获取历史会话失败',
+      });
+    } finally {
+      this.isLoadingConversations = false;
+    }
+  }
   private async uploadFile() {
     if (!this.selectedFile) return;
 
@@ -383,6 +544,18 @@ export class JlzzModal {
                 >
                   直接开始
                 </div>
+                <div
+                  class={{
+                    'resume-type-item': true,
+                    'selected': this.resumeType === 'history',
+                  }}
+                  onClick={() => {
+                    this.changeType('history');
+                    this.loadHistoryConversations();
+                  }}
+                >
+                  历史对话
+                </div>
               </div>
 
               {/* 简历上传区域 - 仅在没有customInputs.file_url时显示 */}
@@ -440,18 +613,65 @@ export class JlzzModal {
                 </div>
               )}
 
-              <button
-                class="submit-button"
-                disabled={
-                  (this.resumeType === 'upload' && !hideResumeUpload && !this.selectedFile) ||
-                  (this.resumeType === 'paste' && !this.resumeText.trim()) ||
-                  this.isUploading ||
-                  this.isSubmitting
-                }
-                onClick={this.handleStartInterview}
-              >
-                {this.isUploading ? '上传中...' : this.isSubmitting ? '处理中...' : ['upload', 'paste'].includes(this.resumeType) ? '开始制作' : '开始对话'}
-              </button>
+              {}
+              {this.resumeType === 'history' ? (
+                <div class="converstation-list">
+                  {this.historyConversations.map(conversation => (
+                    <div
+                      key={conversation.id}
+                      class={{
+                        'conversation-item': true,
+                        'active': conversation.id === this.conversationId,
+                      }}
+                      onClick={() => {
+                        this.conversationId = conversation.id;
+                        this.isSuccess = true;
+                        this.showChatModal = true;
+                        this.showIframe = true;
+                      }}
+                    >
+                      <div class="conversation-info">
+                        <div class="conversation-title">{conversation.name}</div>
+                        <div class="conversation-meta">
+                          <span class="conversation-time">{conversation.timeDisplay}</span>
+                          {conversation.message_count > 0 && <span class="message-count">{conversation.message_count}条消息</span>}
+                          {conversation.status && (
+                            <span
+                              class={{
+                                'conversation-status': true,
+                                'completed': conversation.status === '结束',
+                                'running': conversation.status === '进行中',
+                              }}
+                            >
+                              {conversation.status}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      {conversation.id === this.conversationId && (
+                        <div class="current-indicator">
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <button
+                  class="submit-button"
+                  disabled={
+                    (this.resumeType === 'upload' && !hideResumeUpload && !this.selectedFile) ||
+                    (this.resumeType === 'paste' && !this.resumeText.trim()) ||
+                    this.isUploading ||
+                    this.isSubmitting
+                  }
+                  onClick={this.handleStartInterview}
+                >
+                  {this.isUploading ? '上传中...' : this.isSubmitting ? '处理中...' : ['upload', 'paste'].includes(this.resumeType) ? '开始制作' : '开始对话'}
+                </button>
+              )}
 
               <div class="ai-disclaimer">
                 <p>所有内容均由AI生成仅供参考</p>
@@ -525,8 +745,18 @@ export class JlzzModal {
                       </button>
                     )}
                   </div>
+                  {/*
+                    1. 不再通过 URL 传递 token，避免泄露。
+                    2. 通过 ref 获取 iframe 元素，onLoad 时 postMessage 发送 token。
+                  */}
                   <div class="iframe-container">
-                    <iframe src={`${PCM_DOMAIN}/myresume?conversation_id=${this.conversationId}&isSdk=true&token=${this.token}`} frameborder="0"></iframe>
+                    <iframe
+                      ref={el => (this._iframeEl = el as HTMLIFrameElement)}
+                      // src={`${PCM_DOMAIN}/myresume?conversation_id=${this.conversationId}&isSdk=true`}
+                      src={`http://localhost:3000/myresume?conversation_id=${this.conversationId}&isSdk=true`}
+                      frameborder="0"
+                      onLoad={this.handleIframeLoad}
+                    ></iframe>
                   </div>
                 </>
               )}
