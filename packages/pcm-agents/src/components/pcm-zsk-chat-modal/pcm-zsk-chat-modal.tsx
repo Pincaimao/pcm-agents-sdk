@@ -694,6 +694,9 @@ export class ChatKBModal {
 
   // 添加处理键盘事件的方法
   private handleKeyDown = (event: KeyboardEvent) => {
+    if (event.isComposing) {
+      return;
+    }
     // 如果按下的是回车键
     if (event.key === 'Enter') {
       // 如果同时按下了Ctrl键，允许换行

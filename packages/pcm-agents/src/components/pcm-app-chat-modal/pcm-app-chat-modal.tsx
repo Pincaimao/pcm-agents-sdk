@@ -1337,6 +1337,10 @@ export class ChatAPPModal {
   private handleKeyDown = (event: KeyboardEvent) => {
     // 如果按下的是回车键
     if (event.key === 'Enter') {
+      if (event.isComposing) {
+        return;
+      }
+
       // 如果同时按下了Ctrl键，允许换行
       if (event.ctrlKey) {
         // 获取当前光标位置
