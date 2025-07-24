@@ -131,7 +131,7 @@ export class JlzzModal {
   @State() isUploading: boolean = false;
   @State() uploadedFileInfo: FileUploadResponse | null = null;
   @State() showChatModal: boolean = false;
-  @State() resumeType: 'upload' | 'paste' | 'chat' | 'history' = 'upload';
+  @State() resumeType: 'upload' | 'paste' | 'chat' | 'history' = 'chat';
   @State() resumeText: string = '';
 
   // 使用 @Element 装饰器获取组件的 host 元素
@@ -167,11 +167,11 @@ export class JlzzModal {
       this.showIframe = false;
       this.isSuccess = false;
       this.conversationId = undefined;
-      this.resumeType = 'upload';
+      this.resumeType = 'chat';
     } else {
       await verifyApiKey(this.token);
       // 如果有会话ID或者同时有file_url和job_info，直接显示聊天模态框
-      if (this.conversationId || this.customInputs?.file_url || this.resumeType === 'chat') {
+      if (this.conversationId || (this.customInputs?.file_url && this.customInputs?.job_info)) {
         this.showChatModal = true;
       }
     }
@@ -468,7 +468,7 @@ export class JlzzModal {
   };
   private closeResumeChat = () => {
     this.isSuccess = false;
-    this.resumeType = 'upload';
+    this.resumeType = 'chat';
   };
   render() {
     if (!this.isOpen) return null;
@@ -520,6 +520,15 @@ export class JlzzModal {
                 <div
                   class={{
                     'resume-type-item': true,
+                    'selected': this.resumeType === 'chat',
+                  }}
+                  onClick={() => this.changeType('chat')}
+                >
+                  直接开始
+                </div>
+                <div
+                  class={{
+                    'resume-type-item': true,
                     'selected': this.resumeType === 'upload',
                   }}
                   onClick={() => this.changeType('upload')}
@@ -534,15 +543,6 @@ export class JlzzModal {
                   onClick={() => this.changeType('paste')}
                 >
                   粘贴简历
-                </div>
-                <div
-                  class={{
-                    'resume-type-item': true,
-                    'selected': this.resumeType === 'chat',
-                  }}
-                  onClick={() => this.changeType('chat')}
-                >
-                  直接开始
                 </div>
                 <div
                   class={{
@@ -592,7 +592,9 @@ export class JlzzModal {
 
               {this.resumeType === 'paste' && (
                 <div class="jd-input-section">
-                  <label htmlFor="job-description">请粘贴简历文本</label>
+                  <label htmlFor="job-description">
+                    请粘贴简历文本
+                  </label>
                   <textarea
                     id="job-description"
                     class="job-description-textarea"
@@ -607,8 +609,8 @@ export class JlzzModal {
               {this.resumeType === 'chat' && (
                 <div class="jd-input-section">
                   <label htmlFor="job-description">从头开始创建</label>
-                  <div class="chat-content" style={{ minHeight: '100px' }}>
-                    通过引导式对话，轻松创建专业简历
+                  <div class="chat-content">
+                    <div class="chat-content-text">🤖无需复杂操作，只需回答AI的几个简单问题，系统会根据你的回答自动生成内容完整、格式专业的个人简历</div>
                   </div>
                 </div>
               )}

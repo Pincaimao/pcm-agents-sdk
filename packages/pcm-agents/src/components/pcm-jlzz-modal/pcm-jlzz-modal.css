@@ -37,6 +37,27 @@
   border-radius: 2px;
 }
 
+.chat-content {
+  background-color: #f7f9fc;
+  border: 1px solid #e0e6f1;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.chat-content-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.chat-content-text {
+  font-size: 14px;
+  color: #595959;
+  line-height: 1.6;
+}
+
 .resume-type-item:not(.selected):hover {
   color: #2563eb;
 }
