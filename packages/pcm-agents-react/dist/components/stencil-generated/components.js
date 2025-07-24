@@ -13,6 +13,7 @@ import { PcmHyzjModal as PcmHyzjModalElement, defineCustomElement as definePcmHy
 import { PcmJdModal as PcmJdModalElement, defineCustomElement as definePcmJdModal } from "pcm-agents/dist/components/pcm-jd-modal.js";
 import { PcmJlppModal as PcmJlppModalElement, defineCustomElement as definePcmJlppModal } from "pcm-agents/dist/components/pcm-jlpp-modal.js";
 import { PcmJlsxModal as PcmJlsxModalElement, defineCustomElement as definePcmJlsxModal } from "pcm-agents/dist/components/pcm-jlsx-modal.js";
+import { PcmJlzzModal as PcmJlzzModalElement, defineCustomElement as definePcmJlzzModal } from "pcm-agents/dist/components/pcm-jlzz-modal.js";
 import { PcmMessage as PcmMessageElement, defineCustomElement as definePcmMessage } from "pcm-agents/dist/components/pcm-message.js";
 import { PcmMnctModal as PcmMnctModalElement, defineCustomElement as definePcmMnctModal } from "pcm-agents/dist/components/pcm-mnct-modal.js";
 import { PcmMnmsModal as PcmMnmsModalElement, defineCustomElement as definePcmMnmsModal } from "pcm-agents/dist/components/pcm-mnms-modal.js";
@@ -198,6 +199,22 @@ export const PcmJlsxModal = createComponent({
         onResumeDeleted: 'resumeDeleted'
     },
     defineCustomElement: definePcmJlsxModal
+});
+export const PcmJlzzModal = createComponent({
+    tagName: 'pcm-jlzz-modal',
+    elementClass: PcmJlzzModalElement,
+    react: React,
+    events: {
+        onModalClosed: 'modalClosed',
+        onUploadSuccess: 'uploadSuccess',
+        onStreamComplete: 'streamComplete',
+        onConversationStart: 'conversationStart',
+        onInterviewComplete: 'interviewComplete',
+        onTokenInvalid: 'tokenInvalid',
+        onSomeErrorEvent: 'someErrorEvent',
+        onGetResumeData: 'getResumeData'
+    },
+    defineCustomElement: definePcmJlzzModal
 });
 export const PcmMessage = createComponent({
     tagName: 'pcm-message',
