@@ -752,8 +752,8 @@ export class JlzzModal {
                   <div class="iframe-container">
                     <iframe
                       ref={el => (this._iframeEl = el as HTMLIFrameElement)}
-                      // src={`${PCM_DOMAIN}/myresume?conversation_id=${this.conversationId}&isSdk=true`}
-                      src={`http://localhost:3000/myresume?conversation_id=${this.conversationId}&isSdk=true`}
+                      src={`${PCM_DOMAIN}/myresume?conversation_id=${this.conversationId}&isSdk=true`}
+                      // src={`http://localhost:3000/myresume?conversation_id=${this.conversationId}&isSdk=true`}
                       frameborder="0"
                       onLoad={this.handleIframeLoad}
                     ></iframe>
