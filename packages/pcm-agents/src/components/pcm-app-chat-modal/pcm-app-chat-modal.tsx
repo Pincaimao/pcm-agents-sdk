@@ -297,11 +297,6 @@ export class ChatAPPModal {
    */
   @State() digitalHumanAvatar: string = 'https://i.postimg.cc/pX01n0zS/image.png';
 
-  // 添加数字人拖拽相关状态
-  @State() digitalHumanPosition = { x: 20, y: 80 };
-  @State() isDragging = false;
-  private dragStart = { x: 0, y: 0 };
-  private elementStart = { x: 0, y: 0 };
   private containerRef: HTMLElement;
 
   @Watch('token')
@@ -1836,94 +1831,6 @@ export class ChatAPPModal {
     this.loadHistoryMessages();
   };
 
-  private handleMouseDown = (e: MouseEvent) => {
-    this.isDragging = true;
-    this.dragStart = { x: e.clientX, y: e.clientY };
-    this.elementStart = { ...this.digitalHumanPosition };
-    document.addEventListener('mousemove', this.handleMouseMove);
-    document.addEventListener('mouseup', this.handleMouseUp);
-  };
-
-  private handleMouseMove = (e: MouseEvent) => {
-    if (!this.isDragging) return;
-    const dx = e.clientX - this.dragStart.x;
-    const dy = e.clientY - this.dragStart.y;
-    let newX = this.elementStart.x + dx;
-    let newY = this.elementStart.y + dy;
-
-    if (this.containerRef) {
-      const containerWidth = this.containerRef.clientWidth;
-      const containerHeight = this.containerRef.clientHeight;
-      const digitalHumanWidth = 80;
-      const digitalHumanHeight = 80;
-
-      const minX = 0;
-      const maxX = containerWidth - digitalHumanWidth;
-      const minY = 0;
-      const maxY = containerHeight - digitalHumanHeight;
-
-      newX = Math.max(minX, Math.min(newX, maxX));
-      newY = Math.max(minY, Math.min(newY, maxY));
-    }
-
-    this.digitalHumanPosition = {
-      x: newX,
-      y: newY,
-    };
-  };
-
-  private handleMouseUp = () => {
-    this.isDragging = false;
-    document.removeEventListener('mousemove', this.handleMouseMove);
-    document.removeEventListener('mouseup', this.handleMouseUp);
-  };
-
-  private handleTouchStartDrag = (e: TouchEvent) => {
-    this.isDragging = true;
-    const touch = e.touches[0];
-    this.dragStart = { x: touch.clientX, y: touch.clientY };
-    this.elementStart = { ...this.digitalHumanPosition };
-    document.addEventListener('touchmove', this.handleTouchMove, { passive: false });
-    document.addEventListener('touchend', this.handleTouchEndDrag);
-    e.preventDefault();
-  };
-
-  private handleTouchMove = (e: TouchEvent) => {
-    if (!this.isDragging) return;
-    const touch = e.touches[0];
-    const dx = touch.clientX - this.dragStart.x;
-    const dy = touch.clientY - this.dragStart.y;
-    let newX = this.elementStart.x + dx;
-    let newY = this.elementStart.y + dy;
-
-    if (this.containerRef) {
-      const containerWidth = this.containerRef.clientWidth;
-      const containerHeight = this.containerRef.clientHeight;
-      const digitalHumanWidth = 80;
-      const digitalHumanHeight = 80;
-
-      const minX = 0;
-      const maxX = containerWidth - digitalHumanWidth;
-      const minY = 0;
-      const maxY = containerHeight - digitalHumanHeight;
-
-      newX = Math.max(minX, Math.min(newX, maxX));
-      newY = Math.max(minY, Math.min(newY, maxY));
-    }
-
-    this.digitalHumanPosition = {
-      x: newX,
-      y: newY,
-    };
-    e.preventDefault();
-  };
-
-  private handleTouchEndDrag = () => {
-    this.isDragging = false;
-    document.removeEventListener('touchmove', this.handleTouchMove);
-    document.removeEventListener('touchend', this.handleTouchEndDrag);
-  };
-
   // 修改事件处理方法
   private handleFilePreviewRequest = (
     event: CustomEvent<{
@@ -2171,18 +2078,13 @@ export class ChatAPPModal {
       <div class={overlayClass} style={modalStyle}>
         <div class={containerClass} ref={el => (this.containerRef = el as HTMLElement)}>
           {this.showDigitalHuman && (
-            <div
-              class="digital-human-container"
+            <pcm-digital-human 
+              avatar={this.digitalHumanAvatar} 
+              containerElement={this.containerRef}
               style={{
-                left: `${this.digitalHumanPosition.x}px`,
-                top: `${this.digitalHumanPosition.y}px`,
-                cursor: this.isDragging ? 'grabbing' : 'grab',
+                display: (this.isDrawerOpen || this.isHistoryDrawerOpen || this.showConfirmModal) ? 'none' : 'block'
               }}
-              onMouseDown={this.handleMouseDown}
-              onTouchStart={this.handleTouchStartDrag}
-            >
-              <img src={this.digitalHumanAvatar} alt="Digital Human" />
-            </div>
+            ></pcm-digital-human>
           )}
           {this.isShowHeader && (
             <div class="modal-header">
@@ -2390,105 +2292,105 @@ export class ChatAPPModal {
               </div>
             </div>
           </pcm-drawer>
-        </div>
 
-        {/* 二次确认模态框 */}
-        <pcm-confirm-modal
-          isOpen={this.showConfirmModal}
-          modalTitle="确认完成回答？"
-          okText="确认完成"
-          cancelText="继续录制"
-          okType="danger"
-          onOk={this.handleConfirmModalOk}
-          onCancel={this.handleConfirmModalCancelEvent}
-          onClosed={this.handleConfirmModalCancel}
-        >
-          <div style={{ marginBottom: '16px' }}>
-            <div
-              style={{
-                fontSize: '14px',
-                color: '#1890ff',
-                fontWeight: '500',
-                marginBottom: '16px',
-                textAlign: 'center',
-              }}
-            >
-              当前录制时长：
-              {(() => {
-                // 计算实际的录制时长（秒）
-                const elapsedSeconds = this.recordingStartTime > 0 ? Math.floor((Date.now() - this.recordingStartTime) / 1000) : 0;
-                const minutes = Math.floor(elapsedSeconds / 60);
-                const seconds = elapsedSeconds % 60;
-                return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-              })()}
-            </div>
-
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '12px 16px',
-                background: '#fff7e6',
-                border: '1px solid #ffec99',
-                borderRadius: '6px',
-                color: '#d46b08',
-                fontSize: '14px',
-                marginBottom: '16px',
-              }}
-            >
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
-              </svg>
-              <span>注意：录制仍在进行中</span>
-            </div>
-
-            <div
-              style={{
-                fontSize: '16px',
-                color: '#595959',
-                lineHeight: '1.5',
-                marginBottom: '16px',
-              }}
-            >
-              点击"确认完成"将结束本题回答
-            </div>
-
-            <label
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                cursor: 'pointer',
-                padding: '8px 0',
-                userSelect: 'none',
-              }}
-            >
-              <input
-                type="checkbox"
-                style={{
-                  width: '16px',
-                  height: '16px',
-                  accentColor: '#1890ff',
-                  cursor: 'pointer',
-                  margin: '0',
-                }}
-                checked={this.skipConfirmThisInterview}
-                onChange={this.handleSkipConfirmChange}
-              />
-              <span
+          {/* 二次确认模态框 */}
+          <pcm-confirm-modal
+            isOpen={this.showConfirmModal}
+            modalTitle="确认完成回答？"
+            okText="确认完成"
+            cancelText="继续录制"
+            okType="danger"
+            onOk={this.handleConfirmModalOk}
+            onCancel={this.handleConfirmModalCancelEvent}
+            onClosed={this.handleConfirmModalCancel}
+          >
+            <div style={{ marginBottom: '16px' }}>
+              <div
                 style={{
                   fontSize: '14px',
-                  color: '#595959',
-                  cursor: 'pointer',
-                  lineHeight: '1.4',
+                  color: '#1890ff',
+                  fontWeight: '500',
+                  marginBottom: '16px',
+                  textAlign: 'center',
                 }}
               >
-                本次面试不再提醒
-              </span>
-            </label>
-          </div>
-        </pcm-confirm-modal>
+                当前录制时长：
+                {(() => {
+                  // 计算实际的录制时长（秒）
+                  const elapsedSeconds = this.recordingStartTime > 0 ? Math.floor((Date.now() - this.recordingStartTime) / 1000) : 0;
+                  const minutes = Math.floor(elapsedSeconds / 60);
+                  const seconds = elapsedSeconds % 60;
+                  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                })()}
+              </div>
+
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '12px 16px',
+                  background: '#fff7e6',
+                  border: '1px solid #ffec99',
+                  borderRadius: '6px',
+                  color: '#d46b08',
+                  fontSize: '14px',
+                  marginBottom: '16px',
+                }}
+              >
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                  <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
+                </svg>
+                <span>注意：录制仍在进行中</span>
+              </div>
+
+              <div
+                style={{
+                  fontSize: '16px',
+                  color: '#595959',
+                  lineHeight: '1.5',
+                  marginBottom: '16px',
+                }}
+              >
+                点击"确认完成"将结束本题回答
+              </div>
+
+              <label
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                  padding: '8px 0',
+                  userSelect: 'none',
+                }}
+              >
+                <input
+                  type="checkbox"
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    accentColor: '#1890ff',
+                    cursor: 'pointer',
+                    margin: '0',
+                  }}
+                  checked={this.skipConfirmThisInterview}
+                  onChange={this.handleSkipConfirmChange}
+                />
+                <span
+                  style={{
+                    fontSize: '14px',
+                    color: '#595959',
+                    cursor: 'pointer',
+                    lineHeight: '1.4',
+                  }}
+                >
+                  本次面试不再提醒
+                </span>
+              </label>
+            </div>
+          </pcm-confirm-modal>
+        </div>
       </div>
     );
   }

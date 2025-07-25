@@ -428,28 +428,6 @@
   animation: spin 0.8s linear infinite;
 }
 
-.digital-human-container {
-  position: absolute;
-  z-index: 1001;
-  border-radius: 50%;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: box-shadow 0.3s;
-  height: auto !important;
-}
-
-.digital-human-container:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-}
-
-.digital-human-container img {
-  width: 80px;
-  height: 80px;
-  display: block;
-  user-select: none;
-  -webkit-user-drag: none;
-}
-
 /* 添加上传按钮样式 */
 .upload-button {
   background: transparent;
