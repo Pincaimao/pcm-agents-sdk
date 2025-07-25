@@ -469,7 +469,6 @@ export class HtwsModal {
                                 botId="3022316191018882"
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
-                                enableVoice={false}
                                 filePreviewMode={this.filePreviewMode}
                                 customInputs={{
                                     ...this.customInputs,

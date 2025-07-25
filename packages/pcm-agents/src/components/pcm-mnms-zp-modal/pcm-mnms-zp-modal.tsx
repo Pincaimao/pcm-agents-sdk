@@ -404,7 +404,6 @@ export class MnmsZpModal {
                                 botId="3022316191018907"
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
-                                enableTTS={false}
                                 filePreviewMode={this.filePreviewMode}
                                 showCopyButton={this.showCopyButton}
                                 showFeedbackButtons={this.showFeedbackButtons}

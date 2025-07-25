@@ -405,7 +405,6 @@ export class MnmsModal {
                                 showDigitalHuman={true}
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
-                                enableTTS={false}
                                 filePreviewMode={this.filePreviewMode}
                                 showCopyButton={this.showCopyButton}
                                 showFeedbackButtons={this.showFeedbackButtons}

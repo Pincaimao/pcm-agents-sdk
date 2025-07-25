@@ -717,7 +717,6 @@ export class JlzzModal {
                   conversationId={this.conversationId}
                   defaultQuery={this.resumeType === 'paste' ? this.resumeText : this.defaultQuery}
                   filePreviewMode={this.filePreviewMode}
-                  enableVoice={false}
                   customInputs={{
                     ...this.customInputs,
                     file_url: this.resumeType === 'upload' ? this.customInputs?.file_url || this.uploadedFileInfo?.cos_key : '',

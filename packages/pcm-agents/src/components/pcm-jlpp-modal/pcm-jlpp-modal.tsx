@@ -438,7 +438,6 @@ export class JlppModal {
                                 fullscreen={this.fullscreen}
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
-                                enableTTS={false}
                                 filePreviewMode={this.filePreviewMode}
                                 showWorkspaceHistory={this.showWorkspaceHistory}
                                 botId="3022316191018881"

@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
-import { sendSSERequest, sendHttpRequest, uploadFileToBackend, fetchAgentInfo, synthesizeAudio } from '../../utils/utils';
+import { sendSSERequest, sendHttpRequest, uploadFileToBackend, fetchAgentInfo } from '../../utils/utils';
 import { ChatMessage, ConversationItem } from '../../interfaces/chat';
 import { StreamCompleteEventData, ConversationStartEventData, InterviewCompleteEventData, RecordingErrorEventData, RecordingStatusChangeEventData } from '../../interfaces/events';
 import { marked } from 'marked';
@@ -143,7 +143,6 @@ export class ChatAPPModal {
    */
   @Event() interviewComplete: EventEmitter<InterviewCompleteEventData>;
 
-  private readonly SCROLL_THRESHOLD = 20;
 
   @State() showCountdownWarning: boolean = false;
 
@@ -158,7 +157,6 @@ export class ChatAPPModal {
   // 添加新的状态和属性
   @State() isPlayingAudio: boolean = false;
   @State() audioUrl: string | null = null;
-  private audioElement: HTMLAudioElement | null = null;
 
   /**
    * 录制错误事件
@@ -174,18 +172,6 @@ export class ChatAPPModal {
    * SDK密钥验证失败事件
    */
   @Event() tokenInvalid: EventEmitter<void>;
-
-  /**
-   * 是否启用语音播报功能
-   * true: 启用语音合成
-   * false: 禁用语音合成
-   */
-  @Prop() enableTTS: boolean = false;
-
-  /**
-   * 是否自动播放语音问题
-   */
-  @Prop() enableVoice: boolean = false;
 
   /**
    * 聊天模式
@@ -571,12 +557,12 @@ export class ChatAPPModal {
         // 获取最新的AI回复内容
         const latestAIMessage = this.currentStreamingMessage;
         latestAIMessage.isStreaming = false;
-        
+
         // 保存最后完成的回复内容用于数字人视频生成
         if (latestAIMessage && latestAIMessage.answer) {
           this.lastCompletedAnswer = latestAIMessage.answer;
         }
-        
+
         this.currentStreamingMessage = null;
 
         // 更新消息列表
@@ -589,29 +575,8 @@ export class ChatAPPModal {
           return;
         }
 
-        if (latestAIMessage && latestAIMessage.answer) {
-          // 优先使用 LLMText，如果没有则使用 answer
-          const textForSynthesis = llmText || latestAIMessage.answer;
-
-          if (textForSynthesis && this.enableTTS) {
-            // 使用工具函数合成语音
-            const audioUrl = await synthesizeAudio(textForSynthesis);
-
-            if (this.enableVoice) {
-              // 自动播放语音
-              await this.playAudio(audioUrl);
-              // 自动播放模式下，只在视频模式时开始等待录制
-              if (this.interviewMode === 'video') {
-                this.startWaitingToRecord();
-              }
-            } else {
-              // 只保存音频URL，不自动播放
-              this.audioUrl = audioUrl;
-            }
-          } else if (this.interviewMode === 'video') {
-            // 如果禁用了语音合成，只在视频模式时开始等待录制
-            this.startWaitingToRecord();
-          }
+        if (this.interviewMode === 'video') {
+          this.startWaitingToRecord();
         }
       },
     });
@@ -628,7 +593,7 @@ export class ChatAPPModal {
       const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
 
       // 更新是否应该自动滚动的状态
-      this.shouldAutoScroll = distanceFromBottom <= this.SCROLL_THRESHOLD;
+      this.shouldAutoScroll = distanceFromBottom <= 20;
     }
   };
 
@@ -756,27 +721,9 @@ export class ChatAPPModal {
 
         // 如果有会话ID且有历史消息，且会话未结束，处理继续对话的逻辑
         if (this.conversationId && this.messages.length > 0 && !conversationStatus) {
-          const lastAIMessage = this.messages[this.messages.length - 1];
 
-          // 如果有AI消息且启用了语音合成功能
-          if (lastAIMessage && lastAIMessage.answer && this.enableTTS) {
-            // 合成语音
-            const audioUrl = await synthesizeAudio(lastAIMessage.answer);
-
-            if (this.enableVoice) {
-              // 自动播放语音
-              await this.playAudio(audioUrl);
-              // 播放完成后，只在视频模式时开始等待录制
-              if (this.interviewMode === 'video') {
-                this.startWaitingToRecord();
-              }
-            } else {
-              // 只保存音频URL，不自动播放
-              this.audioUrl = audioUrl;
-              // 非自动播放模式下，不立即开始等待录制
-            }
-          } else if (!this.enableTTS && this.interviewMode === 'video') {
-            // 如果禁用了语音合成功能，且是视频模式，直接开始等待录制
+          // 如果是视频模式，开始等待录制
+          if (this.interviewMode === 'video') {
             this.startWaitingToRecord();
           }
         } else if (conversationStatus) {
@@ -1246,74 +1193,11 @@ export class ChatAPPModal {
     }
   }
 
-  // 播放音频的方法
-  private playAudio(audioUrl: string): Promise<void> {
-    return new Promise(resolve => {
-      this.isPlayingAudio = true;
-      this.audioUrl = audioUrl;
 
-      // 创建音频元素
-      if (!this.audioElement) {
-        this.audioElement = new Audio();
-      }
-
-      this.audioElement.src = audioUrl;
-      this.audioElement.onended = () => {
-        this.isPlayingAudio = false;
-        this.audioUrl = null;
-        resolve();
-      };
-
-      this.audioElement.onerror = () => {
-        console.error('音频播放错误');
-        this.isPlayingAudio = false;
-        this.audioUrl = null;
-        ErrorEventBus.emitError({
-          error: '音频播放错误',
-          message: '音频播放错误',
-        });
-        SentryReporter.captureMessage('音频播放错误', {
-          action: 'playAudio',
-          component: 'pcm-hr-chat-modal',
-          title: '音频播放错误',
-        });
-        resolve();
-      };
-
-      this.audioElement.play().catch(error => {
-        console.error('音频播放失败:', error);
-        this.isPlayingAudio = false;
-        this.audioUrl = null;
-        ErrorEventBus.emitError({
-          error: error,
-          message: '音频播放失败',
-        });
-        SentryReporter.captureError(error, {
-          title: '音频播放失败',
-          action: 'playAudio',
-          component: 'pcm-hr-chat-modal',
-        });
-        resolve();
-      });
-    });
-  }
 
   // 确保组件卸载时释放资源
   disconnectedCallback() {
     document.removeEventListener('pcm-token-invalid', this.tokenInvalidListener);
-
-    // 释放音频资源
-    if (this.audioElement) {
-      this.audioElement.pause();
-      this.audioElement.src = '';
-      this.audioElement = null;
-    }
-
-    // 释放 Blob URL
-    if (this.audioUrl) {
-      URL.revokeObjectURL(this.audioUrl);
-      this.audioUrl = null;
-    }
 
     // 清理其他计时器
     if (this.waitingTimer) {
@@ -1339,16 +1223,6 @@ export class ChatAPPModal {
     this.stopAudioRecording();
   }
 
-  // 修改手动播放音频的方法
-  private handlePlayAudio = async () => {
-    if (this.audioUrl) {
-      await this.playAudio(this.audioUrl);
-      // 手动播放完成后只在视频模式时开始等待录制
-      if (this.interviewMode === 'video') {
-        this.startWaitingToRecord();
-      }
-    }
-  };
 
   // 处理文本输入变化
   private handleTextInputChange = (event: Event) => {
@@ -1389,7 +1263,7 @@ export class ChatAPPModal {
         // 阻止默认的换行行为
         event.preventDefault();
         // 如果文本框不为空且不处于禁用状态，则发送消息
-        if (this.textAnswer.trim() && !this.isSubmittingText && !this.isLoading && !this.currentStreamingMessage && !this.waitingToRecord && !this.isPlayingAudio) {
+        if (this.textAnswer.trim() && !this.isSubmittingText && !this.isLoading && !this.currentStreamingMessage && !this.waitingToRecord) {
           this.submitTextAnswer();
         }
       }
@@ -2088,7 +1962,7 @@ export class ChatAPPModal {
     return (
       <div class={overlayClass} style={modalStyle}>
         <div class={containerClass} ref={el => (this.containerRef = el as HTMLElement)}>
-        
+
           {this.isShowHeader && (
             <div class="modal-header">
               <div class="header-left">
@@ -2176,28 +2050,9 @@ export class ChatAPPModal {
                         </button>
                       ) : (
                         <div class="waiting-message">
-                          {(() => {
-                            // 显示播放按钮（当不自动播放且有音频URL时）
-                            if (!this.enableVoice && this.audioUrl && !this.isPlayingAudio) {
-                              return (
-                                <div class="play-audio-container" onClick={this.handlePlayAudio}>
-                                  <p>
-                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" style={{ verticalAlign: 'middle', marginRight: '8px' }}>
-                                      <path d="M8 5v14l11-7z" />
-                                    </svg>
-                                    <span style={{ verticalAlign: 'middle' }}>播放题目</span>
-                                  </p>
-                                </div>
-                              );
-                            }
-
-                            // 其他状态下显示禁用的"完成回答"按钮
-                            return (
-                              <button class="stop-recording-button disabled" disabled>
-                                完成回答
-                              </button>
-                            );
-                          })()}
+                          <button class="stop-recording-button disabled" disabled>
+                            完成回答
+                          </button>
                         </div>
                       )}
                     </div>
@@ -2208,8 +2063,8 @@ export class ChatAPPModal {
           </div>
 
           {this.showDigitalHuman && (
-            <pcm-digital-human 
-              avatar={this.digitalHumanAvatar} 
+            <pcm-digital-human
+              avatar={this.digitalHumanAvatar}
               containerElement={this.containerRef}
               speechText={this.lastCompletedAnswer}
               isStreaming={!!this.currentStreamingMessage}

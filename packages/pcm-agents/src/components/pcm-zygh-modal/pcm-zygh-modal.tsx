@@ -457,7 +457,6 @@ export class ZyghModal {
                                 fullscreen={this.fullscreen}
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
-                                enableVoice={false}
                                 filePreviewMode={this.filePreviewMode}
                                 customInputs={{
                                     ...this.customInputs,
