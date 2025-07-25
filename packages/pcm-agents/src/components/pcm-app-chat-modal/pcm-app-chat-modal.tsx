@@ -287,6 +287,23 @@ export class ChatAPPModal {
   @State() showConfirmModal: boolean = false;
   @State() skipConfirmThisInterview: boolean = false;
 
+  /**
+   * 是否显示数字人
+   */
+  @Prop() showDigitalHuman: boolean = false;
+
+  /**
+   * 数字人头像URL
+   */
+  @State() digitalHumanAvatar: string = 'https://i.postimg.cc/pX01n0zS/image.png';
+
+  // 添加数字人拖拽相关状态
+  @State() digitalHumanPosition = { x: 20, y: 80 };
+  @State() isDragging = false;
+  private dragStart = { x: 0, y: 0 };
+  private elementStart = { x: 0, y: 0 };
+  private containerRef: HTMLElement;
+
   @Watch('token')
   handleTokenChange(newToken: string) {
     // 当传入的 token 变化时，更新 authStore 中的 token
@@ -1819,6 +1836,94 @@ export class ChatAPPModal {
     this.loadHistoryMessages();
   };
 
+  private handleMouseDown = (e: MouseEvent) => {
+    this.isDragging = true;
+    this.dragStart = { x: e.clientX, y: e.clientY };
+    this.elementStart = { ...this.digitalHumanPosition };
+    document.addEventListener('mousemove', this.handleMouseMove);
+    document.addEventListener('mouseup', this.handleMouseUp);
+  };
+
+  private handleMouseMove = (e: MouseEvent) => {
+    if (!this.isDragging) return;
+    const dx = e.clientX - this.dragStart.x;
+    const dy = e.clientY - this.dragStart.y;
+    let newX = this.elementStart.x + dx;
+    let newY = this.elementStart.y + dy;
+
+    if (this.containerRef) {
+      const containerWidth = this.containerRef.clientWidth;
+      const containerHeight = this.containerRef.clientHeight;
+      const digitalHumanWidth = 80;
+      const digitalHumanHeight = 80;
+
+      const minX = 0;
+      const maxX = containerWidth - digitalHumanWidth;
+      const minY = 0;
+      const maxY = containerHeight - digitalHumanHeight;
+
+      newX = Math.max(minX, Math.min(newX, maxX));
+      newY = Math.max(minY, Math.min(newY, maxY));
+    }
+
+    this.digitalHumanPosition = {
+      x: newX,
+      y: newY,
+    };
+  };
+
+  private handleMouseUp = () => {
+    this.isDragging = false;
+    document.removeEventListener('mousemove', this.handleMouseMove);
+    document.removeEventListener('mouseup', this.handleMouseUp);
+  };
+
+  private handleTouchStartDrag = (e: TouchEvent) => {
+    this.isDragging = true;
+    const touch = e.touches[0];
+    this.dragStart = { x: touch.clientX, y: touch.clientY };
+    this.elementStart = { ...this.digitalHumanPosition };
+    document.addEventListener('touchmove', this.handleTouchMove, { passive: false });
+    document.addEventListener('touchend', this.handleTouchEndDrag);
+    e.preventDefault();
+  };
+
+  private handleTouchMove = (e: TouchEvent) => {
+    if (!this.isDragging) return;
+    const touch = e.touches[0];
+    const dx = touch.clientX - this.dragStart.x;
+    const dy = touch.clientY - this.dragStart.y;
+    let newX = this.elementStart.x + dx;
+    let newY = this.elementStart.y + dy;
+
+    if (this.containerRef) {
+      const containerWidth = this.containerRef.clientWidth;
+      const containerHeight = this.containerRef.clientHeight;
+      const digitalHumanWidth = 80;
+      const digitalHumanHeight = 80;
+
+      const minX = 0;
+      const maxX = containerWidth - digitalHumanWidth;
+      const minY = 0;
+      const maxY = containerHeight - digitalHumanHeight;
+
+      newX = Math.max(minX, Math.min(newX, maxX));
+      newY = Math.max(minY, Math.min(newY, maxY));
+    }
+
+    this.digitalHumanPosition = {
+      x: newX,
+      y: newY,
+    };
+    e.preventDefault();
+  };
+
+  private handleTouchEndDrag = () => {
+    this.isDragging = false;
+    document.removeEventListener('touchmove', this.handleTouchMove);
+    document.removeEventListener('touchend', this.handleTouchEndDrag);
+  };
+
   // 修改事件处理方法
   private handleFilePreviewRequest = (
     event: CustomEvent<{
@@ -2064,7 +2169,21 @@ export class ChatAPPModal {
 
     return (
       <div class={overlayClass} style={modalStyle}>
-        <div class={containerClass}>
+        <div class={containerClass} ref={el => (this.containerRef = el as HTMLElement)}>
+          {this.showDigitalHuman && (
+            <div
+              class="digital-human-container"
+              style={{
+                left: `${this.digitalHumanPosition.x}px`,
+                top: `${this.digitalHumanPosition.y}px`,
+                cursor: this.isDragging ? 'grabbing' : 'grab',
+              }}
+              onMouseDown={this.handleMouseDown}
+              onTouchStart={this.handleTouchStartDrag}
+            >
+              <img src={this.digitalHumanAvatar} alt="Digital Human" />
+            </div>
+          )}
           {this.isShowHeader && (
             <div class="modal-header">
               <div class="header-left">

@@ -41,10 +41,6 @@ export class PcmDrawer {
    */
   @Prop() maskClosable: boolean = true;
 
-  /**
-   * 是否显示蒙层
-   */
-  @Prop() mask: boolean = true;
 
   /**
    * 抽屉关闭后的回调
@@ -63,7 +59,7 @@ export class PcmDrawer {
 
   @Element() hostElement: HTMLElement;
 
-  @State() zIndex: number = 1000;
+  @State() zIndex: number = 1500;
 
   private bodyOverflowBeforeOpen: string = '';
   private transitionEndHandler: () => void;
@@ -118,7 +114,7 @@ export class PcmDrawer {
     // 尝试从缓存中读取 zIndex
     const cachedZIndex = configStore.getItem<number>('modal-zIndex');
     if (cachedZIndex) {
-      this.zIndex = cachedZIndex;
+      this.zIndex = cachedZIndex + 500;
     }
   }
 
@@ -158,13 +154,11 @@ export class PcmDrawer {
 
     return (
       <div class={{ 'drawer-container': true, 'drawer-open': this.isOpen }}>
-        {this.mask && (
-          <div 
-            class={{ 'drawer-mask': true, 'mask-visible': this.isOpen }} 
-            style={maskStyle}
-            onClick={this.handleMaskClick}
-          ></div>
-        )}
+        <div 
+          class={{ 'drawer-mask': true, 'mask-visible': this.isOpen }} 
+          style={maskStyle}
+          onClick={this.handleMaskClick}
+        ></div>
         <div 
           class={{ 'drawer-content': true, 'drawer-content-visible': this.isOpen }} 
           style={drawerStyle}
@@ -172,10 +166,8 @@ export class PcmDrawer {
           <div class="drawer-header">
             {this.drawerTitle && <div class="drawer-title">{this.drawerTitle}</div>}
             {this.closable && (
-              <button class="drawer-close" onClick={this.handleClose}>
-                <svg viewBox="64 64 896 896" focusable="false" data-icon="close" width="1em" height="1em" fill="currentColor" aria-hidden="true">
-                  <path d="M563.8 512l262.5-312.9c4.4-5.2.7-13.1-6.1-13.1h-79.8c-4.7 0-9.2 2.1-12.3 5.7L511.6 449.8 295.1 191.7c-3-3.6-7.5-5.7-12.3-5.7H203c-6.8 0-10.5 7.9-6.1 13.1L459.4 512 196.9 824.9A7.95 7.95 0 00203 838h79.8c4.7 0 9.2-2.1 12.3-5.7l216.5-258.1 216.5 258.1c3 3.6 7.5 5.7 12.3 5.7h79.8c6.8 0 10.5-7.9 6.1-13.1L563.8 512z"></path>
-                </svg>
+              <button class="close-button" onClick={this.handleClose}>
+                <span>×</span>
               </button>
             )}
           </div>

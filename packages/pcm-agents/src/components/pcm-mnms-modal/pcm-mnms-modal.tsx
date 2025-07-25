@@ -402,6 +402,7 @@ export class MnmsModal {
                                 fullscreen={this.fullscreen}
                                 showWorkspaceHistory={this.showWorkspaceHistory}
                                 botId="3022316191018884"
+                                showDigitalHuman={true}
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
                                 enableTTS={false}
