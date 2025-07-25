@@ -253,12 +253,12 @@ export class MnmsModal {
             alert('请输入职位描述');
             return;
         }
-        this.isSubmitting = true;
         // 判断文件是否正在上传
         if (await this.pcmUploadRef?.getIsUploading?.()) {
             Message.info('文件上传中，请稍后');
             return;
         }
+        this.isSubmitting = true;
         this.showChatModal = true;
     };
 
