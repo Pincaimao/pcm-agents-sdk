@@ -297,6 +297,11 @@ export class ChatAPPModal {
    */
   @State() digitalHumanAvatar: string = 'https://i.postimg.cc/pX01n0zS/image.png';
 
+  /**
+   * 最后完成的AI回复文本，用于数字人视频生成
+   */
+  @State() lastCompletedAnswer: string = '';
+
   private containerRef: HTMLElement;
 
   @Watch('token')
@@ -566,6 +571,12 @@ export class ChatAPPModal {
         // 获取最新的AI回复内容
         const latestAIMessage = this.currentStreamingMessage;
         latestAIMessage.isStreaming = false;
+        
+        // 保存最后完成的回复内容用于数字人视频生成
+        if (latestAIMessage && latestAIMessage.answer) {
+          this.lastCompletedAnswer = latestAIMessage.answer;
+        }
+        
         this.currentStreamingMessage = null;
 
         // 更新消息列表
@@ -2077,15 +2088,7 @@ export class ChatAPPModal {
     return (
       <div class={overlayClass} style={modalStyle}>
         <div class={containerClass} ref={el => (this.containerRef = el as HTMLElement)}>
-          {this.showDigitalHuman && (
-            <pcm-digital-human 
-              avatar={this.digitalHumanAvatar} 
-              containerElement={this.containerRef}
-              style={{
-                display: (this.isDrawerOpen || this.isHistoryDrawerOpen || this.showConfirmModal) ? 'none' : 'block'
-              }}
-            ></pcm-digital-human>
-          )}
+        
           {this.isShowHeader && (
             <div class="modal-header">
               <div class="header-left">
@@ -2203,6 +2206,18 @@ export class ChatAPPModal {
               </div>
             </div>
           </div>
+
+          {this.showDigitalHuman && (
+            <pcm-digital-human 
+              avatar={this.digitalHumanAvatar} 
+              containerElement={this.containerRef}
+              speechText={this.lastCompletedAnswer}
+              isStreaming={!!this.currentStreamingMessage}
+              style={{
+                display: (this.isDrawerOpen || this.isHistoryDrawerOpen || this.showConfirmModal) ? 'none' : 'block'
+              }}
+            ></pcm-digital-human>
+          )}
 
           {/* 添加预览抽屉 */}
           <pcm-drawer
