@@ -1959,7 +1959,7 @@ export class ChatAPPModal {
     const renderTextInputArea = () => (
       <div class="text-input-area">
         {/* 只有简历制作的时候需要展示结束对话 */}
-        {this.modalTitle === '简历制作' && (
+        {this.botId === '39284520284983296' && (
           <button
             class={{
               'cancel-button': true,
