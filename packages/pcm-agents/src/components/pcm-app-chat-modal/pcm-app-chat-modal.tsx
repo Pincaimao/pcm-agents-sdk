@@ -288,6 +288,11 @@ export class ChatAPPModal {
    */
   @State() waitingForDigitalHuman: boolean = false;
 
+  /**
+   * 数字人视频是否已生成完成
+   */
+  @State() digitalHumanVideoReady: boolean = false;
+
   @Watch('token')
   handleTokenChange(newToken: string) {
     // 当传入的 token 变化时，更新 authStore 中的 token
@@ -382,6 +387,10 @@ export class ChatAPPModal {
   }
 
   private async sendMessageToAPI(message: string, videoUrl?: string) {
+    // 发送新消息时重置状态
+    this.waitingForDigitalHuman = false;
+    this.digitalHumanVideoReady = false;
+    
     this.isLoading = true;
     let answer = '';
     let llmText = '';
@@ -1310,7 +1319,6 @@ export class ChatAPPModal {
 
   // 如果是简历制作，可以提前结束对话
   private closeResumeChat = async () => {
-    console.log(this.messages);
     const message = {
       query: '生成简历',
       inputs: {
@@ -1740,6 +1748,42 @@ export class ChatAPPModal {
   };
 
   /**
+   * 判断当前消息是否为最后一个消息（用于确定是否需要等待数字人视频）
+   */
+  private isLastMessage(message: ChatMessage): boolean {
+    if (this.currentStreamingMessage) {
+      return false;
+    }
+    
+    // 如果没有流式消息，检查当前消息是否是messages数组中的最后一个
+    if (this.messages.length === 0) {
+      return false;
+    }
+    
+    const lastMessage = this.messages[this.messages.length - 1];
+    
+    return message.id === lastMessage.id;
+  }
+
+  /**
+   * 处理数字人视频生成成功事件
+   */
+  private handleDigitalHumanVideoGenerated = (event: CustomEvent<{
+    videoUrl: string;
+  }>) => {
+    const { videoUrl } = event.detail;
+    
+    console.log('数字人视频生成成功:', {
+      videoUrl,
+      conversationId: this.conversationId,
+      currentQuestionNumber: this.currentQuestionNumber
+    });
+
+    // 设置数字人视频已准备好
+    this.digitalHumanVideoReady = true;
+  };
+
+  /**
    * 处理数字人视频播放完成事件
    */
   private handleDigitalHumanVideoEnded = (event: CustomEvent<{
@@ -1838,7 +1882,7 @@ export class ChatAPPModal {
       if (this.waitingForDigitalHuman && this.showDigitalHuman) {
         return (
           <div class="placeholder-status">
-            <p>AI 正在回答中，请稍后...</p>
+            <p>AI正在查看您的信息，请稍后...</p>
           </div>
         );
       }
@@ -2026,16 +2070,13 @@ export class ChatAPPModal {
                       <pcm-chat-message
                         botId={this.botId}
                         message={message}
+                        showAssistantMessage={!this.showDigitalHuman || !this.isLastMessage(message) || this.digitalHumanVideoReady}
                         userAvatar={this.userAvatar}
                         assistantAvatar={effectiveAssistantAvatar}
                         showCopyButton={this.showCopyButton}
                         showFeedbackButtons={this.showFeedbackButtons}
                         filePreviewMode={this.filePreviewMode}
                         onFilePreviewRequest={this.handleFilePreviewRequest}
-                        onMessageChange={event => {
-                          const updatedMessages = this.messages.map(msg => (msg.id === message.id ? { ...msg, ...event.detail } : msg));
-                          this.messages = updatedMessages;
-                        }}
                       ></pcm-chat-message>
                     </div>
                   ))}
@@ -2044,6 +2085,7 @@ export class ChatAPPModal {
                       <pcm-chat-message
                         botId={this.botId}
                         message={this.currentStreamingMessage}
+                        showAssistantMessage={!this.showDigitalHuman || this.digitalHumanVideoReady}
                         userAvatar={this.userAvatar}
                         assistantAvatar={effectiveAssistantAvatar}
                         showCopyButton={this.showCopyButton}
@@ -2078,6 +2120,7 @@ export class ChatAPPModal {
                           <pcm-digital-human
                             speechText={this.lastCompletedAnswer}
                             isStreaming={!!this.currentStreamingMessage}
+                            onVideoGenerated={this.handleDigitalHumanVideoGenerated}
                             onVideoEnded={this.handleDigitalHumanVideoEnded}
                           ></pcm-digital-human>
                         </div>

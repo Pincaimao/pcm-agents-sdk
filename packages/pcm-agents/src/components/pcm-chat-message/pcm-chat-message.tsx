@@ -27,10 +27,6 @@ export class ChatMessageComponent {
      */
     @Prop() botId?: string;
 
-    /**
-     * 消息变更事件
-     */
-    @Event() messageChange: EventEmitter<Partial<ChatMessage>>;
 
     // 使用 @Element 装饰器获取组件的 host 元素
     @Element() hostElement: HTMLElement;
@@ -66,6 +62,12 @@ export class ChatMessageComponent {
      * 'window': 在新窗口中打开
      */
     @Prop() filePreviewMode: 'drawer' | 'window' = 'window';
+
+    /**
+     * 是否显示助手消息内容
+     * false时显示加载中动画，true时显示正常消息内容
+     */
+    @Prop() showAssistantMessage: boolean = true;
 
     @Event() filePreviewRequest: EventEmitter<{
         url?: string,
@@ -142,6 +144,24 @@ export class ChatMessageComponent {
     // 渲染助手消息部分
     private renderAssistantMessage() {
         if (!this.message.answer && !this.message.isStreaming) return null;
+
+        // 如果showAssistantMessage为false，显示加载中状态
+        if (!this.showAssistantMessage) {
+            return (
+                <div class={{ 'assistant-message-container': true }}>
+                    {this.assistantAvatar && (
+                        <div class="avatar assistant-avatar">
+                            <img src={this.assistantAvatar} alt="助手头像" />
+                        </div>
+                    )}
+                    <div class="message-bubble">
+                        <div class="assistant-message">
+                                请稍等...
+                        </div>
+                    </div>
+                </div>
+            );
+        }
 
         // 只有在开始流式输出且还没有内容时才显示loading
         const showLoading = this.message.isStreaming && !this.message.answer;

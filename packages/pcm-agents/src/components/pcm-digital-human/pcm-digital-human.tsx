@@ -41,6 +41,13 @@ export class PcmDigitalHuman {
     videoUrl: string;
   }>;
 
+  /**
+   * 视频生成成功事件
+   */
+  @Event() videoGenerated: EventEmitter<{
+    videoUrl: string;
+  }>;
+
   componentWillLoad() {
     // 初始化时设置默认视频，避免在componentDidLoad中修改state
     this.currentVideoUrl = this.defaultVideoUrl;
@@ -184,6 +191,11 @@ export class PcmDigitalHuman {
       this.currentVideoUrl = videoUrl;
       this.isPlayingGenerated = true;
       
+      // 发射视频生成成功事件
+      this.videoGenerated.emit({
+        videoUrl: videoUrl
+      });
+      
       // 平滑切换视频：等待下一帧再操作视频元素
       requestAnimationFrame(() => {
         if (this.videoElement) {
@@ -204,6 +216,11 @@ export class PcmDigitalHuman {
       // 如果预加载失败，直接切换（保持原有逻辑）
       this.currentVideoUrl = videoUrl;
       this.isPlayingGenerated = true;
+      
+      // 即使预加载失败也发射事件
+      this.videoGenerated.emit({
+        videoUrl: videoUrl
+      });
       
       requestAnimationFrame(() => {
         if (this.videoElement) {

@@ -1654,12 +1654,6 @@ export class ChatHRModal {
                           onRetryRequest={(event) => this.handleRetryRequest(event.detail)}
                           showCopyButton={false}
                           showFeedbackButtons={false}
-                          onMessageChange={(event) => {
-                            const updatedMessages = this.messages.map(msg =>
-                              msg.id === message.id ? { ...msg, ...event.detail } : msg
-                            );
-                            this.messages = updatedMessages;
-                          }}
                         ></pcm-chat-message>
                       </div>
                     ))}
