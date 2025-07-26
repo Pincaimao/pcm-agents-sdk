@@ -165,14 +165,18 @@ export const PcmConfirmModal: StencilReactComponent<PcmConfirmModalElement, PcmC
     defineCustomElement: definePcmConfirmModal
 });
 
-type PcmDigitalHumanEvents = NonNullable<unknown>;
+type PcmDigitalHumanEvents = {
+    onVideoEnded: EventName<CustomEvent<{
+        videoUrl: string;
+    }>>
+};
 
 export const PcmDigitalHuman: StencilReactComponent<PcmDigitalHumanElement, PcmDigitalHumanEvents> = /*@__PURE__*/ createComponent<PcmDigitalHumanElement, PcmDigitalHumanEvents>({
     tagName: 'pcm-digital-human',
     elementClass: PcmDigitalHumanElement,
     // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
     react: React,
-    events: {} as PcmDigitalHumanEvents,
+    events: { onVideoEnded: 'videoEnded' } as PcmDigitalHumanEvents,
     defineCustomElement: definePcmDigitalHuman
 });
 

@@ -1,4 +1,4 @@
-import { Component, Prop, h, State, Watch } from '@stencil/core';
+import { Component, Prop, h, State, Watch, Event, EventEmitter } from '@stencil/core';
 import { sendHttpRequest } from '../../utils/utils';
 
 @Component({
@@ -33,6 +33,13 @@ export class PcmDigitalHuman {
   
   private videoElement: HTMLVideoElement;
   private lastCompletedText: string = '';
+
+  /**
+   * 视频播放完成事件
+   */
+  @Event() videoEnded: EventEmitter<{
+    videoUrl: string;
+  }>;
 
   componentWillLoad() {
     // 初始化时设置默认视频，避免在componentDidLoad中修改state
@@ -213,6 +220,11 @@ export class PcmDigitalHuman {
 
   private handleVideoEnded = () => {
     if (this.isPlayingGenerated) {
+      // 只有生成的视频播放完成时才发射事件
+      this.videoEnded.emit({
+        videoUrl: this.currentVideoUrl,
+      });
+
       // 生成的视频播放完毕，恢复默认视频循环播放
       this.currentVideoUrl = this.defaultVideoUrl;
       this.isPlayingGenerated = false;

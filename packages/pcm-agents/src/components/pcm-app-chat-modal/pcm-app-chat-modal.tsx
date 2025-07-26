@@ -283,6 +283,10 @@ export class ChatAPPModal {
    */
   @State() lastCompletedAnswer: string = '';
 
+  /**
+   * 是否正在等待数字人视频播放完成
+   */
+  @State() waitingForDigitalHuman: boolean = false;
 
   @Watch('token')
   handleTokenChange(newToken: string) {
@@ -570,7 +574,14 @@ export class ChatAPPModal {
         }
 
         if (this.interviewMode === 'video') {
-          this.startWaitingToRecord();
+          // 如果开启了数字人，等待数字人视频播放完成
+          if (this.showDigitalHuman) {
+            this.waitingForDigitalHuman = true;
+            console.log('等待数字人视频播放完成...');
+          } else {
+            // 没有开启数字人，直接开始录制
+            this.startWaitingToRecord();
+          }
         }
       },
     });
@@ -1728,6 +1739,27 @@ export class ChatAPPModal {
     this.isDrawerOpen = true;
   };
 
+  /**
+   * 处理数字人视频播放完成事件
+   */
+  private handleDigitalHumanVideoEnded = (event: CustomEvent<{
+    videoUrl: string;
+  }>) => {
+    const videoUrl = event.detail;
+    
+    console.log('数字人生成视频播放完成:', {
+      videoUrl,
+      conversationId: this.conversationId,
+      currentQuestionNumber: this.currentQuestionNumber
+    });
+
+    // 数字人视频播放完成后，开始录制流程
+    if (this.waitingForDigitalHuman && this.interviewMode === 'video' && !this.isTaskCompleted) {
+      this.waitingForDigitalHuman = false;
+      this.startWaitingToRecord();
+    }
+  };
+
   render() {
     if (!this.isOpen) return null;
 
@@ -1797,7 +1829,16 @@ export class ChatAPPModal {
       if (this.isTaskCompleted) {
         return (
           <div class="placeholder-status">
-            <p>面试已完成，感谢您的参与！</p>
+             <p>面试已完成，感谢您的参与！</p>
+          </div>
+        );
+      }
+
+      // 正在等待数字人视频播放完成
+      if (this.waitingForDigitalHuman && this.showDigitalHuman) {
+        return (
+          <div class="placeholder-status">
+            <p>AI 正在回答中，请稍后...</p>
           </div>
         );
       }
@@ -2037,6 +2078,7 @@ export class ChatAPPModal {
                           <pcm-digital-human
                             speechText={this.lastCompletedAnswer}
                             isStreaming={!!this.currentStreamingMessage}
+                            onVideoEnded={this.handleDigitalHumanVideoEnded}
                           ></pcm-digital-human>
                         </div>
                       )}

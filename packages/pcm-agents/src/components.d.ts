@@ -1426,6 +1426,10 @@ export interface PcmConfirmModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmConfirmModalElement;
 }
+export interface PcmDigitalHumanCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLPcmDigitalHumanElement;
+}
 export interface PcmDrawerCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmDrawerElement;
@@ -1637,7 +1641,20 @@ declare global {
         prototype: HTMLPcmConfirmModalElement;
         new (): HTMLPcmConfirmModalElement;
     };
+    interface HTMLPcmDigitalHumanElementEventMap {
+        "videoEnded": {
+    videoUrl: string;
+  };
+    }
     interface HTMLPcmDigitalHumanElement extends Components.PcmDigitalHuman, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLPcmDigitalHumanElementEventMap>(type: K, listener: (this: HTMLPcmDigitalHumanElement, ev: PcmDigitalHumanCustomEvent<HTMLPcmDigitalHumanElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLPcmDigitalHumanElementEventMap>(type: K, listener: (this: HTMLPcmDigitalHumanElement, ev: PcmDigitalHumanCustomEvent<HTMLPcmDigitalHumanElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
     var HTMLPcmDigitalHumanElement: {
         prototype: HTMLPcmDigitalHumanElement;
@@ -2597,6 +2614,12 @@ declare namespace LocalJSX {
           * 是否正在流式输出
          */
         "isStreaming"?: boolean;
+        /**
+          * 视频播放完成事件
+         */
+        "onVideoEnded"?: (event: PcmDigitalHumanCustomEvent<{
+    videoUrl: string;
+  }>) => void;
         /**
           * AI回答的文本内容，用于后续获取视频
          */
