@@ -51,6 +51,7 @@
 graph TD;
   pcm-mnms-video-modal --> pcm-app-chat-modal
   pcm-app-chat-modal --> pcm-chat-message
+  pcm-app-chat-modal --> pcm-digital-human
   pcm-app-chat-modal --> pcm-drawer
   pcm-app-chat-modal --> pcm-confirm-modal
   style pcm-mnms-video-modal fill:#f9f,stroke:#333,stroke-width:4px

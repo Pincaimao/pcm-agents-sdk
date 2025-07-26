@@ -13,8 +13,6 @@
 | `countdownWarningTime`  | `countdown-warning-time`   | 录制倒计时提醒时间（秒） 当剩余时间小于此值时，显示倒计时警告             | `number`                | `30`                                                       |
 | `customInputs`          | `custom-inputs`            | 自定义智能体inputs输入参数                            | `{ [x: string]: any; }` | `{}`                                                       |
 | `defaultQuery`          | `default-query`            | 默认发送文本                                      | `string`                | `'你好！聘才猫'`                                                 |
-| `enableTTS`             | `enable-t-t-s`             | 是否启用语音播报功能 true: 启用语音合成 false: 禁用语音合成       | `boolean`               | `false`                                                    |
-| `enableVoice`           | `enable-voice`             | 是否自动播放语音问题                                  | `boolean`               | `false`                                                    |
 | `filePreviewMode`       | `file-preview-mode`        | 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开 | `"drawer" \| "window"`  | `'window'`                                                 |
 | `fullscreen`            | `fullscreen`               | 是否以全屏模式打开，移动端建议设置为true                      | `boolean`               | `false`                                                    |
 | `icon`                  | `icon`                     | 应用图标URL                                     | `string`                | `undefined`                                                |
@@ -26,6 +24,7 @@
 | `maxRecordingTime`      | `max-recording-time`       | 视频录制最大时长（秒）                                 | `number`                | `120`                                                      |
 | `modalTitle`            | `modal-title`              | 模态框标题                                       | `string`                | `'在线客服'`                                                   |
 | `showCopyButton`        | `show-copy-button`         | 是否显示复制按钮                                    | `boolean`               | `true`                                                     |
+| `showDigitalHuman`      | `show-digital-human`       | 是否显示数字人                                     | `boolean`               | `false`                                                    |
 | `showFeedbackButtons`   | `show-feedback-buttons`    | 是否显示点赞点踩按钮                                  | `boolean`               | `true`                                                     |
 | `showWorkspaceHistory`  | `show-workspace-history`   | 是否显示工作区历史会话按钮                               | `boolean`               | `false`                                                    |
 | `token`                 | `token`                    | SDK鉴权密钥                                     | `string`                | `undefined`                                                |
@@ -67,6 +66,7 @@
 ### Depends on
 
 - [pcm-chat-message](../pcm-chat-message)
+- [pcm-digital-human](../pcm-digital-human)
 - [pcm-drawer](../pcm-drawer)
 - [pcm-confirm-modal](../pcm-confirm-modal)
 
@@ -74,6 +74,7 @@
 ```mermaid
 graph TD;
   pcm-app-chat-modal --> pcm-chat-message
+  pcm-app-chat-modal --> pcm-digital-human
   pcm-app-chat-modal --> pcm-drawer
   pcm-app-chat-modal --> pcm-confirm-modal
   pcm-1zhanshi-mnms-modal --> pcm-app-chat-modal
