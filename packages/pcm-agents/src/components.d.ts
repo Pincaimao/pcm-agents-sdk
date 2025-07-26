@@ -100,14 +100,6 @@ export namespace Components {
          */
         "defaultQuery": string;
         /**
-          * 是否启用语音播报功能 true: 启用语音合成 false: 禁用语音合成
-         */
-        "enableTTS": boolean;
-        /**
-          * 是否自动播放语音问题
-         */
-        "enableVoice": boolean;
-        /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
          */
         "filePreviewMode": 'drawer' | 'window';
@@ -151,6 +143,10 @@ export namespace Components {
           * 是否显示复制按钮
          */
         "showCopyButton": boolean;
+        /**
+          * 是否显示数字人
+         */
+        "showDigitalHuman": boolean;
         /**
           * 是否显示点赞点踩按钮
          */
@@ -356,6 +352,28 @@ export namespace Components {
          */
         "parentZIndex"?: number;
     }
+    interface PcmDigitalHuman {
+        /**
+          * 头像URL
+         */
+        "avatar": string;
+        /**
+          * 拖拽的边界容器元素
+         */
+        "containerElement": HTMLElement;
+        /**
+          * 默认视频URL
+         */
+        "defaultVideoUrl": string;
+        /**
+          * 是否正在流式输出
+         */
+        "isStreaming": boolean;
+        /**
+          * AI回答的文本内容，用于后续获取视频
+         */
+        "speechText": string;
+    }
     /**
      * 抽屉组件
      * 从屏幕边缘滑出的浮层面板，类似 Ant Design 的 Drawer 组件
@@ -381,10 +399,6 @@ export namespace Components {
           * 抽屉是否可见
          */
         "isOpen": boolean;
-        /**
-          * 是否显示蒙层
-         */
-        "mask": boolean;
         /**
           * 点击蒙层是否允许关闭
          */
@@ -1627,6 +1641,12 @@ declare global {
         prototype: HTMLPcmConfirmModalElement;
         new (): HTMLPcmConfirmModalElement;
     };
+    interface HTMLPcmDigitalHumanElement extends Components.PcmDigitalHuman, HTMLStencilElement {
+    }
+    var HTMLPcmDigitalHumanElement: {
+        prototype: HTMLPcmDigitalHumanElement;
+        new (): HTMLPcmDigitalHumanElement;
+    };
     interface HTMLPcmDrawerElementEventMap {
         "closed": void;
         "afterOpen": void;
@@ -2121,6 +2141,7 @@ declare global {
         "pcm-card": HTMLPcmCardElement;
         "pcm-chat-message": HTMLPcmChatMessageElement;
         "pcm-confirm-modal": HTMLPcmConfirmModalElement;
+        "pcm-digital-human": HTMLPcmDigitalHumanElement;
         "pcm-drawer": HTMLPcmDrawerElement;
         "pcm-hr-chat-modal": HTMLPcmHrChatModalElement;
         "pcm-htws-modal": HTMLPcmHtwsModalElement;
@@ -2257,14 +2278,6 @@ declare namespace LocalJSX {
          */
         "defaultQuery"?: string;
         /**
-          * 是否启用语音播报功能 true: 启用语音合成 false: 禁用语音合成
-         */
-        "enableTTS"?: boolean;
-        /**
-          * 是否自动播放语音问题
-         */
-        "enableVoice"?: boolean;
-        /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
          */
         "filePreviewMode"?: 'drawer' | 'window';
@@ -2336,6 +2349,10 @@ declare namespace LocalJSX {
           * 是否显示复制按钮
          */
         "showCopyButton"?: boolean;
+        /**
+          * 是否显示数字人
+         */
+        "showDigitalHuman"?: boolean;
         /**
           * 是否显示点赞点踩按钮
          */
@@ -2571,6 +2588,28 @@ declare namespace LocalJSX {
          */
         "parentZIndex"?: number;
     }
+    interface PcmDigitalHuman {
+        /**
+          * 头像URL
+         */
+        "avatar"?: string;
+        /**
+          * 拖拽的边界容器元素
+         */
+        "containerElement"?: HTMLElement;
+        /**
+          * 默认视频URL
+         */
+        "defaultVideoUrl"?: string;
+        /**
+          * 是否正在流式输出
+         */
+        "isStreaming"?: boolean;
+        /**
+          * AI回答的文本内容，用于后续获取视频
+         */
+        "speechText"?: string;
+    }
     /**
      * 抽屉组件
      * 从屏幕边缘滑出的浮层面板，类似 Ant Design 的 Drawer 组件
@@ -2592,10 +2631,6 @@ declare namespace LocalJSX {
           * 抽屉是否可见
          */
         "isOpen"?: boolean;
-        /**
-          * 是否显示蒙层
-         */
-        "mask"?: boolean;
         /**
           * 点击蒙层是否允许关闭
          */
@@ -4074,6 +4109,7 @@ declare namespace LocalJSX {
         "pcm-card": PcmCard;
         "pcm-chat-message": PcmChatMessage;
         "pcm-confirm-modal": PcmConfirmModal;
+        "pcm-digital-human": PcmDigitalHuman;
         "pcm-drawer": PcmDrawer;
         "pcm-hr-chat-modal": PcmHrChatModal;
         "pcm-htws-modal": PcmHtwsModal;
@@ -4122,6 +4158,7 @@ declare module "@stencil/core" {
              * 通用的确认对话框组件，类似 Ant Design 的 Modal 组件
              */
             "pcm-confirm-modal": LocalJSX.PcmConfirmModal & JSXBase.HTMLAttributes<HTMLPcmConfirmModalElement>;
+            "pcm-digital-human": LocalJSX.PcmDigitalHuman & JSXBase.HTMLAttributes<HTMLPcmDigitalHumanElement>;
             /**
              * 抽屉组件
              * 从屏幕边缘滑出的浮层面板，类似 Ant Design 的 Drawer 组件

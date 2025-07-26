@@ -16,6 +16,7 @@ import { PcmButton as PcmButtonElement, defineCustomElement as definePcmButton }
 import { PcmCard as PcmCardElement, defineCustomElement as definePcmCard } from "pcm-agents/dist/components/pcm-card.js";
 import { PcmChatMessage as PcmChatMessageElement, defineCustomElement as definePcmChatMessage } from "pcm-agents/dist/components/pcm-chat-message.js";
 import { PcmConfirmModal as PcmConfirmModalElement, defineCustomElement as definePcmConfirmModal } from "pcm-agents/dist/components/pcm-confirm-modal.js";
+import { PcmDigitalHuman as PcmDigitalHumanElement, defineCustomElement as definePcmDigitalHuman } from "pcm-agents/dist/components/pcm-digital-human.js";
 import { PcmDrawer as PcmDrawerElement, defineCustomElement as definePcmDrawer } from "pcm-agents/dist/components/pcm-drawer.js";
 import { PcmHrChatModal as PcmHrChatModalElement, defineCustomElement as definePcmHrChatModal } from "pcm-agents/dist/components/pcm-hr-chat-modal.js";
 import { PcmHtwsModal as PcmHtwsModalElement, defineCustomElement as definePcmHtwsModal } from "pcm-agents/dist/components/pcm-htws-modal.js";
@@ -162,6 +163,17 @@ export const PcmConfirmModal: StencilReactComponent<PcmConfirmModalElement, PcmC
         onAfterClose: 'afterClose'
     } as PcmConfirmModalEvents,
     defineCustomElement: definePcmConfirmModal
+});
+
+type PcmDigitalHumanEvents = NonNullable<unknown>;
+
+export const PcmDigitalHuman: StencilReactComponent<PcmDigitalHumanElement, PcmDigitalHumanEvents> = /*@__PURE__*/ createComponent<PcmDigitalHumanElement, PcmDigitalHumanEvents>({
+    tagName: 'pcm-digital-human',
+    elementClass: PcmDigitalHumanElement,
+    // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
+    react: React,
+    events: {} as PcmDigitalHumanEvents,
+    defineCustomElement: definePcmDigitalHuman
 });
 
 type PcmDrawerEvents = {

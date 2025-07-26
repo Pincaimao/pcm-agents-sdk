@@ -11,15 +11,6 @@
 }
 
 
-.digital-human-container img {
-    width: 135px;
-    height: 240px;
-    display: block;
-    user-select: none;
-    -webkit-user-drag: none;
-    object-fit: cover;
-    background: transparent;
-}
 
 .digital-human-container video {
     width: 100%;
@@ -69,8 +60,4 @@
     height: 160px;
   }
 
-  .digital-human-container img {
-    width: 90px;
-    height: 160px;
-  }
 }

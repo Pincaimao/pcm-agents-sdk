@@ -10,7 +10,12 @@ export class PcmDigitalHuman {
   /**
    * 头像URL
    */
-  @Prop() avatar: string = 'https://i.postimg.cc/pX01n0zS/image.png';
+  @Prop() avatar: string = 'https://virtualhuman-cos-test-1251316161.cos.ap-nanjing.myqcloud.com/prod/resource-manager/small/57/158/23228/model_32764_20250321201819/preview.png';
+
+  /**
+   * 默认视频URL
+   */
+  @Prop() defaultVideoUrl: string = 'https://pcm-resource-1312611446.cos.ap-guangzhou.myqcloud.com/shuziren/db18e00cdce54a64bdcfe826c01fdd3e.webm';
 
   /**
    * 拖拽的边界容器元素
@@ -27,17 +32,31 @@ export class PcmDigitalHuman {
    */
   @Prop() isStreaming: boolean = false;
 
-  @State() position = { x: 20, y: 60 };
+  @State() position = { x: 20, y: 0 };
   @State() isDragging = false;
-  @State() isGeneratingVideo = false;
-  @State() videoUrl: string = '';
+  @State() generatedVideoUrl: string = '';
+  @State() currentVideoUrl: string = '';
   @State() isPlaying = false;
   @State() isMuted = false;
+  @State() isPlayingGenerated = false;
   
   private dragStart = { x: 0, y: 0 };
   private elementStart = { x: 0, y: 0 };
   private draggableElement: HTMLElement;
+  private videoElement: HTMLVideoElement;
   private lastCompletedText: string = '';
+
+  componentWillLoad() {
+    // 初始化时设置默认视频，避免在componentDidLoad中修改state
+    this.currentVideoUrl = this.defaultVideoUrl;
+  }
+
+  componentDidLoad() {
+    // 设置视频元素的初始源
+    if (this.videoElement) {
+      this.videoElement.src = this.defaultVideoUrl;
+    }
+  }
 
   @Watch('isStreaming')
   handleStreamingChange(newValue: boolean, oldValue: boolean) {
@@ -52,7 +71,6 @@ export class PcmDigitalHuman {
     if (!text.trim()) return;
 
     console.log('开始生成数字人视频，文本内容：', text);
-    this.isGeneratingVideo = true;
 
     try {
       // 第一步：创建视频任务
@@ -63,7 +81,7 @@ export class PcmDigitalHuman {
           VirtualmanKey: "db18e00cdce54a64bdcfe826c01fdd3e",
           InputSsml: text,
           SpeechParam: {
-            Speed: 1.0
+            Speed: 1.3
           },
           VideoParam: {
             Format: "TransparentWebm"
@@ -83,15 +101,14 @@ export class PcmDigitalHuman {
       const videoUrl = await this.pollVideoProgress(taskId);
       
       if (videoUrl) {
-        this.videoUrl = videoUrl;
+        this.generatedVideoUrl = videoUrl;
+        this.playGeneratedVideo(videoUrl);
         console.log('数字人视频生成完成，视频URL:', videoUrl);
       }
       
     } catch (error) {
       console.error('数字人视频生成失败:', error);
-    } finally {
-      this.isGeneratingVideo = false;
-    }
+    } 
   }
 
   private async pollVideoProgress(taskId: string): Promise<string | null> {
@@ -133,6 +150,101 @@ export class PcmDigitalHuman {
     throw new Error('视频生成超时');
   }
 
+  private async preloadVideo(videoUrl: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const preloadVideo = document.createElement('video');
+      preloadVideo.preload = 'auto';
+      preloadVideo.src = videoUrl;
+      
+      const handleCanPlay = () => {
+        console.log('视频预加载完成:', videoUrl);
+        preloadVideo.removeEventListener('canplaythrough', handleCanPlay);
+        preloadVideo.removeEventListener('error', handleError);
+        resolve();
+      };
+      
+      const handleError = () => {
+        console.error('视频预加载失败:', videoUrl);
+        preloadVideo.removeEventListener('canplaythrough', handleCanPlay);
+        preloadVideo.removeEventListener('error', handleError);
+        reject(new Error('视频预加载失败'));
+      };
+      
+      preloadVideo.addEventListener('canplaythrough', handleCanPlay);
+      preloadVideo.addEventListener('error', handleError);
+      
+      // 开始加载
+      preloadVideo.load();
+    });
+  }
+
+  private async playGeneratedVideo(videoUrl: string) {
+    console.log('开始预加载生成的视频...');
+    
+    try {
+      // 先预加载视频
+      await this.preloadVideo(videoUrl);
+      
+      // 预加载完成后切换视频
+      this.currentVideoUrl = videoUrl;
+      this.isPlayingGenerated = true;
+      
+      // 平滑切换视频：等待下一帧再操作视频元素
+      requestAnimationFrame(() => {
+        if (this.videoElement) {
+          // 先暂停当前视频
+          this.videoElement.pause();
+          // 设置新的视频源
+          this.videoElement.src = videoUrl;
+          // 生成的视频不循环播放
+          this.videoElement.loop = false;
+          // 播放新视频
+          this.videoElement.play().catch(error => {
+            console.error('播放生成视频失败:', error);
+          });
+        }
+      });
+    } catch (error) {
+      console.error('预加载视频失败，直接切换:', error);
+      // 如果预加载失败，直接切换（保持原有逻辑）
+      this.currentVideoUrl = videoUrl;
+      this.isPlayingGenerated = true;
+      
+      requestAnimationFrame(() => {
+        if (this.videoElement) {
+          this.videoElement.pause();
+          this.videoElement.src = videoUrl;
+          this.videoElement.loop = false;
+          this.videoElement.play().catch(error => {
+            console.error('播放生成视频失败:', error);
+          });
+        }
+      });
+    }
+  }
+
+  private handleVideoEnded = () => {
+    if (this.isPlayingGenerated) {
+      // 生成的视频播放完毕，恢复默认视频循环播放
+      this.currentVideoUrl = this.defaultVideoUrl;
+      this.isPlayingGenerated = false;
+      
+      // 平滑切换回默认视频
+      requestAnimationFrame(() => {
+        if (this.videoElement) {
+          // 先暂停当前视频
+          this.videoElement.pause();
+          // 设置回默认视频源
+          this.videoElement.src = this.defaultVideoUrl;
+          // 设置循环播放并开始播放
+          this.videoElement.loop = true;
+          this.videoElement.play().catch(error => {
+            console.error('播放默认视频失败:', error);
+          });
+        }
+      });
+    }
+  };
 
   private handleMouseDown = (e: MouseEvent) => {
     this.isDragging = true;
@@ -239,22 +351,13 @@ export class PcmDigitalHuman {
         onMouseDown={this.handleMouseDown}
         onTouchStart={this.handleTouchStart}
       >
-        {this.videoUrl ? (
-          <video 
-            src={this.videoUrl} 
-            autoplay 
-            playsinline 
-          />
-        ) : (
-          <img src={this.avatar} alt="Digital Human" />
-        )}
-        
-        
-        {this.isGeneratingVideo && (
-          <div class="generating-indicator">
-            <div class="loading-spinner"></div>
-          </div>
-        )}
+        <video 
+          autoplay 
+          playsinline 
+          loop
+          onEnded={this.handleVideoEnded}
+          ref={el => (this.videoElement = el as HTMLVideoElement)}
+        />
       </div>
     );
   }

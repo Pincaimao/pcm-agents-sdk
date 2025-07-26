@@ -279,11 +279,6 @@ export class ChatAPPModal {
   @Prop() showDigitalHuman: boolean = false;
 
   /**
-   * 数字人头像URL
-   */
-  @State() digitalHumanAvatar: string = 'https://i.postimg.cc/pX01n0zS/image.png';
-
-  /**
    * 最后完成的AI回复文本，用于数字人视频生成
    */
   @State() lastCompletedAnswer: string = '';
@@ -2062,9 +2057,8 @@ export class ChatAPPModal {
             </div>
           </div>
 
-          {this.showDigitalHuman && (
+          {this.showDigitalHuman && !this.isTaskCompleted && (
             <pcm-digital-human
-              avatar={this.digitalHumanAvatar}
               containerElement={this.containerRef}
               speechText={this.lastCompletedAnswer}
               isStreaming={!!this.currentStreamingMessage}
