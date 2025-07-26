@@ -283,7 +283,6 @@ export class ChatAPPModal {
    */
   @State() lastCompletedAnswer: string = '';
 
-  private containerRef: HTMLElement;
 
   @Watch('token')
   handleTokenChange(newToken: string) {
@@ -1956,7 +1955,7 @@ export class ChatAPPModal {
 
     return (
       <div class={overlayClass} style={modalStyle}>
-        <div class={containerClass} ref={el => (this.containerRef = el as HTMLElement)}>
+        <div class={containerClass}>
 
           {this.isShowHeader && (
             <div class="modal-header">
@@ -2025,12 +2024,22 @@ export class ChatAPPModal {
             <div class="recording-section">
               <div class="recording-container">
                 {/* 工作区 */}
-                {this.showWorkspaceHistory && (
+                {(this.showWorkspaceHistory || this.showDigitalHuman) && (
                   <div class="workspace-section">
                     <div class="workspace-toolbar">
-                      <button class="workspace-button history-button" onClick={() => this.handleHistoryClick()}>
-                        <span>历史会话</span>
-                      </button>
+                      {this.showWorkspaceHistory && (
+                        <button class="workspace-button history-button" onClick={() => this.handleHistoryClick()}>
+                          <span>历史会话</span>
+                        </button>
+                      )}
+                      {this.showDigitalHuman && !this.isTaskCompleted && (
+                        <div class="digital-human-wrapper">
+                          <pcm-digital-human
+                            speechText={this.lastCompletedAnswer}
+                            isStreaming={!!this.currentStreamingMessage}
+                          ></pcm-digital-human>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -2056,17 +2065,6 @@ export class ChatAPPModal {
               </div>
             </div>
           </div>
-
-          {this.showDigitalHuman && !this.isTaskCompleted && (
-            <pcm-digital-human
-              containerElement={this.containerRef}
-              speechText={this.lastCompletedAnswer}
-              isStreaming={!!this.currentStreamingMessage}
-              style={{
-                display: (this.isDrawerOpen || this.isHistoryDrawerOpen || this.showConfirmModal) ? 'none' : 'block'
-              }}
-            ></pcm-digital-human>
-          )}
 
           {/* 添加预览抽屉 */}
           <pcm-drawer

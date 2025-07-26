@@ -18,11 +18,6 @@ export class PcmDigitalHuman {
   @Prop() defaultVideoUrl: string = 'https://pcm-resource-1312611446.cos.ap-guangzhou.myqcloud.com/shuziren/db18e00cdce54a64bdcfe826c01fdd3e.webm';
 
   /**
-   * 拖拽的边界容器元素
-   */
-  @Prop() containerElement: HTMLElement;
-
-  /**
    * AI回答的文本内容，用于后续获取视频
    */
   @Prop() speechText: string = '';
@@ -32,17 +27,10 @@ export class PcmDigitalHuman {
    */
   @Prop() isStreaming: boolean = false;
 
-  @State() position = { x: 20, y: 0 };
-  @State() isDragging = false;
   @State() generatedVideoUrl: string = '';
   @State() currentVideoUrl: string = '';
-  @State() isPlaying = false;
-  @State() isMuted = false;
   @State() isPlayingGenerated = false;
   
-  private dragStart = { x: 0, y: 0 };
-  private elementStart = { x: 0, y: 0 };
-  private draggableElement: HTMLElement;
   private videoElement: HTMLVideoElement;
   private lastCompletedText: string = '';
 
@@ -246,111 +234,9 @@ export class PcmDigitalHuman {
     }
   };
 
-  private handleMouseDown = (e: MouseEvent) => {
-    this.isDragging = true;
-    this.dragStart = { x: e.clientX, y: e.clientY };
-    this.elementStart = { ...this.position };
-    document.addEventListener('mousemove', this.handleMouseMove);
-    document.addEventListener('mouseup', this.handleMouseUp);
-  };
-
-  private handleMouseMove = (e: MouseEvent) => {
-    if (!this.isDragging) return;
-    const dx = e.clientX - this.dragStart.x;
-    const dy = e.clientY - this.dragStart.y;
-    let newX = this.elementStart.x + dx;
-    let newY = this.elementStart.y + dy;
-
-    if (this.containerElement && this.draggableElement) {
-      const containerWidth = this.containerElement.clientWidth;
-      const containerHeight = this.containerElement.clientHeight;
-      const digitalHumanWidth = this.draggableElement.offsetWidth;
-      const digitalHumanHeight = this.draggableElement.offsetHeight;
-
-      const minX = 0;
-      const maxX = containerWidth - digitalHumanWidth;
-      const minY = 0;
-      const maxY = containerHeight - digitalHumanHeight;
-
-      newX = Math.max(minX, Math.min(newX, maxX));
-      newY = Math.max(minY, Math.min(newY, maxY));
-    }
-
-    this.position = {
-      x: newX,
-      y: newY,
-    };
-  };
-
-  private handleMouseUp = () => {
-    this.isDragging = false;
-    document.removeEventListener('mousemove', this.handleMouseMove);
-    document.removeEventListener('mouseup', this.handleMouseUp);
-  };
-
-  private handleTouchStart = (e: TouchEvent) => {
-    if (e.cancelable) {
-      e.preventDefault();
-    }
-    this.isDragging = true;
-    const touch = e.touches[0];
-    this.dragStart = { x: touch.clientX, y: touch.clientY };
-    this.elementStart = { ...this.position };
-    document.addEventListener('touchmove', this.handleTouchMove, { passive: false });
-    document.addEventListener('touchend', this.handleTouchEnd);
-  };
-
-  private handleTouchMove = (e: TouchEvent) => {
-    if (!this.isDragging) return;
-    if (e.cancelable) {
-      e.preventDefault();
-    }
-    const touch = e.touches[0];
-    const dx = touch.clientX - this.dragStart.x;
-    const dy = touch.clientY - this.dragStart.y;
-    let newX = this.elementStart.x + dx;
-    let newY = this.elementStart.y + dy;
-
-    if (this.containerElement && this.draggableElement) {
-      const containerWidth = this.containerElement.clientWidth;
-      const containerHeight = this.containerElement.clientHeight;
-      const digitalHumanWidth = this.draggableElement.offsetWidth;
-      const digitalHumanHeight = this.draggableElement.offsetHeight;
-
-      const minX = 0;
-      const maxX = containerWidth - digitalHumanWidth;
-      const minY = 0;
-      const maxY = containerHeight - digitalHumanHeight;
-
-      newX = Math.max(minX, Math.min(newX, maxX));
-      newY = Math.max(minY, Math.min(newY, maxY));
-    }
-
-    this.position = {
-      x: newX,
-      y: newY,
-    };
-  };
-
-  private handleTouchEnd = () => {
-    this.isDragging = false;
-    document.removeEventListener('touchmove', this.handleTouchMove);
-    document.removeEventListener('touchend', this.handleTouchEnd);
-  };
-
   render() {
     return (
-      <div
-        class="digital-human-container"
-        ref={el => (this.draggableElement = el as HTMLElement)}
-        style={{
-          left: `${this.position.x}px`,
-          top: `${this.position.y}px`,
-          cursor: this.isDragging ? 'grabbing' : 'grab',
-        }}
-        onMouseDown={this.handleMouseDown}
-        onTouchStart={this.handleTouchStart}
-      >
+      <div class="digital-human-container">
         <video 
           autoplay 
           playsinline 

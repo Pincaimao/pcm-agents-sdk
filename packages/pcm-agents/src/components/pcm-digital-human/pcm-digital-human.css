@@ -1,16 +1,15 @@
 .digital-human-container {
-    position: absolute;
-    z-index: 1001;
-    border-radius: 12px;
+    position: relative;
+    border-radius: 8px;
     overflow: hidden;
     transition: box-shadow 0.3s;
-    height: auto;
-    width: 135px;
-    height: 240px;
+    width: 100%;
+    height: 100%;
     background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-
-
 
 .digital-human-container video {
     width: 100%;
@@ -18,6 +17,7 @@
     display: block;
     object-fit: cover;
     background: transparent;
+    border-radius: 8px;
 }
 
 .generating-indicator {
@@ -56,8 +56,10 @@
 /* 移动端样式 */
 @media screen and (max-width: 768px) {
   .digital-human-container {
-    width: 90px;
-    height: 160px;
+    border-radius: 6px;
   }
 
+  .digital-human-container video {
+    border-radius: 6px;
+  }
 }

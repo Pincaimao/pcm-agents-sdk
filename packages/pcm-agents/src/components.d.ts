@@ -358,10 +358,6 @@ export namespace Components {
          */
         "avatar": string;
         /**
-          * 拖拽的边界容器元素
-         */
-        "containerElement": HTMLElement;
-        /**
           * 默认视频URL
          */
         "defaultVideoUrl": string;
@@ -2593,10 +2589,6 @@ declare namespace LocalJSX {
           * 头像URL
          */
         "avatar"?: string;
-        /**
-          * 拖拽的边界容器元素
-         */
-        "containerElement"?: HTMLElement;
         /**
           * 默认视频URL
          */
