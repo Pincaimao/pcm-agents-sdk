@@ -413,7 +413,6 @@ export class ChatAPPModal {
     const newMessage: ChatMessage = {
       id: `temp-${Date.now()}`, // 临时ID，将被服务器返回的ID替换
       conversation_id: this.conversationId, // 会话ID
-      parent_message_id: '00000000-0000-0000-0000-000000000000', // 默认父消息ID
       inputs: this.customInputs || {}, // 输入参数
       query: queryText, // 用户输入的消息内容
       answer: '', // 初始为空
@@ -504,7 +503,6 @@ export class ChatAPPModal {
                 id: data.message_id || this.currentStreamingMessage.id,
                 isStreaming: true,
                 // 如果服务器返回了其他字段，也更新它们
-                parent_message_id: data.parent_message_id || this.currentStreamingMessage.parent_message_id,
                 retriever_resources: data.retriever_resources || this.currentStreamingMessage.retriever_resources,
                 agent_thoughts: data.agent_thoughts || this.currentStreamingMessage.agent_thoughts,
               };
@@ -694,7 +692,6 @@ export class ChatAPPModal {
           return {
             id: msg.id,
             conversation_id: msg.conversation_id,
-            parent_message_id: msg.parent_message_id || '00000000-0000-0000-0000-000000000000',
             inputs: msg.inputs || {},
             query: msg.query || '',
             answer: msg.answer || '',
