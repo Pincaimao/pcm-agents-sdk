@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
-import { sendSSERequest, sendHttpRequest, uploadFileToBackend, verifyApiKey } from '../../utils/utils';
+import { sendSSERequest, sendHttpRequest, uploadFileToBackend, verifyApiKey, getSupportedAudioMimeType } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
 import { ConversationStartEventData, StreamCompleteEventData } from '../../components';
 import { authStore } from '../../../store/auth.store';
@@ -765,7 +765,7 @@ export class ChatKBModal {
   private startRecordingWithStream(stream: MediaStream) {
     try {
       // 检测浏览器支持的音频MIME类型
-      const mimeType = this.getSupportedAudioMimeType();
+      const mimeType = getSupportedAudioMimeType();
 
       // 创建MediaRecorder实例
       let audioRecorder;
@@ -841,7 +841,7 @@ export class ChatKBModal {
       this.isConvertingAudio = true;
 
       // 创建音频Blob
-      const audioType = this.getSupportedAudioMimeType() || 'audio/webm';
+      const audioType = getSupportedAudioMimeType() || 'audio/webm';
       const audioBlob = new Blob(this.audioChunks, { type: audioType });
 
       if (audioBlob.size === 0) {
@@ -901,41 +901,6 @@ export class ChatKBModal {
     }
   }
 
-  // 获取支持的音频MIME类型
-  private getSupportedAudioMimeType(): string {
-    // 按优先级排列的音频MIME类型列表
-    const mimeTypes = [
-      'audio/webm;codecs=opus',
-      'audio/webm',
-      'audio/mp4',
-      'audio/ogg;codecs=opus',
-      'audio/ogg',
-      ''  // 空字符串表示使用浏览器默认值
-    ];
-
-    // 检查MediaRecorder是否可用
-    if (!window.MediaRecorder) {
-      console.warn('MediaRecorder API不可用');
-      return '';
-    }
-
-    // 检查每种MIME类型是否受支持
-    for (const type of mimeTypes) {
-      if (!type) return ''; // 如果是空字符串，直接返回
-
-      try {
-        if (MediaRecorder.isTypeSupported(type)) {
-          return type;
-        }
-      } catch (e) {
-        console.warn(`检查音频MIME类型支持时出错 ${type}:`, e);
-      }
-    }
-
-    // 如果没有找到支持的类型，返回空字符串
-    console.warn('没有找到支持的音频MIME类型，将使用浏览器默认值');
-    return '';
-  }
 
   // 停止录制音频
   private stopAudioRecording() {

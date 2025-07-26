@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
-import { sendSSERequest, sendHttpRequest, uploadFileToBackend, fetchAgentInfo } from '../../utils/utils';
+import { sendSSERequest, sendHttpRequest, uploadFileToBackend, fetchAgentInfo, getSupportedMimeType, getSupportedAudioMimeType, convertAudioToText } from '../../utils/utils';
 import { ChatMessage, ConversationItem } from '../../interfaces/chat';
 import { StreamCompleteEventData, ConversationStartEventData, InterviewCompleteEventData, RecordingErrorEventData, RecordingStatusChangeEventData } from '../../interfaces/events';
 import { marked } from 'marked';
@@ -800,7 +800,7 @@ export class ChatAPPModal {
       this.setupVideoPreview(stream);
 
       // 检测浏览器支持的MIME类型
-      const mimeType = this.getSupportedMimeType();
+      const mimeType = getSupportedMimeType();
 
       // 创建MediaRecorder实例
       let mediaRecorder;
@@ -1032,42 +1032,6 @@ export class ChatAPPModal {
     }, 100);
   }
 
-  // 添加一个新方法来检测浏览器支持的MIME类型
-  private getSupportedMimeType(): string {
-    // 按优先级排列的MIME类型列表
-    const mimeTypes = [
-      'video/webm;codecs=vp8,opus',
-      'video/webm;codecs=vp9,opus',
-      'video/webm',
-      'video/mp4',
-      'video/mp4;codecs=h264,aac',
-      '', // 空字符串表示使用浏览器默认值
-    ];
-
-    // 检查MediaRecorder是否可用
-    if (!window.MediaRecorder) {
-      console.warn('MediaRecorder API不可用');
-      return '';
-    }
-
-    // 检查每种MIME类型是否受支持
-    for (const type of mimeTypes) {
-      if (!type) return ''; // 如果是空字符串，直接返回
-
-      try {
-        if (MediaRecorder.isTypeSupported(type)) {
-          return type;
-        }
-      } catch (e) {
-        console.warn(`检查MIME类型支持时出错 ${type}:`, e);
-      }
-    }
-
-    // 如果没有找到支持的类型，返回空字符串
-    console.warn('没有找到支持的MIME类型，将使用浏览器默认值');
-    return '';
-  }
-
   // 停止录制
   private stopRecording() {
     if (this.mediaRecorder && this.isRecording) {
@@ -1125,37 +1089,6 @@ export class ChatAPPModal {
     this.showConfirmModal = false;
   };
 
-  // 修改音视频转文字方法
-  private async convertAudioToText(cosKey: string): Promise<string | null> {
-    try {
-      const result = await sendHttpRequest<{ text: string }>({
-        url: '/sdk/v1/tts/audio_to_text',
-        method: 'POST',
-        data: {
-          cos_key: cosKey,
-        },
-      });
-
-      if (result.success && result.data && result.data.text) {
-        return result.data.text;
-      } else {
-        console.warn('音频转文字返回结果格式不正确');
-        return null;
-      }
-    } catch (error) {
-      console.error('音频转文字错误:', error);
-      SentryReporter.captureError(error, {
-        action: 'convertAudioToText',
-        component: 'pcm-app-chat-modal',
-        title: '音频转文字错误',
-      });
-      ErrorEventBus.emitError({
-        error: error,
-        message: '音频转文字错误',
-      });
-      return null;
-    }
-  }
 
   // 上传录制的视频
   private async uploadRecordedVideo() {
@@ -1182,7 +1115,7 @@ export class ChatAPPModal {
       );
       // 使用 cos_key 作为视频标识符
       // 调用音频转文字API
-      const transcriptionText = await this.convertAudioToText(fileInfo.cos_key);
+      const transcriptionText = await convertAudioToText(fileInfo.cos_key);
 
       // 发送"下一题"请求，可以附带转录文本
       this.sendMessageToAPI(transcriptionText || '下一题', fileInfo.cos_key);
@@ -1379,7 +1312,7 @@ export class ChatAPPModal {
   private startRecordingWithStream(stream: MediaStream) {
     try {
       // 检测浏览器支持的音频MIME类型
-      const mimeType = this.getSupportedAudioMimeType();
+      const mimeType = getSupportedAudioMimeType();
 
       // 创建MediaRecorder实例
       let audioRecorder;
@@ -1470,7 +1403,7 @@ export class ChatAPPModal {
       this.isConvertingAudio = true;
 
       // 创建音频Blob
-      const audioType = this.getSupportedAudioMimeType() || 'audio/webm';
+      const audioType = getSupportedAudioMimeType() || 'audio/webm';
       const audioBlob = new Blob(this.audioChunks, { type: audioType });
 
       if (audioBlob.size === 0) {
@@ -1494,7 +1427,7 @@ export class ChatAPPModal {
       );
 
       // 调用音频转文字API
-      const transcriptionText = await this.convertAudioToText(fileInfo.cos_key);
+      const transcriptionText = await convertAudioToText(fileInfo.cos_key);
 
       // 将转录文本追加到文本框，而不是替换
       if (transcriptionText) {
@@ -1539,42 +1472,6 @@ export class ChatAPPModal {
       this.isConvertingAudio = false;
       this.audioChunks = [];
     }
-  }
-
-  // 获取支持的音频MIME类型
-  private getSupportedAudioMimeType(): string {
-    // 按优先级排列的音频MIME类型列表
-    const mimeTypes = [
-      'audio/webm;codecs=opus',
-      'audio/webm',
-      'audio/mp4',
-      'audio/ogg;codecs=opus',
-      'audio/ogg',
-      '', // 空字符串表示使用浏览器默认值
-    ];
-
-    // 检查MediaRecorder是否可用
-    if (!window.MediaRecorder) {
-      console.warn('MediaRecorder API不可用');
-      return '';
-    }
-
-    // 检查每种MIME类型是否受支持
-    for (const type of mimeTypes) {
-      if (!type) return ''; // 如果是空字符串，直接返回
-
-      try {
-        if (MediaRecorder.isTypeSupported(type)) {
-          return type;
-        }
-      } catch (e) {
-        console.warn(`检查音频MIME类型支持时出错 ${type}:`, e);
-      }
-    }
-
-    // 如果没有找到支持的类型，返回空字符串
-    console.warn('没有找到支持的音频MIME类型，将使用浏览器默认值');
-    return '';
   }
 
   // 停止录制音频
@@ -1726,7 +1623,7 @@ export class ChatAPPModal {
     this.loadHistoryMessages();
   };
 
-  // 修改事件处理方法
+  // pcm-chat-message事件处理方法
   private handleFilePreviewRequest = (
     event: CustomEvent<{
       url?: string;
