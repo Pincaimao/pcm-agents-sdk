@@ -870,6 +870,7 @@
   justify-content: space-between;
   align-items: end;
   gap: 12px;
+  position: relative;
 }
 
 .workspace-button {
@@ -908,18 +909,10 @@
   border-radius: 8px;
   background: #fafafa;
   overflow: hidden;
+  position: absolute;
+  right: 0px;
 }
 
-/* 当只有数字人没有历史会话按钮时，让数字人居中 */
-.workspace-toolbar:has(.digital-human-wrapper):not(:has(.workspace-button)) {
-  justify-content: end;
-}
-
-/* 确保数字人组件在工作区中的样式 */
-.digital-human-wrapper pcm-digital-human {
-  width: 100%;
-  height: 100%;
-}
 
 /* 历史会话抽屉样式 */
 .history-drawer-content {

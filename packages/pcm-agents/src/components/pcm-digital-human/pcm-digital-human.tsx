@@ -69,7 +69,7 @@ export class PcmDigitalHuman {
           VirtualmanKey: "db18e00cdce54a64bdcfe826c01fdd3e",
           InputSsml: text,
           SpeechParam: {
-            Speed: 1.3
+            Speed: 1
           },
           VideoParam: {
             Format: "TransparentWebm"
