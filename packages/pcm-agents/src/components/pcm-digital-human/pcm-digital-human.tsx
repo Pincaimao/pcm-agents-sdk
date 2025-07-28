@@ -8,14 +8,9 @@ import { sendHttpRequest } from '../../utils/utils';
 })
 export class PcmDigitalHuman {
   /**
-   * 头像URL
+   * 数字人ID，用于指定数字人形象
    */
-  @Prop() avatar: string = 'https://virtualhuman-cos-test-1251316161.cos.ap-nanjing.myqcloud.com/prod/resource-manager/small/57/158/23228/model_32764_20250321201819/preview.png';
-
-  /**
-   * 默认视频URL
-   */
-  @Prop() defaultVideoUrl: string = 'https://pcm-resource-1312611446.cos.ap-guangzhou.myqcloud.com/shuziren/db18e00cdce54a64bdcfe826c01fdd3e.webm';
+  @Prop() digitalId: string;
 
   /**
    * AI回答的文本内容，用于后续获取视频
@@ -30,6 +25,8 @@ export class PcmDigitalHuman {
   @State() generatedVideoUrl: string = '';
   @State() currentVideoUrl: string = '';
   @State() isPlayingGenerated = false;
+  @State() dynamicDefaultVideoUrl: string = '';
+  @State() dynamicVirtualmanKey: string = '';
   
   private videoElement: HTMLVideoElement;
   private lastCompletedText: string = '';
@@ -48,17 +45,31 @@ export class PcmDigitalHuman {
     videoUrl: string;
   }>;
 
-  componentWillLoad() {
-    // 初始化时设置默认视频，避免在componentDidLoad中修改state
-    this.currentVideoUrl = this.defaultVideoUrl;
+  /**
+   * 数字人详情加载完成事件
+   */
+  @Event() avatarDetailLoaded: EventEmitter<{
+    defaultVideoUrl: string;
+    virtualmanKey: string;
+  }>;
+
+  async componentWillLoad() {
+    // 如果有digitalId，先获取数字人详情
+    if (this.digitalId) {
+      await this.fetchAvatarDetail();
+    }
+    
+    // 设置当前视频URL，优先使用接口获取的值，如果没有则显示提示
+    this.currentVideoUrl = this.dynamicDefaultVideoUrl || '';
   }
 
   componentDidLoad() {
     // 设置视频元素的初始源
-    if (this.videoElement) {
-      this.videoElement.src = this.defaultVideoUrl;
+    if (this.videoElement && this.currentVideoUrl) {
+      this.videoElement.src = this.currentVideoUrl;
     }
   }
+
 
   @Watch('isStreaming')
   handleStreamingChange(newValue: boolean, oldValue: boolean) {
@@ -69,18 +80,70 @@ export class PcmDigitalHuman {
     }
   }
 
+  /**
+   * 获取数字人详情
+   */
+  private async fetchAvatarDetail() {
+    if (!this.digitalId) return;
+
+    console.log('开始获取数字人详情，digitalId:', this.digitalId);
+
+    try {
+      const response = await sendHttpRequest({
+        url: '/sdk/v1/virtual-human/avatar-detail',
+        method: 'POST',
+        data: {
+          avatar_id: this.digitalId
+        }
+      });
+
+      if (!response.success) {
+        throw new Error(`获取数字人详情失败: ${response.message}`);
+      }
+      console.log(response);
+      
+
+      const { placeholder_video_url, virtualman_key } = response.data;
+      
+      if (placeholder_video_url) {
+        this.dynamicDefaultVideoUrl = placeholder_video_url;
+      }
+      
+      if (virtualman_key) {
+        this.dynamicVirtualmanKey = virtualman_key;
+      }
+
+      // 发射数字人详情加载完成事件
+      this.avatarDetailLoaded.emit({
+        defaultVideoUrl: this.dynamicDefaultVideoUrl,
+        virtualmanKey: this.dynamicVirtualmanKey
+      });
+
+    } catch (error) {
+      console.error('获取数字人详情失败:', error);
+    } 
+  }
+
   private async generateDigitalHumanVideo(text: string) {
     if (!text.trim()) return;
 
     console.log('开始生成数字人视频，文本内容：', text);
 
+    // 验证是否有VirtualmanKey
+    if (!this.dynamicVirtualmanKey) {
+      console.error('缺少VirtualmanKey，无法生成数字人视频');
+      return;
+    }
+
+    const virtualmanKey = this.dynamicVirtualmanKey;
+
     try {
       // 第一步：创建视频任务
       const createResponse = await sendHttpRequest({
-        url: '/sdk/v1/digital-human/create-video',
+        url: '/sdk/v1/virtual-human/create-video',
         method: 'POST',
         data: {
-          VirtualmanKey: "db18e00cdce54a64bdcfe826c01fdd3e",
+          VirtualmanKey: virtualmanKey,
           InputSsml: text,
           SpeechParam: {
             Speed: 1
@@ -120,7 +183,7 @@ export class PcmDigitalHuman {
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       try {
         const response = await sendHttpRequest({
-          url: '/sdk/v1/digital-human/query-progress',
+          url: '/sdk/v1/virtual-human/query-progress',
           method: 'POST',
           data: {
             TaskId: taskId
@@ -243,7 +306,8 @@ export class PcmDigitalHuman {
       });
 
       // 生成的视频播放完毕，恢复默认视频循环播放
-      this.currentVideoUrl = this.defaultVideoUrl;
+      const defaultUrl = this.dynamicDefaultVideoUrl;
+      this.currentVideoUrl = defaultUrl;
       this.isPlayingGenerated = false;
       
       // 平滑切换回默认视频
@@ -252,7 +316,7 @@ export class PcmDigitalHuman {
           // 先暂停当前视频
           this.videoElement.pause();
           // 设置回默认视频源
-          this.videoElement.src = this.defaultVideoUrl;
+          this.videoElement.src = defaultUrl;
           // 设置循环播放并开始播放
           this.videoElement.loop = true;
           this.videoElement.play().catch(error => {

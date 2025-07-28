@@ -9,7 +9,7 @@
 
 import type { EventName, StencilReactComponent } from '@stencil/react-output-target/runtime';
 import { createComponent } from '@stencil/react-output-target/runtime';
-import { type CareerPlanType, type ChatMessage, type ConversationStartEventData, type ErrorEventDetail, type FileUploadResponse, type InterviewCompleteEventData, type Pcm1zhanshiMnmsModalCustomEvent, type PcmAppChatModalCustomEvent, type PcmChatMessageCustomEvent, type PcmHrChatModalCustomEvent, type PcmHtwsModalCustomEvent, type PcmHyzjModalCustomEvent, type PcmJdModalCustomEvent, type PcmJlppModalCustomEvent, type PcmJlsxModalCustomEvent, type PcmJlzzModalCustomEvent, type PcmMnctModalCustomEvent, type PcmMnmsModalCustomEvent, type PcmMnmsVideoModalCustomEvent, type PcmMnmsZpModalCustomEvent, type PcmMsbgModalCustomEvent, type PcmQgqjlModalCustomEvent, type PcmUploadCustomEvent, type PcmZskChatModalCustomEvent, type PcmZyghModalCustomEvent, type RecordingErrorEventData, type RecordingStatusChangeEventData, type ResumeAnalysisCompleteEventData, type ResumeAnalysisStartEventData, type ResumeDeletedEventData, type StreamCompleteEventData, type TaskCreatedEventData, type TaskSwitchEventData, type UploadFailedEvent } from "pcm-agents";
+import { type CareerPlanType, type ConversationStartEventData, type ErrorEventDetail, type FileUploadResponse, type InterviewCompleteEventData, type Pcm1zhanshiMnmsModalCustomEvent, type PcmAppChatModalCustomEvent, type PcmHrChatModalCustomEvent, type PcmHtwsModalCustomEvent, type PcmHyzjModalCustomEvent, type PcmJdModalCustomEvent, type PcmJlppModalCustomEvent, type PcmJlsxModalCustomEvent, type PcmJlzzModalCustomEvent, type PcmMnctModalCustomEvent, type PcmMnmsModalCustomEvent, type PcmMnmsVideoModalCustomEvent, type PcmMnmsZpModalCustomEvent, type PcmMsbgModalCustomEvent, type PcmQgqjlModalCustomEvent, type PcmUploadCustomEvent, type PcmZskChatModalCustomEvent, type PcmZyghModalCustomEvent, type RecordingErrorEventData, type RecordingStatusChangeEventData, type ResumeAnalysisCompleteEventData, type ResumeAnalysisStartEventData, type ResumeDeletedEventData, type StreamCompleteEventData, type TaskCreatedEventData, type TaskSwitchEventData, type UploadFailedEvent } from "pcm-agents";
 import { Pcm1zhanshiMnmsModal as Pcm1zhanshiMnmsModalElement, defineCustomElement as definePcm1zhanshiMnmsModal } from "pcm-agents/dist/components/pcm-1zhanshi-mnms-modal.js";
 import { PcmAppChatModal as PcmAppChatModalElement, defineCustomElement as definePcmAppChatModal } from "pcm-agents/dist/components/pcm-app-chat-modal.js";
 import { PcmButton as PcmButtonElement, defineCustomElement as definePcmButton } from "pcm-agents/dist/components/pcm-button.js";
@@ -119,7 +119,6 @@ export const PcmCard: StencilReactComponent<PcmCardElement, PcmCardEvents> = /*@
 });
 
 type PcmChatMessageEvents = {
-    onMessageChange: EventName<PcmChatMessageCustomEvent<Partial<ChatMessage>>>,
     onFilePreviewRequest: EventName<CustomEvent<{
         url?: string,
         fileName: string,
@@ -135,7 +134,6 @@ export const PcmChatMessage: StencilReactComponent<PcmChatMessageElement, PcmCha
     // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
     react: React,
     events: {
-        onMessageChange: 'messageChange',
         onFilePreviewRequest: 'filePreviewRequest',
         onRetryRequest: 'retryRequest'
     } as PcmChatMessageEvents,
@@ -168,6 +166,13 @@ export const PcmConfirmModal: StencilReactComponent<PcmConfirmModalElement, PcmC
 type PcmDigitalHumanEvents = {
     onVideoEnded: EventName<CustomEvent<{
         videoUrl: string;
+    }>>,
+    onVideoGenerated: EventName<CustomEvent<{
+        videoUrl: string;
+    }>>,
+    onAvatarDetailLoaded: EventName<CustomEvent<{
+        defaultVideoUrl: string;
+        virtualmanKey: string;
     }>>
 };
 
@@ -176,7 +181,11 @@ export const PcmDigitalHuman: StencilReactComponent<PcmDigitalHumanElement, PcmD
     elementClass: PcmDigitalHumanElement,
     // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
     react: React,
-    events: { onVideoEnded: 'videoEnded' } as PcmDigitalHumanEvents,
+    events: {
+        onVideoEnded: 'videoEnded',
+        onVideoGenerated: 'videoGenerated',
+        onAvatarDetailLoaded: 'avatarDetailLoaded'
+    } as PcmDigitalHumanEvents,
     defineCustomElement: definePcmDigitalHuman
 });
 

@@ -14,9 +14,10 @@
 
 ## Events
 
-| Event        | Description | Type                                 |
-| ------------ | ----------- | ------------------------------------ |
-| `videoEnded` | 视频播放完成事件    | `CustomEvent<{ videoUrl: string; }>` |
+| Event            | Description | Type                                 |
+| ---------------- | ----------- | ------------------------------------ |
+| `videoEnded`     | 视频播放完成事件    | `CustomEvent<{ videoUrl: string; }>` |
+| `videoGenerated` | 视频生成成功事件    | `CustomEvent<{ videoUrl: string; }>` |
 
 
 ## Dependencies

@@ -273,10 +273,6 @@ export class ChatAPPModal {
   @State() showConfirmModal: boolean = false;
   @State() skipConfirmThisInterview: boolean = false;
 
-  /**
-   * 是否显示数字人
-   */
-  @Prop() showDigitalHuman: boolean = false;
 
   /**
    * 最后完成的AI回复文本，用于数字人视频生成
@@ -292,6 +288,11 @@ export class ChatAPPModal {
    * 数字人视频是否已生成完成
    */
   @State() digitalHumanVideoReady: boolean = false;
+
+  /**
+   * 虚拟数字人ID，指定则开启虚拟数字人功能
+   */
+  @Prop() digitalId?: string;
 
   @Watch('token')
   handleTokenChange(newToken: string) {
@@ -582,7 +583,7 @@ export class ChatAPPModal {
 
         if (this.interviewMode === 'video') {
           // 如果开启了数字人，等待数字人视频播放完成
-          if (this.showDigitalHuman) {
+          if (this.digitalId) {
             this.waitingForDigitalHuman = true;
             console.log('等待数字人视频播放完成...');
           } else {
@@ -1773,7 +1774,7 @@ export class ChatAPPModal {
       }
 
       // 正在等待数字人视频播放完成
-      if (this.waitingForDigitalHuman && this.showDigitalHuman) {
+      if (this.waitingForDigitalHuman && this.digitalId) {
         return (
           <div class="placeholder-status">
             <p>AI正在查看您的信息，请稍后...</p>
@@ -1964,7 +1965,7 @@ export class ChatAPPModal {
                       <pcm-chat-message
                         botId={this.botId}
                         message={message}
-                        showAssistantMessage={!this.showDigitalHuman || !this.isLastMessage(message) || this.digitalHumanVideoReady}
+                        showAssistantMessage={!this.digitalId || !this.isLastMessage(message) || this.digitalHumanVideoReady}
                         userAvatar={this.userAvatar}
                         assistantAvatar={effectiveAssistantAvatar}
                         showCopyButton={this.showCopyButton}
@@ -1979,7 +1980,7 @@ export class ChatAPPModal {
                       <pcm-chat-message
                         botId={this.botId}
                         message={this.currentStreamingMessage}
-                        showAssistantMessage={!this.showDigitalHuman || this.digitalHumanVideoReady}
+                        showAssistantMessage={!this.digitalId || this.digitalHumanVideoReady}
                         userAvatar={this.userAvatar}
                         assistantAvatar={effectiveAssistantAvatar}
                         showCopyButton={this.showCopyButton}
@@ -2001,7 +2002,7 @@ export class ChatAPPModal {
             <div class="recording-section">
               <div class="recording-container">
                 {/* 工作区 */}
-                {(this.showWorkspaceHistory || this.showDigitalHuman) && (
+                {(this.showWorkspaceHistory || this.digitalId) && (
                   <div class="workspace-section">
                     <div class="workspace-toolbar">
                       {this.showWorkspaceHistory && (
@@ -2009,9 +2010,10 @@ export class ChatAPPModal {
                           <span>历史会话</span>
                         </button>
                       )}
-                      {this.showDigitalHuman && !this.isTaskCompleted && (
+                      {this.digitalId && !this.isTaskCompleted && (
                         <div class="digital-human-wrapper">
                           <pcm-digital-human
+                            digitalId={this.digitalId}
                             speechText={this.lastCompletedAnswer}
                             isStreaming={!!this.currentStreamingMessage}
                             onVideoGenerated={this.handleDigitalHumanVideoGenerated}

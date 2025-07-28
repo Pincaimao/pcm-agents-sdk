@@ -100,6 +100,10 @@ export namespace Components {
          */
         "defaultQuery": string;
         /**
+          * 虚拟数字人ID，指定则开启虚拟数字人功能
+         */
+        "digitalId"?: string;
+        /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
          */
         "filePreviewMode": 'drawer' | 'window';
@@ -143,10 +147,6 @@ export namespace Components {
           * 是否显示复制按钮
          */
         "showCopyButton": boolean;
-        /**
-          * 是否显示数字人
-         */
-        "showDigitalHuman": boolean;
         /**
           * 是否显示点赞点踩按钮
          */
@@ -290,6 +290,10 @@ export namespace Components {
          */
         "message": ChatMessage;
         /**
+          * 是否显示助手消息内容 false时显示加载中动画，true时显示正常消息内容
+         */
+        "showAssistantMessage": boolean;
+        /**
           * 是否显示复制按钮
          */
         "showCopyButton": boolean;
@@ -354,13 +358,9 @@ export namespace Components {
     }
     interface PcmDigitalHuman {
         /**
-          * 头像URL
+          * 数字人ID，用于指定数字人形象
          */
-        "avatar": string;
-        /**
-          * 默认视频URL
-         */
-        "defaultVideoUrl": string;
+        "digitalId": string;
         /**
           * 是否正在流式输出
          */
@@ -1593,7 +1593,6 @@ declare global {
         new (): HTMLPcmCardElement;
     };
     interface HTMLPcmChatMessageElementEventMap {
-        "messageChange": Partial<ChatMessage>;
         "filePreviewRequest": {
         url?: string,
         fileName: string,
@@ -1644,6 +1643,13 @@ declare global {
     interface HTMLPcmDigitalHumanElementEventMap {
         "videoEnded": {
     videoUrl: string;
+  };
+        "videoGenerated": {
+    videoUrl: string;
+  };
+        "avatarDetailLoaded": {
+    defaultVideoUrl: string;
+    virtualmanKey: string;
   };
     }
     interface HTMLPcmDigitalHumanElement extends Components.PcmDigitalHuman, HTMLStencilElement {
@@ -2291,6 +2297,10 @@ declare namespace LocalJSX {
          */
         "defaultQuery"?: string;
         /**
+          * 虚拟数字人ID，指定则开启虚拟数字人功能
+         */
+        "digitalId"?: string;
+        /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
          */
         "filePreviewMode"?: 'drawer' | 'window';
@@ -2362,10 +2372,6 @@ declare namespace LocalJSX {
           * 是否显示复制按钮
          */
         "showCopyButton"?: boolean;
-        /**
-          * 是否显示数字人
-         */
-        "showDigitalHuman"?: boolean;
         /**
           * 是否显示点赞点踩按钮
          */
@@ -2519,13 +2525,13 @@ declare namespace LocalJSX {
         contentType: 'file' | 'markdown' | 'text'
     }>) => void;
         /**
-          * 消息变更事件
-         */
-        "onMessageChange"?: (event: PcmChatMessageCustomEvent<Partial<ChatMessage>>) => void;
-        /**
           * 重试事件
          */
         "onRetryRequest"?: (event: PcmChatMessageCustomEvent<string>) => void;
+        /**
+          * 是否显示助手消息内容 false时显示加载中动画，true时显示正常消息内容
+         */
+        "showAssistantMessage"?: boolean;
         /**
           * 是否显示复制按钮
          */
@@ -2603,21 +2609,30 @@ declare namespace LocalJSX {
     }
     interface PcmDigitalHuman {
         /**
-          * 头像URL
+          * 数字人ID，用于指定数字人形象
          */
-        "avatar"?: string;
-        /**
-          * 默认视频URL
-         */
-        "defaultVideoUrl"?: string;
+        "digitalId"?: string;
         /**
           * 是否正在流式输出
          */
         "isStreaming"?: boolean;
         /**
+          * 数字人详情加载完成事件
+         */
+        "onAvatarDetailLoaded"?: (event: PcmDigitalHumanCustomEvent<{
+    defaultVideoUrl: string;
+    virtualmanKey: string;
+  }>) => void;
+        /**
           * 视频播放完成事件
          */
         "onVideoEnded"?: (event: PcmDigitalHumanCustomEvent<{
+    videoUrl: string;
+  }>) => void;
+        /**
+          * 视频生成成功事件
+         */
+        "onVideoGenerated"?: (event: PcmDigitalHumanCustomEvent<{
     videoUrl: string;
   }>) => void;
         /**

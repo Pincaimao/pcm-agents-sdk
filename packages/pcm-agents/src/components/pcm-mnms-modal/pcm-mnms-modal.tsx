@@ -402,7 +402,7 @@ export class MnmsModal {
                                 fullscreen={this.fullscreen}
                                 showWorkspaceHistory={this.showWorkspaceHistory}
                                 botId="3022316191018884"
-                                showDigitalHuman={true}
+                                digitalId="1"
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
                                 filePreviewMode={this.filePreviewMode}
