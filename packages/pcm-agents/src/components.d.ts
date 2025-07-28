@@ -903,6 +903,10 @@ export namespace Components {
          */
         "defaultQuery": string;
         /**
+          * 虚拟数字人ID，指定则开启虚拟数字人功能
+         */
+        "digitalId"?: string;
+        /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
          */
         "filePreviewMode": 'drawer' | 'window';
@@ -1040,6 +1044,10 @@ export namespace Components {
           * 默认查询文本
          */
         "defaultQuery": string;
+        /**
+          * 虚拟数字人ID，指定则开启虚拟数字人功能
+         */
+        "digitalId"?: string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
          */
@@ -3418,6 +3426,10 @@ declare namespace LocalJSX {
          */
         "defaultQuery"?: string;
         /**
+          * 虚拟数字人ID，指定则开启虚拟数字人功能
+         */
+        "digitalId"?: string;
+        /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
          */
         "filePreviewMode"?: 'drawer' | 'window';
@@ -3619,6 +3631,10 @@ declare namespace LocalJSX {
           * 默认查询文本
          */
         "defaultQuery"?: string;
+        /**
+          * 虚拟数字人ID，指定则开启虚拟数字人功能
+         */
+        "digitalId"?: string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
          */

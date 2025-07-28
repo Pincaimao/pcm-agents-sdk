@@ -101,6 +101,11 @@ export class MnmsModal {
     @Prop() mobileUploadAble: boolean = false;
 
     /**
+     * 虚拟数字人ID，指定则开启虚拟数字人功能
+     */
+    @Prop() digitalId?: string;
+
+    /**
      * 上传成功事件
      */
     @Event() uploadSuccess: EventEmitter<FileUploadResponse>;
@@ -402,7 +407,7 @@ export class MnmsModal {
                                 fullscreen={this.fullscreen}
                                 showWorkspaceHistory={this.showWorkspaceHistory}
                                 botId="3022316191018884"
-                                digitalId="1"
+                                digitalId={this.digitalId}
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
                                 filePreviewMode={this.filePreviewMode}

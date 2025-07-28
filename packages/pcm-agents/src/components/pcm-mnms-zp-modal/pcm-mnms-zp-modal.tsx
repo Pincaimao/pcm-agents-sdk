@@ -157,6 +157,10 @@ export class MnmsZpModal {
      */
     @Prop() showFeedbackButtons: boolean = true;
 
+    /**
+     * 虚拟数字人ID，指定则开启虚拟数字人功能
+     */
+    @Prop() digitalId?: string;
 
     @State() selectedFile: File | null = null;
     @State() isUploading: boolean = false;
@@ -402,6 +406,7 @@ export class MnmsZpModal {
                                 fullscreen={this.fullscreen}
                                 showWorkspaceHistory={this.showWorkspaceHistory}
                                 botId="3022316191018907"
+                                digitalId={this.digitalId}
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
                                 filePreviewMode={this.filePreviewMode}
