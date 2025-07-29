@@ -64,10 +64,6 @@ export class ChatAPPModal {
    */
   @Prop({ mutable: true }) conversationId?: string;
 
-  /**
-   * 当前助手回复的消息
-   */
-  @State() currentAssistantMessage: string = '';
 
   /**
    * 是否正在加载回复
@@ -97,7 +93,6 @@ export class ChatAPPModal {
    */
   @Event() conversationStart: EventEmitter<ConversationStartEventData>;
 
-  @State() isUploading: boolean = false;
 
   /**
    * 默认发送文本
@@ -156,7 +151,6 @@ export class ChatAPPModal {
 
   // 添加新的状态和属性
   @State() isPlayingAudio: boolean = false;
-  @State() audioUrl: string | null = null;
 
   /**
    * 录制错误事件
