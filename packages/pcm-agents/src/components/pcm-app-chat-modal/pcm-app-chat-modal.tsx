@@ -665,6 +665,7 @@ export class ChatAPPModal {
     this.isLoadingHistory = true;
     console.log('加载历史消息...');
     let conversationStatus = false;
+    this.digitalHumanVideoReady = true
 
     try {
       // 首先获取会话状态
