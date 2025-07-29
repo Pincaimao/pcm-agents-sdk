@@ -82,6 +82,7 @@ export class MnmsModal {
      * 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br>
      * customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br>
      * customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。
+     * customInputs.interview_type：可传入数字，传入 1 时，开启题目连续模式，一次性生成所有题目。不传入或传入其他值时，题目将逐个生成。
      */
     @Prop() customInputs: Record<string, string> = {};
 
@@ -417,8 +418,7 @@ export class MnmsModal {
                                     ...this.customInputs,
                                     file_url: this.customInputs?.file_url || this.uploadedFileInfo?.cos_key,
                                     file_name: this.customInputs?.file_name || this.uploadedFileInfo?.file_name,
-                                    job_info: this.customInputs?.job_info || this.jobDescription,
-                                    resume_content: this.customInputs?.resume_content
+                                    job_info: this.customInputs?.job_info || this.jobDescription
                                 }}
                                 interviewMode={this.interviewMode}
                             ></pcm-app-chat-modal>

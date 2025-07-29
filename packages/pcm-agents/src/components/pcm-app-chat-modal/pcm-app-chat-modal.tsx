@@ -226,6 +226,11 @@ export class ChatAPPModal {
   // 添加新的状态属性来跟踪任务是否已完成
   @State() isTaskCompleted: boolean = false;
 
+  /**
+   * 数字人 virtualmanKey
+   */
+  @State() virtualmanKey: string = '';
+
   private tokenInvalidListener: () => void;
 
   /**
@@ -491,6 +496,11 @@ export class ChatAPPModal {
             current_question_number: this.currentQuestionNumber,
             ai_response: aiResponse, // 添加AI回复内容
           });
+        }
+        if (data.event === 'node_finished' && data.data.title && data.data.title.includes('聘才猫数字人题目')) {
+          const digital_human_list = JSON.parse(data.data.process_data.digital_human_list);
+          console.log('数字人题目:', digital_human_list);
+          this.precreateDigitalHumanVideos(digital_human_list);
         }
 
         if (data.event === 'message') {
@@ -1699,6 +1709,60 @@ export class ChatAPPModal {
     }
   };
 
+  /**
+   * 预创建数字人视频
+   */
+  private async precreateDigitalHumanVideos(digital_human_list: string[]) {
+    if (!this.virtualmanKey) {
+      console.warn('VirtualmanKey尚未加载，无法预创建视频。');
+      // 可以在此处添加逻辑，等待virtualmanKey加载后再执行
+      return;
+    }
+
+    console.log('开始批量预创建数字人视频...');
+
+    for (const text of digital_human_list) {
+      if (!text || !text.trim()) continue;
+      try {
+        // 注意：这里只创建任务，不等待视频生成完成
+        await sendHttpRequest({
+          url: '/sdk/v1/virtual-human/create-video',
+          method: 'POST',
+          data: {
+            VirtualmanKey: this.virtualmanKey,
+            InputSsml: text,
+            SpeechParam: {
+              Speed: 1,
+            },
+            VideoParam: {
+              Format: 'TransparentWebm',
+            },
+            DriverType: 'Text',
+          },
+        });
+      } catch (error) {
+        console.error(`为文本 "${text}" 创建视频任务失败:`, error);
+        // 可以选择性地报告错误
+        SentryReporter.captureError(error, {
+          action: 'precreateDigitalHumanVideos',
+          component: 'pcm-app-chat-modal',
+          title: `为文本 "${text}" 创建视频任务失败`,
+        });
+      }
+    }
+    console.log('数字人视频预创建任务已全部发送。');
+  }
+
+  /**
+   * 处理数字人详情加载完成事件
+   */
+  private handleAvatarDetailLoaded = (event: CustomEvent<{ virtualmanKey: string }>) => {
+    if (event.detail.virtualmanKey) {
+      this.virtualmanKey = event.detail.virtualmanKey;
+      console.log('已获取 VirtualmanKey:', this.virtualmanKey);
+    }
+  };
+
   render() {
     if (!this.isOpen) return null;
 
@@ -1965,7 +2029,7 @@ export class ChatAPPModal {
                       <pcm-chat-message
                         botId={this.botId}
                         message={message}
-                        showAssistantMessage={!this.digitalId || !this.isLastMessage(message) || this.digitalHumanVideoReady}
+                        showAssistantMessage={!this.digitalId || !this.isLastMessage(message) || this.digitalHumanVideoReady || this.isTaskCompleted}
                         userAvatar={this.userAvatar}
                         assistantAvatar={effectiveAssistantAvatar}
                         showCopyButton={this.showCopyButton}
@@ -1980,7 +2044,7 @@ export class ChatAPPModal {
                       <pcm-chat-message
                         botId={this.botId}
                         message={this.currentStreamingMessage}
-                        showAssistantMessage={!this.digitalId || this.digitalHumanVideoReady}
+                        showAssistantMessage={!this.digitalId || this.digitalHumanVideoReady || this.isTaskCompleted}
                         userAvatar={this.userAvatar}
                         assistantAvatar={effectiveAssistantAvatar}
                         showCopyButton={this.showCopyButton}
@@ -2018,6 +2082,7 @@ export class ChatAPPModal {
                             isStreaming={!!this.currentStreamingMessage}
                             onVideoGenerated={this.handleDigitalHumanVideoGenerated}
                             onVideoEnded={this.handleDigitalHumanVideoEnded}
+                            onAvatarDetailLoaded={this.handleAvatarDetailLoaded}
                           ></pcm-digital-human>
                         </div>
                       )}
