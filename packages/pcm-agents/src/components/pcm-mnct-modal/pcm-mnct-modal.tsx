@@ -495,7 +495,6 @@ export class MnctModal {
                                 conversationId={this.conversationId}
                                 defaultQuery={this.defaultQuery}
                                 filePreviewMode={this.filePreviewMode}
-                                enableVoice={false}
                                 customInputs={{
                                     ...this.customInputs,
                                     file_url: this.customInputs?.file_url || this.uploadedFileInfo?.cos_key,

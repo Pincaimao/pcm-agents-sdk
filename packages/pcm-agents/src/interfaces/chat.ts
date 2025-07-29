@@ -10,11 +10,6 @@ export interface ChatMessage {
   conversation_id?: string;
   
   /**
-   * 父消息ID
-   */
-  parent_message_id?: string;
-  
-  /**
    * 输入参数
    */
   inputs?: Record<string, any>;

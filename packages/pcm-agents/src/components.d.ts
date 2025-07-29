@@ -82,6 +82,7 @@ export namespace Components {
           * 机器人ID
          */
         "botId"?: string;
+        "closeResume"?: () => void;
         /**
           * 会话ID，传入继续对话，否则创建新会话
          */
@@ -99,13 +100,9 @@ export namespace Components {
          */
         "defaultQuery": string;
         /**
-          * 是否启用语音播报功能 true: 启用语音合成 false: 禁用语音合成
+          * 虚拟数字人ID，指定则开启虚拟数字人功能
          */
-        "enableTTS": boolean;
-        /**
-          * 是否自动播放语音问题
-         */
-        "enableVoice": boolean;
+        "digitalId"?: string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
          */
@@ -293,6 +290,10 @@ export namespace Components {
          */
         "message": ChatMessage;
         /**
+          * 是否显示助手消息内容 false时显示加载中动画，true时显示正常消息内容
+         */
+        "showAssistantMessage": boolean;
+        /**
           * 是否显示复制按钮
          */
         "showCopyButton": boolean;
@@ -355,6 +356,20 @@ export namespace Components {
          */
         "parentZIndex"?: number;
     }
+    interface PcmDigitalHuman {
+        /**
+          * 数字人ID，用于指定数字人形象
+         */
+        "digitalId": string;
+        /**
+          * 是否正在流式输出
+         */
+        "isStreaming": boolean;
+        /**
+          * AI回答的文本内容，用于后续获取视频
+         */
+        "speechText": string;
+    }
     /**
      * 抽屉组件
      * 从屏幕边缘滑出的浮层面板，类似 Ant Design 的 Drawer 组件
@@ -380,10 +395,6 @@ export namespace Components {
           * 抽屉是否可见
          */
         "isOpen": boolean;
-        /**
-          * 是否显示蒙层
-         */
-        "mask": boolean;
         /**
           * 点击蒙层是否允许关闭
          */
@@ -745,6 +756,64 @@ export namespace Components {
          */
         "zIndex"?: number;
     }
+    interface PcmJlzzModal {
+        /**
+          * 会话ID，传入继续对话，否则创建新会话
+         */
+        "conversationId"?: string;
+        /**
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
+         */
+        "customInputs": Record<string, string>;
+        /**
+          * 默认查询文本
+         */
+        "defaultQuery": string;
+        /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode": 'drawer' | 'window';
+        /**
+          * 是否以全屏模式打开，移动端建议设置为true
+         */
+        "fullscreen": boolean;
+        /**
+          * 应用图标URL
+         */
+        "icon"?: string;
+        /**
+          * 是否展示右上角的关闭按钮
+         */
+        "isNeedClose": boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen": boolean;
+        /**
+          * 是否展示顶部标题栏
+         */
+        "isShowHeader": boolean;
+        /**
+          * 是否成功，成功展示 iframe 官网
+         */
+        "isSuccess": boolean;
+        /**
+          * 模态框标题
+         */
+        "modalTitle": string;
+        /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory": boolean;
+        /**
+          * SDK鉴权密钥
+         */
+        "token": string;
+        /**
+          * 聊天框的页面层级
+         */
+        "zIndex"?: number;
+    }
     interface PcmMessage {
         "close": () => Promise<void>;
         "content": string;
@@ -833,6 +902,10 @@ export namespace Components {
           * 默认查询文本
          */
         "defaultQuery": string;
+        /**
+          * 虚拟数字人ID，指定则开启虚拟数字人功能
+         */
+        "digitalId"?: string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
          */
@@ -971,6 +1044,10 @@ export namespace Components {
           * 默认查询文本
          */
         "defaultQuery": string;
+        /**
+          * 虚拟数字人ID，指定则开启虚拟数字人功能
+         */
+        "digitalId"?: string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
          */
@@ -1357,6 +1434,10 @@ export interface PcmConfirmModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmConfirmModalElement;
 }
+export interface PcmDigitalHumanCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLPcmDigitalHumanElement;
+}
 export interface PcmDrawerCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmDrawerElement;
@@ -1384,6 +1465,10 @@ export interface PcmJlppModalCustomEvent<T> extends CustomEvent<T> {
 export interface PcmJlsxModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmJlsxModalElement;
+}
+export interface PcmJlzzModalCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLPcmJlzzModalElement;
 }
 export interface PcmMnctModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -1516,7 +1601,6 @@ declare global {
         new (): HTMLPcmCardElement;
     };
     interface HTMLPcmChatMessageElementEventMap {
-        "messageChange": Partial<ChatMessage>;
         "filePreviewRequest": {
         url?: string,
         fileName: string,
@@ -1563,6 +1647,32 @@ declare global {
     var HTMLPcmConfirmModalElement: {
         prototype: HTMLPcmConfirmModalElement;
         new (): HTMLPcmConfirmModalElement;
+    };
+    interface HTMLPcmDigitalHumanElementEventMap {
+        "videoEnded": {
+    videoUrl: string;
+  };
+        "videoGenerated": {
+    videoUrl: string;
+  };
+        "avatarDetailLoaded": {
+    defaultVideoUrl: string;
+    virtualmanKey: string;
+  };
+    }
+    interface HTMLPcmDigitalHumanElement extends Components.PcmDigitalHuman, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLPcmDigitalHumanElementEventMap>(type: K, listener: (this: HTMLPcmDigitalHumanElement, ev: PcmDigitalHumanCustomEvent<HTMLPcmDigitalHumanElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLPcmDigitalHumanElementEventMap>(type: K, listener: (this: HTMLPcmDigitalHumanElement, ev: PcmDigitalHumanCustomEvent<HTMLPcmDigitalHumanElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLPcmDigitalHumanElement: {
+        prototype: HTMLPcmDigitalHumanElement;
+        new (): HTMLPcmDigitalHumanElement;
     };
     interface HTMLPcmDrawerElementEventMap {
         "closed": void;
@@ -1745,6 +1855,30 @@ declare global {
     var HTMLPcmJlsxModalElement: {
         prototype: HTMLPcmJlsxModalElement;
         new (): HTMLPcmJlsxModalElement;
+    };
+    interface HTMLPcmJlzzModalElementEventMap {
+        "modalClosed": void;
+        "uploadSuccess": FileUploadResponse;
+        "streamComplete": StreamCompleteEventData1;
+        "conversationStart": ConversationStartEventData1;
+        "interviewComplete": InterviewCompleteEventData1;
+        "tokenInvalid": void;
+        "someErrorEvent": ErrorEventDetail;
+        "getResumeData": any;
+    }
+    interface HTMLPcmJlzzModalElement extends Components.PcmJlzzModal, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLPcmJlzzModalElementEventMap>(type: K, listener: (this: HTMLPcmJlzzModalElement, ev: PcmJlzzModalCustomEvent<HTMLPcmJlzzModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLPcmJlzzModalElementEventMap>(type: K, listener: (this: HTMLPcmJlzzModalElement, ev: PcmJlzzModalCustomEvent<HTMLPcmJlzzModalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLPcmJlzzModalElement: {
+        prototype: HTMLPcmJlzzModalElement;
+        new (): HTMLPcmJlzzModalElement;
     };
     interface HTMLPcmMessageElement extends Components.PcmMessage, HTMLStencilElement {
     }
@@ -2034,6 +2168,7 @@ declare global {
         "pcm-card": HTMLPcmCardElement;
         "pcm-chat-message": HTMLPcmChatMessageElement;
         "pcm-confirm-modal": HTMLPcmConfirmModalElement;
+        "pcm-digital-human": HTMLPcmDigitalHumanElement;
         "pcm-drawer": HTMLPcmDrawerElement;
         "pcm-hr-chat-modal": HTMLPcmHrChatModalElement;
         "pcm-htws-modal": HTMLPcmHtwsModalElement;
@@ -2041,6 +2176,7 @@ declare global {
         "pcm-jd-modal": HTMLPcmJdModalElement;
         "pcm-jlpp-modal": HTMLPcmJlppModalElement;
         "pcm-jlsx-modal": HTMLPcmJlsxModalElement;
+        "pcm-jlzz-modal": HTMLPcmJlzzModalElement;
         "pcm-message": HTMLPcmMessageElement;
         "pcm-mnct-modal": HTMLPcmMnctModalElement;
         "pcm-mnms-modal": HTMLPcmMnmsModalElement;
@@ -2151,6 +2287,7 @@ declare namespace LocalJSX {
           * 机器人ID
          */
         "botId"?: string;
+        "closeResume"?: () => void;
         /**
           * 会话ID，传入继续对话，否则创建新会话
          */
@@ -2168,13 +2305,9 @@ declare namespace LocalJSX {
          */
         "defaultQuery"?: string;
         /**
-          * 是否启用语音播报功能 true: 启用语音合成 false: 禁用语音合成
+          * 虚拟数字人ID，指定则开启虚拟数字人功能
          */
-        "enableTTS"?: boolean;
-        /**
-          * 是否自动播放语音问题
-         */
-        "enableVoice"?: boolean;
+        "digitalId"?: string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
          */
@@ -2400,13 +2533,13 @@ declare namespace LocalJSX {
         contentType: 'file' | 'markdown' | 'text'
     }>) => void;
         /**
-          * 消息变更事件
-         */
-        "onMessageChange"?: (event: PcmChatMessageCustomEvent<Partial<ChatMessage>>) => void;
-        /**
           * 重试事件
          */
         "onRetryRequest"?: (event: PcmChatMessageCustomEvent<string>) => void;
+        /**
+          * 是否显示助手消息内容 false时显示加载中动画，true时显示正常消息内容
+         */
+        "showAssistantMessage"?: boolean;
         /**
           * 是否显示复制按钮
          */
@@ -2482,6 +2615,39 @@ declare namespace LocalJSX {
          */
         "parentZIndex"?: number;
     }
+    interface PcmDigitalHuman {
+        /**
+          * 数字人ID，用于指定数字人形象
+         */
+        "digitalId"?: string;
+        /**
+          * 是否正在流式输出
+         */
+        "isStreaming"?: boolean;
+        /**
+          * 数字人详情加载完成事件
+         */
+        "onAvatarDetailLoaded"?: (event: PcmDigitalHumanCustomEvent<{
+    defaultVideoUrl: string;
+    virtualmanKey: string;
+  }>) => void;
+        /**
+          * 视频播放完成事件
+         */
+        "onVideoEnded"?: (event: PcmDigitalHumanCustomEvent<{
+    videoUrl: string;
+  }>) => void;
+        /**
+          * 视频生成成功事件
+         */
+        "onVideoGenerated"?: (event: PcmDigitalHumanCustomEvent<{
+    videoUrl: string;
+  }>) => void;
+        /**
+          * AI回答的文本内容，用于后续获取视频
+         */
+        "speechText"?: string;
+    }
     /**
      * 抽屉组件
      * 从屏幕边缘滑出的浮层面板，类似 Ant Design 的 Drawer 组件
@@ -2503,10 +2669,6 @@ declare namespace LocalJSX {
           * 抽屉是否可见
          */
         "isOpen"?: boolean;
-        /**
-          * 是否显示蒙层
-         */
-        "mask"?: boolean;
         /**
           * 点击蒙层是否允许关闭
          */
@@ -3059,6 +3221,96 @@ declare namespace LocalJSX {
          */
         "zIndex"?: number;
     }
+    interface PcmJlzzModal {
+        /**
+          * 会话ID，传入继续对话，否则创建新会话
+         */
+        "conversationId"?: string;
+        /**
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
+         */
+        "customInputs"?: Record<string, string>;
+        /**
+          * 默认查询文本
+         */
+        "defaultQuery"?: string;
+        /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode"?: 'drawer' | 'window';
+        /**
+          * 是否以全屏模式打开，移动端建议设置为true
+         */
+        "fullscreen"?: boolean;
+        /**
+          * 应用图标URL
+         */
+        "icon"?: string;
+        /**
+          * 是否展示右上角的关闭按钮
+         */
+        "isNeedClose"?: boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen"?: boolean;
+        /**
+          * 是否展示顶部标题栏
+         */
+        "isShowHeader"?: boolean;
+        /**
+          * 是否成功，成功展示 iframe 官网
+         */
+        "isSuccess"?: boolean;
+        /**
+          * 模态框标题
+         */
+        "modalTitle"?: string;
+        /**
+          * 新会话开始的回调，只会在一轮对话开始时触发一次
+         */
+        "onConversationStart"?: (event: PcmJlzzModalCustomEvent<ConversationStartEventData1>) => void;
+        /**
+          * 获取简历数据事件
+         */
+        "onGetResumeData"?: (event: PcmJlzzModalCustomEvent<any>) => void;
+        /**
+          * 当聊天完成时触发
+         */
+        "onInterviewComplete"?: (event: PcmJlzzModalCustomEvent<InterviewCompleteEventData1>) => void;
+        /**
+          * 当点击模态框关闭时触发
+         */
+        "onModalClosed"?: (event: PcmJlzzModalCustomEvent<void>) => void;
+        /**
+          * 错误事件
+         */
+        "onSomeErrorEvent"?: (event: PcmJlzzModalCustomEvent<ErrorEventDetail>) => void;
+        /**
+          * 流式输出完成事件
+         */
+        "onStreamComplete"?: (event: PcmJlzzModalCustomEvent<StreamCompleteEventData1>) => void;
+        /**
+          * SDK密钥验证失败事件
+         */
+        "onTokenInvalid"?: (event: PcmJlzzModalCustomEvent<void>) => void;
+        /**
+          * 上传成功事件
+         */
+        "onUploadSuccess"?: (event: PcmJlzzModalCustomEvent<FileUploadResponse>) => void;
+        /**
+          * 是否显示工作区历史会话按钮
+         */
+        "showWorkspaceHistory"?: boolean;
+        /**
+          * SDK鉴权密钥
+         */
+        "token": string;
+        /**
+          * 聊天框的页面层级
+         */
+        "zIndex"?: number;
+    }
     interface PcmMessage {
         "content"?: string;
         "duration"?: number;
@@ -3173,6 +3425,10 @@ declare namespace LocalJSX {
           * 默认查询文本
          */
         "defaultQuery"?: string;
+        /**
+          * 虚拟数字人ID，指定则开启虚拟数字人功能
+         */
+        "digitalId"?: string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
          */
@@ -3375,6 +3631,10 @@ declare namespace LocalJSX {
           * 默认查询文本
          */
         "defaultQuery"?: string;
+        /**
+          * 虚拟数字人ID，指定则开启虚拟数字人功能
+         */
+        "digitalId"?: string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
          */
@@ -3895,6 +4155,7 @@ declare namespace LocalJSX {
         "pcm-card": PcmCard;
         "pcm-chat-message": PcmChatMessage;
         "pcm-confirm-modal": PcmConfirmModal;
+        "pcm-digital-human": PcmDigitalHuman;
         "pcm-drawer": PcmDrawer;
         "pcm-hr-chat-modal": PcmHrChatModal;
         "pcm-htws-modal": PcmHtwsModal;
@@ -3902,6 +4163,7 @@ declare namespace LocalJSX {
         "pcm-jd-modal": PcmJdModal;
         "pcm-jlpp-modal": PcmJlppModal;
         "pcm-jlsx-modal": PcmJlsxModal;
+        "pcm-jlzz-modal": PcmJlzzModal;
         "pcm-message": PcmMessage;
         "pcm-mnct-modal": PcmMnctModal;
         "pcm-mnms-modal": PcmMnmsModal;
@@ -3942,6 +4204,7 @@ declare module "@stencil/core" {
              * 通用的确认对话框组件，类似 Ant Design 的 Modal 组件
              */
             "pcm-confirm-modal": LocalJSX.PcmConfirmModal & JSXBase.HTMLAttributes<HTMLPcmConfirmModalElement>;
+            "pcm-digital-human": LocalJSX.PcmDigitalHuman & JSXBase.HTMLAttributes<HTMLPcmDigitalHumanElement>;
             /**
              * 抽屉组件
              * 从屏幕边缘滑出的浮层面板，类似 Ant Design 的 Drawer 组件
@@ -3965,6 +4228,7 @@ declare module "@stencil/core" {
              */
             "pcm-jlpp-modal": LocalJSX.PcmJlppModal & JSXBase.HTMLAttributes<HTMLPcmJlppModalElement>;
             "pcm-jlsx-modal": LocalJSX.PcmJlsxModal & JSXBase.HTMLAttributes<HTMLPcmJlsxModalElement>;
+            "pcm-jlzz-modal": LocalJSX.PcmJlzzModal & JSXBase.HTMLAttributes<HTMLPcmJlzzModalElement>;
             "pcm-message": LocalJSX.PcmMessage & JSXBase.HTMLAttributes<HTMLPcmMessageElement>;
             /**
              * 模拟出题大师

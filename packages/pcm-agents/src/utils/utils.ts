@@ -752,3 +752,108 @@ export const isMobile = (): boolean => {
 
   return isMobileFlag;
 }
+
+/**
+ * 检测浏览器支持的视频录制MIME类型
+ * @returns string 支持的MIME类型，如果没有找到则返回空字符串
+ */
+export const getSupportedMimeType = (): string => {
+  // 按优先级排列的MIME类型列表
+  const mimeTypes = [
+    'video/webm;codecs=vp8,opus',
+    'video/webm;codecs=vp9,opus',
+    'video/webm',
+    'video/mp4',
+    'video/mp4;codecs=h264,aac',
+    '', // 空字符串表示使用浏览器默认值
+  ];
+
+  // 检查MediaRecorder是否可用
+  if (!window.MediaRecorder) {
+    console.warn('MediaRecorder API不可用');
+    return '';
+  }
+
+  // 检查每种MIME类型是否受支持
+  for (const type of mimeTypes) {
+    if (!type) return ''; // 如果是空字符串，直接返回
+
+    try {
+      if (MediaRecorder.isTypeSupported(type)) {
+        return type;
+      }
+    } catch (e) {
+      console.warn(`检查MIME类型支持时出错 ${type}:`, e);
+    }
+  }
+
+  // 如果没有找到支持的类型，返回空字符串
+  console.warn('没有找到支持的MIME类型，将使用浏览器默认值');
+  return '';
+};
+
+/**
+ * 检测浏览器支持的音频录制MIME类型
+ * @returns string 支持的MIME类型，如果没有找到则返回空字符串
+ */
+export const getSupportedAudioMimeType = (): string => {
+  // 按优先级排列的音频MIME类型列表
+  const mimeTypes = [
+    'audio/webm;codecs=opus',
+    'audio/webm',
+    'audio/mp4',
+    'audio/ogg;codecs=opus',
+    'audio/ogg',
+    '', // 空字符串表示使用浏览器默认值
+  ];
+
+  // 检查MediaRecorder是否可用
+  if (!window.MediaRecorder) {
+    console.warn('MediaRecorder API不可用');
+    return '';
+  }
+
+  // 检查每种MIME类型是否受支持
+  for (const type of mimeTypes) {
+    if (!type) return ''; // 如果是空字符串，直接返回
+
+    try {
+      if (MediaRecorder.isTypeSupported(type)) {
+        return type;
+      }
+    } catch (e) {
+      console.warn(`检查音频MIME类型支持时出错 ${type}:`, e);
+    }
+  }
+
+  // 如果没有找到支持的类型，返回空字符串
+  console.warn('没有找到支持的音频MIME类型，将使用浏览器默认值');
+  return '';
+};
+
+/**
+ * 将音频转换为文字
+ * @param cosKey COS文件的唯一标识符
+ * @returns Promise<string | null> 转换后的文字，失败时返回null
+ */
+export const convertAudioToText = async (cosKey: string): Promise<string | null> => {
+  try {
+    const result = await sendHttpRequest<{ text: string }>({
+      url: '/sdk/v1/tts/audio_to_text',
+      method: 'POST',
+      data: {
+        cos_key: cosKey,
+      },
+    });
+
+    if (result.success && result.data && result.data.text) {
+      return result.data.text;
+    } else {
+      console.warn('音频转文字返回结果格式不正确');
+      return null;
+    }
+  } catch (error) {
+    console.error('音频转文字错误:', error);
+    throw new Error('音频转文字失败');
+  }
+};

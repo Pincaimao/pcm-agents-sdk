@@ -15,7 +15,6 @@
 | `drawerTitle`  | `drawer-title`  | 抽屉标题                              | `string`  | `''`      |
 | `height`       | `height`        | 高度，在 placement 为 top 或 bottom 时使用 | `string`  | `'378px'` |
 | `isOpen`       | `is-open`       | 抽屉是否可见                            | `boolean` | `false`   |
-| `mask`         | `mask`          | 是否显示蒙层                            | `boolean` | `true`    |
 | `maskClosable` | `mask-closable` | 点击蒙层是否允许关闭                        | `boolean` | `true`    |
 | `width`        | `width`         | 宽度，可以是像素值或百分比                     | `string`  | `'378px'` |
 

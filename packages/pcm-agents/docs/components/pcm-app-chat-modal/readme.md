@@ -8,12 +8,12 @@
 | ----------------------- | -------------------------- | ------------------------------------------- | ----------------------- | ---------------------------------------------------------- |
 | `assistantAvatar`       | `assistant-avatar`         | 助手头像URL                                     | `string`                | `undefined`                                                |
 | `botId`                 | `bot-id`                   | 机器人ID                                       | `string`                | `undefined`                                                |
+| `closeResume`           | `close-resume`             |                                             | `() => void`            | `undefined`                                                |
 | `conversationId`        | `conversation-id`          | 会话ID，传入继续对话，否则创建新会话                         | `string`                | `undefined`                                                |
 | `countdownWarningTime`  | `countdown-warning-time`   | 录制倒计时提醒时间（秒） 当剩余时间小于此值时，显示倒计时警告             | `number`                | `30`                                                       |
 | `customInputs`          | `custom-inputs`            | 自定义智能体inputs输入参数                            | `{ [x: string]: any; }` | `{}`                                                       |
 | `defaultQuery`          | `default-query`            | 默认发送文本                                      | `string`                | `'你好！聘才猫'`                                                 |
-| `enableTTS`             | `enable-t-t-s`             | 是否启用语音播报功能 true: 启用语音合成 false: 禁用语音合成       | `boolean`               | `false`                                                    |
-| `enableVoice`           | `enable-voice`             | 是否自动播放语音问题                                  | `boolean`               | `false`                                                    |
+| `digitalId`             | `digital-id`               | 虚拟数字人ID，指定则开启虚拟数字人功能                        | `string`                | `undefined`                                                |
 | `filePreviewMode`       | `file-preview-mode`        | 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开 | `"drawer" \| "window"`  | `'window'`                                                 |
 | `fullscreen`            | `fullscreen`               | 是否以全屏模式打开，移动端建议设置为true                      | `boolean`               | `false`                                                    |
 | `icon`                  | `icon`                     | 应用图标URL                                     | `string`                | `undefined`                                                |
@@ -28,7 +28,7 @@
 | `showFeedbackButtons`   | `show-feedback-buttons`    | 是否显示点赞点踩按钮                                  | `boolean`               | `true`                                                     |
 | `showWorkspaceHistory`  | `show-workspace-history`   | 是否显示工作区历史会话按钮                               | `boolean`               | `false`                                                    |
 | `token`                 | `token`                    | SDK鉴权密钥                                     | `string`                | `undefined`                                                |
-| `userAvatar`            | `user-avatar`              | 用户头像URL                                     | `string`                | `"https://pub.pincaimao.com/static/common/i_pcm_logo.png"` |
+| `userAvatar`            | `user-avatar`              | 用户头像URL                                     | `string`                | `'https://pub.pincaimao.com/static/common/i_pcm_logo.png'` |
 | `zIndex`                | `z-index`                  | 聊天框的页面层级                                    | `number`                | `undefined`                                                |
 
 
@@ -54,6 +54,7 @@
  - [pcm-hyzj-modal](../pcm-hyzj-modal)
  - [pcm-jd-modal](../pcm-jd-modal)
  - [pcm-jlpp-modal](../pcm-jlpp-modal)
+ - [pcm-jlzz-modal](../pcm-jlzz-modal)
  - [pcm-mnct-modal](../pcm-mnct-modal)
  - [pcm-mnms-modal](../pcm-mnms-modal)
  - [pcm-mnms-video-modal](../pcm-mnms-video-modal)
@@ -65,6 +66,7 @@
 ### Depends on
 
 - [pcm-chat-message](../pcm-chat-message)
+- [pcm-digital-human](../pcm-digital-human)
 - [pcm-drawer](../pcm-drawer)
 - [pcm-confirm-modal](../pcm-confirm-modal)
 
@@ -72,6 +74,7 @@
 ```mermaid
 graph TD;
   pcm-app-chat-modal --> pcm-chat-message
+  pcm-app-chat-modal --> pcm-digital-human
   pcm-app-chat-modal --> pcm-drawer
   pcm-app-chat-modal --> pcm-confirm-modal
   pcm-1zhanshi-mnms-modal --> pcm-app-chat-modal
@@ -79,6 +82,7 @@ graph TD;
   pcm-hyzj-modal --> pcm-app-chat-modal
   pcm-jd-modal --> pcm-app-chat-modal
   pcm-jlpp-modal --> pcm-app-chat-modal
+  pcm-jlzz-modal --> pcm-app-chat-modal
   pcm-mnct-modal --> pcm-app-chat-modal
   pcm-mnms-modal --> pcm-app-chat-modal
   pcm-mnms-video-modal --> pcm-app-chat-modal

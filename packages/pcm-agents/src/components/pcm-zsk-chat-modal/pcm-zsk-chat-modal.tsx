@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
-import { sendSSERequest, sendHttpRequest, uploadFileToBackend, verifyApiKey } from '../../utils/utils';
+import { sendSSERequest, sendHttpRequest, uploadFileToBackend, verifyApiKey, getSupportedAudioMimeType } from '../../utils/utils';
 import { ChatMessage } from '../../interfaces/chat';
 import { ConversationStartEventData, StreamCompleteEventData } from '../../components';
 import { authStore } from '../../../store/auth.store';
@@ -272,7 +272,6 @@ export class ChatKBModal {
     const newMessage: ChatMessage = {
       id: `temp-${Date.now()}`,  // 临时ID，将被服务器返回的ID替换
       conversation_id: this.conversationId,  // 会话ID
-      parent_message_id: "00000000-0000-0000-0000-000000000000", // 默认父消息ID
       inputs: this.customInputs || {},  // 使用解析后的输入参数
       query: queryText,  // 用户输入的消息内容
       answer: '',  // 初始为空
@@ -412,7 +411,6 @@ export class ChatKBModal {
                 id: data.message_id || this.currentStreamingMessage.id,
                 isStreaming: true,
                 // 如果服务器返回了其他字段，也更新它们
-                parent_message_id: data.parent_message_id || this.currentStreamingMessage.parent_message_id,
                 retriever_resources: data.retriever_resources || this.currentStreamingMessage.retriever_resources,
                 agent_thoughts: data.agent_thoughts || this.currentStreamingMessage.agent_thoughts
               };
@@ -552,7 +550,6 @@ export class ChatKBModal {
           return {
             id: msg.id,
             conversation_id: msg.conversation_id,
-            parent_message_id: msg.parent_message_id || "00000000-0000-0000-0000-000000000000",
             inputs: msg.inputs || {},
             query: msg.query || "",
             answer: msg.answer || "",
@@ -694,6 +691,9 @@ export class ChatKBModal {
 
   // 添加处理键盘事件的方法
   private handleKeyDown = (event: KeyboardEvent) => {
+    if (event.isComposing) {
+      return;
+    }
     // 如果按下的是回车键
     if (event.key === 'Enter') {
       // 如果同时按下了Ctrl键，允许换行
@@ -765,7 +765,7 @@ export class ChatKBModal {
   private startRecordingWithStream(stream: MediaStream) {
     try {
       // 检测浏览器支持的音频MIME类型
-      const mimeType = this.getSupportedAudioMimeType();
+      const mimeType = getSupportedAudioMimeType();
 
       // 创建MediaRecorder实例
       let audioRecorder;
@@ -841,7 +841,7 @@ export class ChatKBModal {
       this.isConvertingAudio = true;
 
       // 创建音频Blob
-      const audioType = this.getSupportedAudioMimeType() || 'audio/webm';
+      const audioType = getSupportedAudioMimeType() || 'audio/webm';
       const audioBlob = new Blob(this.audioChunks, { type: audioType });
 
       if (audioBlob.size === 0) {
@@ -901,41 +901,6 @@ export class ChatKBModal {
     }
   }
 
-  // 获取支持的音频MIME类型
-  private getSupportedAudioMimeType(): string {
-    // 按优先级排列的音频MIME类型列表
-    const mimeTypes = [
-      'audio/webm;codecs=opus',
-      'audio/webm',
-      'audio/mp4',
-      'audio/ogg;codecs=opus',
-      'audio/ogg',
-      ''  // 空字符串表示使用浏览器默认值
-    ];
-
-    // 检查MediaRecorder是否可用
-    if (!window.MediaRecorder) {
-      console.warn('MediaRecorder API不可用');
-      return '';
-    }
-
-    // 检查每种MIME类型是否受支持
-    for (const type of mimeTypes) {
-      if (!type) return ''; // 如果是空字符串，直接返回
-
-      try {
-        if (MediaRecorder.isTypeSupported(type)) {
-          return type;
-        }
-      } catch (e) {
-        console.warn(`检查音频MIME类型支持时出错 ${type}:`, e);
-      }
-    }
-
-    // 如果没有找到支持的类型，返回空字符串
-    console.warn('没有找到支持的音频MIME类型，将使用浏览器默认值');
-    return '';
-  }
 
   // 停止录制音频
   private stopAudioRecording() {
@@ -1244,12 +1209,6 @@ export class ChatKBModal {
                       <pcm-chat-message
                         message={message}
                         showFeedbackButtons={false}
-                        onMessageChange={(event) => {
-                          const updatedMessages = this.messages.map(msg =>
-                            msg.id === message.id ? { ...msg, ...event.detail } : msg
-                          );
-                          this.messages = updatedMessages;
-                        }}
                       ></pcm-chat-message>
                     </div>
                   ))}
