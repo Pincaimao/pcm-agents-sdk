@@ -1,6 +1,6 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
 import { sendSSERequest, sendHttpRequest, uploadFileToBackend, fetchAgentInfo, getSupportedMimeType, convertAudioToText } from '../../utils/utils';
-import { ChatMessage, ConversationItem } from '../../interfaces/chat';
+import { ChatMessage } from '../../interfaces/chat';
 import { StreamCompleteEventData, ConversationStartEventData, InterviewCompleteEventData, RecordingErrorEventData, RecordingStatusChangeEventData } from '../../interfaces/events';
 import { ErrorEventBus } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store'; // 导入 authStore
@@ -13,11 +13,6 @@ import { SentryReporter } from '../../utils/sentry-reporter';
   shadow: true,
 })
 export class ChatVirtualAPPModal {
-  /**
-   * 模态框标题
-   */
-  @Prop() modalTitle: string = '在线客服';
-
   /**
    * SDK鉴权密钥
    */
@@ -34,29 +29,9 @@ export class ChatVirtualAPPModal {
   @State() messages: ChatMessage[] = [];
 
   /**
-   * 当点击模态框关闭时触发
-   */
-  @Event() modalClosed: EventEmitter<void>;
-
-  /**
-   * 应用图标URL
-   */
-  @Prop() icon?: string;
-
-  /**
    * 聊天框的页面层级
    */
   @Prop({ mutable: true }) zIndex?: number;
-
-  /**
-   * 是否展示顶部标题栏
-   */
-  @Prop() isShowHeader: boolean = true;
-
-  /**
-   * 是否展示右上角的关闭按钮
-   */
-  @Prop() isNeedClose: boolean = true;
 
   /**
    * 会话ID，传入继续对话，否则创建新会话
@@ -130,7 +105,6 @@ export class ChatVirtualAPPModal {
    */
   @Event() interviewComplete: EventEmitter<InterviewCompleteEventData>;
 
-
   @State() showCountdownWarning: boolean = false;
 
   /**
@@ -157,7 +131,6 @@ export class ChatVirtualAPPModal {
    * 是否正在等待数字人视频播放完成
    */
   @State() waitingForDigitalHuman: boolean = false;
-
 
   /**
    * 虚拟数字人ID，指定则开启虚拟数字人功能
@@ -190,23 +163,12 @@ export class ChatVirtualAPPModal {
   @Prop() botId?: string;
 
   /**
-   * 用户头像URL
-   */
-  @Prop() userAvatar?: string = 'https://pub.pincaimao.com/static/common/i_pcm_logo.png';
-
-  /**
-   * 助手头像URL
-   */
-  @Prop() assistantAvatar?: string;
-
-  /**
    * 智能体头像URL（从后端获取）
    */
   @State() agentLogo: string = '';
 
   // 添加新的状态属性来跟踪任务是否已完成
   @State() isTaskCompleted: boolean = false;
-
 
   private tokenInvalidListener: () => void;
 
@@ -227,25 +189,7 @@ export class ChatVirtualAPPModal {
    */
   @Prop() filePreviewMode: 'drawer' | 'window' = 'window';
 
-
-  // 添加新的状态来管理抽屉
-  @State() isDrawerOpen: boolean = false;
-  @State() previewUrl: string = '';
-  @State() previewFileName: string = '';
-
-  // 添加内容类型状态
-  @State() previewContentType: 'file' | 'markdown' | 'text' = 'file';
-  @State() previewContent: string = '';
-
-  // 添加新的状态来追踪用户交互
-  @State() isUserScrolling: boolean = false;
-
   @State() deviceError: string | null = null;
-
-  // 添加历史会话相关状态
-  @State() isHistoryDrawerOpen: boolean = false;
-  @State() historyConversations: ConversationItem[] = [];
-  @State() isLoadingConversations: boolean = false;
 
   // 添加二次确认相关状态
   @State() showConfirmModal: boolean = false;
@@ -290,7 +234,7 @@ export class ChatVirtualAPPModal {
     }
 
     // 如果没有设置助手头像，尝试获取智能体头像
-    if (!this.assistantAvatar && this.botId) {
+    if (this.botId) {
       this.fetchAgentLogo();
     }
 
@@ -368,6 +312,10 @@ export class ChatVirtualAPPModal {
         video_url: videoUrl,
       };
     }
+    this.customInputs = {
+      ...this.customInputs,
+      url_callback: 'https://tagents.ylzhaopin.com/agents/api/test/callback',
+    };
 
     // 创建新的消息对象
     const newMessage: ChatMessage = {
@@ -1145,7 +1093,16 @@ export class ChatVirtualAPPModal {
    * 生成数字人视频
    */
   private async generateDigitalHumanVideo(text: string) {
-    if (!text.trim() || !this.digitalHumanVirtualmanKey) return;
+    if (!text.trim() || !this.digitalHumanVirtualmanKey) {
+      
+      // 条件不满足时，取消等待状态并直接开始录制流程
+      if (this.waitingForDigitalHuman && !this.isTaskCompleted) {
+        console.log('数字人视频生成条件不满足，直接开始录制流程');
+        this.waitingForDigitalHuman = false;
+        this.startWaitingToRecord();
+      }
+      return;
+    }
 
     console.log('开始生成数字人视频，文本内容：', text);
 
@@ -1182,6 +1139,9 @@ export class ChatVirtualAPPModal {
       if (videoUrl) {
         await this.playDigitalHumanVideo(videoUrl);
         console.log('数字人视频生成完成，视频URL:', videoUrl);
+      } else {
+        // 如果没有获取到视频URL，抛出错误
+        throw new Error('未能获取到数字人视频URL');
       }
 
     } catch (error) {
@@ -1191,6 +1151,13 @@ export class ChatVirtualAPPModal {
         component: 'pcm-virtual-chat-modal',
         title: '数字人视频生成失败',
       });
+      
+      // 数字人视频生成失败时，取消等待状态并直接开始录制流程
+      if (this.waitingForDigitalHuman && !this.isTaskCompleted) {
+        console.log('数字人视频生成失败，直接开始录制流程');
+        this.waitingForDigitalHuman = false;
+        this.startWaitingToRecord();
+      }
     }
   }
 
@@ -1258,6 +1225,13 @@ export class ChatVirtualAPPModal {
 
     } catch (error) {
       console.error('播放数字人视频失败:', error);
+      
+      // 数字人视频播放失败时，取消等待状态并直接开始录制流程
+      if (this.waitingForDigitalHuman && !this.isTaskCompleted) {
+        console.log('数字人视频播放失败，直接开始录制流程');
+        this.waitingForDigitalHuman = false;
+        this.startWaitingToRecord();
+      }
     }
   }
 
@@ -1592,7 +1566,7 @@ export class ChatVirtualAPPModal {
       return (
         <div class="status-indicator-text loading">
           <div class="loading-spinner-small"></div>
-          <span>等待AI思考...</span>
+          <span>AI正在查看面试信息...</span>
         </div>
       );
     }

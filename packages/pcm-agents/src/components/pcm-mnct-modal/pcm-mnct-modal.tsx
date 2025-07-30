@@ -72,7 +72,8 @@ export class MnctModal {
     @Prop() fullscreen: boolean = false;
 
     /**
-     * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br>
+     * 自定义输入参数<br>
+     * 传入customInputs.job_info时，会隐藏JD输入区域。<br>
      * 传入customInputs.file_url时，会隐藏简历上传区域。<br>
      * 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
      * 传入customInputs.question_number时，会设置面试题数量。<br>

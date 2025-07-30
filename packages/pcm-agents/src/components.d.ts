@@ -834,7 +834,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域   传入customInputs.file_url时，会隐藏简历上传区域。   传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。   传入customInputs.question_number时，会设置面试题数量。   传入customInputs.can_outputAnalysis时，会设置是否需要参考答案。
+          * 自定义输入参数<br> 传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br> 传入customInputs.question_number时，会设置面试题数量。<br> 传入customInputs.can_outputAnalysis时，会设置是否需要参考答案。<br>
          */
         "customInputs": Record<string, string>;
         /**
@@ -1311,10 +1311,6 @@ export namespace Components {
     }
     interface PcmVirtualChatModal {
         /**
-          * 助手头像URL
-         */
-        "assistantAvatar"?: string;
-        /**
           * 机器人ID
          */
         "botId"?: string;
@@ -1347,29 +1343,13 @@ export namespace Components {
          */
         "fullscreen": boolean;
         /**
-          * 应用图标URL
-         */
-        "icon"?: string;
-        /**
-          * 是否展示右上角的关闭按钮
-         */
-        "isNeedClose": boolean;
-        /**
           * 是否显示聊天模态框
          */
         "isOpen": boolean;
         /**
-          * 是否展示顶部标题栏
-         */
-        "isShowHeader": boolean;
-        /**
           * 视频录制最大时长（秒）
          */
         "maxRecordingTime": number;
-        /**
-          * 模态框标题
-         */
-        "modalTitle": string;
         /**
           * 是否显示复制按钮
          */
@@ -1382,10 +1362,6 @@ export namespace Components {
           * SDK鉴权密钥
          */
         "token"?: string;
-        /**
-          * 用户头像URL
-         */
-        "userAvatar"?: string;
         /**
           * 聊天框的页面层级
          */
@@ -2201,7 +2177,6 @@ declare global {
         new (): HTMLPcmUploadElement;
     };
     interface HTMLPcmVirtualChatModalElementEventMap {
-        "modalClosed": void;
         "streamComplete": StreamCompleteEventData;
         "conversationStart": ConversationStartEventData;
         "interviewComplete": InterviewCompleteEventData;
@@ -3439,7 +3414,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域   传入customInputs.file_url时，会隐藏简历上传区域。   传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。   传入customInputs.question_number时，会设置面试题数量。   传入customInputs.can_outputAnalysis时，会设置是否需要参考答案。
+          * 自定义输入参数<br> 传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br> 传入customInputs.question_number时，会设置面试题数量。<br> 传入customInputs.can_outputAnalysis时，会设置是否需要参考答案。<br>
          */
         "customInputs"?: Record<string, string>;
         /**
@@ -4105,10 +4080,6 @@ declare namespace LocalJSX {
     }
     interface PcmVirtualChatModal {
         /**
-          * 助手头像URL
-         */
-        "assistantAvatar"?: string;
-        /**
           * 机器人ID
          */
         "botId"?: string;
@@ -4141,29 +4112,13 @@ declare namespace LocalJSX {
          */
         "fullscreen"?: boolean;
         /**
-          * 应用图标URL
-         */
-        "icon"?: string;
-        /**
-          * 是否展示右上角的关闭按钮
-         */
-        "isNeedClose"?: boolean;
-        /**
           * 是否显示聊天模态框
          */
         "isOpen"?: boolean;
         /**
-          * 是否展示顶部标题栏
-         */
-        "isShowHeader"?: boolean;
-        /**
           * 视频录制最大时长（秒）
          */
         "maxRecordingTime"?: number;
-        /**
-          * 模态框标题
-         */
-        "modalTitle"?: string;
         /**
           * 新会话开始的回调，只会在一轮对话开始时触发一次
          */
@@ -4172,10 +4127,6 @@ declare namespace LocalJSX {
           * 当聊天完成时触发
          */
         "onInterviewComplete"?: (event: PcmVirtualChatModalCustomEvent<InterviewCompleteEventData>) => void;
-        /**
-          * 当点击模态框关闭时触发
-         */
-        "onModalClosed"?: (event: PcmVirtualChatModalCustomEvent<void>) => void;
         /**
           * 录制错误事件
          */
@@ -4204,10 +4155,6 @@ declare namespace LocalJSX {
           * SDK鉴权密钥
          */
         "token"?: string;
-        /**
-          * 用户头像URL
-         */
-        "userAvatar"?: string;
         /**
           * 聊天框的页面层级
          */

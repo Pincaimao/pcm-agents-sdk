@@ -401,10 +401,6 @@ export class MnmsModal {
                         <div >
                             <pcm-virtual-chat-modal
                                 isOpen={true}
-                                modalTitle={this.modalTitle}
-                                icon={this.icon}
-                                isShowHeader={this.isShowHeader}
-                                isNeedClose={this.isShowHeader}
                                 fullscreen={this.fullscreen}
                                 botId="3022316191018884"
                                 digitalId={this.digitalId}
