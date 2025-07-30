@@ -123,8 +123,7 @@ export class ChatVirtualAPPModal {
   @State() digitalHumanVirtualmanKey: string = '';
   @State() isPlayingDigitalHumanVideo: boolean = false;
   @State() digitalHumanVideoReady: boolean = false;
-  @State() digitalHumanOpeningText: string = '';
-  @State() digitalHumanOpeningVideoUrl: string = '';
+  @State() digitalHumanOpeningContents: Array<{ text: string, video_url: string }> = [];
   @State() isPlayingWelcomeVideo: boolean = false;
 
   // 数字人视频元素引用
@@ -1005,7 +1004,7 @@ export class ChatVirtualAPPModal {
     // 停止录制
     this.stopRecording();
   }
-  
+
   /**
    * 预创建数字人视频
    */
@@ -1066,7 +1065,7 @@ export class ChatVirtualAPPModal {
       });
 
       if (response.success) {
-        const { placeholder_video_url, virtualman_key, opening_text, opening_video_url } = response.data;
+        const { placeholder_video_url, virtualman_key, opening_contents } = response.data;
 
         if (placeholder_video_url) {
           this.digitalHumanDefaultVideoUrl = placeholder_video_url;
@@ -1077,26 +1076,23 @@ export class ChatVirtualAPPModal {
           this.digitalHumanVirtualmanKey = virtualman_key;
         }
 
-        if (opening_text) {
-          this.digitalHumanOpeningText = opening_text;
+        // 处理开场白内容（JSON格式）
+        if (opening_contents && Array.isArray(opening_contents) && opening_contents.length > 0) {
+          this.digitalHumanOpeningContents = opening_contents;
+          const firstWelcomeContent = this.digitalHumanOpeningContents[0];
+
+          console.log('数字人初始化完成:', {
+            defaultVideoUrl: this.digitalHumanDefaultVideoUrl,
+            virtualmanKey: this.digitalHumanVirtualmanKey,
+            openingContents: this.digitalHumanOpeningContents
+          });
+          if (firstWelcomeContent.video_url) {
+            console.log('播放数字人欢迎视频:', firstWelcomeContent.video_url);
+            this.playDigitalHumanVideo(firstWelcomeContent.video_url, true);
+          }
         }
 
-        if (opening_video_url) {
-          this.digitalHumanOpeningVideoUrl = opening_video_url;
-        }
 
-        console.log('数字人初始化完成:', {
-          defaultVideoUrl: this.digitalHumanDefaultVideoUrl,
-          virtualmanKey: this.digitalHumanVirtualmanKey,
-          openingText: this.digitalHumanOpeningText,
-          openingVideoUrl: this.digitalHumanOpeningVideoUrl
-        });
-
-        // 如果有欢迎视频，播放欢迎视频
-        if (opening_video_url) {
-          console.log('播放数字人欢迎视频:', opening_video_url);
-          this.playDigitalHumanVideo(opening_video_url, true);
-        } 
       }
     } catch (error) {
       console.error('初始化数字人失败:', error);
@@ -1113,7 +1109,7 @@ export class ChatVirtualAPPModal {
    */
   private async generateDigitalHumanVideo(text: string) {
     if (!text.trim() || !this.digitalHumanVirtualmanKey) {
-      
+
       // 条件不满足时，取消等待状态并直接开始录制流程
       if (this.waitingForDigitalHuman && !this.isTaskCompleted) {
         console.log('数字人视频生成条件不满足，直接开始录制流程');
@@ -1170,7 +1166,7 @@ export class ChatVirtualAPPModal {
         component: 'pcm-virtual-chat-modal',
         title: '数字人视频生成失败',
       });
-      
+
       // 数字人视频生成失败时，取消等待状态并直接开始录制流程
       if (this.waitingForDigitalHuman && !this.isTaskCompleted) {
         console.log('数字人视频生成失败，直接开始录制流程');
@@ -1246,7 +1242,7 @@ export class ChatVirtualAPPModal {
 
     } catch (error) {
       console.error('播放数字人视频失败:', error);
-      
+
       // 数字人视频播放失败时，取消等待状态并直接开始录制流程
       if (this.waitingForDigitalHuman && !this.isTaskCompleted) {
         console.log('数字人视频播放失败，直接开始录制流程');
@@ -1315,9 +1311,11 @@ export class ChatVirtualAPPModal {
   private renderChatHistory() {
     // 如果正在播放欢迎视频，优先显示欢迎语
     if (this.isPlayingWelcomeVideo) {
+      const welcomeText = this.digitalHumanOpeningContents[0].text;
+
       return (
         <div class="ai-message-item">
-          <div class="ai-message-content">{this.digitalHumanOpeningText}</div>
+          <div class="ai-message-content">{welcomeText}</div>
         </div>
       );
     }
