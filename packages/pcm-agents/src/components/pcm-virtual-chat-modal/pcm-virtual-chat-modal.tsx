@@ -123,6 +123,9 @@ export class ChatVirtualAPPModal {
   @State() digitalHumanVirtualmanKey: string = '';
   @State() isPlayingDigitalHumanVideo: boolean = false;
   @State() digitalHumanVideoReady: boolean = false;
+  @State() digitalHumanOpeningText: string = '';
+  @State() digitalHumanOpeningVideoUrl: string = '';
+  @State() isPlayingWelcomeVideo: boolean = false;
 
   // 数字人视频元素引用
   private digitalHumanVideoElement: HTMLVideoElement | null = null;
@@ -1063,7 +1066,7 @@ export class ChatVirtualAPPModal {
       });
 
       if (response.success) {
-        const { placeholder_video_url, virtualman_key } = response.data;
+        const { placeholder_video_url, virtualman_key, opening_text, opening_video_url } = response.data;
 
         if (placeholder_video_url) {
           this.digitalHumanDefaultVideoUrl = placeholder_video_url;
@@ -1074,10 +1077,26 @@ export class ChatVirtualAPPModal {
           this.digitalHumanVirtualmanKey = virtualman_key;
         }
 
+        if (opening_text) {
+          this.digitalHumanOpeningText = opening_text;
+        }
+
+        if (opening_video_url) {
+          this.digitalHumanOpeningVideoUrl = opening_video_url;
+        }
+
         console.log('数字人初始化完成:', {
           defaultVideoUrl: this.digitalHumanDefaultVideoUrl,
-          virtualmanKey: this.digitalHumanVirtualmanKey
+          virtualmanKey: this.digitalHumanVirtualmanKey,
+          openingText: this.digitalHumanOpeningText,
+          openingVideoUrl: this.digitalHumanOpeningVideoUrl
         });
+
+        // 如果有欢迎视频，播放欢迎视频
+        if (opening_video_url) {
+          console.log('播放数字人欢迎视频:', opening_video_url);
+          this.playDigitalHumanVideo(opening_video_url, true);
+        } 
       }
     } catch (error) {
       console.error('初始化数字人失败:', error);
@@ -1205,8 +1224,8 @@ export class ChatVirtualAPPModal {
   /**
    * 播放数字人视频
    */
-  private async playDigitalHumanVideo(videoUrl: string) {
-    console.log('开始播放数字人视频:', videoUrl);
+  private async playDigitalHumanVideo(videoUrl: string, isWelcomeVideo: boolean = false) {
+    console.log('开始播放数字人视频:', videoUrl, '是否为欢迎视频:', isWelcomeVideo);
 
     try {
       // 预加载视频
@@ -1216,11 +1235,13 @@ export class ChatVirtualAPPModal {
       this.digitalHumanVideoUrl = videoUrl;
       this.isPlayingDigitalHumanVideo = true;
       this.digitalHumanVideoReady = true;
+      this.isPlayingWelcomeVideo = isWelcomeVideo;
 
       console.log('数字人视频状态已更新:', {
         videoUrl: this.digitalHumanVideoUrl,
         isPlaying: this.isPlayingDigitalHumanVideo,
-        muted: !this.isPlayingDigitalHumanVideo
+        muted: !this.isPlayingDigitalHumanVideo,
+        isWelcomeVideo: this.isPlayingWelcomeVideo
       });
 
     } catch (error) {
@@ -1269,11 +1290,13 @@ export class ChatVirtualAPPModal {
    */
   private handleVideoElementEnded = () => {
     if (this.isPlayingDigitalHumanVideo) {
-      console.log('数字人视频播放完成');
+      console.log('数字人视频播放完成，是否为欢迎视频:', this.isPlayingWelcomeVideo);
 
       // 只通过状态来控制video元素，恢复默认视频
       this.digitalHumanVideoUrl = this.digitalHumanDefaultVideoUrl;
       this.isPlayingDigitalHumanVideo = false;
+      const wasWelcomeVideo = this.isPlayingWelcomeVideo;
+      this.isPlayingWelcomeVideo = false;
 
       console.log('恢复默认视频状态:', {
         videoUrl: this.digitalHumanVideoUrl,
@@ -1281,8 +1304,8 @@ export class ChatVirtualAPPModal {
         muted: !this.isPlayingDigitalHumanVideo
       });
 
-      // 数字人视频播放完成后，开始录制流程
-      if (this.waitingForDigitalHuman && !this.isTaskCompleted) {
+      // 只有非欢迎视频播放完成后，才开始录制流程
+      if (this.waitingForDigitalHuman && !this.isTaskCompleted && !wasWelcomeVideo) {
         this.waitingForDigitalHuman = false;
         this.startWaitingToRecord();
       }
@@ -1290,6 +1313,15 @@ export class ChatVirtualAPPModal {
   };
 
   private renderChatHistory() {
+    // 如果正在播放欢迎视频，优先显示欢迎语
+    if (this.isPlayingWelcomeVideo) {
+      return (
+        <div class="ai-message-item">
+          <div class="ai-message-content">{this.digitalHumanOpeningText}</div>
+        </div>
+      );
+    }
+
     // 优先显示正在流式输出的消息
     if (this.currentStreamingMessage && this.currentStreamingMessage.answer) {
       return (
@@ -1317,10 +1349,9 @@ export class ChatVirtualAPPModal {
       );
     }
 
-    // 如果没有消息，显示欢迎语
     return (
       <div class="ai-message-item">
-        <div class="ai-message-content">你好，我是聘才猫，一个AI助手，很高兴认识你...</div>
+        <div class="ai-message-content">请稍等，我查看一下本次面试的信息...</div>
       </div>
     );
   }
