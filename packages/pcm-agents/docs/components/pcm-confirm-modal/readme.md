@@ -61,11 +61,13 @@ Type: `Promise<void>`
 ### Used by
 
  - [pcm-app-chat-modal](../pcm-app-chat-modal)
+ - [pcm-virtual-chat-modal](../pcm-virtual-chat-modal)
 
 ### Graph
 ```mermaid
 graph TD;
   pcm-app-chat-modal --> pcm-confirm-modal
+  pcm-virtual-chat-modal --> pcm-confirm-modal
   style pcm-confirm-modal fill:#f9f,stroke:#333,stroke-width:4px
 ```
 

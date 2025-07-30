@@ -834,7 +834,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域   传入customInputs.file_url时，会隐藏简历上传区域。   传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。   传入customInputs.question_number时，会设置面试题数量。   传入customInputs.can_outputAnalysis时，会设置是否需要参考答案。
          */
         "customInputs": Record<string, string>;
         /**
@@ -895,7 +895,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。 customInputs.interview_type：可传入数字，传入 1 时，开启题目连续模式，一次性生成所有题目。不传入或传入其他值时，题目将逐个生成。
          */
         "customInputs": Record<string, string>;
         /**
@@ -1037,7 +1037,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。 customInputs.interview_type：可传入数字，传入 1 时，开启题目连续模式，一次性生成所有题目。不传入或传入其他值时，题目将逐个生成。
          */
         "customInputs": Record<string, string>;
         /**
@@ -1309,6 +1309,88 @@ export namespace Components {
          */
         "uploadParams"?: Record<string, any>;
     }
+    interface PcmVirtualChatModal {
+        /**
+          * 助手头像URL
+         */
+        "assistantAvatar"?: string;
+        /**
+          * 机器人ID
+         */
+        "botId"?: string;
+        /**
+          * 会话ID，传入继续对话，否则创建新会话
+         */
+        "conversationId"?: string;
+        /**
+          * 录制倒计时提醒时间（秒） 当剩余时间小于此值时，显示倒计时警告
+         */
+        "countdownWarningTime": number;
+        /**
+          * 自定义智能体inputs输入参数
+         */
+        "customInputs": Record<string, any>;
+        /**
+          * 默认发送文本
+         */
+        "defaultQuery": string;
+        /**
+          * 虚拟数字人ID，指定则开启虚拟数字人功能
+         */
+        "digitalId"?: string;
+        /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode": 'drawer' | 'window';
+        /**
+          * 是否以全屏模式打开，移动端建议设置为true
+         */
+        "fullscreen": boolean;
+        /**
+          * 应用图标URL
+         */
+        "icon"?: string;
+        /**
+          * 是否展示右上角的关闭按钮
+         */
+        "isNeedClose": boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen": boolean;
+        /**
+          * 是否展示顶部标题栏
+         */
+        "isShowHeader": boolean;
+        /**
+          * 视频录制最大时长（秒）
+         */
+        "maxRecordingTime": number;
+        /**
+          * 模态框标题
+         */
+        "modalTitle": string;
+        /**
+          * 是否显示复制按钮
+         */
+        "showCopyButton": boolean;
+        /**
+          * 是否显示点赞点踩按钮
+         */
+        "showFeedbackButtons": boolean;
+        /**
+          * SDK鉴权密钥
+         */
+        "token"?: string;
+        /**
+          * 用户头像URL
+         */
+        "userAvatar"?: string;
+        /**
+          * 聊天框的页面层级
+         */
+        "zIndex"?: number;
+    }
     interface PcmZskChatModal {
         /**
           * 会话ID，传入继续对话，否则创建新会话
@@ -1509,6 +1591,10 @@ export interface PcmTimeCountDownCustomEvent<T> extends CustomEvent<T> {
 export interface PcmUploadCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmUploadElement;
+}
+export interface PcmVirtualChatModalCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLPcmVirtualChatModalElement;
 }
 export interface PcmZskChatModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -2114,6 +2200,29 @@ declare global {
         prototype: HTMLPcmUploadElement;
         new (): HTMLPcmUploadElement;
     };
+    interface HTMLPcmVirtualChatModalElementEventMap {
+        "modalClosed": void;
+        "streamComplete": StreamCompleteEventData;
+        "conversationStart": ConversationStartEventData;
+        "interviewComplete": InterviewCompleteEventData;
+        "recordingError": RecordingErrorEventData;
+        "recordingStatusChange": RecordingStatusChangeEventData;
+        "tokenInvalid": void;
+    }
+    interface HTMLPcmVirtualChatModalElement extends Components.PcmVirtualChatModal, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLPcmVirtualChatModalElementEventMap>(type: K, listener: (this: HTMLPcmVirtualChatModalElement, ev: PcmVirtualChatModalCustomEvent<HTMLPcmVirtualChatModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLPcmVirtualChatModalElementEventMap>(type: K, listener: (this: HTMLPcmVirtualChatModalElement, ev: PcmVirtualChatModalCustomEvent<HTMLPcmVirtualChatModalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLPcmVirtualChatModalElement: {
+        prototype: HTMLPcmVirtualChatModalElement;
+        new (): HTMLPcmVirtualChatModalElement;
+    };
     interface HTMLPcmZskChatModalElementEventMap {
         "modalClosed": void;
         "streamComplete": StreamCompleteEventData1;
@@ -2188,6 +2297,7 @@ declare global {
         "pcm-qgqjl-modal": HTMLPcmQgqjlModalElement;
         "pcm-time-count-down": HTMLPcmTimeCountDownElement;
         "pcm-upload": HTMLPcmUploadElement;
+        "pcm-virtual-chat-modal": HTMLPcmVirtualChatModalElement;
         "pcm-zsk-chat-modal": HTMLPcmZskChatModalElement;
         "pcm-zygh-modal": HTMLPcmZyghModalElement;
     }
@@ -3329,7 +3439,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域   传入customInputs.file_url时，会隐藏简历上传区域。   传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。   传入customInputs.question_number时，会设置面试题数量。   传入customInputs.can_outputAnalysis时，会设置是否需要参考答案。
          */
         "customInputs"?: Record<string, string>;
         /**
@@ -3418,7 +3528,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。 customInputs.interview_type：可传入数字，传入 1 时，开启题目连续模式，一次性生成所有题目。不传入或传入其他值时，题目将逐个生成。
          */
         "customInputs"?: Record<string, string>;
         /**
@@ -3624,7 +3734,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。
+          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。 customInputs.interview_type：可传入数字，传入 1 时，开启题目连续模式，一次性生成所有题目。不传入或传入其他值时，题目将逐个生成。
          */
         "customInputs"?: Record<string, string>;
         /**
@@ -3993,6 +4103,116 @@ declare namespace LocalJSX {
          */
         "uploadParams"?: Record<string, any>;
     }
+    interface PcmVirtualChatModal {
+        /**
+          * 助手头像URL
+         */
+        "assistantAvatar"?: string;
+        /**
+          * 机器人ID
+         */
+        "botId"?: string;
+        /**
+          * 会话ID，传入继续对话，否则创建新会话
+         */
+        "conversationId"?: string;
+        /**
+          * 录制倒计时提醒时间（秒） 当剩余时间小于此值时，显示倒计时警告
+         */
+        "countdownWarningTime"?: number;
+        /**
+          * 自定义智能体inputs输入参数
+         */
+        "customInputs"?: Record<string, any>;
+        /**
+          * 默认发送文本
+         */
+        "defaultQuery"?: string;
+        /**
+          * 虚拟数字人ID，指定则开启虚拟数字人功能
+         */
+        "digitalId"?: string;
+        /**
+          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
+         */
+        "filePreviewMode"?: 'drawer' | 'window';
+        /**
+          * 是否以全屏模式打开，移动端建议设置为true
+         */
+        "fullscreen"?: boolean;
+        /**
+          * 应用图标URL
+         */
+        "icon"?: string;
+        /**
+          * 是否展示右上角的关闭按钮
+         */
+        "isNeedClose"?: boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen"?: boolean;
+        /**
+          * 是否展示顶部标题栏
+         */
+        "isShowHeader"?: boolean;
+        /**
+          * 视频录制最大时长（秒）
+         */
+        "maxRecordingTime"?: number;
+        /**
+          * 模态框标题
+         */
+        "modalTitle"?: string;
+        /**
+          * 新会话开始的回调，只会在一轮对话开始时触发一次
+         */
+        "onConversationStart"?: (event: PcmVirtualChatModalCustomEvent<ConversationStartEventData>) => void;
+        /**
+          * 当聊天完成时触发
+         */
+        "onInterviewComplete"?: (event: PcmVirtualChatModalCustomEvent<InterviewCompleteEventData>) => void;
+        /**
+          * 当点击模态框关闭时触发
+         */
+        "onModalClosed"?: (event: PcmVirtualChatModalCustomEvent<void>) => void;
+        /**
+          * 录制错误事件
+         */
+        "onRecordingError"?: (event: PcmVirtualChatModalCustomEvent<RecordingErrorEventData>) => void;
+        /**
+          * 录制状态变化事件
+         */
+        "onRecordingStatusChange"?: (event: PcmVirtualChatModalCustomEvent<RecordingStatusChangeEventData>) => void;
+        /**
+          * 一轮对话结束时的回调
+         */
+        "onStreamComplete"?: (event: PcmVirtualChatModalCustomEvent<StreamCompleteEventData>) => void;
+        /**
+          * SDK密钥验证失败事件
+         */
+        "onTokenInvalid"?: (event: PcmVirtualChatModalCustomEvent<void>) => void;
+        /**
+          * 是否显示复制按钮
+         */
+        "showCopyButton"?: boolean;
+        /**
+          * 是否显示点赞点踩按钮
+         */
+        "showFeedbackButtons"?: boolean;
+        /**
+          * SDK鉴权密钥
+         */
+        "token"?: string;
+        /**
+          * 用户头像URL
+         */
+        "userAvatar"?: string;
+        /**
+          * 聊天框的页面层级
+         */
+        "zIndex"?: number;
+    }
     interface PcmZskChatModal {
         /**
           * 会话ID，传入继续对话，否则创建新会话
@@ -4175,6 +4395,7 @@ declare namespace LocalJSX {
         "pcm-qgqjl-modal": PcmQgqjlModal;
         "pcm-time-count-down": PcmTimeCountDown;
         "pcm-upload": PcmUpload;
+        "pcm-virtual-chat-modal": PcmVirtualChatModal;
         "pcm-zsk-chat-modal": PcmZskChatModal;
         "pcm-zygh-modal": PcmZyghModal;
     }
@@ -4258,6 +4479,7 @@ declare module "@stencil/core" {
             "pcm-qgqjl-modal": LocalJSX.PcmQgqjlModal & JSXBase.HTMLAttributes<HTMLPcmQgqjlModalElement>;
             "pcm-time-count-down": LocalJSX.PcmTimeCountDown & JSXBase.HTMLAttributes<HTMLPcmTimeCountDownElement>;
             "pcm-upload": LocalJSX.PcmUpload & JSXBase.HTMLAttributes<HTMLPcmUploadElement>;
+            "pcm-virtual-chat-modal": LocalJSX.PcmVirtualChatModal & JSXBase.HTMLAttributes<HTMLPcmVirtualChatModalElement>;
             "pcm-zsk-chat-modal": LocalJSX.PcmZskChatModal & JSXBase.HTMLAttributes<HTMLPcmZskChatModalElement>;
             "pcm-zygh-modal": LocalJSX.PcmZyghModal & JSXBase.HTMLAttributes<HTMLPcmZyghModalElement>;
         }

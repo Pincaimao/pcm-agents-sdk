@@ -56,7 +56,6 @@
  - [pcm-jlpp-modal](../pcm-jlpp-modal)
  - [pcm-jlzz-modal](../pcm-jlzz-modal)
  - [pcm-mnct-modal](../pcm-mnct-modal)
- - [pcm-mnms-modal](../pcm-mnms-modal)
  - [pcm-mnms-video-modal](../pcm-mnms-video-modal)
  - [pcm-mnms-zp-modal](../pcm-mnms-zp-modal)
  - [pcm-msbg-modal](../pcm-msbg-modal)
@@ -84,7 +83,6 @@ graph TD;
   pcm-jlpp-modal --> pcm-app-chat-modal
   pcm-jlzz-modal --> pcm-app-chat-modal
   pcm-mnct-modal --> pcm-app-chat-modal
-  pcm-mnms-modal --> pcm-app-chat-modal
   pcm-mnms-video-modal --> pcm-app-chat-modal
   pcm-mnms-zp-modal --> pcm-app-chat-modal
   pcm-msbg-modal --> pcm-app-chat-modal

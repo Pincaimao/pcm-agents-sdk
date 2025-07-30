@@ -399,14 +399,13 @@ export class MnmsModal {
                     {/* 聊天界面 - 在显示聊天模态框时显示 */}
                     {this.showChatModal && (
                         <div >
-                            <pcm-app-chat-modal
+                            <pcm-virtual-chat-modal
                                 isOpen={true}
                                 modalTitle={this.modalTitle}
                                 icon={this.icon}
                                 isShowHeader={this.isShowHeader}
                                 isNeedClose={this.isShowHeader}
                                 fullscreen={this.fullscreen}
-                                showWorkspaceHistory={this.showWorkspaceHistory}
                                 botId="3022316191018884"
                                 digitalId={this.digitalId}
                                 conversationId={this.conversationId}
@@ -420,8 +419,7 @@ export class MnmsModal {
                                     file_name: this.customInputs?.file_name || this.uploadedFileInfo?.file_name,
                                     job_info: this.customInputs?.job_info || this.jobDescription
                                 }}
-                                interviewMode={this.interviewMode}
-                            ></pcm-app-chat-modal>
+                            ></pcm-virtual-chat-modal>
                         </div>
                     )}
                 </div>

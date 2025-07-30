@@ -2,7 +2,6 @@ import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '
 import { sendSSERequest, sendHttpRequest, uploadFileToBackend, fetchAgentInfo, getSupportedMimeType, convertAudioToText } from '../../utils/utils';
 import { ChatMessage, ConversationItem } from '../../interfaces/chat';
 import { StreamCompleteEventData, ConversationStartEventData, InterviewCompleteEventData, RecordingErrorEventData, RecordingStatusChangeEventData } from '../../interfaces/events';
-import { marked } from 'marked';
 import { ErrorEventBus } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store'; // 导入 authStore
 import { configStore } from '../../../store/config.store';
@@ -10,7 +9,7 @@ import { SentryReporter } from '../../utils/sentry-reporter';
 
 @Component({
   tag: 'pcm-virtual-chat-modal',
-  styleUrls: ['pcm-virtual-chat-modal.css', '../../global/markdown.css'],
+  styleUrls: ['pcm-virtual-chat-modal.css'],
   shadow: true,
 })
 export class ChatVirtualAPPModal {
@@ -73,9 +72,6 @@ export class ChatVirtualAPPModal {
    * 当前正在流式输出的消息
    */
   @State() currentStreamingMessage: ChatMessage | null = null;
-
-  // 添加新的状态控制
-  @State() shouldAutoScroll: boolean = true;
 
   @State() isLoadingHistory: boolean = false;
 
@@ -145,8 +141,28 @@ export class ChatVirtualAPPModal {
   // 添加新的状态来跟踪视频上传
   @State() isUploadingVideo: boolean = false;
 
-  // 添加新的状态和属性
-  @State() isPlayingAudio: boolean = false;
+  /**
+   * 数字人视频相关状态
+   */
+  @State() digitalHumanVideoUrl: string = '';
+  @State() digitalHumanDefaultVideoUrl: string = '';
+  @State() digitalHumanVirtualmanKey: string = '';
+  @State() isPlayingDigitalHumanVideo: boolean = false;
+  @State() digitalHumanVideoReady: boolean = false;
+
+  // 数字人视频元素引用
+  private digitalHumanVideoElement: HTMLVideoElement | null = null;
+
+  /**
+   * 是否正在等待数字人视频播放完成
+   */
+  @State() waitingForDigitalHuman: boolean = false;
+
+
+  /**
+   * 虚拟数字人ID，指定则开启虚拟数字人功能
+   */
+  @Prop() digitalId?: string;
 
   /**
    * 录制错误事件
@@ -162,13 +178,6 @@ export class ChatVirtualAPPModal {
    * SDK密钥验证失败事件
    */
   @Event() tokenInvalid: EventEmitter<void>;
-
-  /**
-   * 聊天模式
-   * video: 视频聊天模式
-   * text: 文字聊天模式
-   */
-  @Prop() interviewMode: 'video' | 'text' = 'video';
 
   /**
    * 自定义智能体inputs输入参数
@@ -198,10 +207,6 @@ export class ChatVirtualAPPModal {
   // 添加新的状态属性来跟踪任务是否已完成
   @State() isTaskCompleted: boolean = false;
 
-  /**
-   * 数字人 virtualmanKey
-   */
-  @State() virtualmanKey: string = '';
 
   private tokenInvalidListener: () => void;
 
@@ -222,10 +227,6 @@ export class ChatVirtualAPPModal {
    */
   @Prop() filePreviewMode: 'drawer' | 'window' = 'window';
 
-  /**
-   * 是否显示工作区历史会话按钮
-   */
-  @Prop() showWorkspaceHistory: boolean = false;
 
   // 添加新的状态来管理抽屉
   @State() isDrawerOpen: boolean = false;
@@ -250,41 +251,12 @@ export class ChatVirtualAPPModal {
   @State() showConfirmModal: boolean = false;
   @State() skipConfirmThisInterview: boolean = false;
 
-
-  /**
-   * 最后完成的AI回复文本，用于数字人视频生成
-   */
-  @State() lastCompletedAnswer: string = '';
-
-  /**
-   * 是否正在等待数字人视频播放完成
-   */
-  @State() waitingForDigitalHuman: boolean = false;
-
-  /**
-   * 数字人视频是否已生成完成
-   */
-  @State() digitalHumanVideoReady: boolean = false;
-
-  /**
-   * 虚拟数字人ID，指定则开启虚拟数字人功能
-   */
-  @Prop() digitalId?: string;
-
   @Watch('token')
   handleTokenChange(newToken: string) {
     // 当传入的 token 变化时，更新 authStore 中的 token
     if (newToken && newToken !== authStore.getToken()) {
       authStore.setToken(newToken);
     }
-  }
-
-  constructor() {
-    // 配置 marked 选项
-    marked.setOptions({
-      breaks: true,
-      gfm: true,
-    });
   }
 
   componentWillLoad() {
@@ -322,6 +294,20 @@ export class ChatVirtualAPPModal {
       this.fetchAgentLogo();
     }
 
+    // 添加数字人初始化日志
+    console.log('componentWillLoad - 数字人相关状态:', {
+      digitalId: this.digitalId,
+      isOpen: this.isOpen,
+      conversationId: this.conversationId,
+      digitalHumanVirtualmanKey: this.digitalHumanVirtualmanKey,
+    });
+
+    // 如果有数字人ID，初始化数字人功能
+    if (this.digitalId) {
+      console.log('准备初始化数字人功能...');
+      this.initializeDigitalHuman();
+    }
+
     // 如果组件加载时已经是打开状态，则直接开始对话
     if (this.isOpen) {
       if (this.conversationId) {
@@ -336,10 +322,6 @@ export class ChatVirtualAPPModal {
     }
   }
 
-  private handleClose = () => {
-    this.stopRecording();
-    this.modalClosed.emit();
-  };
 
   // 添加获取智能体信息的方法
   private async fetchAgentLogo() {
@@ -368,7 +350,7 @@ export class ChatVirtualAPPModal {
     // 发送新消息时重置状态
     this.waitingForDigitalHuman = false;
     this.digitalHumanVideoReady = false;
-    
+
     this.isLoading = true;
     let answer = '';
     let llmText = '';
@@ -409,11 +391,6 @@ export class ChatVirtualAPPModal {
     // 设置当前流式消息
     this.currentStreamingMessage = newMessage;
 
-    // 滚动到底部
-    setTimeout(() => {
-      this.shouldAutoScroll = true;
-      this.scrollToBottom();
-    }, 200);
 
     // 准备请求数据
     const requestData: any = {
@@ -490,7 +467,6 @@ export class ChatVirtualAPPModal {
                 agent_thoughts: data.agent_thoughts || this.currentStreamingMessage.agent_thoughts,
               };
               this.currentStreamingMessage = updatedMessage;
-              this.scrollToBottom();
             }
           }
         }
@@ -546,9 +522,11 @@ export class ChatVirtualAPPModal {
         const latestAIMessage = this.currentStreamingMessage;
         latestAIMessage.isStreaming = false;
 
-        // 保存最后完成的回复内容用于数字人视频生成
-        if (latestAIMessage && latestAIMessage.answer) {
-          this.lastCompletedAnswer = latestAIMessage.answer;
+
+        if (this.digitalId && latestAIMessage && latestAIMessage.answer) {
+          // 如果开启了数字人功能，生成数字人视频
+          console.log('生成数字人视频:', latestAIMessage.answer);
+          this.generateDigitalHumanVideo(latestAIMessage.answer);
         }
 
         this.currentStreamingMessage = null;
@@ -563,71 +541,16 @@ export class ChatVirtualAPPModal {
           return;
         }
 
-        if (this.interviewMode === 'video') {
-          // 如果开启了数字人，等待数字人视频播放完成
-          if (this.digitalId) {
-            this.waitingForDigitalHuman = true;
-            console.log('等待数字人视频播放完成...');
-          } else {
-            // 没有开启数字人，直接开始录制
-            this.startWaitingToRecord();
-          }
+        // 如果开启了数字人，等待数字人视频播放完成
+        if (this.digitalId) {
+          this.waitingForDigitalHuman = true;
+          console.log('等待数字人视频播放完成...');
+        } else {
+          // 没有开启数字人，直接开始录制
+          this.startWaitingToRecord();
         }
       },
     });
-  }
-
-  // 修改滚动处理函数
-  private handleScroll = () => {
-    // 只有当用户正在滚动时才更新自动滚动状态
-    if (this.isUserScrolling) {
-      const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
-      if (!chatHistory) return;
-
-      const { scrollTop, scrollHeight, clientHeight } = chatHistory;
-      const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-
-      // 更新是否应该自动滚动的状态
-      this.shouldAutoScroll = distanceFromBottom <= 20;
-    }
-  };
-
-  // 添加触摸开始事件处理
-  private handleTouchStart = () => {
-    this.isUserScrolling = true;
-  };
-
-  // 添加触摸结束事件处理
-  private handleTouchEnd = () => {
-    setTimeout(() => {
-      this.isUserScrolling = false;
-    }, 100); // 添加小延迟以确保滚动事件处理完成
-  };
-
-  private _wheelTimer: any = null;
-
-  // 添加鼠标滚轮事件处理
-  private handleWheel = () => {
-    this.isUserScrolling = true;
-
-    // 清除之前的定时器（如果存在）
-    if (this._wheelTimer) {
-      clearTimeout(this._wheelTimer);
-    }
-
-    // 设置新的定时器
-    this._wheelTimer = setTimeout(() => {
-      this.isUserScrolling = false;
-    }, 150); // 滚轮停止后的延迟时间
-  };
-
-  private scrollToBottom() {
-    if (!this.shouldAutoScroll) return;
-    const chatHistory = this.hostElement.shadowRoot?.querySelector('.chat-history');
-    if (chatHistory && this.isOpen) {
-      // 强制浏览器重新计算布局
-      chatHistory.scrollTop = chatHistory.scrollHeight;
-    }
   }
 
   // 修改加载历史消息的方法
@@ -711,16 +634,12 @@ export class ChatVirtualAPPModal {
     } finally {
       this.isLoadingHistory = false;
       setTimeout(async () => {
-        this.shouldAutoScroll = true;
-        this.scrollToBottom();
 
         // 如果有会话ID且有历史消息，且会话未结束，处理继续对话的逻辑
         if (this.conversationId && this.messages.length > 0 && !conversationStatus) {
 
-          // 如果是视频模式，开始等待录制
-          if (this.interviewMode === 'video') {
-            this.startWaitingToRecord();
-          }
+          // 开始等待录制
+          this.startWaitingToRecord();
         } else if (conversationStatus) {
           // 如果会话已结束，设置任务完成状态
           this.isTaskCompleted = true;
@@ -731,10 +650,6 @@ export class ChatVirtualAPPModal {
 
   // 开始等待录制
   private startWaitingToRecord() {
-    // 如果不是视频模式，直接返回
-    if (this.interviewMode !== 'video') {
-      return;
-    }
 
     // 清除可能存在的计时器
     if (this.waitingTimer) {
@@ -967,7 +882,7 @@ export class ChatVirtualAPPModal {
   private setupVideoPreview(stream: MediaStream) {
     // 延迟执行以确保DOM已更新
     setTimeout(() => {
-      const videoElement = this.hostElement.shadowRoot?.querySelector('video') as HTMLVideoElement;
+      const videoElement = this.hostElement.shadowRoot?.querySelector('.user-video-preview') as HTMLVideoElement;
       if (videoElement && stream) {
         // 先尝试使用标准方法
         try {
@@ -1139,228 +1054,16 @@ export class ChatVirtualAPPModal {
     // 停止录制
     this.stopRecording();
   }
-
-  // 处理历史会话按钮点击
-  private handleHistoryClick = () => {
-    this.isHistoryDrawerOpen = true;
-    this.loadHistoryConversations();
-  };
-
-  // 获取历史会话列表
-  private async loadHistoryConversations() {
-    if (!this.botId) {
-      console.warn('没有提供botId，无法获取历史会话');
-      return;
-    }
-
-    this.isLoadingConversations = true;
-
-    try {
-      const result = await sendHttpRequest({
-        url: '/sdk/v1/chat/conversations',
-        method: 'GET',
-        data: {
-          bot_id: this.botId,
-          limit: 50, // 获取最近50个会话
-          page: 1,
-        },
-      });
-
-      if (result.success && result.data) {
-        const conversations = result.data.data || [];
-
-        // 格式化会话数据
-        this.historyConversations = conversations.map((conv: any) => {
-          // 处理时间戳，确保它是有效的数字
-          let createdTime: Date;
-          let timeDisplay = '未知时间';
-
-          try {
-            // 确保 created_at 是一个有效的时间戳
-            const timestamp = typeof conv.created_at === 'string' ? parseInt(conv.created_at) : conv.created_at;
-
-            if (isNaN(timestamp) || timestamp <= 0) {
-              console.warn('无效的时间戳:', conv.created_at);
-              createdTime = new Date();
-            } else {
-              // Unix时间戳转换为JavaScript Date对象（乘以1000转换为毫秒）
-              createdTime = new Date(timestamp * 1000);
-            }
-
-            // 验证日期是否有效
-            if (isNaN(createdTime.getTime())) {
-              console.warn('无效的日期对象:', conv.created_at);
-              createdTime = new Date();
-            }
-
-            const now = new Date();
-            const diffTime = now.getTime() - createdTime.getTime();
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-            // 格式化时间显示
-            if (diffDays === 0) {
-              // 今天
-              timeDisplay = `今天 ${createdTime.getHours().toString().padStart(2, '0')}:${createdTime.getMinutes().toString().padStart(2, '0')}`;
-            } else if (diffDays === 1) {
-              // 昨天
-              timeDisplay = `昨天 ${createdTime.getHours().toString().padStart(2, '0')}:${createdTime.getMinutes().toString().padStart(2, '0')}`;
-            } else if (diffDays > 0 && diffDays < 7) {
-              // 一周内
-              const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-              timeDisplay = `${weekdays[createdTime.getDay()]} ${createdTime.getHours().toString().padStart(2, '0')}:${createdTime.getMinutes().toString().padStart(2, '0')}`;
-            } else if (diffDays < 0) {
-              // 未来时间（可能是时区问题或系统时间不准确）
-              timeDisplay = `${(createdTime.getMonth() + 1).toString().padStart(2, '0')}-${createdTime.getDate().toString().padStart(2, '0')} ${createdTime
-                .getHours()
-                .toString()
-                .padStart(2, '0')}:${createdTime.getMinutes().toString().padStart(2, '0')}`;
-            } else {
-              // 超过一周
-              timeDisplay = `${(createdTime.getMonth() + 1).toString().padStart(2, '0')}-${createdTime.getDate().toString().padStart(2, '0')} ${createdTime
-                .getHours()
-                .toString()
-                .padStart(2, '0')}:${createdTime.getMinutes().toString().padStart(2, '0')}`;
-            }
-          } catch (error) {
-            console.error('时间格式化错误:', error, conv.created_at);
-            timeDisplay = '时间解析失败';
-          }
-
-          return {
-            id: conv.id,
-            name: conv.name || '新会话',
-            created_at: conv.created_at,
-            updated_at: conv.updated_at,
-            status: conv.status,
-            message_count: conv.message_count || 0,
-            timeDisplay,
-          } as ConversationItem;
-        });
-      }
-    } catch (error) {
-      console.error('获取历史会话失败:', error);
-      SentryReporter.captureError(error, {
-        action: 'loadHistoryConversations',
-        component: 'pcm-virtual-chat-modal',
-        title: '获取历史会话失败',
-      });
-      ErrorEventBus.emitError({
-        error: error,
-        message: '获取历史会话失败',
-      });
-    } finally {
-      this.isLoadingConversations = false;
-    }
-  }
-
-  // 切换到指定会话
-  private handleSwitchConversation = (conversationId: string) => {
-    if (conversationId === this.conversationId) {
-      // 如果点击的是当前会话，直接关闭抽屉
-      this.isHistoryDrawerOpen = false;
-      return;
-    }
-
-    // 切换到新会话
-    this.conversationId = conversationId;
-    this.messages = [];
-    this.currentStreamingMessage = null;
-    this.isTaskCompleted = false;
-    this.currentQuestionNumber = 0;
-
-    // 关闭抽屉
-    this.isHistoryDrawerOpen = false;
-
-    // 加载新会话的历史消息
-    this.loadHistoryMessages();
-  };
-
-  // pcm-chat-message事件处理方法
-  private handleFilePreviewRequest = (
-    event: CustomEvent<{
-      url?: string;
-      fileName: string;
-      content?: string;
-      contentType: 'file' | 'markdown' | 'text';
-    }>,
-  ) => {
-    const { url, fileName, content, contentType } = event.detail;
-
-    this.previewFileName = fileName || '内容预览';
-    this.previewContentType = contentType;
-    this.previewUrl = url;
-    this.previewContent = content || '';
-    this.isDrawerOpen = true;
-  };
-
-  /**
-   * 判断当前消息是否为最后一个消息（用于确定是否需要等待数字人视频）
-   */
-  private isLastMessage(message: ChatMessage): boolean {
-    if (this.currentStreamingMessage) {
-      return false;
-    }
-    
-    // 如果没有流式消息，检查当前消息是否是messages数组中的最后一个
-    if (this.messages.length === 0) {
-      return false;
-    }
-    
-    const lastMessage = this.messages[this.messages.length - 1];
-    
-    return message.id === lastMessage.id;
-  }
-
-  /**
-   * 处理数字人视频生成成功事件
-   */
-  private handleDigitalHumanVideoGenerated = (event: CustomEvent<{
-    videoUrl: string;
-  }>) => {
-    const { videoUrl } = event.detail;
-    
-    console.log('数字人视频生成成功:', {
-      videoUrl,
-      conversationId: this.conversationId,
-      currentQuestionNumber: this.currentQuestionNumber
-    });
-
-    // 设置数字人视频已准备好
-    this.digitalHumanVideoReady = true;
-  };
-
-  /**
-   * 处理数字人视频播放完成事件
-   */
-  private handleDigitalHumanVideoEnded = (event: CustomEvent<{
-    videoUrl: string;
-  }>) => {
-    const videoUrl = event.detail;
-    
-    console.log('数字人生成视频播放完成:', {
-      videoUrl,
-      conversationId: this.conversationId,
-      currentQuestionNumber: this.currentQuestionNumber
-    });
-
-    // 数字人视频播放完成后，开始录制流程
-    if (this.waitingForDigitalHuman && this.interviewMode === 'video' && !this.isTaskCompleted) {
-      this.waitingForDigitalHuman = false;
-      this.startWaitingToRecord();
-    }
-  };
-
+  
   /**
    * 预创建数字人视频
    */
   private async precreateDigitalHumanVideos(digital_human_list: string[]) {
-    if (!this.virtualmanKey) {
+    if (!this.digitalHumanVirtualmanKey) {
       console.warn('VirtualmanKey尚未加载，无法预创建视频。');
       // 可以在此处添加逻辑，等待virtualmanKey加载后再执行
       return;
     }
-
-    console.log('开始批量预创建数字人视频...');
 
     for (const text of digital_human_list) {
       if (!text || !text.trim()) continue;
@@ -1370,7 +1073,7 @@ export class ChatVirtualAPPModal {
           url: '/sdk/v1/virtual-human/create-video',
           method: 'POST',
           data: {
-            VirtualmanKey: this.virtualmanKey,
+            VirtualmanKey: this.digitalHumanVirtualmanKey,
             InputSsml: text,
             SpeechParam: {
               Speed: 1,
@@ -1394,15 +1097,259 @@ export class ChatVirtualAPPModal {
     console.log('数字人视频预创建任务已全部发送。');
   }
 
+
   /**
-   * 处理数字人详情加载完成事件
+   * 初始化数字人功能
    */
-  private handleAvatarDetailLoaded = (event: CustomEvent<{ virtualmanKey: string }>) => {
-    if (event.detail.virtualmanKey) {
-      this.virtualmanKey = event.detail.virtualmanKey;
-      console.log('已获取 VirtualmanKey:', this.virtualmanKey);
+  private async initializeDigitalHuman() {
+    if (!this.digitalId) return;
+
+    try {
+      console.log('初始化数字人功能，digitalId:', this.digitalId);
+      const response = await sendHttpRequest({
+        url: '/sdk/v1/virtual-human/avatar-detail',
+        method: 'POST',
+        data: {
+          avatar_id: this.digitalId
+        }
+      });
+
+      if (response.success) {
+        const { placeholder_video_url, virtualman_key } = response.data;
+
+        if (placeholder_video_url) {
+          this.digitalHumanDefaultVideoUrl = placeholder_video_url;
+          this.digitalHumanVideoUrl = placeholder_video_url;
+        }
+
+        if (virtualman_key) {
+          this.digitalHumanVirtualmanKey = virtualman_key;
+        }
+
+        console.log('数字人初始化完成:', {
+          defaultVideoUrl: this.digitalHumanDefaultVideoUrl,
+          virtualmanKey: this.digitalHumanVirtualmanKey
+        });
+      }
+    } catch (error) {
+      console.error('初始化数字人失败:', error);
+      SentryReporter.captureError(error, {
+        action: 'initializeDigitalHuman',
+        component: 'pcm-virtual-chat-modal',
+        title: '数字人初始化失败',
+      });
+    }
+  }
+
+  /**
+   * 生成数字人视频
+   */
+  private async generateDigitalHumanVideo(text: string) {
+    if (!text.trim() || !this.digitalHumanVirtualmanKey) return;
+
+    console.log('开始生成数字人视频，文本内容：', text);
+
+    try {
+      // 创建视频任务
+      const createResponse = await sendHttpRequest({
+        url: '/sdk/v1/virtual-human/create-video',
+        method: 'POST',
+        data: {
+          VirtualmanKey: this.digitalHumanVirtualmanKey,
+          InputSsml: text,
+          SpeechParam: {
+            Speed: 1
+          },
+          VideoParam: {
+            Format: "TransparentWebm"
+          },
+          DriverType: "Text"
+        }
+      });
+
+      console.log('数字人视频创建响应:', createResponse);
+
+      if (!createResponse.success) {
+        throw new Error(`创建视频任务失败: ${createResponse.message}`);
+      }
+
+      const taskId = createResponse.data.Payload.TaskId;
+      console.log('视频任务创建成功，TaskId:', taskId);
+
+      // 轮询查询进度
+      const videoUrl = await this.pollVideoProgress(taskId);
+
+      if (videoUrl) {
+        await this.playDigitalHumanVideo(videoUrl);
+        console.log('数字人视频生成完成，视频URL:', videoUrl);
+      }
+
+    } catch (error) {
+      console.error('数字人视频生成失败:', error);
+      SentryReporter.captureError(error, {
+        action: 'generateDigitalHumanVideo',
+        component: 'pcm-virtual-chat-modal',
+        title: '数字人视频生成失败',
+      });
+    }
+  }
+
+  /**
+   * 轮询查询视频生成进度
+   */
+  private async pollVideoProgress(taskId: string): Promise<string | null> {
+    const maxAttempts = 30;
+    const pollInterval = 2000;
+
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      try {
+        const response = await sendHttpRequest({
+          url: '/sdk/v1/virtual-human/query-progress',
+          method: 'POST',
+          data: {
+            TaskId: taskId
+          }
+        });
+
+        if (!response.success) {
+          throw new Error(`查询进度失败: ${response.message}`);
+        }
+
+        const payload = response.data.Payload;
+        console.log(`视频生成进度: ${payload.Progress}%, 状态: ${payload.Status}`);
+
+        if (payload.Status === 'SUCCESS' && payload.Progress === 100) {
+          return payload.MediaUrl;
+        } else if (payload.Status === 'FAILED') {
+          throw new Error(`视频生成失败: ${payload.FailMessage}`);
+        }
+
+        await new Promise(resolve => setTimeout(resolve, pollInterval));
+
+      } catch (error) {
+        console.error('轮询视频进度失败:', error);
+        break;
+      }
+    }
+
+    throw new Error('视频生成超时');
+  }
+
+  /**
+   * 播放数字人视频
+   */
+  private async playDigitalHumanVideo(videoUrl: string) {
+    console.log('开始播放数字人视频:', videoUrl);
+
+    try {
+      // 预加载视频
+      await this.preloadVideo(videoUrl);
+
+      // 只通过状态来控制video元素
+      this.digitalHumanVideoUrl = videoUrl;
+      this.isPlayingDigitalHumanVideo = true;
+      this.digitalHumanVideoReady = true;
+
+      console.log('数字人视频状态已更新:', {
+        videoUrl: this.digitalHumanVideoUrl,
+        isPlaying: this.isPlayingDigitalHumanVideo,
+        muted: !this.isPlayingDigitalHumanVideo
+      });
+
+    } catch (error) {
+      console.error('播放数字人视频失败:', error);
+    }
+  }
+
+  /**
+   * 预加载视频
+   */
+  private async preloadVideo(videoUrl: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const preloadVideo = document.createElement('video');
+      preloadVideo.preload = 'auto';
+      preloadVideo.src = videoUrl;
+
+      const handleCanPlay = () => {
+        console.log('视频预加载完成:', videoUrl);
+        preloadVideo.removeEventListener('canplaythrough', handleCanPlay);
+        preloadVideo.removeEventListener('error', handleError);
+        resolve();
+      };
+
+      const handleError = () => {
+        console.error('视频预加载失败:', videoUrl);
+        preloadVideo.removeEventListener('canplaythrough', handleError);
+        preloadVideo.removeEventListener('error', handleError);
+        reject(new Error('视频预加载失败'));
+      };
+
+      preloadVideo.addEventListener('canplaythrough', handleCanPlay);
+      preloadVideo.addEventListener('error', handleError);
+      preloadVideo.load();
+    });
+  }
+
+  /**
+   * 处理数字人视频播放结束
+   */
+  private handleVideoElementEnded = () => {
+    if (this.isPlayingDigitalHumanVideo) {
+      console.log('数字人视频播放完成');
+
+      // 只通过状态来控制video元素，恢复默认视频
+      this.digitalHumanVideoUrl = this.digitalHumanDefaultVideoUrl;
+      this.isPlayingDigitalHumanVideo = false;
+
+      console.log('恢复默认视频状态:', {
+        videoUrl: this.digitalHumanVideoUrl,
+        isPlaying: this.isPlayingDigitalHumanVideo,
+        muted: !this.isPlayingDigitalHumanVideo
+      });
+
+      // 数字人视频播放完成后，开始录制流程
+      if (this.waitingForDigitalHuman && !this.isTaskCompleted) {
+        this.waitingForDigitalHuman = false;
+        this.startWaitingToRecord();
+      }
     }
   };
+
+  private renderChatHistory() {
+    // 优先显示正在流式输出的消息
+    if (this.currentStreamingMessage && this.currentStreamingMessage.answer) {
+      return (
+        <div class="ai-message-item streaming">
+          <div class="ai-message-content" innerHTML={this.currentStreamingMessage.answer}></div>
+          {this.currentStreamingMessage.isStreaming && (
+            <div class="typing-indicator">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // 找到最后一条有AI回复的消息
+    const lastMessageWithAnswer = [...this.messages].reverse().find(msg => msg.answer && msg.answer.trim());
+
+    if (lastMessageWithAnswer) {
+      return (
+        <div class="ai-message-item">
+          <div class="ai-message-content" innerHTML={lastMessageWithAnswer.answer}></div>
+        </div>
+      );
+    }
+
+    // 如果没有消息，显示欢迎语
+    return (
+      <div class="ai-message-item">
+        <div class="ai-message-content">你好，我是聘才猫，一个AI助手，很高兴认识你...</div>
+      </div>
+    );
+  }
 
   render() {
     if (!this.isOpen) return null;
@@ -1414,6 +1361,7 @@ export class ChatVirtualAPPModal {
     const containerClass = {
       'modal-container': true,
       'fullscreen': this.fullscreen,
+      'digital-human-mode': !!this.digitalId,
     };
 
     const overlayClass = {
@@ -1421,9 +1369,150 @@ export class ChatVirtualAPPModal {
       'fullscreen-overlay': this.fullscreen,
     };
 
-    const renderVideoPreview = () => (
-      <div class="video-preview">
+    return (
+      <div class={overlayClass} style={modalStyle}>
+        <div class={containerClass}>
+          {/* 数字人全屏背景视频层 */}
+          {this.digitalId && this.digitalHumanVideoUrl && (
+            <div class="digital-human-background">
+              <video
+                autoplay
+                playsinline
+                loop={!this.isPlayingDigitalHumanVideo}
+                muted={!this.isPlayingDigitalHumanVideo}
+                src={this.digitalHumanVideoUrl}
+                class="digital-human-background-video"
+                ref={el => (this.digitalHumanVideoElement = el)}
+                onEnded={this.handleVideoElementEnded}
+                onLoadedData={() => console.log('视频数据加载完成:', this.digitalHumanVideoUrl)}
+                onPlay={() => console.log('视频开始播放:', this.digitalHumanVideoUrl, '静音:', !this.isPlayingDigitalHumanVideo)}
+                onVolumeChange={() => console.log('音量变化:', this.digitalHumanVideoElement?.muted, this.digitalHumanVideoElement?.volume)}
+              />
+            </div>
+          )}
+
+          {this.renderVideoPreview()}
+
+          {/* 内容层 */}
+          <div class="modal-content-layer">
+            <div class="main-content">
+              {/* 聊天历史记录 */}
+              <div class="chat-history-section">{this.renderChatHistory()}</div>
+              {this.renderRecordingStatusBar()}
+            </div>
+          </div>
+
+          {/* 二次确认模态框 */}
+          <div style={{ position: 'relative', zIndex: '100' }}>
+            <pcm-confirm-modal
+              isOpen={this.showConfirmModal}
+              modalTitle="确认完成回答？"
+              okText="确认完成"
+              cancelText="继续录制"
+              okType="danger"
+              onOk={this.handleConfirmModalOk}
+              onCancel={this.handleConfirmModalCancelEvent}
+              onClosed={this.handleConfirmModalCancel}
+            >
+              <div style={{ marginBottom: '16px' }}>
+                <div
+                  style={{
+                    fontSize: '14px',
+                    color: '#1890ff',
+                    fontWeight: '500',
+                    marginBottom: '16px',
+                    textAlign: 'center',
+                  }}
+                >
+                  当前录制时长：
+                  {(() => {
+                    const elapsedSeconds = this.recordingStartTime > 0 ? Math.floor((Date.now() - this.recordingStartTime) / 1000) : 0;
+                    const minutes = Math.floor(elapsedSeconds / 60);
+                    const seconds = elapsedSeconds % 60;
+                    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                  })()}
+                </div>
+
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '12px 16px',
+                    background: '#fff7e6',
+                    border: '1px solid #ffec99',
+                    borderRadius: '6px',
+                    color: '#d46b08',
+                    fontSize: '14px',
+                    marginBottom: '16px',
+                  }}
+                >
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
+                  </svg>
+                  <span>注意：录制仍在进行中</span>
+                </div>
+
+                <div
+                  style={{
+                    fontSize: '16px',
+                    color: '#595959',
+                    lineHeight: '1.5',
+                    marginBottom: '16px',
+                  }}
+                >
+                  点击"确认完成"将结束本题回答
+                </div>
+
+                <label
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    cursor: 'pointer',
+                    padding: '8px 0',
+                    userSelect: 'none',
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    style={{
+                      width: '16px',
+                      height: '16px',
+                      accentColor: '#1890ff',
+                      cursor: 'pointer',
+                      margin: '0',
+                    }}
+                    checked={this.skipConfirmThisInterview}
+                    onChange={this.handleSkipConfirmChange}
+                  />
+                  <span
+                    style={{
+                      fontSize: '14px',
+                      color: '#595959',
+                      cursor: 'pointer',
+                      lineHeight: '1.4',
+                    }}
+                  >
+                    本次面试不再提醒
+                  </span>
+                </label>
+              </div>
+            </pcm-confirm-modal>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  private renderVideoPreview() {
+    if (!this.showRecordingUI) {
+      return null;
+    }
+    return (
+      <div class="recording-preview-top-right">
         <video
+          class="user-video-preview"
           autoPlay
           playsInline
           muted
@@ -1431,410 +1520,122 @@ export class ChatVirtualAPPModal {
           ref={el => {
             if (el && this.recordingStream && !this.videoRef) {
               this.videoRef = el;
-              // 不在这里设置srcObject，而是使用setupVideoPreview方法
             }
           }}
-        ></video>
-        <div
-          class={{
-            'recording-status': true,
-            'warning': this.showCountdownWarning,
-          }}
-        >
-          <span class="recording-dot"></span>
-          <span>
-            录制中 {Math.floor(this.recordingTimeLeft / 60)}:{(this.recordingTimeLeft % 60).toString().padStart(2, '0')}
-            {this.showCountdownWarning && ` (即将自动完成)`}
-          </span>
-        </div>
+        />
       </div>
     );
+  }
 
-    // 渲染占位符状态信息
-    const renderPlaceholderStatus = () => {
-      // 设备错误状态 - 优先显示
-      if (this.deviceError) {
-        return (
-          <div class="placeholder-status error-status">
-            <p>{this.deviceError}</p>
-            <div class="error-suggestions">
-              <p>请尝试以下解决方案：</p>
-              <ul>
-                <li>更换有摄像头和麦克风的设备</li>
-                <li>确保已允许浏览器访问摄像头和麦克风</li>
-                <li>关闭其他正在使用摄像头/麦克风的应用</li>
-              </ul>
-            </div>
-          </div>
-        );
-      }
+  private renderRecordingStatusBar() {
+    if (this.showRecordingUI) {
+      const minutes = Math.floor(this.recordingTimeLeft / 60)
+        .toString()
+        .padStart(2, '0');
+      const seconds = (this.recordingTimeLeft % 60).toString().padStart(2, '0');
 
-      // 任务已完成
-      if (this.isTaskCompleted) {
-        return (
-          <div class="placeholder-status">
-             <p>面试已完成，感谢您的参与！</p>
-          </div>
-        );
-      }
-
-      // 正在等待数字人视频播放完成
-      if (this.waitingForDigitalHuman && this.digitalId) {
-        return (
-          <div class="placeholder-status">
-            <p>AI正在查看您的信息，请稍后...</p>
-          </div>
-        );
-      }
-
-      // 正在播放音频
-      if (this.isPlayingAudio) {
-        return (
-          <div class="placeholder-status">
-            <p>正在播放问题，请听完后准备回答...</p>
-          </div>
-        );
-      }
-
-      // 正在上传视频
-      if (this.isUploadingVideo) {
-        return (
-          <div class="placeholder-status">
-            <p>正在上传视频，请稍候...</p>
-          </div>
-        );
-      }
-
-      // 正在加载或等待AI回复
-      if (this.isLoading || this.currentStreamingMessage) {
-        return (
-          <div class="placeholder-status">
-            <p>请等待题目...</p>
-          </div>
-        );
-      }
-
-      // 等待开始录制
-      if (this.waitingToRecord) {
-        return (
-          <div class="placeholder-status">
-            <p>请准备好，{this.waitingTimeLeft}秒后将开始录制您的回答...</p>
-          </div>
-        );
-      }
-
-      // 添加默认状态
       return (
-        <div class="placeholder-status default-status">
-          <p>准备中...</p>
+        <div class="recording-status-bar">
+          <div class="audio-waveform">
+            <div class="waveform-bar"></div>
+            <div class="waveform-bar"></div>
+            <div class="waveform-bar"></div>
+            <div class="waveform-bar"></div>
+            <div class="waveform-bar"></div>
+            <div class="waveform-bar"></div>
+            <div class="waveform-bar"></div>
+            <div class="waveform-bar"></div>
+          </div>
+          <span class="recording-timer">
+            {minutes}:{seconds}
+          </span>
+          <button class="finish-recording-btn" onClick={() => this.handleStopRecording()}>
+            <img
+              src="https://pcm-resource-1312611446.cos.ap-guangzhou.myqcloud.com/sdk/icon/gou.png"
+              width="16"
+              height="16"
+              alt="完成"
+              style={{ filter: 'brightness(0) invert(1)' }}
+            />
+          </button>
         </div>
       );
-    };
+    }
 
-    // 确定要使用的助手头像
-    const effectiveAssistantAvatar = this.assistantAvatar || this.agentLogo;
+    return <div class="recording-status-bar">{this.renderStatusIndicator()}</div>;
+  }
 
-    return (
-      <div class={overlayClass} style={modalStyle}>
-        <div class={containerClass}>
-
-          {this.isShowHeader && (
-            <div class="modal-header">
-              <div class="header-left">
-                {this.icon && <img src={this.icon} class="header-icon" alt="应用图标" />}
-                <div>{this.modalTitle}</div>
-              </div>
-              {this.isNeedClose && (
-                <button class="close-button" onClick={this.handleClose}>
-                  <span>×</span>
-                </button>
-              )}
-            </div>
-          )}
-
-          <div class="chat-container">
-            <div class="chat-history" onScroll={this.handleScroll} onTouchStart={this.handleTouchStart} onTouchEnd={this.handleTouchEnd} onWheel={this.handleWheel}>
-              {this.isLoadingHistory ? (
-                <div class="loading-container">
-                  <div class="loading-spinner"></div>
-                  <p>加载历史消息中...</p>
-                </div>
-              ) : (
-                <div>
-                  {this.messages.map(message => (
-                    <div id={`message_${message.id}`} key={message.id}>
-                      <pcm-chat-message
-                        botId={this.botId}
-                        message={message}
-                        showAssistantMessage={!this.digitalId || !this.isLastMessage(message) || this.digitalHumanVideoReady || this.isTaskCompleted}
-                        userAvatar={this.userAvatar}
-                        assistantAvatar={effectiveAssistantAvatar}
-                        showCopyButton={this.showCopyButton}
-                        showFeedbackButtons={this.showFeedbackButtons}
-                        filePreviewMode={this.filePreviewMode}
-                        onFilePreviewRequest={this.handleFilePreviewRequest}
-                      ></pcm-chat-message>
-                    </div>
-                  ))}
-                  {this.currentStreamingMessage && (
-                    <div id={`message_${this.currentStreamingMessage.id}`}>
-                      <pcm-chat-message
-                        botId={this.botId}
-                        message={this.currentStreamingMessage}
-                        showAssistantMessage={!this.digitalId || this.digitalHumanVideoReady || this.isTaskCompleted}
-                        userAvatar={this.userAvatar}
-                        assistantAvatar={effectiveAssistantAvatar}
-                        showCopyButton={this.showCopyButton}
-                        showFeedbackButtons={this.showFeedbackButtons}
-                        filePreviewMode={this.filePreviewMode}
-                        onFilePreviewRequest={this.handleFilePreviewRequest}
-                      ></pcm-chat-message>
-                    </div>
-                  )}
-                  {this.messages.length === 0 && !this.currentStreamingMessage && (
-                    <div class="empty-state">
-                      <p>你好，我是聘才猫，一个AI助手，很高兴认识你...</p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            <div class="recording-section">
-              <div class="recording-container">
-                {/* 工作区 */}
-                {(this.showWorkspaceHistory || this.digitalId) && (
-                  <div class="workspace-section">
-                    <div class="workspace-toolbar">
-                      {this.showWorkspaceHistory && (
-                        <button class="workspace-button history-button" onClick={() => this.handleHistoryClick()}>
-                          <span>历史会话</span>
-                        </button>
-                      )}
-                      {this.digitalId && !this.isTaskCompleted && (
-                        <div class="digital-human-wrapper">
-                          <pcm-digital-human
-                            digitalId={this.digitalId}
-                            speechText={this.lastCompletedAnswer}
-                            isStreaming={!!this.currentStreamingMessage}
-                            onVideoGenerated={this.handleDigitalHumanVideoGenerated}
-                            onVideoEnded={this.handleDigitalHumanVideoEnded}
-                            onAvatarDetailLoaded={this.handleAvatarDetailLoaded}
-                          ></pcm-digital-human>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-                {this.interviewMode === 'video' && (
-                  <div class="video-container">
-                    <div class="video-area">{this.showRecordingUI ? renderVideoPreview() : <div class="video-preview placeholder">{renderPlaceholderStatus()}</div>}</div>
-                    <div class="recording-controls">
-                      {this.showRecordingUI ? (
-                        <button class="stop-recording-button" onClick={() => this.handleStopRecording()}>
-                          完成本题回答
-                        </button>
-                      ) : (
-                        <div class="waiting-message">
-                          <button class="stop-recording-button disabled" disabled>
-                            完成回答
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* 添加预览抽屉 */}
-          <pcm-drawer
-            isOpen={this.isDrawerOpen}
-            drawerTitle={this.previewFileName}
-            width="80%"
-            onClosed={() => {
-              this.isDrawerOpen = false;
-              this.previewUrl = '';
-              this.previewContent = '';
-            }}
-          >
-            {this.previewContentType === 'file' && this.previewUrl && (
-              <div class="file-preview-container">
-                <iframe src={this.previewUrl} frameborder="0" width="100%" height="100%" style={{ border: 'none', height: 'calc(100vh - 120px)' }}></iframe>
-              </div>
-            )}
-
-            {this.previewContentType === 'markdown' && this.previewContent && <div class="markdown-preview-container markdown-body" innerHTML={marked(this.previewContent)}></div>}
-
-            {this.previewContentType === 'text' && this.previewContent && (
-              <div class="text-preview-container">
-                <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>{this.previewContent}</pre>
-              </div>
-            )}
-          </pcm-drawer>
-
-          {/* 历史会话抽屉 */}
-          <pcm-drawer
-            isOpen={this.isHistoryDrawerOpen}
-            drawerTitle="历史会话"
-            width="400px"
-            onClosed={() => {
-              this.isHistoryDrawerOpen = false;
-            }}
-          >
-            <div class="history-drawer-content">
-              {/* 会话列表 */}
-              <div class="conversation-list">
-                {this.isLoadingConversations ? (
-                  <div class="loading-conversations">
-                    <div class="loading-spinner-small"></div>
-                    <p>加载中...</p>
-                  </div>
-                ) : this.historyConversations.length === 0 ? (
-                  <div class="empty-conversations">
-                    <p>暂无历史会话</p>
-                  </div>
-                ) : (
-                  this.historyConversations.map(conversation => (
-                    <div
-                      key={conversation.id}
-                      class={{
-                        'conversation-item': true,
-                        'active': conversation.id === this.conversationId,
-                      }}
-                      onClick={() => this.handleSwitchConversation(conversation.id)}
-                    >
-                      <div class="conversation-info">
-                        <div class="conversation-title">{conversation.name}</div>
-                        <div class="conversation-meta">
-                          <span class="conversation-time">{conversation.timeDisplay}</span>
-                          {conversation.message_count > 0 && <span class="message-count">{conversation.message_count}条消息</span>}
-                          {conversation.status && (
-                            <span
-                              class={{
-                                'conversation-status': true,
-                                'completed': conversation.status === '结束',
-                                'running': conversation.status === '进行中',
-                              }}
-                            >
-                              {conversation.status}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      {conversation.id === this.conversationId && (
-                        <div class="current-indicator">
-                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </pcm-drawer>
-
-          {/* 二次确认模态框 */}
-          <pcm-confirm-modal
-            isOpen={this.showConfirmModal}
-            modalTitle="确认完成回答？"
-            okText="确认完成"
-            cancelText="继续录制"
-            okType="danger"
-            onOk={this.handleConfirmModalOk}
-            onCancel={this.handleConfirmModalCancelEvent}
-            onClosed={this.handleConfirmModalCancel}
-          >
-            <div style={{ marginBottom: '16px' }}>
-              <div
-                style={{
-                  fontSize: '14px',
-                  color: '#1890ff',
-                  fontWeight: '500',
-                  marginBottom: '16px',
-                  textAlign: 'center',
-                }}
-              >
-                当前录制时长：
-                {(() => {
-                  // 计算实际的录制时长（秒）
-                  const elapsedSeconds = this.recordingStartTime > 0 ? Math.floor((Date.now() - this.recordingStartTime) / 1000) : 0;
-                  const minutes = Math.floor(elapsedSeconds / 60);
-                  const seconds = elapsedSeconds % 60;
-                  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                })()}
-              </div>
-
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '12px 16px',
-                  background: '#fff7e6',
-                  border: '1px solid #ffec99',
-                  borderRadius: '6px',
-                  color: '#d46b08',
-                  fontSize: '14px',
-                  marginBottom: '16px',
-                }}
-              >
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                  <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
-                </svg>
-                <span>注意：录制仍在进行中</span>
-              </div>
-
-              <div
-                style={{
-                  fontSize: '16px',
-                  color: '#595959',
-                  lineHeight: '1.5',
-                  marginBottom: '16px',
-                }}
-              >
-                点击"确认完成"将结束本题回答
-              </div>
-
-              <label
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  cursor: 'pointer',
-                  padding: '8px 0',
-                  userSelect: 'none',
-                }}
-              >
-                <input
-                  type="checkbox"
-                  style={{
-                    width: '16px',
-                    height: '16px',
-                    accentColor: '#1890ff',
-                    cursor: 'pointer',
-                    margin: '0',
-                  }}
-                  checked={this.skipConfirmThisInterview}
-                  onChange={this.handleSkipConfirmChange}
-                />
-                <span
-                  style={{
-                    fontSize: '14px',
-                    color: '#595959',
-                    cursor: 'pointer',
-                    lineHeight: '1.4',
-                  }}
-                >
-                  本次面试不再提醒
-                </span>
-              </label>
-            </div>
-          </pcm-confirm-modal>
+  private renderStatusIndicator() {
+    // 优先显示设备错误
+    if (this.deviceError) {
+      return (
+        <div class="status-indicator-text error">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
+          </svg>
+          <span>{this.deviceError}</span>
         </div>
+      );
+    }
+
+    // 任务完成
+    if (this.isTaskCompleted) {
+      return (
+        <div class="status-indicator-text">
+          <span>面试已完成</span>
+        </div>
+      );
+    }
+
+    // 等待数字人
+    if (this.waitingForDigitalHuman && this.digitalId) {
+      return (
+        <div class="status-indicator-text loading">
+          <div class="loading-spinner-small"></div>
+          <span>等待AI思考...</span>
+        </div>
+      );
+    }
+
+    // 上传视频中
+    if (this.isUploadingVideo) {
+      return (
+        <div class="status-indicator-text loading">
+          <div class="loading-spinner-small"></div>
+          <span>正在分析...</span>
+        </div>
+      );
+    }
+
+    // 等待题目
+    if (this.isLoading || this.currentStreamingMessage) {
+      return (
+        <div class="status-indicator-text loading">
+          <div class="loading-spinner-small"></div>
+          <span>等待题目...</span>
+        </div>
+      );
+    }
+
+    // 等待录制
+    if (this.waitingToRecord) {
+      return (
+        <div class="status-indicator-text">
+          <span>{this.waitingTimeLeft} 秒后开始</span>
+        </div>
+      );
+    }
+
+    // 准备就绪
+    return (
+      <div class="status-indicator-text ready">
+        <img
+          src="https://pcm-resource-1312611446.cos.ap-guangzhou.myqcloud.com/sdk/icon/gou.png"
+          width="16"
+          height="16"
+          alt="准备就绪"
+        />
+        <span>准备就绪</span>
       </div>
     );
   }
