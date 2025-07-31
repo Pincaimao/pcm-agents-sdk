@@ -129,6 +129,10 @@ export class ChatVirtualAPPModal {
   // 数字人视频元素引用
   private digitalHumanVideoElement: HTMLVideoElement | null = null;
 
+  // 视频预加载缓存管理
+  private preloadedVideos: Set<string> = new Set();
+  private preloadingVideos: Map<string, Promise<void>> = new Map();
+
   /**
    * 是否正在等待数字人视频播放完成
    */
@@ -174,22 +178,6 @@ export class ChatVirtualAPPModal {
 
   private tokenInvalidListener: () => void;
 
-  /**
-   * 是否显示复制按钮
-   */
-  @Prop() showCopyButton: boolean = true;
-
-  /**
-   * 是否显示点赞点踩按钮
-   */
-  @Prop() showFeedbackButtons: boolean = true;
-
-  /**
-   * 附件预览模式
-   * 'drawer': 在右侧抽屉中预览
-   * 'window': 在新窗口中打开
-   */
-  @Prop() filePreviewMode: 'drawer' | 'window' = 'window';
 
   @State() deviceError: string | null = null;
 
@@ -314,10 +302,13 @@ export class ChatVirtualAPPModal {
         video_url: videoUrl,
       };
     }
-    this.customInputs = {
-      ...this.customInputs,
-      url_callback: 'https://tagents.ylzhaopin.com/agents/api/test/callback',
-    };
+    // 如果没有设置url_callback，则使用默认值
+    if (!this.customInputs.url_callback) {
+      this.customInputs = {
+        ...this.customInputs,
+        url_callback: 'https://tagents.ylzhaopin.com/agents/api/test/callback',
+      };
+    }
 
     // 创建新的消息对象
     const newMessage: ChatMessage = {
@@ -1003,6 +994,10 @@ export class ChatVirtualAPPModal {
 
     // 停止录制
     this.stopRecording();
+
+    // 清理视频预加载缓存
+    this.preloadedVideos.clear();
+    this.preloadingVideos.clear();
   }
 
   /**
@@ -1079,19 +1074,43 @@ export class ChatVirtualAPPModal {
         // 处理开场白内容（JSON格式）
         if (opening_contents && Array.isArray(opening_contents) && opening_contents.length > 0) {
           this.digitalHumanOpeningContents = opening_contents;
-          const firstWelcomeContent = this.digitalHumanOpeningContents[0];
+          
+          // 按顺序准备预加载列表：1.欢迎视频 2.默认占位视频 3.其他视频
+          const orderedVideosToPreload: string[] = [];
+          
+          // 1. 首先加载第一个欢迎视频
+          if (this.digitalHumanOpeningContents[0].video_url) {
+            orderedVideosToPreload.push(this.digitalHumanOpeningContents[0].video_url);
+          }
+          
+          // 2. 然后加载默认占位视频（如果不同于欢迎视频）
+          if (placeholder_video_url && placeholder_video_url !== this.digitalHumanOpeningContents[0].video_url) {
+            orderedVideosToPreload.push(placeholder_video_url);
+          }
+          
 
           console.log('数字人初始化完成:', {
             defaultVideoUrl: this.digitalHumanDefaultVideoUrl,
             virtualmanKey: this.digitalHumanVirtualmanKey,
-            openingContents: this.digitalHumanOpeningContents
+            openingContents: this.digitalHumanOpeningContents,
+            orderedVideosToPreload
           });
+
+          // 使用顺序预加载
+          this.handleVideoUrlReceivedSequential(orderedVideosToPreload, '数字人初始化(顺序)');
+
+          // 播放第一个欢迎视频
+          const firstWelcomeContent = this.digitalHumanOpeningContents[0];
           if (firstWelcomeContent.video_url) {
             console.log('播放数字人欢迎视频:', firstWelcomeContent.video_url);
             this.playDigitalHumanVideo(firstWelcomeContent.video_url, true);
           }
+        } else {
+          // 没有欢迎视频，只预加载默认占位视频
+          if (placeholder_video_url) {
+            this.handleVideoUrlReceivedSequential([placeholder_video_url], '数字人初始化(仅默认视频)');
+          }
         }
-
 
       }
     } catch (error) {
@@ -1133,9 +1152,9 @@ export class ChatVirtualAPPModal {
             Speed: 1
           },
           VideoParam: {
-            Format: "TransparentWebm"
+            Format: 'TransparentWebm',
           },
-          DriverType: "Text"
+          DriverType: "Text",
         }
       });
 
@@ -1152,6 +1171,8 @@ export class ChatVirtualAPPModal {
       const videoUrl = await this.pollVideoProgress(taskId);
 
       if (videoUrl) {
+        // 立即预加载新生成的视频（单个视频，不需要顺序处理）
+        await this.preloadVideo(videoUrl);
         await this.playDigitalHumanVideo(videoUrl);
         console.log('数字人视频生成完成，视频URL:', videoUrl);
       } else {
@@ -1224,7 +1245,7 @@ export class ChatVirtualAPPModal {
     console.log('开始播放数字人视频:', videoUrl, '是否为欢迎视频:', isWelcomeVideo);
 
     try {
-      // 预加载视频
+      // 确保视频已预加载（如果未预加载则立即预加载）
       await this.preloadVideo(videoUrl);
 
       // 只通过状态来控制video元素
@@ -1253,31 +1274,163 @@ export class ChatVirtualAPPModal {
   }
 
   /**
-   * 预加载视频
+   * 智能视频预加载管理器
+   * 确保每个视频只预加载一次，避免重复请求
    */
   private async preloadVideo(videoUrl: string): Promise<void> {
+    if (!videoUrl || !videoUrl.trim()) {
+      return Promise.resolve();
+    }
+
+    const normalizedUrl = videoUrl.trim();
+    const fileName = normalizedUrl.split('/').pop() || normalizedUrl;
+
+    // 如果已经预加载过，直接返回
+    if (this.preloadedVideos.has(normalizedUrl)) {
+      console.log(`💾 视频已预加载，跳过: ${fileName.substring(0, 30)}${fileName.length > 30 ? '...' : ''}`);
+      return Promise.resolve();
+    }
+
+    // 如果正在预加载中，返回现有的Promise
+    if (this.preloadingVideos.has(normalizedUrl)) {
+      console.log(`🔄 视频正在预加载中，等待完成: ${fileName.substring(0, 30)}${fileName.length > 30 ? '...' : ''}`);
+      return this.preloadingVideos.get(normalizedUrl)!;
+    }
+
+    // 创建新的预加载Promise
+    const preloadPromise = this.executeVideoPreload(normalizedUrl);
+    this.preloadingVideos.set(normalizedUrl, preloadPromise);
+
+    try {
+      await preloadPromise;
+      // 预加载成功，添加到已预加载集合
+      this.preloadedVideos.add(normalizedUrl);
+      console.log(`🎯 视频预加载成功: ${fileName.substring(0, 30)}${fileName.length > 30 ? '...' : ''}`);
+    } catch (error) {
+      console.error(`💥 视频预加载失败: ${fileName.substring(0, 30)}${fileName.length > 30 ? '...' : ''}`, error);
+      // 预加载失败时不抛出错误，避免阻塞后续流程
+    } finally {
+      // 清理正在预加载的记录
+      this.preloadingVideos.delete(normalizedUrl);
+    }
+  }
+
+  /**
+   * 执行实际的视频预加载操作
+   */
+  private async executeVideoPreload(videoUrl: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const preloadVideo = document.createElement('video');
       preloadVideo.preload = 'auto';
       preloadVideo.src = videoUrl;
+      preloadVideo.muted = true; // 确保可以自动播放
+      preloadVideo.crossOrigin = 'anonymous'; // 处理跨域问题
 
-      const handleCanPlay = () => {
+      let isResolved = false;
+
+      const handleSuccess = () => {
+        if (isResolved) return;
+        isResolved = true;
+        cleanup();
         console.log('视频预加载完成:', videoUrl);
-        preloadVideo.removeEventListener('canplaythrough', handleCanPlay);
-        preloadVideo.removeEventListener('error', handleError);
         resolve();
       };
 
-      const handleError = () => {
-        console.error('视频预加载失败:', videoUrl);
-        preloadVideo.removeEventListener('canplaythrough', handleError);
-        preloadVideo.removeEventListener('error', handleError);
+      const handleError = (event?: any) => {
+        if (isResolved) return;
+        isResolved = true;
+        cleanup();
+        console.error('视频预加载失败:', videoUrl, event);
         reject(new Error('视频预加载失败'));
       };
 
-      preloadVideo.addEventListener('canplaythrough', handleCanPlay);
+      const cleanup = () => {
+        preloadVideo.removeEventListener('canplaythrough', handleSuccess);
+        preloadVideo.removeEventListener('loadeddata', handleSuccess);
+        preloadVideo.removeEventListener('error', handleError);
+        preloadVideo.removeEventListener('abort', handleError);
+        preloadVideo.src = '';
+      };
+
+      // 监听多种成功事件，提高兼容性
+      preloadVideo.addEventListener('canplaythrough', handleSuccess);
+      preloadVideo.addEventListener('loadeddata', handleSuccess);
+      
+      // 监听错误事件
       preloadVideo.addEventListener('error', handleError);
+      preloadVideo.addEventListener('abort', handleError);
+
+      // 设置超时机制，避免长时间等待
+      setTimeout(() => {
+        if (!isResolved) {
+          console.warn('视频预加载超时:', videoUrl);
+          handleError('timeout');
+        }
+      }, 15000); // 15秒超时
+
+      // 开始加载
       preloadVideo.load();
+    });
+  }
+
+  /**
+   * 顺序预加载多个视频
+   * 上一个视频加载完毕后立刻加载下一个视频
+   */
+  private async sequentialPreloadVideos(videoUrls: string[]): Promise<void> {
+    if (!videoUrls || videoUrls.length === 0) {
+      return;
+    }
+
+    const validUrls = videoUrls.filter(url => url && url.trim());
+    if (validUrls.length === 0) {
+      return;
+    }
+
+    console.log('🎬 开始顺序预加载视频:', validUrls);
+    console.log('📋 预加载计划:');
+    validUrls.forEach((url, index) => {
+      const fileName = url.split('/').pop() || url;
+      console.log(`  ${index + 1}. ${fileName.substring(0, 50)}${fileName.length > 50 ? '...' : ''}`);
+    });
+
+    for (let i = 0; i < validUrls.length; i++) {
+      const url = validUrls[i];
+      const fileName = url.split('/').pop() || url;
+      
+      try {
+        console.log(`⏳ [${i + 1}/${validUrls.length}] 正在预加载: ${fileName.substring(0, 50)}${fileName.length > 50 ? '...' : ''}`);
+        const startTime = Date.now();
+        
+        await this.preloadVideo(url);
+        
+        const duration = Date.now() - startTime;
+        console.log(`✅ [${i + 1}/${validUrls.length}] 预加载完成 (${duration}ms): ${fileName.substring(0, 50)}${fileName.length > 50 ? '...' : ''}`);
+      } catch (error) {
+        console.warn(`❌ [${i + 1}/${validUrls.length}] 预加载失败: ${fileName.substring(0, 50)}${fileName.length > 50 ? '...' : ''}`, error);
+        // 即使单个视频失败，也继续加载下一个
+      }
+    }
+
+    console.log('🎉 所有视频顺序预加载处理完成');
+  }
+
+  
+  /**
+   * 顺序视频URL处理器
+   * 一旦获得视频URL，按顺序预加载
+   */
+  private handleVideoUrlReceivedSequential(videoUrls: string[], context: string = ''): void {
+    if (!videoUrls || videoUrls.length === 0) return;
+
+    const validUrls = videoUrls.filter(url => url && url.trim());
+    if (validUrls.length === 0) return;
+
+    console.log(`📥 收到${validUrls.length}个视频URL，将按顺序预加载 (${context})`);
+
+    // 异步顺序预加载，不阻塞主流程
+    this.sequentialPreloadVideos(validUrls).catch(error => {
+      console.warn(`⚠️ 顺序预加载视频失败 (${context}):`, error);
     });
   }
 

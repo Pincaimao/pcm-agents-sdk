@@ -107,6 +107,12 @@ export class MnmsModal {
     @Prop() digitalId?: string;
 
     /**
+     * 是否启用全屏虚拟数字人模式，此模式下面试结果只会通过interviewComplete事件返回或者通过url_callback回调返回
+     */
+    @Prop() enableVirtualHuman: boolean = false;
+
+
+    /**
      * 上传成功事件
      */
     @Event() uploadSuccess: EventEmitter<FileUploadResponse>;
@@ -162,6 +168,7 @@ export class MnmsModal {
      * 是否显示点赞点踩按钮
      */
     @Prop() showFeedbackButtons: boolean = true;
+
 
 
     @State() selectedFile: File | null = null;
@@ -399,23 +406,46 @@ export class MnmsModal {
                     {/* 聊天界面 - 在显示聊天模态框时显示 */}
                     {this.showChatModal && (
                         <div >
-                            <pcm-virtual-chat-modal
-                                isOpen={true}
-                                fullscreen={this.fullscreen}
-                                botId="3022316191018884"
-                                digitalId={this.digitalId}
-                                conversationId={this.conversationId}
-                                defaultQuery={this.defaultQuery}
-                                filePreviewMode={this.filePreviewMode}
-                                showCopyButton={this.showCopyButton}
-                                showFeedbackButtons={this.showFeedbackButtons}
-                                customInputs={{
-                                    ...this.customInputs,
-                                    file_url: this.customInputs?.file_url || this.uploadedFileInfo?.cos_key,
-                                    file_name: this.customInputs?.file_name || this.uploadedFileInfo?.file_name,
-                                    job_info: this.customInputs?.job_info || this.jobDescription
-                                }}
-                            ></pcm-virtual-chat-modal>
+                            {this.enableVirtualHuman ? (
+                                <pcm-virtual-chat-modal
+                                    isOpen={true}
+                                    fullscreen={this.fullscreen}
+                                    botId="3022316191018884"
+                                    digitalId={this.digitalId}
+                                    conversationId={this.conversationId}
+                                    defaultQuery={this.defaultQuery}
+                                    customInputs={{
+                                        ...this.customInputs,
+                                        file_url: this.customInputs?.file_url || this.uploadedFileInfo?.cos_key,
+                                        file_name: this.customInputs?.file_name || this.uploadedFileInfo?.file_name,
+                                        job_info: this.customInputs?.job_info || this.jobDescription
+                                    }}
+                                ></pcm-virtual-chat-modal>
+                            ) : (
+                                <pcm-app-chat-modal
+                                    isOpen={true}
+                                    modalTitle={this.modalTitle}
+                                    icon={this.icon}
+                                    isShowHeader={this.isShowHeader}
+                                    isNeedClose={this.isShowHeader}
+                                    fullscreen={this.fullscreen}
+                                    showWorkspaceHistory={this.showWorkspaceHistory}
+                                    botId="3022316191018884"
+                                    digitalId={this.digitalId}
+                                    conversationId={this.conversationId}
+                                    defaultQuery={this.defaultQuery}
+                                    filePreviewMode={this.filePreviewMode}
+                                    showCopyButton={this.showCopyButton}
+                                    showFeedbackButtons={this.showFeedbackButtons}
+                                    customInputs={{
+                                        ...this.customInputs,
+                                        file_url: this.customInputs?.file_url || this.uploadedFileInfo?.cos_key,
+                                        file_name: this.customInputs?.file_name || this.uploadedFileInfo?.file_name,
+                                        job_info: this.customInputs?.job_info || this.jobDescription
+                                    }}
+                                    interviewMode={this.interviewMode}
+                                ></pcm-app-chat-modal>
+                            )}
                         </div>
                     )}
                 </div>
