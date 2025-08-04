@@ -101,7 +101,7 @@ export class JlzzModal {
   @Event() someErrorEvent: EventEmitter<ErrorEventDetail>;
 
   /**
-   * 获取简历数据事件
+   * 获取简历数据事件（用户点击导出简历json数据后触发）
    */
   @Event() getResumeData: EventEmitter<any>;
 
