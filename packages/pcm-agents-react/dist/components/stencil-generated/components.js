@@ -221,7 +221,6 @@ export const PcmJlzzModal = createComponent({
         onUploadSuccess: 'uploadSuccess',
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
-        onInterviewComplete: 'interviewComplete',
         onTokenInvalid: 'tokenInvalid',
         onSomeErrorEvent: 'someErrorEvent',
         onGetResumeData: 'getResumeData'
