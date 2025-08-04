@@ -31,7 +31,7 @@ export class JlzzModal {
   /**
    * 是否成功，成功展示 iframe 官网
    */
-  @Prop({ mutable: true }) isSuccess: boolean = false;
+  @State() isSuccess: boolean = false;
 
   /**
    * 当点击模态框关闭时触发
@@ -59,9 +59,9 @@ export class JlzzModal {
   @Prop() isNeedClose: boolean = true;
 
   /**
-   * 会话ID，传入继续对话，否则创建新会话
+   * 会话ID
    */
-  @Prop({ mutable: true }) conversationId?: string;
+  @State() conversationId?: string;
 
   /**
    * 默认查询文本
@@ -73,12 +73,7 @@ export class JlzzModal {
    */
   @Prop() fullscreen: boolean = false;
 
-  /**
-   * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br>
-   * 传入customInputs.file_url时，会隐藏简历上传区域。<br>
-   * 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
-   */
-  @Prop() customInputs: Record<string, string> = {};
+  @State() customInputs: Record<string, string> = {};
 
   /**
    * 是否显示工作区历史会话按钮
@@ -170,19 +165,22 @@ export class JlzzModal {
       this.resumeType = 'chat';
     } else {
       await verifyApiKey(this.token);
-      // 如果有会话ID或者同时有file_url和job_info，直接显示聊天模态框
-      if (this.conversationId || (this.customInputs?.file_url && this.customInputs?.job_info)) {
-        this.showChatModal = true;
-      }
+     
+      
     }
   }
 
-  @Watch('isSuccess')
-  handleIsSuccessChange(newValue: boolean) {
-    if (newValue && this.resumeType !== 'chat') {
+  /**
+   * 处理流式响应完成事件
+   */
+  private handleStreamComplete = (event: CustomEvent<StreamCompleteEventData>) => {
+    this.conversationId = event.detail.conversation_id;
+    // 当流式响应完成时，如果不是直接对话模式，则显示 iframe
+    if (this.resumeType !== 'chat') {
       this.showIframe = true;
+      this.isSuccess = true;
     }
-  }
+  };
   componentWillLoad() {
     // 将 zIndex 存入配置缓存
     if (this.zIndex) {
@@ -487,9 +485,6 @@ export class JlzzModal {
       'fullscreen-overlay': this.fullscreen,
     };
 
-    // 显示加载状态
-    const isLoading = this.conversationId && !this.showChatModal;
-
     // 判断是否隐藏简历上传区域
     const hideResumeUpload = Boolean(this.customInputs && this.customInputs.file_url);
 
@@ -689,13 +684,6 @@ export class JlzzModal {
             </div>
           )}
 
-          {/* 加载状态 - 在有会话ID但聊天模态框尚未显示时展示 */}
-          {isLoading && (
-            <div class="loading-container">
-              <div class="loading-spinner"></div>
-              <p class="loading-text">正在加载对话...</p>
-            </div>
-          )}
 
           {/* 聊天界面 - 在显示聊天模态框时显示 */}
           {this.showChatModal && (
@@ -711,7 +699,7 @@ export class JlzzModal {
                   icon={this.icon}
                   isShowHeader={this.isShowHeader}
                   isNeedClose={this.isShowHeader}
-                  fullscreen={this.fullscreen}
+                  fullscreen={true}
                   showWorkspaceHistory={this.showWorkspaceHistory}
                   botId="39284520284983296"
                   conversationId={this.conversationId}
@@ -719,11 +707,12 @@ export class JlzzModal {
                   filePreviewMode={this.filePreviewMode}
                   customInputs={{
                     ...this.customInputs,
-                    file_url: this.resumeType === 'upload' ? this.customInputs?.file_url || this.uploadedFileInfo?.cos_key : '',
+                    file_url: this.resumeType === 'upload' ? this.customInputs.file_url || this.uploadedFileInfo?.cos_key : '',
                     mode_type: this.resumeType === 'chat' ? 1 : 0,
                   }}
                   interviewMode="text"
                   closeResume={this.closeResumeChat}
+                  onStreamComplete={this.handleStreamComplete}
                 ></pcm-app-chat-modal>
               </div>
               {/* 如果不是对话模式，则展示加载中。完成之后跳转 */}
