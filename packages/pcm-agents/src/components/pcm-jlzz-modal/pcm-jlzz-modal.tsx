@@ -1,6 +1,6 @@
 import { Component, h, Prop, Event, EventEmitter, Watch, State, Element } from '@stencil/core';
 import { uploadFileToBackend, FileUploadResponse, verifyApiKey, PCM_DOMAIN, sendHttpRequest } from '../../utils/utils';
-import { ConversationStartEventData, InterviewCompleteEventData, StreamCompleteEventData } from '../../components';
+import { ConversationStartEventData, StreamCompleteEventData } from '../../components';
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store';
 import { configStore } from '../../../store/config.store';
@@ -76,11 +76,6 @@ export class JlzzModal {
   @State() customInputs: Record<string, string> = {};
 
   /**
-   * 是否显示工作区历史会话按钮
-   */
-  @Prop() showWorkspaceHistory: boolean = false;
-
-  /**
    * 上传成功事件
    */
   @Event() uploadSuccess: EventEmitter<FileUploadResponse>;
@@ -94,11 +89,6 @@ export class JlzzModal {
    * 新会话开始的回调，只会在一轮对话开始时触发一次
    */
   @Event() conversationStart: EventEmitter<ConversationStartEventData>;
-
-  /**
-   * 当聊天完成时触发
-   */
-  @Event() interviewComplete: EventEmitter<InterviewCompleteEventData>;
 
   /**
    * SDK密钥验证失败事件
@@ -700,7 +690,7 @@ export class JlzzModal {
                   isShowHeader={this.isShowHeader}
                   isNeedClose={this.isShowHeader}
                   fullscreen={this.fullscreen}
-                  showWorkspaceHistory={this.showWorkspaceHistory}
+                  showWorkspaceHistory={false}
                   botId="39284520284983296"
                   conversationId={this.conversationId}
                   defaultQuery={this.resumeType === 'paste' ? this.resumeText : this.defaultQuery}
