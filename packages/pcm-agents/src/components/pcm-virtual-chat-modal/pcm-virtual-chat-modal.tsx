@@ -144,6 +144,14 @@ export class ChatVirtualAPPModal {
   @Prop() digitalId?: string;
 
   /**
+   * 数字人开场白索引，用于选择开场白和开场视频（可选：1, 2, 3）
+   * 1、您好，我是聘才猫 AI 面试助手。很高兴为你主持这场面试！在开始前，请确保：身处安静、光线充足的环境。网络顺畅，摄像头和麦克风工作正常。现在我正在查看本次面试的相关信息，为您生成专属面试题，马上就好，请稍等片刻。</br>
+   * 2、您好，我是您的 AI 面试助手。欢迎参加本次AI面试！为了获得最佳效果，请确认：您在安静、明亮的环境中。您的网络稳定，摄像头和麦克风已开启。我们正在后台为您准备本次专属面试内容，很快开始，请稍候。<br>
+   * 3、您好，我是您的 AI 面试助手。面试马上开始。趁此片刻，请快速确认：周围安静吗？光线足够吗？网络没问题？摄像头和麦克风准备好了吗？我们正在为您加载个性化的面试环节，稍等就好！
+   */
+  @Prop() openingIndex: number = 1;
+
+  /**
    * 录制错误事件
    */
   @Event() recordingError: EventEmitter<RecordingErrorEventData>;
@@ -1075,16 +1083,20 @@ export class ChatVirtualAPPModal {
         if (opening_contents && Array.isArray(opening_contents) && opening_contents.length > 0) {
           this.digitalHumanOpeningContents = opening_contents;
           
-          // 按顺序准备预加载列表：1.欢迎视频 2.默认占位视频 3.其他视频
+          // 验证并调整开场白索引
+          const validIndex = Math.max(1, Math.min(3, this.openingIndex || 1)) - 1; // 转换为0-based索引
+          const selectedOpeningContent = this.digitalHumanOpeningContents[validIndex] || this.digitalHumanOpeningContents[0];
+          
+          // 按顺序准备预加载列表：1.选择的欢迎视频 2.默认占位视频 3.其他视频
           const orderedVideosToPreload: string[] = [];
           
-          // 1. 首先加载第一个欢迎视频
-          if (this.digitalHumanOpeningContents[0].video_url) {
-            orderedVideosToPreload.push(this.digitalHumanOpeningContents[0].video_url);
+          // 1. 首先加载选择的欢迎视频
+          if (selectedOpeningContent.video_url) {
+            orderedVideosToPreload.push(selectedOpeningContent.video_url);
           }
           
-          // 2. 然后加载默认占位视频（如果不同于欢迎视频）
-          if (placeholder_video_url && placeholder_video_url !== this.digitalHumanOpeningContents[0].video_url) {
+          // 2. 然后加载默认占位视频（如果不同于选择的欢迎视频）
+          if (placeholder_video_url && placeholder_video_url !== selectedOpeningContent.video_url) {
             orderedVideosToPreload.push(placeholder_video_url);
           }
           
@@ -1093,17 +1105,18 @@ export class ChatVirtualAPPModal {
             defaultVideoUrl: this.digitalHumanDefaultVideoUrl,
             virtualmanKey: this.digitalHumanVirtualmanKey,
             openingContents: this.digitalHumanOpeningContents,
+            selectedOpeningIndex: validIndex + 1,
+            selectedOpeningContent,
             orderedVideosToPreload
           });
 
           // 使用顺序预加载
           this.handleVideoUrlReceivedSequential(orderedVideosToPreload, '数字人初始化(顺序)');
 
-          // 播放第一个欢迎视频
-          const firstWelcomeContent = this.digitalHumanOpeningContents[0];
-          if (firstWelcomeContent.video_url) {
-            console.log('播放数字人欢迎视频:', firstWelcomeContent.video_url);
-            this.playDigitalHumanVideo(firstWelcomeContent.video_url, true);
+          // 播放选择的欢迎视频
+          if (selectedOpeningContent.video_url) {
+            console.log('播放数字人欢迎视频:', selectedOpeningContent.video_url, '索引:', validIndex + 1);
+            this.playDigitalHumanVideo(selectedOpeningContent.video_url, true);
           }
         } else {
           // 没有欢迎视频，只预加载默认占位视频
@@ -1464,7 +1477,10 @@ export class ChatVirtualAPPModal {
   private renderChatHistory() {
     // 如果正在播放欢迎视频，优先显示欢迎语
     if (this.isPlayingWelcomeVideo) {
-      const welcomeText = this.digitalHumanOpeningContents[0].text;
+      // 验证并调整开场白索引
+      const validIndex = Math.max(1, Math.min(3, this.openingIndex || 1)) - 1; // 转换为0-based索引
+      const selectedOpeningContent = this.digitalHumanOpeningContents[validIndex] || this.digitalHumanOpeningContents[0];
+      const welcomeText = selectedOpeningContent.text;
 
       return (
         <div class="ai-message-item">

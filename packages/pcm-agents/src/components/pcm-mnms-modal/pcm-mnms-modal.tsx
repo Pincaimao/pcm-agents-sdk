@@ -77,12 +77,14 @@ export class MnmsModal {
     @Prop() fullscreen: boolean = false;
 
     /**
-     * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br>
-     * 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br>
-     * 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br>
+     * 自定义输入参数，可传入以下参数：<br>
+     * customInputs.job_info时，会隐藏JD输入区域。<br>
+     * customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br>
+     * customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br>
      * customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br>
-     * customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。
-     * customInputs.interview_type：可传入数字，传入 1 时，开启题目连续模式，一次性生成所有题目。不传入或传入其他值时，题目将逐个生成。
+     * customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。<br>
+     * customInputs.interview_type：可传入数字，传入 1 时，开启题目连续模式，一次性生成所有题目。不传入或传入其他值时，题目将逐个生成。<br>
+     * customInputs.question_number时，会设置面试题总数量。<br>
      */
     @Prop() customInputs: Record<string, string> = {};
 
@@ -107,10 +109,17 @@ export class MnmsModal {
     @Prop() digitalId?: string;
 
     /**
+     * 数字人开场白索引，用于选择开场白和开场视频（可选：1, 2, 3）
+     * 1、您好，我是聘才猫 AI 面试助手。很高兴为你主持这场面试！在开始前，请确保：身处安静、光线充足的环境。网络顺畅，摄像头和麦克风工作正常。现在我正在查看本次面试的相关信息，为您生成专属面试题，马上就好，请稍等片刻。</br>
+     * 2、您好，我是您的 AI 面试助手。欢迎参加本次AI面试！为了获得最佳效果，请确认：您在安静、明亮的环境中。您的网络稳定，摄像头和麦克风已开启。我们正在后台为您准备本次专属面试内容，很快开始，请稍候。<br>
+     * 3、您好，我是您的 AI 面试助手。面试马上开始。趁此片刻，请快速确认：周围安静吗？光线足够吗？网络没问题？摄像头和麦克风准备好了吗？我们正在为您加载个性化的面试环节，稍等就好！
+     */
+    @Prop() openingIndex: number = 1;
+
+    /**
      * 是否启用全屏虚拟数字人模式，此模式下面试结果只会通过interviewComplete事件返回或者通过url_callback回调返回
      */
     @Prop() enableVirtualHuman: boolean = false;
-
 
     /**
      * 上传成功事件
@@ -168,7 +177,6 @@ export class MnmsModal {
      * 是否显示点赞点踩按钮
      */
     @Prop() showFeedbackButtons: boolean = true;
-
 
 
     @State() selectedFile: File | null = null;
@@ -412,13 +420,15 @@ export class MnmsModal {
                                     fullscreen={this.fullscreen}
                                     botId="3022316191018884"
                                     digitalId={this.digitalId}
+                                    openingIndex={this.openingIndex}
                                     conversationId={this.conversationId}
                                     defaultQuery={this.defaultQuery}
                                     customInputs={{
                                         ...this.customInputs,
                                         file_url: this.customInputs?.file_url || this.uploadedFileInfo?.cos_key,
                                         file_name: this.customInputs?.file_name || this.uploadedFileInfo?.file_name,
-                                        job_info: this.customInputs?.job_info || this.jobDescription
+                                        job_info: this.customInputs?.job_info || this.jobDescription,
+                                        interview_type:"1"
                                     }}
                                 ></pcm-virtual-chat-modal>
                             ) : (
