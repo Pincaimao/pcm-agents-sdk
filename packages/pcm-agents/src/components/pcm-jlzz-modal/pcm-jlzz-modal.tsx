@@ -699,7 +699,7 @@ export class JlzzModal {
                   icon={this.icon}
                   isShowHeader={this.isShowHeader}
                   isNeedClose={this.isShowHeader}
-                  fullscreen={true}
+                  fullscreen={this.fullscreen}
                   showWorkspaceHistory={this.showWorkspaceHistory}
                   botId="39284520284983296"
                   conversationId={this.conversationId}

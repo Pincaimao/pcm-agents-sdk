@@ -641,7 +641,6 @@ export const PcmUpload: StencilReactComponent<PcmUploadElement, PcmUploadEvents>
 });
 
 type PcmVirtualChatModalEvents = {
-    onModalClosed: EventName<CustomEvent<void>>,
     onStreamComplete: EventName<PcmVirtualChatModalCustomEvent<StreamCompleteEventData>>,
     onConversationStart: EventName<PcmVirtualChatModalCustomEvent<ConversationStartEventData>>,
     onInterviewComplete: EventName<PcmVirtualChatModalCustomEvent<InterviewCompleteEventData>>,
@@ -656,7 +655,6 @@ export const PcmVirtualChatModal: StencilReactComponent<PcmVirtualChatModalEleme
     // @ts-ignore - React type of Stencil Output Target may differ from the React version used in the Nuxt.js project, this can be ignored.
     react: React,
     events: {
-        onModalClosed: 'modalClosed',
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
         onInterviewComplete: 'interviewComplete',

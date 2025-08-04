@@ -128,12 +128,12 @@
     </pcm-mnct-modal>
 
     <pcm-mnms-modal id="pcm-mnms-modal-video" modal-title="模拟面试（视频）"
-      icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" fullscreen="false" conversation-id="" digital-id="1"
+      icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png" fullscreen="false" conversation-id="" digital-id="4" opening-index="2" enable-virtual-human="true"
       interview-mode="video" default-query="请您提问">
     </pcm-mnms-modal>
 
     <pcm-mnms-zp-modal id="pcm-mnms-modal-text" modal-title="模拟面试（文字）" show-copy-button="false"
-      show-feedback-buttons="false" show-workspace-history="true" digital-id="1"
+      show-feedback-buttons="false" show-workspace-history="true" digital-id="5"
       icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
       conversation-id="" fullscreen="true" interview-mode="text"
       default-query="请您提问">
@@ -192,7 +192,7 @@
   <script>
     // 定义全局 token 变量，所有组件共享使用
     const SHARED_TOKEN =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NTM4NDIwOTN9.mKMaVI4Hld98XDautafvbPmIwvnYOKDwuDkYsLi-2kU';
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NTQzNjI1NzV9.B9ddKWF2g4zIN8VVlTZkZWWwyA8QdSEQxKPn765j1lY';
     const SHARED_TOKEN_NEW = '11';
     let stream = null;
     const urlParams = new URLSearchParams(window.location.search);
@@ -455,7 +455,6 @@
         job_info: '对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广',
         file_url: '/resources/file/20250416/d258f91a1ff6061822f00b4e245dbd00.pdf',
         file_name: '简历.pdf',
-        interview_type: '1'
       };
     };
 
@@ -1095,7 +1094,6 @@
 
       jlzzModal.addEventListener('streamComplete', event => {
         console.log('流式响应完成:', event.detail);
-        jlzzModal.isSuccess = true;
       });
 
       jlzzModal.addEventListener('conversationStart', event => {
