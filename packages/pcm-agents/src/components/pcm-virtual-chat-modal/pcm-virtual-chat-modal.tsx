@@ -127,9 +127,6 @@ export class ChatVirtualAPPModal {
   @State() isPlayingWelcomeVideo: boolean = false;
   @State() isGeneratingDigitalHumanVideo: boolean = false;
 
-  // 数字人视频元素引用
-  private digitalHumanVideoElement: HTMLVideoElement | null = null;
-
   // 视频预加载缓存管理
   private preloadedVideos: Set<string> = new Set();
   private preloadingVideos: Map<string, Promise<void>> = new Map();
@@ -1570,11 +1567,9 @@ export class ChatVirtualAPPModal {
                 muted={!this.isPlayingDigitalHumanVideo}
                 src={this.digitalHumanVideoUrl}
                 class="digital-human-background-video"
-                ref={el => (this.digitalHumanVideoElement = el)}
                 onEnded={this.handleVideoElementEnded}
-                onLoadedData={() => console.log('视频数据加载完成:', this.digitalHumanVideoUrl)}
-                onPlay={() => console.log('视频开始播放:', this.digitalHumanVideoUrl, '静音:', !this.isPlayingDigitalHumanVideo)}
-                onVolumeChange={() => console.log('音量变化:', this.digitalHumanVideoElement?.muted, this.digitalHumanVideoElement?.volume)}
+                // onLoadedData={() => console.log('视频数据加载完成:', this.digitalHumanVideoUrl)}
+                // onPlay={() => console.log('视频开始播放:', this.digitalHumanVideoUrl, '静音:', !this.isPlayingDigitalHumanVideo)}
               />
             </div>
           )}
@@ -1809,7 +1804,7 @@ export class ChatVirtualAPPModal {
     if (this.waitingToRecord) {
       return (
         <div class="status-indicator-text">
-          <span>{this.waitingTimeLeft} 秒后开始</span>
+          <span>{this.waitingTimeLeft} 秒后开始您的回答</span>
         </div>
       );
     }
