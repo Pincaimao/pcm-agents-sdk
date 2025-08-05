@@ -1,6 +1,6 @@
 {
   "name": "pcm-agents-react",
-  "version": "0.3.17-beta.6",
+  "version": "0.3.17-beta.7",
   "description": "React wrapper components for pcm-agents",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@stencil/react-output-target": "^0.8.2",
-    "pcm-agents": "^0.6.21-beta.8"
+    "pcm-agents": "^0.6.21-beta.9"
   },
   "peerDependencies": {
     "react": "^17.0.0 || ^18.0.0",

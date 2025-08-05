@@ -120,7 +120,7 @@ export class ChatVirtualAPPModal {
    */
   @State() digitalHumanVideoUrl: string = '';
   @State() digitalHumanDefaultVideoUrl: string = '';
-  @State() digitalHumanVirtualmanKey: string = '';
+  @State() virtualmanKey: string = '';
   @State() isPlayingDigitalHumanVideo: boolean = false;
   @State() digitalHumanVideoReady: boolean = false;
   @State() digitalHumanOpeningContents: Array<{ text: string, video_url: string }> = [];
@@ -239,7 +239,7 @@ export class ChatVirtualAPPModal {
       digitalId: this.digitalId,
       isOpen: this.isOpen,
       conversationId: this.conversationId,
-      digitalHumanVirtualmanKey: this.digitalHumanVirtualmanKey,
+      virtualmanKey: this.virtualmanKey,
     });
 
     // 如果有数字人ID，初始化数字人功能
@@ -492,10 +492,7 @@ export class ChatVirtualAPPModal {
         if (this.digitalId) {
           this.waitingForDigitalHuman = true;
           console.log('等待数字人视频播放完成...');
-        } else {
-          // 没有开启数字人，直接开始录制
-          this.startWaitingToRecord();
-        }
+        } 
       },
     });
   }
@@ -1010,7 +1007,7 @@ export class ChatVirtualAPPModal {
    * 预创建数字人视频
    */
   private async precreateDigitalHumanVideos(digital_human_list: string[]) {
-    if (!this.digitalHumanVirtualmanKey) {
+    if (!this.virtualmanKey) {
       console.warn('VirtualmanKey尚未加载，无法预创建视频。');
       // 可以在此处添加逻辑，等待virtualmanKey加载后再执行
       return;
@@ -1024,7 +1021,7 @@ export class ChatVirtualAPPModal {
           url: '/sdk/v1/virtual-human/create-video',
           method: 'POST',
           data: {
-            VirtualmanKey: this.digitalHumanVirtualmanKey,
+            VirtualmanKey: this.virtualmanKey,
             InputSsml: text,
             SpeechParam: {
               Speed: 1,
@@ -1074,7 +1071,7 @@ export class ChatVirtualAPPModal {
         }
 
         if (virtualman_key) {
-          this.digitalHumanVirtualmanKey = virtualman_key;
+          this.virtualmanKey = virtualman_key;
         }
 
         // 处理开场白内容（JSON格式）
@@ -1101,7 +1098,7 @@ export class ChatVirtualAPPModal {
 
           console.log('数字人初始化完成:', {
             defaultVideoUrl: this.digitalHumanDefaultVideoUrl,
-            virtualmanKey: this.digitalHumanVirtualmanKey,
+            virtualmanKey: this.virtualmanKey,
             openingContents: this.digitalHumanOpeningContents,
             selectedOpeningIndex: validIndex,
             selectedOpeningContent,
@@ -1138,7 +1135,7 @@ export class ChatVirtualAPPModal {
    * 生成数字人视频
    */
   private async generateDigitalHumanVideo(text: string) {
-    if (!text.trim() || !this.digitalHumanVirtualmanKey) {
+    if (!text.trim() || !this.virtualmanKey) {
 
       // 条件不满足时，取消等待状态并直接开始录制流程
       if (this.waitingForDigitalHuman && !this.isTaskCompleted) {
@@ -1160,7 +1157,7 @@ export class ChatVirtualAPPModal {
         url: '/sdk/v1/virtual-human/create-video',
         method: 'POST',
         data: {
-          VirtualmanKey: this.digitalHumanVirtualmanKey,
+          VirtualmanKey: this.virtualmanKey,
           InputSsml: text,
           SpeechParam: {
             Speed: 1
