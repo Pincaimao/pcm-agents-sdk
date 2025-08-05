@@ -125,6 +125,7 @@ export class ChatVirtualAPPModal {
   @State() digitalHumanVideoReady: boolean = false;
   @State() digitalHumanOpeningContents: Array<{ text: string, video_url: string }> = [];
   @State() isPlayingWelcomeVideo: boolean = false;
+  @State() isGeneratingDigitalHumanVideo: boolean = false;
 
   // 数字人视频元素引用
   private digitalHumanVideoElement: HTMLVideoElement | null = null;
@@ -1152,6 +1153,9 @@ export class ChatVirtualAPPModal {
     }
 
     console.log('开始生成数字人视频，文本内容：', text);
+    
+    // 设置正在生成视频的状态
+    this.isGeneratingDigitalHumanVideo = true;
 
     try {
       // 创建视频任务
@@ -1207,6 +1211,9 @@ export class ChatVirtualAPPModal {
         this.waitingForDigitalHuman = false;
         this.startWaitingToRecord();
       }
+    } finally {
+      // 无论成功还是失败，都重置生成状态
+      this.isGeneratingDigitalHumanVideo = false;
     }
   }
 
@@ -1489,6 +1496,15 @@ export class ChatVirtualAPPModal {
       );
     }
 
+    // 如果正在生成数字人视频，显示查看面试信息的提示
+    if (this.isGeneratingDigitalHumanVideo) {
+      return (
+        <div class="ai-message-item">
+          <div class="ai-message-content">请稍等，我查看一下本次面试的信息...</div>
+        </div>
+      );
+    }
+
     // 优先显示正在流式输出的消息
     if (this.currentStreamingMessage && this.currentStreamingMessage.answer) {
       return (
@@ -1759,7 +1775,7 @@ export class ChatVirtualAPPModal {
       );
     }
 
-    // 等待数字人
+    // 正在生成数字人视频
     if (this.waitingForDigitalHuman && this.digitalId) {
       return (
         <div class="status-indicator-text loading">
