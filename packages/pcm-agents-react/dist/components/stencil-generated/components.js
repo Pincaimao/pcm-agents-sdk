@@ -6,6 +6,7 @@ import { PcmButton as PcmButtonElement, defineCustomElement as definePcmButton }
 import { PcmCard as PcmCardElement, defineCustomElement as definePcmCard } from "pcm-agents/dist/components/pcm-card.js";
 import { PcmChatMessage as PcmChatMessageElement, defineCustomElement as definePcmChatMessage } from "pcm-agents/dist/components/pcm-chat-message.js";
 import { PcmConfirmModal as PcmConfirmModalElement, defineCustomElement as definePcmConfirmModal } from "pcm-agents/dist/components/pcm-confirm-modal.js";
+import { PcmDigitalHuman as PcmDigitalHumanElement, defineCustomElement as definePcmDigitalHuman } from "pcm-agents/dist/components/pcm-digital-human.js";
 import { PcmDrawer as PcmDrawerElement, defineCustomElement as definePcmDrawer } from "pcm-agents/dist/components/pcm-drawer.js";
 import { PcmHrChatModal as PcmHrChatModalElement, defineCustomElement as definePcmHrChatModal } from "pcm-agents/dist/components/pcm-hr-chat-modal.js";
 import { PcmHtwsModal as PcmHtwsModalElement, defineCustomElement as definePcmHtwsModal } from "pcm-agents/dist/components/pcm-htws-modal.js";
@@ -25,6 +26,7 @@ import { PcmMsbgModal as PcmMsbgModalElement, defineCustomElement as definePcmMs
 import { PcmQgqjlModal as PcmQgqjlModalElement, defineCustomElement as definePcmQgqjlModal } from "pcm-agents/dist/components/pcm-qgqjl-modal.js";
 import { PcmTimeCountDown as PcmTimeCountDownElement, defineCustomElement as definePcmTimeCountDown } from "pcm-agents/dist/components/pcm-time-count-down.js";
 import { PcmUpload as PcmUploadElement, defineCustomElement as definePcmUpload } from "pcm-agents/dist/components/pcm-upload.js";
+import { PcmVirtualChatModal as PcmVirtualChatModalElement, defineCustomElement as definePcmVirtualChatModal } from "pcm-agents/dist/components/pcm-virtual-chat-modal.js";
 import { PcmZskChatModal as PcmZskChatModalElement, defineCustomElement as definePcmZskChatModal } from "pcm-agents/dist/components/pcm-zsk-chat-modal.js";
 import { PcmZyghModal as PcmZyghModalElement, defineCustomElement as definePcmZyghModal } from "pcm-agents/dist/components/pcm-zygh-modal.js";
 import React from 'react';
@@ -78,7 +80,6 @@ export const PcmChatMessage = createComponent({
     elementClass: PcmChatMessageElement,
     react: React,
     events: {
-        onMessageChange: 'messageChange',
         onFilePreviewRequest: 'filePreviewRequest',
         onRetryRequest: 'retryRequest'
     },
@@ -96,6 +97,17 @@ export const PcmConfirmModal = createComponent({
         onAfterClose: 'afterClose'
     },
     defineCustomElement: definePcmConfirmModal
+});
+export const PcmDigitalHuman = createComponent({
+    tagName: 'pcm-digital-human',
+    elementClass: PcmDigitalHumanElement,
+    react: React,
+    events: {
+        onVideoEnded: 'videoEnded',
+        onVideoGenerated: 'videoGenerated',
+        onAvatarDetailLoaded: 'avatarDetailLoaded'
+    },
+    defineCustomElement: definePcmDigitalHuman
 });
 export const PcmDrawer = createComponent({
     tagName: 'pcm-drawer',
@@ -209,7 +221,6 @@ export const PcmJlzzModal = createComponent({
         onUploadSuccess: 'uploadSuccess',
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
-        onInterviewComplete: 'interviewComplete',
         onTokenInvalid: 'tokenInvalid',
         onSomeErrorEvent: 'someErrorEvent',
         onGetResumeData: 'getResumeData'
@@ -346,6 +357,20 @@ export const PcmUpload = createComponent({
         onUploadChange: 'uploadChange'
     },
     defineCustomElement: definePcmUpload
+});
+export const PcmVirtualChatModal = createComponent({
+    tagName: 'pcm-virtual-chat-modal',
+    elementClass: PcmVirtualChatModalElement,
+    react: React,
+    events: {
+        onStreamComplete: 'streamComplete',
+        onConversationStart: 'conversationStart',
+        onInterviewComplete: 'interviewComplete',
+        onRecordingError: 'recordingError',
+        onRecordingStatusChange: 'recordingStatusChange',
+        onTokenInvalid: 'tokenInvalid'
+    },
+    defineCustomElement: definePcmVirtualChatModal
 });
 export const PcmZskChatModal = createComponent({
     tagName: 'pcm-zsk-chat-modal',

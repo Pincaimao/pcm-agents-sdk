@@ -758,14 +758,6 @@ export namespace Components {
     }
     interface PcmJlzzModal {
         /**
-          * 会话ID，传入继续对话，否则创建新会话
-         */
-        "conversationId"?: string;
-        /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
-         */
-        "customInputs": Record<string, string>;
-        /**
           * 默认查询文本
          */
         "defaultQuery": string;
@@ -794,17 +786,9 @@ export namespace Components {
          */
         "isShowHeader": boolean;
         /**
-          * 是否成功，成功展示 iframe 官网
-         */
-        "isSuccess": boolean;
-        /**
           * 模态框标题
          */
         "modalTitle": string;
-        /**
-          * 是否显示工作区历史会话按钮
-         */
-        "showWorkspaceHistory": boolean;
         /**
           * SDK鉴权密钥
          */
@@ -834,7 +818,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
+          * 自定义输入参数<br> 传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br> 传入customInputs.question_number时，会设置面试题数量。<br> 传入customInputs.can_outputAnalysis时，会设置是否需要参考答案。<br>
          */
         "customInputs": Record<string, string>;
         /**
@@ -895,7 +879,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。
+          * 自定义输入参数，可传入以下参数：<br> customInputs.job_info时，会隐藏JD输入区域。<br> customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。<br> customInputs.interview_type：可传入数字，传入 1 时，开启题目连续模式，一次性生成所有题目。不传入或传入其他值时，题目将逐个生成。<br> customInputs.question_number时，会设置面试题总数量。<br>
          */
         "customInputs": Record<string, string>;
         /**
@@ -906,6 +890,10 @@ export namespace Components {
           * 虚拟数字人ID，指定则开启虚拟数字人功能
          */
         "digitalId"?: string;
+        /**
+          * 是否启用全屏虚拟数字人模式，此模式下面试结果只会通过interviewComplete事件返回或者通过url_callback回调返回
+         */
+        "enableVirtualHuman": boolean;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
          */
@@ -946,6 +934,10 @@ export namespace Components {
           * 模态框标题
          */
         "modalTitle": string;
+        /**
+          * 数字人开场白索引，用于选择开场白和开场视频（可选：0, 1, 2） 0、您好，我是聘才猫 AI 面试助手。很高兴为你主持这场面试！在开始前，请确保：身处安静、光线充足的环境。网络顺畅，摄像头和麦克风工作正常。现在我正在查看本次面试的相关信息，为您生成专属面试题，马上就好，请稍等片刻。</br> 1、您好，我是您的 AI 面试助手。欢迎参加本次AI面试！为了获得最佳效果，请确认：您在安静、明亮的环境中。您的网络稳定，摄像头和麦克风已开启。我们正在后台为您准备本次专属面试内容，很快开始，请稍候。<br> 2、您好，我是您的 AI 面试助手。面试马上开始。趁此片刻，请快速确认：周围安静吗？光线足够吗？网络没问题？摄像头和麦克风准备好了吗？我们正在为您加载个性化的面试环节，稍等就好！
+         */
+        "openingIndex": number;
         /**
           * 是否显示复制按钮
          */
@@ -1037,7 +1029,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。
+          * 自定义输入参数，可传入以下参数：<br> customInputs.job_info时，会隐藏JD输入区域。<br> customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。<br> customInputs.interview_type：可传入数字，传入 1 时，开启题目连续模式，一次性生成所有题目。不传入或传入其他值时，题目将逐个生成。<br> customInputs.question_number时，会设置面试题总数量。<br>
          */
         "customInputs": Record<string, string>;
         /**
@@ -1048,6 +1040,10 @@ export namespace Components {
           * 虚拟数字人ID，指定则开启虚拟数字人功能
          */
         "digitalId"?: string;
+        /**
+          * 是否启用全屏虚拟数字人模式，此模式下面试结果只会通过interviewComplete事件返回或者通过url_callback回调返回
+         */
+        "enableVirtualHuman": boolean;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
          */
@@ -1088,6 +1084,10 @@ export namespace Components {
           * 模态框标题
          */
         "modalTitle": string;
+        /**
+          * 数字人开场白索引，用于选择开场白和开场视频（可选：0, 1, 2） 0、您好，我是聘才猫 AI 面试助手。很高兴为你主持这场面试！在开始前，请确保：身处安静、光线充足的环境。网络顺畅，摄像头和麦克风工作正常。现在我正在查看本次面试的相关信息，为您生成专属面试题，马上就好，请稍等片刻。</br> 1、您好，我是您的 AI 面试助手。欢迎参加本次AI面试！为了获得最佳效果，请确认：您在安静、明亮的环境中。您的网络稳定，摄像头和麦克风已开启。我们正在后台为您准备本次专属面试内容，很快开始，请稍候。<br> 2、您好，我是您的 AI 面试助手。面试马上开始。趁此片刻，请快速确认：周围安静吗？光线足够吗？网络没问题？摄像头和麦克风准备好了吗？我们正在为您加载个性化的面试环节，稍等就好！
+         */
+        "openingIndex": number;
         /**
           * 是否显示复制按钮
          */
@@ -1309,6 +1309,56 @@ export namespace Components {
          */
         "uploadParams"?: Record<string, any>;
     }
+    interface PcmVirtualChatModal {
+        /**
+          * 机器人ID
+         */
+        "botId"?: string;
+        /**
+          * 会话ID，传入继续对话，否则创建新会话
+         */
+        "conversationId"?: string;
+        /**
+          * 录制倒计时提醒时间（秒） 当剩余时间小于此值时，显示倒计时警告
+         */
+        "countdownWarningTime": number;
+        /**
+          * 自定义智能体inputs输入参数
+         */
+        "customInputs": Record<string, any>;
+        /**
+          * 默认发送文本
+         */
+        "defaultQuery": string;
+        /**
+          * 虚拟数字人ID，指定则开启虚拟数字人功能
+         */
+        "digitalId"?: string;
+        /**
+          * 是否以全屏模式打开，移动端建议设置为true
+         */
+        "fullscreen": boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen": boolean;
+        /**
+          * 视频录制最大时长（秒）
+         */
+        "maxRecordingTime": number;
+        /**
+          * 数字人开场白索引，用于选择开场白和开场视频（可选：0, 1, 2） 0、您好，我是聘才猫 AI 面试助手。很高兴为你主持这场面试！在开始前，请确保：身处安静、光线充足的环境。网络顺畅，摄像头和麦克风工作正常。现在我正在查看本次面试的相关信息，为您生成专属面试题，马上就好，请稍等片刻。</br> 1、您好，我是您的 AI 面试助手。欢迎参加本次AI面试！为了获得最佳效果，请确认：您在安静、明亮的环境中。您的网络稳定，摄像头和麦克风已开启。我们正在后台为您准备本次专属面试内容，很快开始，请稍候。<br> 2、您好，我是您的 AI 面试助手。面试马上开始。趁此片刻，请快速确认：周围安静吗？光线足够吗？网络没问题？摄像头和麦克风准备好了吗？我们正在为您加载个性化的面试环节，稍等就好！
+         */
+        "openingIndex": number;
+        /**
+          * SDK鉴权密钥
+         */
+        "token"?: string;
+        /**
+          * 聊天框的页面层级
+         */
+        "zIndex"?: number;
+    }
     interface PcmZskChatModal {
         /**
           * 会话ID，传入继续对话，否则创建新会话
@@ -1509,6 +1559,10 @@ export interface PcmTimeCountDownCustomEvent<T> extends CustomEvent<T> {
 export interface PcmUploadCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmUploadElement;
+}
+export interface PcmVirtualChatModalCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLPcmVirtualChatModalElement;
 }
 export interface PcmZskChatModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -1861,7 +1915,6 @@ declare global {
         "uploadSuccess": FileUploadResponse;
         "streamComplete": StreamCompleteEventData1;
         "conversationStart": ConversationStartEventData1;
-        "interviewComplete": InterviewCompleteEventData1;
         "tokenInvalid": void;
         "someErrorEvent": ErrorEventDetail;
         "getResumeData": any;
@@ -2114,6 +2167,28 @@ declare global {
         prototype: HTMLPcmUploadElement;
         new (): HTMLPcmUploadElement;
     };
+    interface HTMLPcmVirtualChatModalElementEventMap {
+        "streamComplete": StreamCompleteEventData;
+        "conversationStart": ConversationStartEventData;
+        "interviewComplete": InterviewCompleteEventData;
+        "recordingError": RecordingErrorEventData;
+        "recordingStatusChange": RecordingStatusChangeEventData;
+        "tokenInvalid": void;
+    }
+    interface HTMLPcmVirtualChatModalElement extends Components.PcmVirtualChatModal, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLPcmVirtualChatModalElementEventMap>(type: K, listener: (this: HTMLPcmVirtualChatModalElement, ev: PcmVirtualChatModalCustomEvent<HTMLPcmVirtualChatModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLPcmVirtualChatModalElementEventMap>(type: K, listener: (this: HTMLPcmVirtualChatModalElement, ev: PcmVirtualChatModalCustomEvent<HTMLPcmVirtualChatModalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLPcmVirtualChatModalElement: {
+        prototype: HTMLPcmVirtualChatModalElement;
+        new (): HTMLPcmVirtualChatModalElement;
+    };
     interface HTMLPcmZskChatModalElementEventMap {
         "modalClosed": void;
         "streamComplete": StreamCompleteEventData1;
@@ -2188,6 +2263,7 @@ declare global {
         "pcm-qgqjl-modal": HTMLPcmQgqjlModalElement;
         "pcm-time-count-down": HTMLPcmTimeCountDownElement;
         "pcm-upload": HTMLPcmUploadElement;
+        "pcm-virtual-chat-modal": HTMLPcmVirtualChatModalElement;
         "pcm-zsk-chat-modal": HTMLPcmZskChatModalElement;
         "pcm-zygh-modal": HTMLPcmZyghModalElement;
     }
@@ -3223,14 +3299,6 @@ declare namespace LocalJSX {
     }
     interface PcmJlzzModal {
         /**
-          * 会话ID，传入继续对话，否则创建新会话
-         */
-        "conversationId"?: string;
-        /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
-         */
-        "customInputs"?: Record<string, string>;
-        /**
           * 默认查询文本
          */
         "defaultQuery"?: string;
@@ -3259,10 +3327,6 @@ declare namespace LocalJSX {
          */
         "isShowHeader"?: boolean;
         /**
-          * 是否成功，成功展示 iframe 官网
-         */
-        "isSuccess"?: boolean;
-        /**
           * 模态框标题
          */
         "modalTitle"?: string;
@@ -3271,13 +3335,9 @@ declare namespace LocalJSX {
          */
         "onConversationStart"?: (event: PcmJlzzModalCustomEvent<ConversationStartEventData1>) => void;
         /**
-          * 获取简历数据事件
+          * 获取简历数据事件（用户点击导出简历json数据后触发）
          */
         "onGetResumeData"?: (event: PcmJlzzModalCustomEvent<any>) => void;
-        /**
-          * 当聊天完成时触发
-         */
-        "onInterviewComplete"?: (event: PcmJlzzModalCustomEvent<InterviewCompleteEventData1>) => void;
         /**
           * 当点击模态框关闭时触发
          */
@@ -3298,10 +3358,6 @@ declare namespace LocalJSX {
           * 上传成功事件
          */
         "onUploadSuccess"?: (event: PcmJlzzModalCustomEvent<FileUploadResponse>) => void;
-        /**
-          * 是否显示工作区历史会话按钮
-         */
-        "showWorkspaceHistory"?: boolean;
         /**
           * SDK鉴权密钥
          */
@@ -3329,7 +3385,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
+          * 自定义输入参数<br> 传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br> 传入customInputs.question_number时，会设置面试题数量。<br> 传入customInputs.can_outputAnalysis时，会设置是否需要参考答案。<br>
          */
         "customInputs"?: Record<string, string>;
         /**
@@ -3418,7 +3474,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。
+          * 自定义输入参数，可传入以下参数：<br> customInputs.job_info时，会隐藏JD输入区域。<br> customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。<br> customInputs.interview_type：可传入数字，传入 1 时，开启题目连续模式，一次性生成所有题目。不传入或传入其他值时，题目将逐个生成。<br> customInputs.question_number时，会设置面试题总数量。<br>
          */
         "customInputs"?: Record<string, string>;
         /**
@@ -3429,6 +3485,10 @@ declare namespace LocalJSX {
           * 虚拟数字人ID，指定则开启虚拟数字人功能
          */
         "digitalId"?: string;
+        /**
+          * 是否启用全屏虚拟数字人模式，此模式下面试结果只会通过interviewComplete事件返回或者通过url_callback回调返回
+         */
+        "enableVirtualHuman"?: boolean;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
          */
@@ -3501,6 +3561,10 @@ declare namespace LocalJSX {
           * 上传成功事件
          */
         "onUploadSuccess"?: (event: PcmMnmsModalCustomEvent<FileUploadResponse>) => void;
+        /**
+          * 数字人开场白索引，用于选择开场白和开场视频（可选：0, 1, 2） 0、您好，我是聘才猫 AI 面试助手。很高兴为你主持这场面试！在开始前，请确保：身处安静、光线充足的环境。网络顺畅，摄像头和麦克风工作正常。现在我正在查看本次面试的相关信息，为您生成专属面试题，马上就好，请稍等片刻。</br> 1、您好，我是您的 AI 面试助手。欢迎参加本次AI面试！为了获得最佳效果，请确认：您在安静、明亮的环境中。您的网络稳定，摄像头和麦克风已开启。我们正在后台为您准备本次专属面试内容，很快开始，请稍候。<br> 2、您好，我是您的 AI 面试助手。面试马上开始。趁此片刻，请快速确认：周围安静吗？光线足够吗？网络没问题？摄像头和麦克风准备好了吗？我们正在为您加载个性化的面试环节，稍等就好！
+         */
+        "openingIndex"?: number;
         /**
           * 是否显示复制按钮
          */
@@ -3624,7 +3688,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.job_info时，会隐藏JD输入区域。<br> 传入customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> 传入customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。
+          * 自定义输入参数，可传入以下参数：<br> customInputs.job_info时，会隐藏JD输入区域。<br> customInputs.file_url或customInputs.resume_content时，会隐藏简历上传区域。<br> customInputs.file_url（或customInputs.resume_content）和customInputs.job_info时，会直接开始聊天。<br> customInputs.resume_content：可传入json字符串，或纯文本字符串，字符串内容为简历内容。<br> customInputs.url_callback：可传入url字符串，当报告生成后，会调用该url进行回调。该url请使用post请求，接收报告字段为report_content，会话id字段为conversation_id。<br> customInputs.interview_type：可传入数字，传入 1 时，开启题目连续模式，一次性生成所有题目。不传入或传入其他值时，题目将逐个生成。<br> customInputs.question_number时，会设置面试题总数量。<br>
          */
         "customInputs"?: Record<string, string>;
         /**
@@ -3635,6 +3699,10 @@ declare namespace LocalJSX {
           * 虚拟数字人ID，指定则开启虚拟数字人功能
          */
         "digitalId"?: string;
+        /**
+          * 是否启用全屏虚拟数字人模式，此模式下面试结果只会通过interviewComplete事件返回或者通过url_callback回调返回
+         */
+        "enableVirtualHuman"?: boolean;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
          */
@@ -3707,6 +3775,10 @@ declare namespace LocalJSX {
           * 上传成功事件
          */
         "onUploadSuccess"?: (event: PcmMnmsZpModalCustomEvent<FileUploadResponse>) => void;
+        /**
+          * 数字人开场白索引，用于选择开场白和开场视频（可选：0, 1, 2） 0、您好，我是聘才猫 AI 面试助手。很高兴为你主持这场面试！在开始前，请确保：身处安静、光线充足的环境。网络顺畅，摄像头和麦克风工作正常。现在我正在查看本次面试的相关信息，为您生成专属面试题，马上就好，请稍等片刻。</br> 1、您好，我是您的 AI 面试助手。欢迎参加本次AI面试！为了获得最佳效果，请确认：您在安静、明亮的环境中。您的网络稳定，摄像头和麦克风已开启。我们正在后台为您准备本次专属面试内容，很快开始，请稍候。<br> 2、您好，我是您的 AI 面试助手。面试马上开始。趁此片刻，请快速确认：周围安静吗？光线足够吗？网络没问题？摄像头和麦克风准备好了吗？我们正在为您加载个性化的面试环节，稍等就好！
+         */
+        "openingIndex"?: number;
         /**
           * 是否显示复制按钮
          */
@@ -3993,6 +4065,80 @@ declare namespace LocalJSX {
          */
         "uploadParams"?: Record<string, any>;
     }
+    interface PcmVirtualChatModal {
+        /**
+          * 机器人ID
+         */
+        "botId"?: string;
+        /**
+          * 会话ID，传入继续对话，否则创建新会话
+         */
+        "conversationId"?: string;
+        /**
+          * 录制倒计时提醒时间（秒） 当剩余时间小于此值时，显示倒计时警告
+         */
+        "countdownWarningTime"?: number;
+        /**
+          * 自定义智能体inputs输入参数
+         */
+        "customInputs"?: Record<string, any>;
+        /**
+          * 默认发送文本
+         */
+        "defaultQuery"?: string;
+        /**
+          * 虚拟数字人ID，指定则开启虚拟数字人功能
+         */
+        "digitalId"?: string;
+        /**
+          * 是否以全屏模式打开，移动端建议设置为true
+         */
+        "fullscreen"?: boolean;
+        /**
+          * 是否显示聊天模态框
+         */
+        "isOpen"?: boolean;
+        /**
+          * 视频录制最大时长（秒）
+         */
+        "maxRecordingTime"?: number;
+        /**
+          * 新会话开始的回调，只会在一轮对话开始时触发一次
+         */
+        "onConversationStart"?: (event: PcmVirtualChatModalCustomEvent<ConversationStartEventData>) => void;
+        /**
+          * 当聊天完成时触发
+         */
+        "onInterviewComplete"?: (event: PcmVirtualChatModalCustomEvent<InterviewCompleteEventData>) => void;
+        /**
+          * 录制错误事件
+         */
+        "onRecordingError"?: (event: PcmVirtualChatModalCustomEvent<RecordingErrorEventData>) => void;
+        /**
+          * 录制状态变化事件
+         */
+        "onRecordingStatusChange"?: (event: PcmVirtualChatModalCustomEvent<RecordingStatusChangeEventData>) => void;
+        /**
+          * 一轮对话结束时的回调
+         */
+        "onStreamComplete"?: (event: PcmVirtualChatModalCustomEvent<StreamCompleteEventData>) => void;
+        /**
+          * SDK密钥验证失败事件
+         */
+        "onTokenInvalid"?: (event: PcmVirtualChatModalCustomEvent<void>) => void;
+        /**
+          * 数字人开场白索引，用于选择开场白和开场视频（可选：0, 1, 2） 0、您好，我是聘才猫 AI 面试助手。很高兴为你主持这场面试！在开始前，请确保：身处安静、光线充足的环境。网络顺畅，摄像头和麦克风工作正常。现在我正在查看本次面试的相关信息，为您生成专属面试题，马上就好，请稍等片刻。</br> 1、您好，我是您的 AI 面试助手。欢迎参加本次AI面试！为了获得最佳效果，请确认：您在安静、明亮的环境中。您的网络稳定，摄像头和麦克风已开启。我们正在后台为您准备本次专属面试内容，很快开始，请稍候。<br> 2、您好，我是您的 AI 面试助手。面试马上开始。趁此片刻，请快速确认：周围安静吗？光线足够吗？网络没问题？摄像头和麦克风准备好了吗？我们正在为您加载个性化的面试环节，稍等就好！
+         */
+        "openingIndex"?: number;
+        /**
+          * SDK鉴权密钥
+         */
+        "token"?: string;
+        /**
+          * 聊天框的页面层级
+         */
+        "zIndex"?: number;
+    }
     interface PcmZskChatModal {
         /**
           * 会话ID，传入继续对话，否则创建新会话
@@ -4175,6 +4321,7 @@ declare namespace LocalJSX {
         "pcm-qgqjl-modal": PcmQgqjlModal;
         "pcm-time-count-down": PcmTimeCountDown;
         "pcm-upload": PcmUpload;
+        "pcm-virtual-chat-modal": PcmVirtualChatModal;
         "pcm-zsk-chat-modal": PcmZskChatModal;
         "pcm-zygh-modal": PcmZyghModal;
     }
@@ -4258,6 +4405,7 @@ declare module "@stencil/core" {
             "pcm-qgqjl-modal": LocalJSX.PcmQgqjlModal & JSXBase.HTMLAttributes<HTMLPcmQgqjlModalElement>;
             "pcm-time-count-down": LocalJSX.PcmTimeCountDown & JSXBase.HTMLAttributes<HTMLPcmTimeCountDownElement>;
             "pcm-upload": LocalJSX.PcmUpload & JSXBase.HTMLAttributes<HTMLPcmUploadElement>;
+            "pcm-virtual-chat-modal": LocalJSX.PcmVirtualChatModal & JSXBase.HTMLAttributes<HTMLPcmVirtualChatModalElement>;
             "pcm-zsk-chat-modal": LocalJSX.PcmZskChatModal & JSXBase.HTMLAttributes<HTMLPcmZskChatModalElement>;
             "pcm-zygh-modal": LocalJSX.PcmZyghModal & JSXBase.HTMLAttributes<HTMLPcmZyghModalElement>;
         }

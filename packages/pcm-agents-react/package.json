@@ -1,6 +1,6 @@
 {
   "name": "pcm-agents-react",
-  "version": "0.3.17-beta.0",
+  "version": "0.3.18",
   "description": "React wrapper components for pcm-agents",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -11,11 +11,13 @@
   "scripts": {
     "build": "npm run tsc",
     "tsc": "tsc -p . --outDir ./dist",
-    "test": "node ./__tests__/react-library.test.js"
+    "test": "node ./__tests__/react-library.test.js",
+    "version:beta": "npm version prerelease --preid=beta",
+    "upload:beta": "npm run build && npm publish --tag beta"
   },
   "dependencies": {
     "@stencil/react-output-target": "^0.8.2",
-    "pcm-agents": "^0.6.21-beta.1"
+    "pcm-agents": "^0.6.21"
   },
   "peerDependencies": {
     "react": "^17.0.0 || ^18.0.0",
