@@ -40,7 +40,7 @@ export class JlzzModal {
   /**
    * 导出按钮的文本
    */
-  @Prop() exportButtonText: string = '导出数据';
+  @Prop() exportButtonText: string = '导出简历json数据';
 
   /**
    * 当点击模态框关闭时触发
@@ -242,6 +242,17 @@ export class JlzzModal {
       this._iframeEl.contentWindow.postMessage({ type: 'parentReady', origin: window.location.origin }, targetOrigin);
       // 2. 再发送 token
       this._iframeEl.contentWindow.postMessage({ type: 'setToken', token: this.token }, targetOrigin);
+      console.log(this.exportButtonText, 'this.exportButtonText');
+      this._iframeEl.contentWindow.postMessage(
+        {
+          type: 'buttonConfig',
+          config: {
+            hideExportButton: this.hideExportButton,
+            exportButtonText: this.exportButtonText,
+          },
+        },
+        targetOrigin,
+      );
       console.log('父组件已发送 token 给 iframe，targetOrigin:', targetOrigin);
     }
   };
@@ -736,8 +747,8 @@ export class JlzzModal {
                   <div class="iframe-container">
                     <iframe
                       ref={el => (this._iframeEl = el as HTMLIFrameElement)}
-                      // src={`${PCM_DOMAIN}/myresume?conversation_id=${this.conversationId}&isSdk=true`}
-                      src={`http://localhost:3000/myresume?conversation_id=${this.conversationId}&isSdk=true`}
+                      src={`${PCM_DOMAIN}/myresume?conversation_id=${this.conversationId}&isSdk=true`}
+                      // src={`http://localhost:3000/myresume?conversation_id=${this.conversationId}&isSdk=true`}
                       frameborder="0"
                       onLoad={this.handleIframeLoad}
                     ></iframe>
