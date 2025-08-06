@@ -387,7 +387,6 @@ type PcmJlzzModalEvents = {
     onUploadSuccess: EventName<PcmJlzzModalCustomEvent<FileUploadResponse>>,
     onStreamComplete: EventName<PcmJlzzModalCustomEvent<StreamCompleteEventData>>,
     onConversationStart: EventName<PcmJlzzModalCustomEvent<ConversationStartEventData>>,
-    onInterviewComplete: EventName<PcmJlzzModalCustomEvent<InterviewCompleteEventData>>,
     onTokenInvalid: EventName<CustomEvent<void>>,
     onSomeErrorEvent: EventName<PcmJlzzModalCustomEvent<ErrorEventDetail>>,
     onGetResumeData: EventName<CustomEvent<any>>
@@ -403,7 +402,6 @@ export const PcmJlzzModal: StencilReactComponent<PcmJlzzModalElement, PcmJlzzMod
         onUploadSuccess: 'uploadSuccess',
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
-        onInterviewComplete: 'interviewComplete',
         onTokenInvalid: 'tokenInvalid',
         onSomeErrorEvent: 'someErrorEvent',
         onGetResumeData: 'getResumeData'

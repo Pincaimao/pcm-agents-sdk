@@ -34,6 +34,15 @@ export class JlzzModal {
   @State() isSuccess: boolean = false;
 
   /**
+   * 是否隐藏导出数据按钮
+   */
+  @Prop() hideExportButton: boolean = false;
+  /**
+   * 导出按钮的文本
+   */
+  @Prop() exportButtonText: string = '导出数据';
+
+  /**
    * 当点击模态框关闭时触发
    */
   @Event() modalClosed: EventEmitter<void>;
@@ -155,8 +164,6 @@ export class JlzzModal {
       this.resumeType = 'chat';
     } else {
       await verifyApiKey(this.token);
-     
-      
     }
   }
 
@@ -577,9 +584,7 @@ export class JlzzModal {
 
               {this.resumeType === 'paste' && (
                 <div class="jd-input-section">
-                  <label htmlFor="job-description">
-                    请粘贴简历文本
-                  </label>
+                  <label htmlFor="job-description">请粘贴简历文本</label>
                   <textarea
                     id="job-description"
                     class="job-description-textarea"
@@ -674,7 +679,6 @@ export class JlzzModal {
             </div>
           )}
 
-
           {/* 聊天界面 - 在显示聊天模态框时显示 */}
           {this.showChatModal && (
             <>
@@ -732,8 +736,8 @@ export class JlzzModal {
                   <div class="iframe-container">
                     <iframe
                       ref={el => (this._iframeEl = el as HTMLIFrameElement)}
-                      src={`${PCM_DOMAIN}/myresume?conversation_id=${this.conversationId}&isSdk=true`}
-                      // src={`http://localhost:3000/myresume?conversation_id=${this.conversationId}&isSdk=true`}
+                      // src={`${PCM_DOMAIN}/myresume?conversation_id=${this.conversationId}&isSdk=true`}
+                      src={`http://localhost:3000/myresume?conversation_id=${this.conversationId}&isSdk=true`}
                       frameborder="0"
                       onLoad={this.handleIframeLoad}
                     ></iframe>
