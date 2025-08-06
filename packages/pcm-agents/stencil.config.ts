@@ -68,16 +68,16 @@ export const config: Config = {
       },
     ],
   },
-  devServer: {
-    reloadStrategy: 'pageReload',
-    port: 4444,
-    https: {
-      // cert: readFileSync('/Users/debugksir/Documents/webarcx/webarcx_com.pem', 'utf8'),
-      // key: readFileSync('/Users/debugksir/Documents/webarcx/webarcx_com.key', 'utf8'),
-      cert: readFileSync('C:/Users/Administrator/Downloads/webarcx_com.pem', 'utf8'),
-      key: readFileSync('C:/Users/Administrator/Downloads/webarcx_com.key', 'utf8'),
-    },
-  },
+  // devServer: {
+  //   reloadStrategy: 'pageReload',
+  //   port: 4444,
+  //   https: {
+  //     // cert: readFileSync('/Users/debugksir/Documents/webarcx/webarcx_com.pem', 'utf8'),
+  //     // key: readFileSync('/Users/debugksir/Documents/webarcx/webarcx_com.key', 'utf8'),
+  //     cert: readFileSync('C:/Users/Administrator/Downloads/webarcx_com.pem', 'utf8'),
+  //     key: readFileSync('C:/Users/Administrator/Downloads/webarcx_com.key', 'utf8'),
+  //   },
+  // },
   globalScript: 'src/utils/init.ts',
   plugins: [dotenvPlugin()],
   // 将环境变量传递给构建过程
