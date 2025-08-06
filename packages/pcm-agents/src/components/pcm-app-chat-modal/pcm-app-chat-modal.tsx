@@ -64,7 +64,6 @@ export class ChatAPPModal {
    */
   @Prop({ mutable: true }) conversationId?: string;
 
-
   /**
    * 是否正在加载回复
    */
@@ -92,7 +91,6 @@ export class ChatAPPModal {
    * 新会话开始的回调，只会在一轮对话开始时触发一次
    */
   @Event() conversationStart: EventEmitter<ConversationStartEventData>;
-
 
   /**
    * 默认发送文本
@@ -137,7 +135,6 @@ export class ChatAPPModal {
    * 当聊天完成时触发
    */
   @Event() interviewComplete: EventEmitter<InterviewCompleteEventData>;
-
 
   @State() showCountdownWarning: boolean = false;
 
@@ -272,7 +269,6 @@ export class ChatAPPModal {
   @State() showConfirmModal: boolean = false;
   @State() skipConfirmThisInterview: boolean = false;
 
-
   /**
    * 最后完成的AI回复文本，用于数字人视频生成
    */
@@ -390,7 +386,7 @@ export class ChatAPPModal {
     // 发送新消息时重置状态
     this.waitingForDigitalHuman = false;
     this.digitalHumanVideoReady = false;
-    
+
     this.isLoading = true;
     let answer = '';
     let llmText = '';
@@ -659,7 +655,7 @@ export class ChatAPPModal {
     this.isLoadingHistory = true;
     console.log('加载历史消息...');
     let conversationStatus = false;
-    this.digitalHumanVideoReady = true
+    this.digitalHumanVideoReady = true;
 
     try {
       // 首先获取会话状态
@@ -738,7 +734,6 @@ export class ChatAPPModal {
 
         // 如果有会话ID且有历史消息，且会话未结束，处理继续对话的逻辑
         if (this.conversationId && this.messages.length > 0 && !conversationStatus) {
-
           // 如果是视频模式，开始等待录制
           if (this.interviewMode === 'video') {
             this.startWaitingToRecord();
@@ -1095,7 +1090,6 @@ export class ChatAPPModal {
     this.showConfirmModal = false;
   };
 
-
   // 上传录制的视频
   private async uploadRecordedVideo() {
     if (!this.recordedBlob) return;
@@ -1143,8 +1137,6 @@ export class ChatAPPModal {
     }
   }
 
-
-
   // 确保组件卸载时释放资源
   disconnectedCallback() {
     document.removeEventListener('pcm-token-invalid', this.tokenInvalidListener);
@@ -1172,7 +1164,6 @@ export class ChatAPPModal {
     // 停止音频录制
     this.stopAudioRecording();
   }
-
 
   // 处理文本输入变化
   private handleTextInputChange = (event: Event) => {
@@ -1654,29 +1645,31 @@ export class ChatAPPModal {
     if (this.currentStreamingMessage) {
       return false;
     }
-    
+
     // 如果没有流式消息，检查当前消息是否是messages数组中的最后一个
     if (this.messages.length === 0) {
       return false;
     }
-    
+
     const lastMessage = this.messages[this.messages.length - 1];
-    
+
     return message.id === lastMessage.id;
   }
 
   /**
    * 处理数字人视频生成成功事件
    */
-  private handleDigitalHumanVideoGenerated = (event: CustomEvent<{
-    videoUrl: string;
-  }>) => {
+  private handleDigitalHumanVideoGenerated = (
+    event: CustomEvent<{
+      videoUrl: string;
+    }>,
+  ) => {
     const { videoUrl } = event.detail;
-    
+
     console.log('数字人视频生成成功:', {
       videoUrl,
       conversationId: this.conversationId,
-      currentQuestionNumber: this.currentQuestionNumber
+      currentQuestionNumber: this.currentQuestionNumber,
     });
 
     // 设置数字人视频已准备好
@@ -1686,15 +1679,17 @@ export class ChatAPPModal {
   /**
    * 处理数字人视频播放完成事件
    */
-  private handleDigitalHumanVideoEnded = (event: CustomEvent<{
-    videoUrl: string;
-  }>) => {
+  private handleDigitalHumanVideoEnded = (
+    event: CustomEvent<{
+      videoUrl: string;
+    }>,
+  ) => {
     const videoUrl = event.detail;
-    
+
     console.log('数字人生成视频播放完成:', {
       videoUrl,
       conversationId: this.conversationId,
-      currentQuestionNumber: this.currentQuestionNumber
+      currentQuestionNumber: this.currentQuestionNumber,
     });
 
     // 数字人视频播放完成后，开始录制流程
@@ -1827,7 +1822,7 @@ export class ChatAPPModal {
       if (this.isTaskCompleted) {
         return (
           <div class="placeholder-status">
-             <p>面试已完成，感谢您的参与！</p>
+            <p>面试已完成，感谢您的参与！</p>
           </div>
         );
       }
@@ -1899,6 +1894,19 @@ export class ChatAPPModal {
             onClick={this.closeResumeChat}
           >
             结束对话生成简历
+          </button>
+        )}
+        {this.botId === '45444431062634496' && (
+          <button
+            class={{
+              'cancel-button': true,
+              'disabled': this.isLoading,
+            }}
+            disabled={this.isLoading}
+            onClick={() => this.closeResume?.()}
+            title="简历制作"
+          >
+            简历制作
           </button>
         )}
         <textarea
@@ -1995,7 +2003,6 @@ export class ChatAPPModal {
     return (
       <div class={overlayClass} style={modalStyle}>
         <div class={containerClass}>
-
           {this.isShowHeader && (
             <div class="modal-header">
               <div class="header-left">

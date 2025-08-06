@@ -585,6 +585,7 @@ export const PcmMsbgModal: StencilReactComponent<PcmMsbgModalElement, PcmMsbgMod
 
 type PcmQgqjlModalEvents = {
     onModalClosed: EventName<CustomEvent<void>>,
+    onGetResumeData: EventName<CustomEvent<any>>,
     onUploadSuccess: EventName<PcmQgqjlModalCustomEvent<FileUploadResponse>>,
     onStreamComplete: EventName<PcmQgqjlModalCustomEvent<StreamCompleteEventData>>,
     onConversationStart: EventName<PcmQgqjlModalCustomEvent<ConversationStartEventData>>,
@@ -600,6 +601,7 @@ export const PcmQgqjlModal: StencilReactComponent<PcmQgqjlModalElement, PcmQgqjl
     react: React,
     events: {
         onModalClosed: 'modalClosed',
+        onGetResumeData: 'getResumeData',
         onUploadSuccess: 'uploadSuccess',
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
