@@ -1836,7 +1836,7 @@ export class ChatAPPModal {
       if (this.waitingForDigitalHuman && this.digitalId) {
         return (
           <div class="placeholder-status">
-            <p>AI正在查看您的信息，请稍后...</p>
+            <p>AI正在查看面试信息...</p>
           </div>
         );
       }

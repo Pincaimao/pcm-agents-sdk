@@ -120,14 +120,12 @@ export class ChatVirtualAPPModal {
    */
   @State() digitalHumanVideoUrl: string = '';
   @State() digitalHumanDefaultVideoUrl: string = '';
-  @State() digitalHumanVirtualmanKey: string = '';
+  @State() virtualmanKey: string = '';
   @State() isPlayingDigitalHumanVideo: boolean = false;
   @State() digitalHumanVideoReady: boolean = false;
   @State() digitalHumanOpeningContents: Array<{ text: string, video_url: string }> = [];
   @State() isPlayingWelcomeVideo: boolean = false;
-
-  // 数字人视频元素引用
-  private digitalHumanVideoElement: HTMLVideoElement | null = null;
+  @State() isGeneratingDigitalHumanVideo: boolean = false;
 
   // 视频预加载缓存管理
   private preloadedVideos: Set<string> = new Set();
@@ -144,12 +142,12 @@ export class ChatVirtualAPPModal {
   @Prop() digitalId?: string;
 
   /**
-   * 数字人开场白索引，用于选择开场白和开场视频（可选：1, 2, 3）
-   * 1、您好，我是聘才猫 AI 面试助手。很高兴为你主持这场面试！在开始前，请确保：身处安静、光线充足的环境。网络顺畅，摄像头和麦克风工作正常。现在我正在查看本次面试的相关信息，为您生成专属面试题，马上就好，请稍等片刻。</br>
-   * 2、您好，我是您的 AI 面试助手。欢迎参加本次AI面试！为了获得最佳效果，请确认：您在安静、明亮的环境中。您的网络稳定，摄像头和麦克风已开启。我们正在后台为您准备本次专属面试内容，很快开始，请稍候。<br>
-   * 3、您好，我是您的 AI 面试助手。面试马上开始。趁此片刻，请快速确认：周围安静吗？光线足够吗？网络没问题？摄像头和麦克风准备好了吗？我们正在为您加载个性化的面试环节，稍等就好！
+   * 数字人开场白索引，用于选择开场白和开场视频（可选：0, 1, 2）
+   * 0、您好，我是聘才猫 AI 面试助手。很高兴为你主持这场面试！在开始前，请确保：身处安静、光线充足的环境。网络顺畅，摄像头和麦克风工作正常。现在我正在查看本次面试的相关信息，为您生成专属面试题，马上就好，请稍等片刻。</br>
+   * 1、您好，我是您的 AI 面试助手。欢迎参加本次AI面试！为了获得最佳效果，请确认：您在安静、明亮的环境中。您的网络稳定，摄像头和麦克风已开启。我们正在后台为您准备本次专属面试内容，很快开始，请稍候。<br>
+   * 2、您好，我是您的 AI 面试助手。面试马上开始。趁此片刻，请快速确认：周围安静吗？光线足够吗？网络没问题？摄像头和麦克风准备好了吗？我们正在为您加载个性化的面试环节，稍等就好！
    */
-  @Prop() openingIndex: number = 1;
+  @Prop() openingIndex: number = 0;
 
   /**
    * 录制错误事件
@@ -241,7 +239,7 @@ export class ChatVirtualAPPModal {
       digitalId: this.digitalId,
       isOpen: this.isOpen,
       conversationId: this.conversationId,
-      digitalHumanVirtualmanKey: this.digitalHumanVirtualmanKey,
+      virtualmanKey: this.virtualmanKey,
     });
 
     // 如果有数字人ID，初始化数字人功能
@@ -494,10 +492,7 @@ export class ChatVirtualAPPModal {
         if (this.digitalId) {
           this.waitingForDigitalHuman = true;
           console.log('等待数字人视频播放完成...');
-        } else {
-          // 没有开启数字人，直接开始录制
-          this.startWaitingToRecord();
-        }
+        } 
       },
     });
   }
@@ -1012,7 +1007,7 @@ export class ChatVirtualAPPModal {
    * 预创建数字人视频
    */
   private async precreateDigitalHumanVideos(digital_human_list: string[]) {
-    if (!this.digitalHumanVirtualmanKey) {
+    if (!this.virtualmanKey) {
       console.warn('VirtualmanKey尚未加载，无法预创建视频。');
       // 可以在此处添加逻辑，等待virtualmanKey加载后再执行
       return;
@@ -1026,7 +1021,7 @@ export class ChatVirtualAPPModal {
           url: '/sdk/v1/virtual-human/create-video',
           method: 'POST',
           data: {
-            VirtualmanKey: this.digitalHumanVirtualmanKey,
+            VirtualmanKey: this.virtualmanKey,
             InputSsml: text,
             SpeechParam: {
               Speed: 1,
@@ -1076,7 +1071,7 @@ export class ChatVirtualAPPModal {
         }
 
         if (virtualman_key) {
-          this.digitalHumanVirtualmanKey = virtualman_key;
+          this.virtualmanKey = virtualman_key;
         }
 
         // 处理开场白内容（JSON格式）
@@ -1084,7 +1079,7 @@ export class ChatVirtualAPPModal {
           this.digitalHumanOpeningContents = opening_contents;
           
           // 验证并调整开场白索引
-          const validIndex = Math.max(1, Math.min(3, this.openingIndex || 1)) - 1; // 转换为0-based索引
+          const validIndex = Math.max(0, Math.min(2, this.openingIndex || 0)); // 限制索引范围0-2
           const selectedOpeningContent = this.digitalHumanOpeningContents[validIndex] || this.digitalHumanOpeningContents[0];
           
           // 按顺序准备预加载列表：1.选择的欢迎视频 2.默认占位视频 3.其他视频
@@ -1103,9 +1098,9 @@ export class ChatVirtualAPPModal {
 
           console.log('数字人初始化完成:', {
             defaultVideoUrl: this.digitalHumanDefaultVideoUrl,
-            virtualmanKey: this.digitalHumanVirtualmanKey,
+            virtualmanKey: this.virtualmanKey,
             openingContents: this.digitalHumanOpeningContents,
-            selectedOpeningIndex: validIndex + 1,
+            selectedOpeningIndex: validIndex,
             selectedOpeningContent,
             orderedVideosToPreload
           });
@@ -1115,7 +1110,7 @@ export class ChatVirtualAPPModal {
 
           // 播放选择的欢迎视频
           if (selectedOpeningContent.video_url) {
-            console.log('播放数字人欢迎视频:', selectedOpeningContent.video_url, '索引:', validIndex + 1);
+            console.log('播放数字人欢迎视频:', selectedOpeningContent.video_url, '索引:', validIndex);
             this.playDigitalHumanVideo(selectedOpeningContent.video_url, true);
           }
         } else {
@@ -1140,7 +1135,7 @@ export class ChatVirtualAPPModal {
    * 生成数字人视频
    */
   private async generateDigitalHumanVideo(text: string) {
-    if (!text.trim() || !this.digitalHumanVirtualmanKey) {
+    if (!text.trim() || !this.virtualmanKey) {
 
       // 条件不满足时，取消等待状态并直接开始录制流程
       if (this.waitingForDigitalHuman && !this.isTaskCompleted) {
@@ -1152,6 +1147,9 @@ export class ChatVirtualAPPModal {
     }
 
     console.log('开始生成数字人视频，文本内容：', text);
+    
+    // 设置正在生成视频的状态
+    this.isGeneratingDigitalHumanVideo = true;
 
     try {
       // 创建视频任务
@@ -1159,7 +1157,7 @@ export class ChatVirtualAPPModal {
         url: '/sdk/v1/virtual-human/create-video',
         method: 'POST',
         data: {
-          VirtualmanKey: this.digitalHumanVirtualmanKey,
+          VirtualmanKey: this.virtualmanKey,
           InputSsml: text,
           SpeechParam: {
             Speed: 1
@@ -1207,6 +1205,9 @@ export class ChatVirtualAPPModal {
         this.waitingForDigitalHuman = false;
         this.startWaitingToRecord();
       }
+    } finally {
+      // 无论成功还是失败，都重置生成状态
+      this.isGeneratingDigitalHumanVideo = false;
     }
   }
 
@@ -1478,13 +1479,22 @@ export class ChatVirtualAPPModal {
     // 如果正在播放欢迎视频，优先显示欢迎语
     if (this.isPlayingWelcomeVideo) {
       // 验证并调整开场白索引
-      const validIndex = Math.max(1, Math.min(3, this.openingIndex || 1)) - 1; // 转换为0-based索引
+      const validIndex = Math.max(0, Math.min(2, this.openingIndex || 0)); // 限制索引范围0-2
       const selectedOpeningContent = this.digitalHumanOpeningContents[validIndex] || this.digitalHumanOpeningContents[0];
       const welcomeText = selectedOpeningContent.text;
 
       return (
         <div class="ai-message-item">
           <div class="ai-message-content">{welcomeText}</div>
+        </div>
+      );
+    }
+
+    // 如果正在生成数字人视频，显示查看面试信息的提示
+    if (this.isGeneratingDigitalHumanVideo) {
+      return (
+        <div class="ai-message-item">
+          <div class="ai-message-content">请稍等，我查看一下本次面试的信息...</div>
         </div>
       );
     }
@@ -1554,11 +1564,9 @@ export class ChatVirtualAPPModal {
                 muted={!this.isPlayingDigitalHumanVideo}
                 src={this.digitalHumanVideoUrl}
                 class="digital-human-background-video"
-                ref={el => (this.digitalHumanVideoElement = el)}
                 onEnded={this.handleVideoElementEnded}
-                onLoadedData={() => console.log('视频数据加载完成:', this.digitalHumanVideoUrl)}
-                onPlay={() => console.log('视频开始播放:', this.digitalHumanVideoUrl, '静音:', !this.isPlayingDigitalHumanVideo)}
-                onVolumeChange={() => console.log('音量变化:', this.digitalHumanVideoElement?.muted, this.digitalHumanVideoElement?.volume)}
+                // onLoadedData={() => console.log('视频数据加载完成:', this.digitalHumanVideoUrl)}
+                // onPlay={() => console.log('视频开始播放:', this.digitalHumanVideoUrl, '静音:', !this.isPlayingDigitalHumanVideo)}
               />
             </div>
           )}
@@ -1759,7 +1767,7 @@ export class ChatVirtualAPPModal {
       );
     }
 
-    // 等待数字人
+    // 正在生成数字人视频
     if (this.waitingForDigitalHuman && this.digitalId) {
       return (
         <div class="status-indicator-text loading">
@@ -1793,7 +1801,7 @@ export class ChatVirtualAPPModal {
     if (this.waitingToRecord) {
       return (
         <div class="status-indicator-text">
-          <span>{this.waitingTimeLeft} 秒后开始</span>
+          <span>{this.waitingTimeLeft} 秒后开始您的回答</span>
         </div>
       );
     }
