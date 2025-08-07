@@ -547,18 +547,15 @@ export class ChatAPPModal {
       },
       onComplete: async () => {
         this.isLoading = false;
-        // 根据currentQuestionNumber判断是否清空customInputs
-        if (this.currentQuestionNumber === 0) {
-          //  发送第一条消息后，清空指定的 customInputs 字段
-          setTimeout(() => {
-            if (this.customInputs) {
-              // 只清除指定的字段，其他字段保留
-              delete this.customInputs.job_info;
-              delete this.customInputs.file_url;
-              delete this.customInputs.file_name;
-            }
-          }, 1000); // 给一些时间让第一条消息处理完成
-        }
+        //  发送第一条消息后，清空指定的 customInputs 字段
+        setTimeout(() => {
+          if (this.customInputs) {
+            // 只清除指定的字段，其他字段保留
+            delete this.customInputs.job_info;
+            delete this.customInputs.file_url;
+            delete this.customInputs.file_name;
+          }
+        }, 1000); // 给一些时间让第一条消息处理完成
 
         // 获取最新的AI回复内容
         const latestAIMessage = this.currentStreamingMessage;
