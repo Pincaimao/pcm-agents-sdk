@@ -237,6 +237,7 @@ type PcmMsbgModalEvents = {
 export declare const PcmMsbgModal: StencilReactComponent<PcmMsbgModalElement, PcmMsbgModalEvents>;
 type PcmQgqjlModalEvents = {
     onModalClosed: EventName<CustomEvent<void>>;
+    onGetResumeData: EventName<CustomEvent<any>>;
     onUploadSuccess: EventName<PcmQgqjlModalCustomEvent<FileUploadResponse>>;
     onStreamComplete: EventName<PcmQgqjlModalCustomEvent<StreamCompleteEventData>>;
     onConversationStart: EventName<PcmQgqjlModalCustomEvent<ConversationStartEventData>>;

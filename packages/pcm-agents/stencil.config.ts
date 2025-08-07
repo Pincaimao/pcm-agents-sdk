@@ -68,21 +68,21 @@ export const config: Config = {
       },
     ],
   },
-  // devServer: {
-  //   reloadStrategy: 'pageReload',
-  //   port: 4444,
-  //   https: {
-  //     // cert: readFileSync('/Users/debugksir/Documents/webarcx/webarcx_com.pem', 'utf8'),
-  //     // key: readFileSync('/Users/debugksir/Documents/webarcx/webarcx_com.key', 'utf8'),
-  //     cert: readFileSync('C:/Users/Administrator/Downloads/webarcx_com.pem', 'utf8'),
-  //     key: readFileSync('C:/Users/Administrator/Downloads/webarcx_com.key', 'utf8'),
-  //   },
-  // },
+  devServer: {
+    reloadStrategy: 'pageReload',
+    port: 4444,
+    https: {
+      // cert: readFileSync('/Users/debugksir/Documents/webarcx/webarcx_com.pem', 'utf8'),
+      // key: readFileSync('/Users/debugksir/Documents/webarcx/webarcx_com.key', 'utf8'),
+      cert: readFileSync('C:/Users/Administrator/Downloads/webarcx_com.pem', 'utf8'),
+      key: readFileSync('C:/Users/Administrator/Downloads/webarcx_com.key', 'utf8'),
+    },
+  },
   globalScript: 'src/utils/init.ts',
   plugins: [dotenvPlugin()],
   // 将环境变量传递给构建过程
   env: {
     API_DOMAIN: process.env.API_DOMAIN || 'https://api.pincaimao.com/agents/platform',
-    PCM_DOMAIN: process.env.PCM_DOMAIN || 'http://www.pincaimao.com',
+    PCM_DOMAIN: process.env.PCM_DOMAIN || 'https://www.pincaimao.com',
   },
 };

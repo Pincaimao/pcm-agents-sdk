@@ -1,6 +1,6 @@
 // 默认 API 域名
 const DEFAULT_API_DOMAIN = 'https://api.pincaimao.com/agents/platform';
-const DEFAULT_PCM_DOMAIN = 'http://www.pincaimao.com';
+const DEFAULT_PCM_DOMAIN = 'https://www.pincaimao.com';
 
 
 // 从环境变量获取 API 域名，如果未设置则使用默认值
