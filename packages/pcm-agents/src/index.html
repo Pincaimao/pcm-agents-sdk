@@ -1171,6 +1171,7 @@
 
         jlzzModal.addEventListener('streamComplete', event => {
           console.log('流式响应完成:', event.detail);
+          jlzzModal.isSuccess = true;
         });
 
         jlzzModal.addEventListener('conversationStart', event => {

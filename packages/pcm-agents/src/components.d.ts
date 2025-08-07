@@ -933,6 +933,11 @@ export namespace Components {
          */
         "isShowHeader": boolean;
         /**
+          * 是否成功，成功展示 iframe 官网
+          * @default false
+         */
+        "isSuccess": boolean;
+        /**
           * 模态框标题
           * @default '简历制作'
          */
@@ -3757,6 +3762,11 @@ declare namespace LocalJSX {
           * @default true
          */
         "isShowHeader"?: boolean;
+        /**
+          * 是否成功，成功展示 iframe 官网
+          * @default false
+         */
+        "isSuccess"?: boolean;
         /**
           * 模态框标题
           * @default '简历制作'

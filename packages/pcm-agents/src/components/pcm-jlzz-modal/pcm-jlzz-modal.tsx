@@ -31,7 +31,7 @@ export class JlzzModal {
   /**
    * 是否成功，成功展示 iframe 官网
    */
-  @State() isSuccess: boolean = false;
+  @Prop({ mutable: true }) isSuccess: boolean = false;
 
   /**
    * 是否隐藏导出数据按钮
@@ -164,6 +164,12 @@ export class JlzzModal {
       this.resumeType = 'chat';
     } else {
       await verifyApiKey(this.token);
+    }
+  }
+  @Watch('isSuccess')
+  handleIsSuccessChange(newValue: boolean) {
+    if (newValue && this.resumeType !== 'chat') {
+      this.showIframe = true;
     }
   }
 
@@ -474,7 +480,7 @@ export class JlzzModal {
   };
   private closeResumeChat = () => {
     this.isSuccess = false;
-    this.resumeType = 'chat';
+    this.resumeType = 'upload';
   };
   render() {
     if (!this.isOpen) return null;
