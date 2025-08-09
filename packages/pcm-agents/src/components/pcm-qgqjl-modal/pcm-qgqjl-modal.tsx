@@ -201,6 +201,12 @@ export class QgqjlModal {
     document.addEventListener('pcm-token-invalid', this.tokenInvalidListener);
   }
 
+  /**
+   * 处理流式响应完成事件
+   */
+  private handleStreamComplete = (event: CustomEvent<StreamCompleteEventData>) => {
+    this.conversationId = event.detail.conversation_id;
+  };
   componentDidLoad() {
     // 监听来自 iframe 的消息
     window.addEventListener('message', this.handleIframeMessage);
@@ -527,6 +533,7 @@ export class QgqjlModal {
                   job_info: this.customInputs?.job_info || this.jobDescription,
                 }}
                 interviewMode="text"
+                onStreamComplete={this.handleStreamComplete}
               ></pcm-app-chat-modal>
             </div>
           )}
