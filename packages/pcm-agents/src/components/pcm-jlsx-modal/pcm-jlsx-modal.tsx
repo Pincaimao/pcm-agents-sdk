@@ -1232,7 +1232,7 @@ export class JlsxModal {
                     query: '简历筛选',
                     inputs: {
                         job_info: this.jobDescription,
-                        jd_id: this.currentTask.id,
+                        jd_id: this.currentTask.jd_id,
                         task_id: this.currentTask.id,
                         file_urls: filteredFileUrls.join(','), // 使用过滤后的文件URL
                         rule: ruleString
