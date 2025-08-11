@@ -72,6 +72,11 @@ export class MnmsModal {
     @Prop() defaultQuery: string = '请开始模拟面试';
 
     /**
+     * 视频录制最大时长（秒）默认120
+     */
+    @Prop() maxRecordingTime: number = 120;
+
+    /**
      * 是否以全屏模式打开，移动端建议设置为true
      */
     @Prop() fullscreen: boolean = false;
@@ -151,12 +156,6 @@ export class MnmsModal {
      */
     @Event() someErrorEvent: EventEmitter<ErrorEventDetail>;
 
-    /**
-     * 附件预览模式
-     * 'drawer': 在右侧抽屉中预览
-     * 'window': 在新窗口中打开
-     */
-    @Prop() filePreviewMode: 'drawer' | 'window' = 'window';
 
     /**
      * 面试模式：text - 文本模式，video - 视频模式
@@ -444,7 +443,7 @@ export class MnmsModal {
                                     digitalId={this.digitalId}
                                     conversationId={this.conversationId}
                                     defaultQuery={this.defaultQuery}
-                                    filePreviewMode={this.filePreviewMode}
+                                    maxRecordingTime={this.maxRecordingTime}
                                     showCopyButton={this.showCopyButton}
                                     showFeedbackButtons={this.showFeedbackButtons}
                                     customInputs={{

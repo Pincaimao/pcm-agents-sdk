@@ -239,7 +239,7 @@ export class ChatAPPModal {
    * 'drawer': 在右侧抽屉中预览
    * 'window': 在新窗口中打开
    */
-  @Prop() filePreviewMode: 'drawer' | 'window' = 'window';
+  @Prop() filePreviewMode: 'drawer' | 'window' = 'drawer';
 
   /**
    * 是否显示工作区历史会话按钮
