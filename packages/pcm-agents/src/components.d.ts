@@ -762,6 +762,10 @@ export namespace Components {
          */
         "defaultQuery": string;
         /**
+          * 导出按钮的文本
+         */
+        "exportButtonText": string;
+        /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
          */
         "filePreviewMode": 'drawer' | 'window';
@@ -769,6 +773,10 @@ export namespace Components {
           * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen": boolean;
+        /**
+          * 是否隐藏导出数据按钮
+         */
+        "hideExportButton": boolean;
         /**
           * 应用图标URL
          */
@@ -785,6 +793,10 @@ export namespace Components {
           * 是否展示顶部标题栏
          */
         "isShowHeader": boolean;
+        /**
+          * 是否成功，成功展示 iframe 官网
+         */
+        "isSuccess": boolean;
         /**
           * 模态框标题
          */
@@ -1228,6 +1240,10 @@ export namespace Components {
          */
         "defaultQuery": string;
         /**
+          * 导出按钮的文本
+         */
+        "exportButtonText": string;
+        /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
          */
         "filePreviewMode": 'drawer' | 'window';
@@ -1235,6 +1251,10 @@ export namespace Components {
           * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen": boolean;
+        /**
+          * 是否隐藏导出数据按钮
+         */
+        "hideExportButton": boolean;
         /**
           * 应用图标URL
          */
@@ -1415,7 +1435,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
+          * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.type时，会直接开始聊天。<br>
          */
         "customInputs": Record<string, string>;
         /**
@@ -2108,6 +2128,7 @@ declare global {
     };
     interface HTMLPcmQgqjlModalElementEventMap {
         "modalClosed": void;
+        "getResumeData": any;
         "uploadSuccess": FileUploadResponse;
         "streamComplete": StreamCompleteEventData1;
         "conversationStart": ConversationStartEventData1;
@@ -3303,6 +3324,10 @@ declare namespace LocalJSX {
          */
         "defaultQuery"?: string;
         /**
+          * 导出按钮的文本
+         */
+        "exportButtonText"?: string;
+        /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
          */
         "filePreviewMode"?: 'drawer' | 'window';
@@ -3310,6 +3335,10 @@ declare namespace LocalJSX {
           * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen"?: boolean;
+        /**
+          * 是否隐藏导出数据按钮
+         */
+        "hideExportButton"?: boolean;
         /**
           * 应用图标URL
          */
@@ -3326,6 +3355,10 @@ declare namespace LocalJSX {
           * 是否展示顶部标题栏
          */
         "isShowHeader"?: boolean;
+        /**
+          * 是否成功，成功展示 iframe 官网
+         */
+        "isSuccess"?: boolean;
         /**
           * 模态框标题
          */
@@ -3949,6 +3982,10 @@ declare namespace LocalJSX {
          */
         "defaultQuery"?: string;
         /**
+          * 导出按钮的文本
+         */
+        "exportButtonText"?: string;
+        /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
          */
         "filePreviewMode"?: 'drawer' | 'window';
@@ -3956,6 +3993,10 @@ declare namespace LocalJSX {
           * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen"?: boolean;
+        /**
+          * 是否隐藏导出数据按钮
+         */
+        "hideExportButton"?: boolean;
         /**
           * 应用图标URL
          */
@@ -3980,6 +4021,10 @@ declare namespace LocalJSX {
           * 新会话开始的回调，只会在一轮对话开始时触发一次
          */
         "onConversationStart"?: (event: PcmQgqjlModalCustomEvent<ConversationStartEventData1>) => void;
+        /**
+          * 获取简历数据事件（用户点击导出简历json数据后触发）
+         */
+        "onGetResumeData"?: (event: PcmQgqjlModalCustomEvent<any>) => void;
         /**
           * 当聊天完成时触发
          */
@@ -4215,7 +4260,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
+          * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.type时，会直接开始聊天。<br>
          */
         "customInputs"?: Record<string, string>;
         /**

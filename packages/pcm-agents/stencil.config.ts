@@ -83,6 +83,6 @@ export const config: Config = {
   // 将环境变量传递给构建过程
   env: {
     API_DOMAIN: process.env.API_DOMAIN || 'https://api.pincaimao.com/agents/platform',
-    PCM_DOMAIN: process.env.PCM_DOMAIN || 'http://www.pincaimao.com',
+    PCM_DOMAIN: process.env.PCM_DOMAIN || 'https://www.pincaimao.com',
   },
 };

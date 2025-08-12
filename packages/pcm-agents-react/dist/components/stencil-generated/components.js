@@ -332,6 +332,7 @@ export const PcmQgqjlModal = createComponent({
     react: React,
     events: {
         onModalClosed: 'modalClosed',
+        onGetResumeData: 'getResumeData',
         onUploadSuccess: 'uploadSuccess',
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',

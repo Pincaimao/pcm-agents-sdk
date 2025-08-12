@@ -242,11 +242,7 @@ export class ChatVirtualAPPModal {
       virtualmanKey: this.virtualmanKey,
     });
 
-    // 如果有数字人ID，初始化数字人功能
-    if (this.digitalId) {
-      console.log('准备初始化数字人功能...');
-      this.initializeDigitalHuman();
-    }
+
 
     // 如果组件加载时已经是打开状态，则直接开始对话
     if (this.isOpen) {
@@ -254,6 +250,11 @@ export class ChatVirtualAPPModal {
         // 在下一个事件循环中加载历史消息，避免在componentWillLoad中进行异步操作
         setTimeout(() => this.loadHistoryMessages(), 0);
       } else {
+        // 初始化数字人功能
+        if (this.digitalId) {
+          console.log('准备初始化数字人功能...');
+          this.initializeDigitalHuman();
+        }
         // 在下一个事件循环中发送初始消息，避免在componentWillLoad中进行异步操作
         setTimeout(() => {
           this.sendMessageToAPI(this.defaultQuery);
@@ -577,18 +578,23 @@ export class ChatVirtualAPPModal {
       });
     } finally {
       this.isLoadingHistory = false;
-      setTimeout(async () => {
+      if (this.conversationId && this.messages.length > 0 && !conversationStatus) {
+        // 不播放欢迎视频
+        this.digitalHumanVideoUrl = this.digitalHumanDefaultVideoUrl;
+        this.isPlayingDigitalHumanVideo = false;
+        this.isPlayingWelcomeVideo = false;
+        this.digitalHumanVideoReady = true;
+        this.initializeDigitalHuman();
 
-        // 如果有会话ID且有历史消息，且会话未结束，处理继续对话的逻辑
-        if (this.conversationId && this.messages.length > 0 && !conversationStatus) {
-
+        setTimeout(() => {
           // 开始等待录制
           this.startWaitingToRecord();
-        } else if (conversationStatus) {
-          // 如果会话已结束，设置任务完成状态
-          this.isTaskCompleted = true;
-        }
-      }, 200);
+        }, 200);
+
+      }else if (conversationStatus) {
+        // 如果会话已结束，设置任务完成状态
+        this.isTaskCompleted = true;
+      }
     }
   }
 
@@ -1108,8 +1114,8 @@ export class ChatVirtualAPPModal {
           // 使用顺序预加载
           this.handleVideoUrlReceivedSequential(orderedVideosToPreload, '数字人初始化(顺序)');
 
-          // 播放选择的欢迎视频
-          if (selectedOpeningContent.video_url) {
+          // 播放选择的欢迎视频 - 检查是否已经在继续对话模式下设置了状态
+          if (selectedOpeningContent.video_url && !this.digitalHumanVideoReady) {
             console.log('播放数字人欢迎视频:', selectedOpeningContent.video_url, '索引:', validIndex);
             this.playDigitalHumanVideo(selectedOpeningContent.video_url, true);
           }
@@ -1491,7 +1497,7 @@ export class ChatVirtualAPPModal {
     }
 
     // 如果正在生成数字人视频，显示查看面试信息的提示
-    if (this.isGeneratingDigitalHumanVideo) {
+    if (this.isGeneratingDigitalHumanVideo || this.isLoading) {
       return (
         <div class="ai-message-item">
           <div class="ai-message-content">请稍等，我查看一下本次面试的信息...</div>

@@ -31,7 +31,16 @@ export class JlzzModal {
   /**
    * 是否成功，成功展示 iframe 官网
    */
-  @State() isSuccess: boolean = false;
+  @Prop({ mutable: true }) isSuccess: boolean = false;
+
+  /**
+   * 是否隐藏导出数据按钮
+   */
+  @Prop() hideExportButton: boolean = false;
+  /**
+   * 导出按钮的文本
+   */
+  @Prop() exportButtonText: string = '导出简历json数据';
 
   /**
    * 当点击模态框关闭时触发
@@ -155,8 +164,12 @@ export class JlzzModal {
       this.resumeType = 'chat';
     } else {
       await verifyApiKey(this.token);
-     
-      
+    }
+  }
+  @Watch('isSuccess')
+  handleIsSuccessChange(newValue: boolean) {
+    if (newValue && this.resumeType !== 'chat') {
+      this.showIframe = true;
     }
   }
 
@@ -235,6 +248,17 @@ export class JlzzModal {
       this._iframeEl.contentWindow.postMessage({ type: 'parentReady', origin: window.location.origin }, targetOrigin);
       // 2. 再发送 token
       this._iframeEl.contentWindow.postMessage({ type: 'setToken', token: this.token }, targetOrigin);
+      console.log(this.exportButtonText, 'this.exportButtonText');
+      this._iframeEl.contentWindow.postMessage(
+        {
+          type: 'buttonConfig',
+          config: {
+            hideExportButton: this.hideExportButton,
+            exportButtonText: this.exportButtonText,
+          },
+        },
+        targetOrigin,
+      );
       console.log('父组件已发送 token 给 iframe，targetOrigin:', targetOrigin);
     }
   };
@@ -456,7 +480,7 @@ export class JlzzModal {
   };
   private closeResumeChat = () => {
     this.isSuccess = false;
-    this.resumeType = 'chat';
+    this.resumeType = 'upload';
   };
   render() {
     if (!this.isOpen) return null;
@@ -577,9 +601,7 @@ export class JlzzModal {
 
               {this.resumeType === 'paste' && (
                 <div class="jd-input-section">
-                  <label htmlFor="job-description">
-                    请粘贴简历文本
-                  </label>
+                  <label htmlFor="job-description">请粘贴简历文本</label>
                   <textarea
                     id="job-description"
                     class="job-description-textarea"
@@ -673,7 +695,6 @@ export class JlzzModal {
               <input type="file" class="file-input" onChange={this.handleFileChange} />
             </div>
           )}
-
 
           {/* 聊天界面 - 在显示聊天模态框时显示 */}
           {this.showChatModal && (

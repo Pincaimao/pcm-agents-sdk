@@ -77,7 +77,7 @@ export class ZyghModal {
     /**
      * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"<br>
      * 传入customInputs.file_url时，会隐藏简历上传区域。<br>
-     * 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
+     * 传入customInputs.file_url和customInputs.type时，会直接开始聊天。<br>
      */
     @Prop() customInputs: Record<string, string> = {};
 
@@ -168,7 +168,7 @@ export class ZyghModal {
             await verifyApiKey(this.token);
 
             // 如果有会话ID或者有file_url参数，直接显示聊天模态框
-            if (this.conversationId || this.customInputs?.file_url) {
+            if (this.conversationId || (this.customInputs?.file_url && this.customInputs?.type)) {
                 this.showChatModal = true;
             }
         }
@@ -177,7 +177,6 @@ export class ZyghModal {
     
 
     componentWillLoad() {
-       
 
         // 将 zIndex 存入配置缓存
         if (this.zIndex) {
@@ -267,7 +266,8 @@ export class ZyghModal {
     }
 
     private handleStartPlanning = async () => {
-        if (!this.selectedFile) {
+        // 既没有预设 file_url，也没有上传文件，则提示
+        if (!this.customInputs?.file_url && !this.selectedFile) {
             alert('请上传简历');
             return;
         }
@@ -275,8 +275,8 @@ export class ZyghModal {
         this.isSubmitting = true;
 
         try {
-            // 如果还没上传，先上传文件
-            if (!this.uploadedFileInfo) {
+            // 如果是通过UI上传了文件，但还没上传成功，则先上传
+            if (this.selectedFile && !this.uploadedFileInfo) {
                 await this.uploadFile();
                 if (!this.uploadedFileInfo) {
                     this.isSubmitting = false;
@@ -336,6 +336,9 @@ export class ZyghModal {
         // 判断是否隐藏简历上传区域
         const hideResumeUpload = Boolean(this.customInputs && this.customInputs.file_url);
 
+        // 判断是否同时提供了 file_url 和 type
+        const hasFileAndType = Boolean(this.customInputs?.file_url && this.customInputs?.type);
+
         return (
             <div class={overlayClass} style={modalStyle}>
                 <div class={containerClass}>
@@ -354,8 +357,8 @@ export class ZyghModal {
                     )}
 
 
-                    {/* 输入界面 - 仅在不显示聊天模态框且没有会话ID且没有file_url时显示 */}
-                    {!this.showChatModal && !this.conversationId && !hideResumeUpload && (
+                    {/* 输入界面 - 仅在不显示聊天模态框且没有会话ID且没有预设file_url和type时显示 */}
+                    {!this.showChatModal && !this.conversationId && !hasFileAndType && (
                         <div class="input-container">
 
                             {/* 规划类型选择 */}
@@ -387,33 +390,35 @@ export class ZyghModal {
                             </div>
 
                             {/* 简历上传区域 */}
-                            <div class="resume-upload-section">
-                                <label>上传简历</label>
-                                <div class="upload-area" onClick={this.handleUploadClick}>
-                                    {this.selectedFile ? (
-                                        <div class="file-item">
-                                            <div class="file-item-content">
-                                                <span class="file-icon">📝</span>
-                                                <span class="file-name">{this.selectedFile.name}</span>
+                            {!hideResumeUpload && (
+                                <div class="resume-upload-section">
+                                    <label>上传简历</label>
+                                    <div class="upload-area" onClick={this.handleUploadClick}>
+                                        {this.selectedFile ? (
+                                            <div class="file-item">
+                                                <div class="file-item-content">
+                                                    <span class="file-icon">📝</span>
+                                                    <span class="file-name">{this.selectedFile.name}</span>
+                                                </div>
+                                                <button class="remove-file" onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    this.clearSelectedFile();
+                                                }}>×</button>
                                             </div>
-                                            <button class="remove-file" onClick={(e) => {
-                                                e.stopPropagation();
-                                                this.clearSelectedFile();
-                                            }}>×</button>
-                                        </div>
-                                    ) : (
-                                        <div class="upload-placeholder">
-                                            <img src='https://pub.pincaimao.com/static/web/images/home/i_upload.png'></img>
-                                            <p class='upload-text'>点击上传简历</p>
-                                            <p class="upload-hint">支持 txt、markdown、pdf、docx、doc、md 格式</p>
-                                        </div>
-                                    )}
+                                        ) : (
+                                            <div class="upload-placeholder">
+                                                <img src='https://pub.pincaimao.com/static/web/images/home/i_upload.png'></img>
+                                                <p class='upload-text'>点击上传简历</p>
+                                                <p class="upload-hint">支持 txt、markdown、pdf、docx、doc、md 格式</p>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             <button
                                 class="submit-button"
-                                disabled={!this.selectedFile || this.isUploading || this.isSubmitting}
+                                disabled={(!this.customInputs?.file_url && !this.selectedFile) || this.isUploading || this.isSubmitting}
                                 onClick={this.handleStartPlanning}
                             >
                                 {this.isUploading ? '上传中...' : this.isSubmitting ? '处理中...' : '开始规划'}
