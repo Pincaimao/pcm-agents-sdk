@@ -1,10 +1,10 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
-import {FileUploadResponse, verifyApiKey } from '../../utils/utils';
-import { 
-  StreamCompleteEventData, 
-  ConversationStartEventData, 
-  InterviewCompleteEventData,
-  RecordingErrorEventData,
+import { FileUploadResponse, verifyApiKey } from '../../utils/utils';
+import {
+    StreamCompleteEventData,
+    ConversationStartEventData,
+    InterviewCompleteEventData,
+    RecordingErrorEventData,
 } from '../../interfaces/events';
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store';
@@ -86,6 +86,24 @@ export class ZhanshiMnmsModal {
     @Prop() customInputs: Record<string, string> = {};
 
     /**
+     * 虚拟数字人ID，指定则开启虚拟数字人功能
+     */
+    @Prop() digitalId?: string;
+
+    /**
+     * 数字人开场白索引，用于选择开场白和开场视频（可选：0, 1, 2）
+     * 0、您好，我是聘才猫 AI 面试助手。很高兴为你主持这场面试！在开始前，请确保：身处安静、光线充足的环境。网络顺畅，摄像头和麦克风工作正常。现在我正在查看本次面试的相关信息，为您生成专属面试题，马上就好，请稍等片刻。</br>
+     * 1、您好，我是您的 AI 面试助手。欢迎参加本次AI面试！为了获得最佳效果，请确认：您在安静、明亮的环境中。您的网络稳定，摄像头和麦克风已开启。我们正在后台为您准备本次专属面试内容，很快开始，请稍候。<br>
+     * 2、您好，我是您的 AI 面试助手。面试马上开始。趁此片刻，请快速确认：周围安静吗？光线足够吗？网络没问题？摄像头和麦克风准备好了吗？我们正在为您加载个性化的面试环节，稍等就好！
+     */
+    @Prop() openingIndex: number = 0;
+
+    /**
+     * 是否启用全屏虚拟数字人模式，此模式下面试结果只会通过interviewComplete事件返回或者通过url_callback回调返回
+     */
+    @Prop() enableVirtualHuman: boolean = false;
+
+    /**
      * 上传成功事件
      */
     @Event() uploadSuccess: EventEmitter<FileUploadResponse>;
@@ -142,6 +160,19 @@ export class ZhanshiMnmsModal {
         }
     }
 
+
+    @Watch('isOpen')
+    async handleIsOpenChange(newValue: boolean) {
+        if (!newValue) {
+            // 重置状态
+            this.showChatModal = false;
+            this.jobDescription = '';
+        } else {
+            await verifyApiKey(this.token);
+            this.showChatModal = true;
+        }
+    }
+
     componentWillLoad() {
 
         // 将 zIndex 存入配置缓存
@@ -152,7 +183,7 @@ export class ZhanshiMnmsModal {
         if (this.token) {
             authStore.setToken(this.token);
         }
-        
+
         // 添加全局token无效事件监听器
         this.tokenInvalidListener = () => {
             this.tokenInvalid.emit();
@@ -178,17 +209,7 @@ export class ZhanshiMnmsModal {
     };
 
 
-    @Watch('isOpen')
-    async handleIsOpenChange(newValue: boolean) {
-        if (!newValue) {
-            // 重置状态
-            this.showChatModal = false;
-            this.jobDescription = '';
-        } else {
-            await verifyApiKey(this.token);
-            this.showChatModal = true;
-        }
-    }
+
 
 
     render() {
@@ -230,8 +251,8 @@ export class ZhanshiMnmsModal {
                         </div>
                     )}
 
-                     {/* 加载状态 - 在有会话ID但聊天模态框尚未显示时展示 */}
-                     {isLoading && (
+                    {/* 加载状态 - 在有会话ID但聊天模态框尚未显示时展示 */}
+                    {isLoading && (
                         <div class="loading-container">
                             <div class="loading-spinner"></div>
                             <p class="loading-text">正在加载对话...</p>
@@ -241,24 +262,43 @@ export class ZhanshiMnmsModal {
                     {/* 聊天界面 - 在显示聊天模态框时显示 */}
                     {this.showChatModal && (
                         <div >
-                            <pcm-app-chat-modal
-                                isOpen={true}
-                                modalTitle={this.modalTitle}
-                                icon={this.icon}
-                                isShowHeader={this.isShowHeader}
-                                isNeedClose={this.isShowHeader}
-                                fullscreen={this.fullscreen}
-                                botId="3022316191018903"
-                                conversationId={this.conversationId}
-                                defaultQuery={this.defaultQuery}
-                                maxRecordingTime={this.maxRecordingTime}
-                                customInputs={{
-                                    ...this.customInputs,
-                                    file_url: this.uploadedFileInfo?.cos_key,
-                                    file_name: this.uploadedFileInfo?.file_name,
-                                }}
-                                interviewMode='video'
-                            ></pcm-app-chat-modal>
+                            {this.enableVirtualHuman ? (
+                                <pcm-virtual-chat-modal
+                                    isOpen={true}
+                                    fullscreen={this.fullscreen}
+                                    botId="3022316191018903"
+                                    digitalId={this.digitalId}
+                                    openingIndex={this.openingIndex}
+                                    conversationId={this.conversationId}
+                                    defaultQuery={this.defaultQuery}
+                                    customInputs={{
+                                        ...this.customInputs,
+                                        file_url: this.customInputs?.file_url || this.uploadedFileInfo?.cos_key,
+                                        file_name: this.customInputs?.file_name || this.uploadedFileInfo?.file_name,
+                                        job_info: this.customInputs?.job_info || this.jobDescription,
+                                        interview_type: "1"
+                                    }}
+                                ></pcm-virtual-chat-modal>
+                            ) : (
+                                <pcm-app-chat-modalW
+                                    isOpen={true}
+                                    modalTitle={this.modalTitle}
+                                    icon={this.icon}
+                                    isShowHeader={this.isShowHeader}
+                                    isNeedClose={this.isShowHeader}
+                                    fullscreen={this.fullscreen}
+                                    botId="3022316191018903"
+                                    conversationId={this.conversationId}
+                                    defaultQuery={this.defaultQuery}
+                                    maxRecordingTime={this.maxRecordingTime}
+                                    customInputs={{
+                                        ...this.customInputs,
+                                        file_url: this.uploadedFileInfo?.cos_key,
+                                        file_name: this.uploadedFileInfo?.file_name,
+                                    }}
+                                    interviewMode='video'
+                                ></pcm-app-chat-modalW>
+                            )}
                         </div>
                     )}
                 </div>
