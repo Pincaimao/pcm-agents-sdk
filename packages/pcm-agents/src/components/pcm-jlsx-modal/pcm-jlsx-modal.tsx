@@ -1,5 +1,6 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
 import {  FileUploadResponse, verifyApiKey, sendHttpRequest, sendSSERequest, getCosPreviewUrl } from '../../utils/utils';
+import { showMessage } from '../../utils/message-utils';
 import { ErrorEventDetail } from '../../components';
 import { 
     TaskCreatedEventData,
@@ -384,33 +385,14 @@ export class JlsxModal {
         this.jobDescription = textarea.value;
     };
 
-    /**
-     * 显示消息提示
-     * @param content 消息内容
-     * @param type 消息类型
-     * @param duration 显示时长，0表示不自动关闭
-     */
-    private showMessage = (content: string, type: 'success' | 'error' | 'info' | 'warning' = 'info', duration: number = 3000) => {
-        const messageEl = document.createElement('pcm-message');
-        messageEl.content = content;
-        messageEl.type = type;
-        messageEl.duration = duration;
-
-        // 添加到页面顶部
-        document.body.appendChild(messageEl);
-
-        // 调用显示方法
-        messageEl.show();
-    };
-
     private handleCreateTask = async () => {
         if (!this.jobDescription.trim()) {
-            this.showMessage('请输入职位描述', 'warning');
+            showMessage('请输入职位描述', 'warning');
             return;
         }
 
         if (this.evaluationCriteria.length === 0) {
-            this.showMessage('请输入评分标准', 'warning');
+            showMessage('请输入评分标准', 'warning');
             return;
         }
 
@@ -518,7 +500,7 @@ export class JlsxModal {
                         previewUrl
                     );
                 } else {
-                    this.showMessage('无法获取简历预览，请稍后重试', 'error');
+                    showMessage('无法获取简历预览，请稍后重试', 'error');
                 }
             } catch (error) {
                 console.error('获取简历预览失败:', error);
@@ -533,7 +515,7 @@ export class JlsxModal {
                 });
             }
         } else {
-            this.showMessage('简历文件不存在', 'error');
+            showMessage('简历文件不存在', 'error');
         }
     };
 
@@ -556,7 +538,7 @@ export class JlsxModal {
                 if (response.success) {
                     // 删除成功，从列表中移除
                     this.filteredResumeRecords = this.filteredResumeRecords.filter(record => record.id !== recordId);
-                    this.showMessage('删除成功', 'success');
+                    showMessage('删除成功', 'success');
 
                     // 触发简历删除事件
                     this.resumeDeleted.emit({
@@ -579,14 +561,14 @@ export class JlsxModal {
                     title: '删除记录失败',
                     recordId: recordId
                 });
-                this.showMessage('删除失败，请重试', 'error');
+                showMessage('删除失败，请重试', 'error');
             } finally {
                 this.deletingRecordId = null;
             }
         } else {
             // 如果是本地上传的记录，直接从列表中移除
             this.uploadedResumeRecords = this.uploadedResumeRecords.filter(record => record.id !== recordId);
-            this.showMessage('删除成功', 'success');
+            showMessage('删除成功', 'success');
         }
     };
 
@@ -621,7 +603,7 @@ export class JlsxModal {
 
     private removeEvaluationCriteria = (index: number) => {
         if (this.evaluationCriteria.length <= 1) {
-            this.showMessage('至少需要保留一个评分标准', 'warning');
+            showMessage('至少需要保留一个评分标准', 'warning');
             return;
         }
         const newCriteria = this.evaluationCriteria.filter((_, i) => i !== index);
@@ -1133,7 +1115,7 @@ export class JlsxModal {
      */
     private startAnalysis = async () => {
         if (!this.currentTask) {
-            this.showMessage('任务信息不存在', 'error');
+            showMessage('任务信息不存在', 'error');
             return;
         }
 
@@ -1143,7 +1125,7 @@ export class JlsxModal {
         );
 
         if (pendingRecords.length === 0) {
-            this.showMessage('没有需要分析的简历', 'warning');
+            showMessage('没有需要分析的简历', 'warning');
             return;
         }
 
@@ -1163,7 +1145,7 @@ export class JlsxModal {
                 .filter(url => url); // 过滤掉空值
 
             if (resumeFileUrls.length === 0) {
-                this.showMessage('简历文件URL获取失败', 'error');
+                showMessage('简历文件URL获取失败', 'error');
                 return;
             }
 
@@ -1188,7 +1170,7 @@ export class JlsxModal {
             // 根据API返回的结果标记被过滤的简历
             if (filteredFileUrls.length === 0) {
                 // 如果返回空数组，说明所有简历都是重复的
-                this.showMessage('已清除重复上传的简历，没有新的简历需要分析', 'info');
+                showMessage('已清除重复上传的简历，没有新的简历需要分析', 'info');
                 // 将所有待分析的简历从上传列表中移除（因为它们是重复的）
                 this.uploadedResumeRecords = []
                 return;
@@ -1451,7 +1433,7 @@ export class JlsxModal {
                 switch_time: new Date().toISOString()
             });
 
-            this.showMessage('切换任务成功', 'success');
+            showMessage('切换任务成功', 'success');
         } catch (error) {
             console.error('切换任务失败:', error);
             SentryReporter.captureError(error, {
@@ -1516,7 +1498,7 @@ export class JlsxModal {
      */
     private handleUploadChange = (e: CustomEvent<FileUploadResponse[]>) => {
         if (!this.currentTask) {
-            this.showMessage('请先创建任务', 'warning');
+            showMessage('请先创建任务', 'warning');
             return;
         }
 
@@ -1565,7 +1547,7 @@ export class JlsxModal {
                 this.uploadSuccess.emit(record.fileInfo);
             });
 
-            this.showMessage(`成功上传 ${newRecords.length} 个简历文件！`, 'success');
+            showMessage(`成功上传 ${newRecords.length} 个简历文件！`, 'success');
         }
         
         // 处理被删除的文件
@@ -1584,7 +1566,7 @@ export class JlsxModal {
     private handleStartAnalysis = async () => {
         // 判断文件是否正在上传
         if (await this.pcmUploadRef?.getIsUploading?.()) {
-            this.showMessage('文件上传中，请稍后', 'info');
+            showMessage('文件上传中，请稍后', 'info');
             return;
         }
 

@@ -275,8 +275,10 @@ export class PcmJdModal {
                 method: 'POST',
                 data: {
                     inputs: {
-                        input_info: jobName
+                        input_info: jobName,
+
                     },
+                    bot_id: "3022316191018873",
                     workflow_code: "generate_jd_tags"
                 }
             });

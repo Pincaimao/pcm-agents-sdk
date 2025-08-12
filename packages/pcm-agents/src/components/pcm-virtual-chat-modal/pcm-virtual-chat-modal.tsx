@@ -1,5 +1,6 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
 import { sendSSERequest, sendHttpRequest, uploadFileToBackend, fetchAgentInfo, getSupportedMimeType, convertAudioToText } from '../../utils/utils';
+import { showMessage } from '../../utils/message-utils';
 import { ChatMessage } from '../../interfaces/chat';
 import { StreamCompleteEventData, ConversationStartEventData, InterviewCompleteEventData, RecordingErrorEventData, RecordingStatusChangeEventData } from '../../interfaces/events';
 import { ErrorEventBus } from '../../utils/error-event';
@@ -165,6 +166,11 @@ export class ChatVirtualAPPModal {
   @Event() tokenInvalid: EventEmitter<void>;
 
   /**
+   * 当点击模态框关闭时触发
+   */
+  @Event() modalClosed: EventEmitter<void>;
+
+  /**
    * 自定义智能体inputs输入参数
    */
   @Prop({ mutable: true }) customInputs: Record<string, any> = {};
@@ -190,6 +196,9 @@ export class ChatVirtualAPPModal {
   // 添加二次确认相关状态
   @State() showConfirmModal: boolean = false;
   @State() skipConfirmThisInterview: boolean = false;
+
+  // 添加关闭确认相关状态
+  @State() showCloseConfirmModal: boolean = false;
 
   @Watch('token')
   handleTokenChange(newToken: string) {
@@ -986,6 +995,24 @@ export class ChatVirtualAPPModal {
     }
   }
 
+  // 处理关闭按钮点击
+  private handleCloseClick = () => {
+    // 显示关闭确认对话框
+    this.showCloseConfirmModal = true;
+  };
+
+  // 处理关闭确认对话框的确认事件
+  private handleCloseConfirmOk = () => {
+    this.showCloseConfirmModal = false;
+    this.stopRecording();
+    this.modalClosed.emit();
+  };
+
+  // 处理关闭确认对话框的取消事件
+  private handleCloseConfirmCancel = () => {
+    this.showCloseConfirmModal = false;
+  };
+
   // 确保组件卸载时释放资源
   disconnectedCallback() {
     document.removeEventListener('pcm-token-invalid', this.tokenInvalidListener);
@@ -1178,6 +1205,7 @@ export class ChatVirtualAPPModal {
       console.log('数字人视频创建响应:', createResponse);
 
       if (!createResponse.success) {
+        showMessage(createResponse.message, 'error');
         throw new Error(`创建视频任务失败: ${createResponse.message}`);
       }
 
@@ -1560,6 +1588,13 @@ export class ChatVirtualAPPModal {
     return (
       <div class={overlayClass} style={modalStyle}>
         <div class={containerClass}>
+          {/* 关闭按钮 */}
+          <button class="close-button" onClick={this.handleCloseClick}>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+          </button>
+
           {/* 数字人全屏背景视频层 */}
           {this.digitalId && this.digitalHumanVideoUrl && (
             <div class="digital-human-background">
@@ -1683,6 +1718,33 @@ export class ChatVirtualAPPModal {
                     本次面试不再提醒
                   </span>
                 </label>
+              </div>
+            </pcm-confirm-modal>
+          </div>
+
+          {/* 关闭确认模态框 */}
+          <div style={{ position: 'relative', zIndex: '100' }}>
+            <pcm-confirm-modal
+              isOpen={this.showCloseConfirmModal}
+              modalTitle="确认关闭？"
+              okText="确认关闭"
+              cancelText="取消"
+              okType="danger"
+              onOk={this.handleCloseConfirmOk}
+              onCancel={this.handleCloseConfirmCancel}
+              onClosed={this.handleCloseConfirmCancel}
+            >
+              <div style={{ marginBottom: '16px' }}>
+                <div
+                  style={{
+                    fontSize: '16px',
+                    color: '#595959',
+                    lineHeight: '1.5',
+                    marginBottom: '16px',
+                  }}
+                >
+                  您的面试未完成，确认要关闭吗？
+                </div>
               </div>
             </pcm-confirm-modal>
           </div>
