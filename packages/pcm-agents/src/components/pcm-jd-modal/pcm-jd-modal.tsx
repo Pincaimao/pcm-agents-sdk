@@ -278,7 +278,7 @@ export class PcmJdModal {
                         input_info: jobName,
 
                     },
-                    bot_id: "3022316191018873",
+                    bot_id: "59322522667307008",
                     workflow_code: "generate_jd_tags"
                 }
             });
