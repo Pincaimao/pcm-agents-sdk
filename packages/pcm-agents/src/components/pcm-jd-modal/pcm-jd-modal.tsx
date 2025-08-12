@@ -82,6 +82,16 @@ export class PcmJdModal {
     @Prop() showWorkspaceHistory: boolean = false;
 
     /**
+     * 是否显示“保存职位”按钮（仅JD助手智能体生效）
+     */
+    @Prop() showSaveJdButton: boolean = false;
+
+    /**
+     * 保存职位按钮文本
+     */
+    @Prop() saveJdButtonText: string = '保存职位';
+
+    /**
      * 流式输出完成事件
      */
     @Event() streamComplete: EventEmitter<StreamCompleteEventData>;
@@ -167,7 +177,7 @@ export class PcmJdModal {
             authStore.setToken(newToken);
         }
     }
-  
+
 
     componentWillLoad() {
         // 将 zIndex 存入配置缓存
@@ -749,8 +759,8 @@ export class PcmJdModal {
                         </div>
                     )}
 
-                     {/* 加载状态 - 在有会话ID但聊天模态框尚未显示时展示 */}
-                     {isLoading && (
+                    {/* 加载状态 - 在有会话ID但聊天模态框尚未显示时展示 */}
+                    {isLoading && (
                         <div class="loading-container">
                             <div class="loading-spinner"></div>
                             <p class="loading-text">正在加载对话...</p>
@@ -777,6 +787,8 @@ export class PcmJdModal {
                                     job_info: this.customInputs?.job_info || this.jobDescription
                                 }}
                                 interviewMode="text"
+                                showSaveJdButton={this.showSaveJdButton}
+                                saveJdButtonText={this.saveJdButtonText}
                             ></pcm-app-chat-modal>
                         </div>
                     )}

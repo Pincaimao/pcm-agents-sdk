@@ -159,7 +159,7 @@
       default-query="请您提问"></pcm-zsk-chat-modal>
 
     <pcm-jd-modal id="pcm-jd-modal" modal-title="职位生成" icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
-      conversation-id="" fullscreen="false" default-query="请帮我生成职位信息">
+      conversation-id="" fullscreen="false" default-query="请帮我生成职位信息" show-save-jd-button="true" save-jd-button-text="保存职位">
     </pcm-jd-modal>
 
     <pcm-1zhanshi-mnms-modal id="pcm-video-chat-modal" modal-title="视频面试（一站式）"
@@ -192,7 +192,7 @@
   <script>
     // 定义全局 token 变量，所有组件共享使用
     const SHARED_TOKEN =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NTQzNjI1NzV9.B9ddKWF2g4zIN8VVlTZkZWWwyA8QdSEQxKPn765j1lY';
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NTUwNTA2NjZ9.VEvPGAZE2EcPonP8j1WDeMGU9jYsfy40KbBiRiovIM0';
     const SHARED_TOKEN_NEW = '11';
     let stream = null;
     const urlParams = new URLSearchParams(window.location.search);
@@ -942,6 +942,10 @@
 
       jdModal.addEventListener('someErrorEvent', event => {
         console.log('错误事件:', event.detail);
+      });
+
+      jdModal.addEventListener('saveJd', event => {
+        console.log('保存职位:', event.detail);
       });
 
       // 打开聊天按钮事件监听

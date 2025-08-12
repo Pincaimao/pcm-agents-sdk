@@ -69,6 +69,25 @@ export class ChatMessageComponent {
      */
     @Prop() showAssistantMessage: boolean = true;
 
+    /**
+     * 是否显示“保存职位”按钮（仅JD助手智能体生效）
+     */
+    @Prop() showSaveJdButton: boolean = false;
+
+    /**
+     * 保存职位按钮文本
+     */
+    @Prop() saveJdButtonText: string = '保存职位';
+
+    /**
+     * 保存职位事件
+     */
+    @Event() saveJd: EventEmitter<{
+        isOk: boolean;
+        message?: string;
+        data?: Record<string, string>;
+    }>;
+
     @Event() filePreviewRequest: EventEmitter<{
         url?: string,
         fileName: string,
@@ -121,6 +140,45 @@ export class ChatMessageComponent {
         }
     }
 
+    // 保存到职位库
+    @State() saveJdLoading: boolean = false;
+    private async handleSaveJd(job_info: string) {
+        this.saveJdLoading = true;
+        const bot_id = '78798567376007168';
+        const response = await sendHttpRequest({
+            url: '/sdk/v1/chat/workflow/block-run',
+            method: 'POST',
+            data: {
+                bot_id,
+                inputs: {
+                    job_info,
+                }
+            }
+        });
+        if (response.success && response.data?.data?.outputs?.json_data) {
+            try {
+                const result = JSON.parse(response.data.data.outputs.json_data);
+                this.saveJd.emit({
+                    isOk: true,
+                    message: '保存成功',
+                    data: result,
+                });
+            } catch (error) {
+                console.error('解析JSON失败:', error);
+                this.saveJd.emit({
+                    isOk: false,
+                    message: '解析JSON失败',
+                });
+            }
+        } else {
+            this.saveJd.emit({
+                isOk: false,
+                message: '保存失败',
+            });
+        }
+        this.saveJdLoading = false;
+    }
+
     // 渲染用户消息部分
     private renderUserMessage() {
         if (!this.message?.query?.trim()) return null;
@@ -156,7 +214,7 @@ export class ChatMessageComponent {
                     )}
                     <div class="message-bubble">
                         <div class="assistant-message">
-                                请稍等...
+                            请稍等...
                         </div>
                     </div>
                 </div>
@@ -166,6 +224,10 @@ export class ChatMessageComponent {
         // 只有在开始流式输出且还没有内容时才显示loading
         const showLoading = this.message.isStreaming && !this.message.answer;
         const htmlContent = this.message.answer ? marked(this.message.answer) : '';
+
+        // 展示保存到职位库按钮
+        // const showSaveJdButton = this.showSaveJdButton && this.botId == '3022316191018873' && this.message?.answer?.includes("岗位职责") && this.message?.answer?.includes("任职要求");
+        const showSaveJdButton = this.showSaveJdButton && this.botId == '3022316191018873';
 
         return (
             <div class={{ 'assistant-message-container': true }}>
@@ -211,6 +273,13 @@ export class ChatMessageComponent {
                                     复制
                                 </button>
                             )}
+
+                            {showSaveJdButton && (
+                                <button class="action-button" onClick={() => this.handleSaveJd(this.message.answer)} title={this.saveJdButtonText} disabled={this.saveJdLoading}>
+                                    {this.saveJdLoading ? '处理中...' : this.saveJdButtonText}
+                                </button>
+                            )}
+
                             {this.showFeedbackButtons && (
                                 <>
                                     <button

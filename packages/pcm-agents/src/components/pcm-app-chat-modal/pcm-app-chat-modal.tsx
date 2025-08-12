@@ -64,6 +64,15 @@ export class ChatAPPModal {
    */
   @Prop({ mutable: true }) conversationId?: string;
 
+  /**
+   * 是否显示“保存职位”按钮（仅JD助手智能体生效）
+   */
+  @Prop() showSaveJdButton: boolean = false;
+
+  /**
+   * 保存职位按钮文本
+   */
+  @Prop() saveJdButtonText: string = '保存职位';
 
   /**
    * 是否正在加载回复
@@ -390,7 +399,7 @@ export class ChatAPPModal {
     // 发送新消息时重置状态
     this.waitingForDigitalHuman = false;
     this.digitalHumanVideoReady = false;
-    
+
     this.isLoading = true;
     let answer = '';
     let llmText = '';
@@ -1654,14 +1663,14 @@ export class ChatAPPModal {
     if (this.currentStreamingMessage) {
       return false;
     }
-    
+
     // 如果没有流式消息，检查当前消息是否是messages数组中的最后一个
     if (this.messages.length === 0) {
       return false;
     }
-    
+
     const lastMessage = this.messages[this.messages.length - 1];
-    
+
     return message.id === lastMessage.id;
   }
 
@@ -1672,7 +1681,7 @@ export class ChatAPPModal {
     videoUrl: string;
   }>) => {
     const { videoUrl } = event.detail;
-    
+
     console.log('数字人视频生成成功:', {
       videoUrl,
       conversationId: this.conversationId,
@@ -1690,7 +1699,7 @@ export class ChatAPPModal {
     videoUrl: string;
   }>) => {
     const videoUrl = event.detail;
-    
+
     console.log('数字人生成视频播放完成:', {
       videoUrl,
       conversationId: this.conversationId,
@@ -1827,7 +1836,7 @@ export class ChatAPPModal {
       if (this.isTaskCompleted) {
         return (
           <div class="placeholder-status">
-             <p>面试已完成，感谢您的参与！</p>
+            <p>面试已完成，感谢您的参与！</p>
           </div>
         );
       }
@@ -2031,6 +2040,8 @@ export class ChatAPPModal {
                         showFeedbackButtons={this.showFeedbackButtons}
                         filePreviewMode={this.filePreviewMode}
                         onFilePreviewRequest={this.handleFilePreviewRequest}
+                        showSaveJdButton={this.showSaveJdButton}
+                        saveJdButtonText={this.saveJdButtonText}
                       ></pcm-chat-message>
                     </div>
                   ))}
@@ -2046,6 +2057,8 @@ export class ChatAPPModal {
                         showFeedbackButtons={this.showFeedbackButtons}
                         filePreviewMode={this.filePreviewMode}
                         onFilePreviewRequest={this.handleFilePreviewRequest}
+                        showSaveJdButton={this.showSaveJdButton}
+                        saveJdButtonText={this.saveJdButtonText}
                       ></pcm-chat-message>
                     </div>
                   )}
