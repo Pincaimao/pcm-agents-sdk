@@ -26,6 +26,7 @@
 | ----------------------- | ----------------------- | --------------------------------------------- |
 | `conversationStart`     | 新会话开始的回调，只会在一轮对话开始时触发一次 | `CustomEvent<ConversationStartEventData>`     |
 | `interviewComplete`     | 当聊天完成时触发                | `CustomEvent<InterviewCompleteEventData>`     |
+| `modalClosed`           | 当点击模态框关闭时触发             | `CustomEvent<void>`                           |
 | `recordingError`        | 录制错误事件                  | `CustomEvent<RecordingErrorEventData>`        |
 | `recordingStatusChange` | 录制状态变化事件                | `CustomEvent<RecordingStatusChangeEventData>` |
 | `streamComplete`        | 一轮对话结束时的回调              | `CustomEvent<StreamCompleteEventData>`        |
@@ -36,17 +37,21 @@
 
 ### Used by
 
+ - [pcm-1zhanshi-mnms-modal](../pcm-1zhanshi-mnms-modal)
  - [pcm-mnms-modal](../pcm-mnms-modal)
  - [pcm-mnms-zp-modal](../pcm-mnms-zp-modal)
 
 ### Depends on
 
 - [pcm-confirm-modal](../pcm-confirm-modal)
+- [pcm-message](../pcm-message)
 
 ### Graph
 ```mermaid
 graph TD;
   pcm-virtual-chat-modal --> pcm-confirm-modal
+  pcm-virtual-chat-modal --> pcm-message
+  pcm-1zhanshi-mnms-modal --> pcm-virtual-chat-modal
   pcm-mnms-modal --> pcm-virtual-chat-modal
   pcm-mnms-zp-modal --> pcm-virtual-chat-modal
   style pcm-virtual-chat-modal fill:#f9f,stroke:#333,stroke-width:4px

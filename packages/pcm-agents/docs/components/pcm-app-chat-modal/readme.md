@@ -14,7 +14,7 @@
 | `customInputs`          | `custom-inputs`            | 自定义智能体inputs输入参数                            | `{ [x: string]: any; }` | `{}`                                                       |
 | `defaultQuery`          | `default-query`            | 默认发送文本                                      | `string`                | `'你好！聘才猫'`                                                 |
 | `digitalId`             | `digital-id`               | 虚拟数字人ID，指定则开启虚拟数字人功能                        | `string`                | `undefined`                                                |
-| `filePreviewMode`       | `file-preview-mode`        | 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开 | `"drawer" \| "window"`  | `'window'`                                                 |
+| `filePreviewMode`       | `file-preview-mode`        | 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开 | `"drawer" \| "window"`  | `'drawer'`                                                 |
 | `fullscreen`            | `fullscreen`               | 是否以全屏模式打开，移动端建议设置为true                      | `boolean`               | `false`                                                    |
 | `icon`                  | `icon`                     | 应用图标URL                                     | `string`                | `undefined`                                                |
 | `interviewMode`         | `interview-mode`           | 聊天模式 video: 视频聊天模式 text: 文字聊天模式             | `"text" \| "video"`     | `'video'`                                                  |
@@ -49,7 +49,6 @@
 
 ### Used by
 
- - [pcm-1zhanshi-mnms-modal](../pcm-1zhanshi-mnms-modal)
  - [pcm-htws-modal](../pcm-htws-modal)
  - [pcm-hyzj-modal](../pcm-hyzj-modal)
  - [pcm-jd-modal](../pcm-jd-modal)
@@ -77,7 +76,6 @@ graph TD;
   pcm-app-chat-modal --> pcm-digital-human
   pcm-app-chat-modal --> pcm-drawer
   pcm-app-chat-modal --> pcm-confirm-modal
-  pcm-1zhanshi-mnms-modal --> pcm-app-chat-modal
   pcm-htws-modal --> pcm-app-chat-modal
   pcm-hyzj-modal --> pcm-app-chat-modal
   pcm-jd-modal --> pcm-app-chat-modal

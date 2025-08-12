@@ -39,11 +39,13 @@ Type: `Promise<void>`
 ### Used by
 
  - [pcm-jlsx-modal](../pcm-jlsx-modal)
+ - [pcm-virtual-chat-modal](../pcm-virtual-chat-modal)
 
 ### Graph
 ```mermaid
 graph TD;
   pcm-jlsx-modal --> pcm-message
+  pcm-virtual-chat-modal --> pcm-message
   style pcm-message fill:#f9f,stroke:#333,stroke-width:4px
 ```
 

@@ -37,16 +37,16 @@
 
 ### Depends on
 
-- [pcm-message](../pcm-message)
 - [pcm-upload](../pcm-upload)
 - [pcm-drawer](../pcm-drawer)
+- [pcm-message](../pcm-message)
 
 ### Graph
 ```mermaid
 graph TD;
-  pcm-jlsx-modal --> pcm-message
   pcm-jlsx-modal --> pcm-upload
   pcm-jlsx-modal --> pcm-drawer
+  pcm-jlsx-modal --> pcm-message
   pcm-upload --> pcm-mobile-upload-btn
   pcm-mobile-upload-btn --> pcm-time-count-down
   style pcm-jlsx-modal fill:#f9f,stroke:#333,stroke-width:4px

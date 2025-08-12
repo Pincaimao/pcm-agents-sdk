@@ -37,6 +37,14 @@ export namespace Components {
          */
         "defaultQuery": string;
         /**
+          * 虚拟数字人ID，指定则开启虚拟数字人功能
+         */
+        "digitalId"?: string;
+        /**
+          * 是否启用全屏虚拟数字人模式，此模式下面试结果只会通过interviewComplete事件返回或者通过url_callback回调返回
+         */
+        "enableVirtualHuman": boolean;
+        /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen": boolean;
@@ -64,6 +72,10 @@ export namespace Components {
           * 模态框标题
          */
         "modalTitle": string;
+        /**
+          * 数字人开场白索引，用于选择开场白和开场视频（可选：0, 1, 2） 0、您好，我是聘才猫 AI 面试助手。很高兴为你主持这场面试！在开始前，请确保：身处安静、光线充足的环境。网络顺畅，摄像头和麦克风工作正常。现在我正在查看本次面试的相关信息，为您生成专属面试题，马上就好，请稍等片刻。</br> 1、您好，我是您的 AI 面试助手。欢迎参加本次AI面试！为了获得最佳效果，请确认：您在安静、明亮的环境中。您的网络稳定，摄像头和麦克风已开启。我们正在后台为您准备本次专属面试内容，很快开始，请稍候。<br> 2、您好，我是您的 AI 面试助手。面试马上开始。趁此片刻，请快速确认：周围安静吗？光线足够吗？网络没问题？摄像头和麦克风准备好了吗？我们正在为您加载个性化的面试环节，稍等就好！
+         */
+        "openingIndex": number;
         /**
           * SDK鉴权密钥
          */
@@ -907,10 +919,6 @@ export namespace Components {
          */
         "enableVirtualHuman": boolean;
         /**
-          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-         */
-        "filePreviewMode": 'drawer' | 'window';
-        /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen": boolean;
@@ -934,6 +942,10 @@ export namespace Components {
           * 是否展示顶部标题栏
          */
         "isShowHeader": boolean;
+        /**
+          * 视频录制最大时长（秒）默认120
+         */
+        "maxRecordingTime": number;
         /**
           * 是否开启移动端上传JD（仅PC端生效）
          */
@@ -2195,6 +2207,7 @@ declare global {
         "recordingError": RecordingErrorEventData;
         "recordingStatusChange": RecordingStatusChangeEventData;
         "tokenInvalid": void;
+        "modalClosed": void;
     }
     interface HTMLPcmVirtualChatModalElement extends Components.PcmVirtualChatModal, HTMLStencilElement {
         addEventListener<K extends keyof HTMLPcmVirtualChatModalElementEventMap>(type: K, listener: (this: HTMLPcmVirtualChatModalElement, ev: PcmVirtualChatModalCustomEvent<HTMLPcmVirtualChatModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -2307,6 +2320,14 @@ declare namespace LocalJSX {
          */
         "defaultQuery"?: string;
         /**
+          * 虚拟数字人ID，指定则开启虚拟数字人功能
+         */
+        "digitalId"?: string;
+        /**
+          * 是否启用全屏虚拟数字人模式，此模式下面试结果只会通过interviewComplete事件返回或者通过url_callback回调返回
+         */
+        "enableVirtualHuman"?: boolean;
+        /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen"?: boolean;
@@ -2366,6 +2387,10 @@ declare namespace LocalJSX {
           * 上传成功事件
          */
         "onUploadSuccess"?: (event: Pcm1zhanshiMnmsModalCustomEvent<FileUploadResponse>) => void;
+        /**
+          * 数字人开场白索引，用于选择开场白和开场视频（可选：0, 1, 2） 0、您好，我是聘才猫 AI 面试助手。很高兴为你主持这场面试！在开始前，请确保：身处安静、光线充足的环境。网络顺畅，摄像头和麦克风工作正常。现在我正在查看本次面试的相关信息，为您生成专属面试题，马上就好，请稍等片刻。</br> 1、您好，我是您的 AI 面试助手。欢迎参加本次AI面试！为了获得最佳效果，请确认：您在安静、明亮的环境中。您的网络稳定，摄像头和麦克风已开启。我们正在后台为您准备本次专属面试内容，很快开始，请稍候。<br> 2、您好，我是您的 AI 面试助手。面试马上开始。趁此片刻，请快速确认：周围安静吗？光线足够吗？网络没问题？摄像头和麦克风准备好了吗？我们正在为您加载个性化的面试环节，稍等就好！
+         */
+        "openingIndex"?: number;
         /**
           * SDK鉴权密钥
          */
@@ -3523,10 +3548,6 @@ declare namespace LocalJSX {
          */
         "enableVirtualHuman"?: boolean;
         /**
-          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-         */
-        "filePreviewMode"?: 'drawer' | 'window';
-        /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen"?: boolean;
@@ -3550,6 +3571,10 @@ declare namespace LocalJSX {
           * 是否展示顶部标题栏
          */
         "isShowHeader"?: boolean;
+        /**
+          * 视频录制最大时长（秒）默认120
+         */
+        "maxRecordingTime"?: number;
         /**
           * 是否开启移动端上传JD（仅PC端生效）
          */
@@ -4155,6 +4180,10 @@ declare namespace LocalJSX {
           * 当聊天完成时触发
          */
         "onInterviewComplete"?: (event: PcmVirtualChatModalCustomEvent<InterviewCompleteEventData>) => void;
+        /**
+          * 当点击模态框关闭时触发
+         */
+        "onModalClosed"?: (event: PcmVirtualChatModalCustomEvent<void>) => void;
         /**
           * 录制错误事件
          */

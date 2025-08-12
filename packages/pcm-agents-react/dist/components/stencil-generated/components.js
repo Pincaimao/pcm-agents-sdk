@@ -369,7 +369,8 @@ export const PcmVirtualChatModal = createComponent({
         onInterviewComplete: 'interviewComplete',
         onRecordingError: 'recordingError',
         onRecordingStatusChange: 'recordingStatusChange',
-        onTokenInvalid: 'tokenInvalid'
+        onTokenInvalid: 'tokenInvalid',
+        onModalClosed: 'modalClosed'
     },
     defineCustomElement: definePcmVirtualChatModal
 });

@@ -67,6 +67,7 @@ graph TD;
   pcm-upload --> pcm-mobile-upload-btn
   pcm-mobile-upload-btn --> pcm-time-count-down
   pcm-virtual-chat-modal --> pcm-confirm-modal
+  pcm-virtual-chat-modal --> pcm-message
   pcm-app-chat-modal --> pcm-chat-message
   pcm-app-chat-modal --> pcm-digital-human
   pcm-app-chat-modal --> pcm-drawer

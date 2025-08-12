@@ -646,7 +646,8 @@ type PcmVirtualChatModalEvents = {
     onInterviewComplete: EventName<PcmVirtualChatModalCustomEvent<InterviewCompleteEventData>>,
     onRecordingError: EventName<PcmVirtualChatModalCustomEvent<RecordingErrorEventData>>,
     onRecordingStatusChange: EventName<PcmVirtualChatModalCustomEvent<RecordingStatusChangeEventData>>,
-    onTokenInvalid: EventName<CustomEvent<void>>
+    onTokenInvalid: EventName<CustomEvent<void>>,
+    onModalClosed: EventName<CustomEvent<void>>
 };
 
 export const PcmVirtualChatModal: StencilReactComponent<PcmVirtualChatModalElement, PcmVirtualChatModalEvents> = /*@__PURE__*/ createComponent<PcmVirtualChatModalElement, PcmVirtualChatModalEvents>({
@@ -660,7 +661,8 @@ export const PcmVirtualChatModal: StencilReactComponent<PcmVirtualChatModalEleme
         onInterviewComplete: 'interviewComplete',
         onRecordingError: 'recordingError',
         onRecordingStatusChange: 'recordingStatusChange',
-        onTokenInvalid: 'tokenInvalid'
+        onTokenInvalid: 'tokenInvalid',
+        onModalClosed: 'modalClosed'
     } as PcmVirtualChatModalEvents,
     defineCustomElement: definePcmVirtualChatModal
 });

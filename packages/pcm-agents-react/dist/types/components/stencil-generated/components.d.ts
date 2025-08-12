@@ -262,6 +262,7 @@ type PcmVirtualChatModalEvents = {
     onRecordingError: EventName<PcmVirtualChatModalCustomEvent<RecordingErrorEventData>>;
     onRecordingStatusChange: EventName<PcmVirtualChatModalCustomEvent<RecordingStatusChangeEventData>>;
     onTokenInvalid: EventName<CustomEvent<void>>;
+    onModalClosed: EventName<CustomEvent<void>>;
 };
 export declare const PcmVirtualChatModal: StencilReactComponent<PcmVirtualChatModalElement, PcmVirtualChatModalEvents>;
 type PcmZskChatModalEvents = {
