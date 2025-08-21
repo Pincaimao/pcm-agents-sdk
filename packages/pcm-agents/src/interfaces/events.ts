@@ -95,6 +95,14 @@ export interface TaskSwitchEventData {
 }
 
 /**
+ * 面试结束事件的数据类型
+ */
+export interface InterviewEndEventData {
+  conversation_id: string;
+  message: string;
+}
+
+/**
  * 简历删除事件的数据类型
  */
 export interface ResumeDeletedEventData {

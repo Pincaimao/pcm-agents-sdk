@@ -895,6 +895,28 @@
   flex-shrink: 0;
 }
 
+/* 结束面试按钮样式 */
+.workspace-button.end-interview-button {
+  background: #ff4d4f;
+  color: white;
+  border-color: #ff4d4f;
+}
+
+.workspace-button.end-interview-button:hover:not(:disabled) {
+  background: #ff7875;
+  border-color: #ff7875;
+  color: white;
+  box-shadow: 0 2px 4px rgba(255, 77, 79, 0.2);
+}
+
+.workspace-button.end-interview-button:disabled {
+  background: #d9d9d9;
+  border-color: #d9d9d9;
+  color: #999;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 /* 数字人容器样式 */
 .digital-human-wrapper {
   display: flex;

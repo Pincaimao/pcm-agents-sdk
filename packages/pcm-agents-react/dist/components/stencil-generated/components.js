@@ -57,7 +57,8 @@ export const PcmAppChatModal = createComponent({
         onInterviewComplete: 'interviewComplete',
         onRecordingError: 'recordingError',
         onRecordingStatusChange: 'recordingStatusChange',
-        onTokenInvalid: 'tokenInvalid'
+        onTokenInvalid: 'tokenInvalid',
+        onInterviewEnd: 'interviewEnd'
     },
     defineCustomElement: definePcmAppChatModal
 });
@@ -255,6 +256,7 @@ export const PcmMnmsModal = createComponent({
     react: React,
     events: {
         onModalClosed: 'modalClosed',
+        onInterviewEnd: 'interviewEnd',
         onUploadSuccess: 'uploadSuccess',
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',
@@ -287,6 +289,7 @@ export const PcmMnmsZpModal = createComponent({
     react: React,
     events: {
         onModalClosed: 'modalClosed',
+        onInterviewEnd: 'interviewEnd',
         onUploadSuccess: 'uploadSuccess',
         onStreamComplete: 'streamComplete',
         onConversationStart: 'conversationStart',

@@ -6,14 +6,14 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { FileUploadResponse } from "./utils/utils";
-import { ConversationStartEventData, InterviewCompleteEventData, RecordingErrorEventData, RecordingStatusChangeEventData, ResumeAnalysisCompleteEventData, ResumeAnalysisStartEventData, ResumeDeletedEventData, StreamCompleteEventData, TaskCreatedEventData, TaskSwitchEventData } from "./interfaces/events";
+import { ConversationStartEventData, InterviewCompleteEventData, InterviewEndEventData, RecordingErrorEventData, RecordingStatusChangeEventData, ResumeAnalysisCompleteEventData, ResumeAnalysisStartEventData, ResumeDeletedEventData, StreamCompleteEventData, TaskCreatedEventData, TaskSwitchEventData } from "./interfaces/events";
 import { ErrorEventDetail } from "./utils/error-event";
 import { ChatMessage } from "./interfaces/chat";
 import { ConversationStartEventData as ConversationStartEventData1, ErrorEventDetail as ErrorEventDetail1, InterviewCompleteEventData as InterviewCompleteEventData1, StreamCompleteEventData as StreamCompleteEventData1 } from "./components";
 import { UploadFailedEvent } from "./components/pcm-upload/pcm-upload";
 import { CareerPlanType } from "./components/pcm-zygh-modal/pcm-zygh-modal";
 export { FileUploadResponse } from "./utils/utils";
-export { ConversationStartEventData, InterviewCompleteEventData, RecordingErrorEventData, RecordingStatusChangeEventData, ResumeAnalysisCompleteEventData, ResumeAnalysisStartEventData, ResumeDeletedEventData, StreamCompleteEventData, TaskCreatedEventData, TaskSwitchEventData } from "./interfaces/events";
+export { ConversationStartEventData, InterviewCompleteEventData, InterviewEndEventData, RecordingErrorEventData, RecordingStatusChangeEventData, ResumeAnalysisCompleteEventData, ResumeAnalysisStartEventData, ResumeDeletedEventData, StreamCompleteEventData, TaskCreatedEventData, TaskSwitchEventData } from "./interfaces/events";
 export { ErrorEventDetail } from "./utils/error-event";
 export { ChatMessage } from "./interfaces/chat";
 export { ConversationStartEventData as ConversationStartEventData1, ErrorEventDetail as ErrorEventDetail1, InterviewCompleteEventData as InterviewCompleteEventData1, StreamCompleteEventData as StreamCompleteEventData1 } from "./components";
@@ -159,6 +159,10 @@ export namespace Components {
           * 是否显示复制按钮
          */
         "showCopyButton": boolean;
+        /**
+          * 是否显示结束面试按钮
+         */
+        "showEndInterviewButton": boolean;
         /**
           * 是否显示点赞点踩按钮
          */
@@ -967,6 +971,10 @@ export namespace Components {
          */
         "showCopyButton": boolean;
         /**
+          * 是否显示结束面试按钮
+         */
+        "showEndInterviewButton": boolean;
+        /**
           * 是否显示点赞点踩按钮
          */
         "showFeedbackButtons": boolean;
@@ -1069,10 +1077,6 @@ export namespace Components {
          */
         "enableVirtualHuman": boolean;
         /**
-          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-         */
-        "filePreviewMode": 'drawer' | 'window';
-        /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen": boolean;
@@ -1097,6 +1101,10 @@ export namespace Components {
          */
         "isShowHeader": boolean;
         /**
+          * 视频录制最大时长（秒）默认120
+         */
+        "maxRecordingTime": number;
+        /**
           * 是否开启移动端上传JD（仅PC端生效）
          */
         "mobileJdInputAble": boolean;
@@ -1116,6 +1124,10 @@ export namespace Components {
           * 是否显示复制按钮
          */
         "showCopyButton": boolean;
+        /**
+          * 是否显示结束面试按钮
+         */
+        "showEndInterviewButton": boolean;
         /**
           * 是否显示点赞点踩按钮
          */
@@ -1640,6 +1652,7 @@ declare global {
         "recordingError": RecordingErrorEventData;
         "recordingStatusChange": RecordingStatusChangeEventData;
         "tokenInvalid": void;
+        "interviewEnd": InterviewEndEventData;
     }
     interface HTMLPcmAppChatModalElement extends Components.PcmAppChatModal, HTMLStencilElement {
         addEventListener<K extends keyof HTMLPcmAppChatModalElementEventMap>(type: K, listener: (this: HTMLPcmAppChatModalElement, ev: PcmAppChatModalCustomEvent<HTMLPcmAppChatModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -1999,6 +2012,7 @@ declare global {
     };
     interface HTMLPcmMnmsModalElementEventMap {
         "modalClosed": void;
+        "interviewEnd": InterviewEndEventData;
         "uploadSuccess": FileUploadResponse;
         "streamComplete": StreamCompleteEventData;
         "conversationStart": ConversationStartEventData;
@@ -2053,6 +2067,7 @@ declare global {
     };
     interface HTMLPcmMnmsZpModalElementEventMap {
         "modalClosed": void;
+        "interviewEnd": InterviewEndEventData;
         "uploadSuccess": FileUploadResponse;
         "streamComplete": StreamCompleteEventData;
         "conversationStart": ConversationStartEventData;
@@ -2479,6 +2494,10 @@ declare namespace LocalJSX {
          */
         "onInterviewComplete"?: (event: PcmAppChatModalCustomEvent<InterviewCompleteEventData>) => void;
         /**
+          * 点击结束按钮事件
+         */
+        "onInterviewEnd"?: (event: PcmAppChatModalCustomEvent<InterviewEndEventData>) => void;
+        /**
           * 当点击模态框关闭时触发
          */
         "onModalClosed"?: (event: PcmAppChatModalCustomEvent<void>) => void;
@@ -2502,6 +2521,10 @@ declare namespace LocalJSX {
           * 是否显示复制按钮
          */
         "showCopyButton"?: boolean;
+        /**
+          * 是否显示结束面试按钮
+         */
+        "showEndInterviewButton"?: boolean;
         /**
           * 是否显示点赞点踩按钮
          */
@@ -3596,6 +3619,10 @@ declare namespace LocalJSX {
          */
         "onInterviewComplete"?: (event: PcmMnmsModalCustomEvent<InterviewCompleteEventData>) => void;
         /**
+          * 点击结束按钮触发事件
+         */
+        "onInterviewEnd"?: (event: PcmMnmsModalCustomEvent<InterviewEndEventData>) => void;
+        /**
           * 当点击模态框关闭时触发
          */
         "onModalClosed"?: (event: PcmMnmsModalCustomEvent<void>) => void;
@@ -3627,6 +3654,10 @@ declare namespace LocalJSX {
           * 是否显示复制按钮
          */
         "showCopyButton"?: boolean;
+        /**
+          * 是否显示结束面试按钮
+         */
+        "showEndInterviewButton"?: boolean;
         /**
           * 是否显示点赞点踩按钮
          */
@@ -3762,10 +3793,6 @@ declare namespace LocalJSX {
          */
         "enableVirtualHuman"?: boolean;
         /**
-          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-         */
-        "filePreviewMode"?: 'drawer' | 'window';
-        /**
           * 是否以全屏模式打开，移动端建议设置为true
          */
         "fullscreen"?: boolean;
@@ -3790,6 +3817,10 @@ declare namespace LocalJSX {
          */
         "isShowHeader"?: boolean;
         /**
+          * 视频录制最大时长（秒）默认120
+         */
+        "maxRecordingTime"?: number;
+        /**
           * 是否开启移动端上传JD（仅PC端生效）
          */
         "mobileJdInputAble"?: boolean;
@@ -3809,6 +3840,10 @@ declare namespace LocalJSX {
           * 当聊天完成时触发
          */
         "onInterviewComplete"?: (event: PcmMnmsZpModalCustomEvent<InterviewCompleteEventData>) => void;
+        /**
+          * 点击结束按钮触发事件
+         */
+        "onInterviewEnd"?: (event: PcmMnmsZpModalCustomEvent<InterviewEndEventData>) => void;
         /**
           * 当点击模态框关闭时触发
          */
@@ -3841,6 +3876,10 @@ declare namespace LocalJSX {
           * 是否显示复制按钮
          */
         "showCopyButton"?: boolean;
+        /**
+          * 是否显示结束面试按钮
+         */
+        "showEndInterviewButton"?: boolean;
         /**
           * 是否显示点赞点踩按钮
          */

@@ -5,6 +5,7 @@ import {
     ConversationStartEventData,
     InterviewCompleteEventData,
     RecordingErrorEventData,
+    InterviewEndEventData,
 } from '../../interfaces/events';
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store';
@@ -125,6 +126,16 @@ export class MnmsModal {
      * 是否启用全屏虚拟数字人模式，此模式下面试结果只会通过interviewComplete事件返回或者通过url_callback回调返回
      */
     @Prop() enableVirtualHuman: boolean = false;
+
+    /**
+     * 是否显示结束面试按钮
+     */
+    @Prop() showEndInterviewButton: boolean = false;
+
+    /**
+     * 点击结束按钮触发事件
+     */
+    @Event() interviewEnd: EventEmitter<InterviewEndEventData>;
 
     /**
      * 上传成功事件
@@ -446,6 +457,7 @@ export class MnmsModal {
                                     maxRecordingTime={this.maxRecordingTime}
                                     showCopyButton={this.showCopyButton}
                                     showFeedbackButtons={this.showFeedbackButtons}
+                                    showEndInterviewButton={this.showEndInterviewButton}
                                     customInputs={{
                                         ...this.customInputs,
                                         file_url: this.customInputs?.file_url || this.uploadedFileInfo?.cos_key,
