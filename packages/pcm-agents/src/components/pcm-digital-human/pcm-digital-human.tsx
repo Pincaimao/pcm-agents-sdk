@@ -3,7 +3,7 @@ import { sendHttpRequest } from '../../utils/utils';
 
 @Component({
   tag: 'pcm-digital-human',
-  styleUrl: 'pcm-digital-human.css',
+  styleUrls: ['pcm-digital-human.css', '../../global/host.css'],
   shadow: true,
 })
 export class PcmDigitalHuman {

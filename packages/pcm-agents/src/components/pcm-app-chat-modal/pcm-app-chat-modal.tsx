@@ -10,7 +10,7 @@ import { SentryReporter } from '../../utils/sentry-reporter';
 
 @Component({
   tag: 'pcm-app-chat-modal',
-  styleUrls: ['pcm-app-chat-modal.css', '../../global/markdown.css'],
+  styleUrls: ['pcm-app-chat-modal.css', '../../global/markdown.css', '../../global/host.css'],
   shadow: true,
 })
 export class ChatAPPModal {

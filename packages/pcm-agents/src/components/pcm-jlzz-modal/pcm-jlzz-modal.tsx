@@ -9,7 +9,7 @@ import { ConversationItem } from '../../interfaces/chat';
 
 @Component({
   tag: 'pcm-jlzz-modal',
-  styleUrls: ['pcm-jlzz-modal.css', '../../global/global.css'],
+  styleUrls: ['pcm-jlzz-modal.css', '../../global/global.css', '../../global/host.css'],
   shadow: true,
 })
 export class JlzzModal {

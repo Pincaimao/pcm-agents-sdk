@@ -11,7 +11,7 @@ export type UploadFailedEvent = {
 
 @Component({
     tag: 'pcm-upload',
-    styleUrls: ['pcm-upload.css', '../../global/global.css'],
+    styleUrls: ['pcm-upload.css', '../../global/global.css', '../../global/host.css'],
     shadow: true,
 })
 export class PcmUpload {

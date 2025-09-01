@@ -12,7 +12,7 @@ import { SentryReporter } from '../../utils/sentry-reporter';
 
 @Component({
     tag: 'pcm-mnct-modal',
-    styleUrls: ['pcm-mnct-modal.css', '../../global/global.css'],
+    styleUrls: ['pcm-mnct-modal.css', '../../global/global.css', '../../global/host.css'],
     shadow: true,
 })
 export class MnctModal {

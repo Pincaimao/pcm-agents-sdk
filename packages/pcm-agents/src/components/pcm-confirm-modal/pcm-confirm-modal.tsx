@@ -7,7 +7,7 @@ import { configStore } from '../../../store/config.store';
  */
 @Component({
   tag: 'pcm-confirm-modal',
-  styleUrl: 'pcm-confirm-modal.css',
+  styleUrls: ['pcm-confirm-modal.css', '../../global/host.css'],
   shadow: true,
 })
 export class PcmConfirmModal {

@@ -6,7 +6,7 @@ import { Component, Prop, h} from '@stencil/core';
  */
 @Component({
   tag: 'pcm-button',
-  styleUrl: 'pcm-button.css',
+  styleUrls: ['pcm-button.css', '../../global/host.css'],
   shadow: true,
 })
 export class PcmButton {

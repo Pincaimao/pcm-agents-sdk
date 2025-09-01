@@ -6,7 +6,7 @@ import uploadNumberSDK from "./uploadNumberSDK";
 
 @Component({
     tag: 'pcm-mobile-input-btn',
-    styleUrls: ['pcm-mobile-input-btn.css', '../../global/global.css'],
+    styleUrls: ['pcm-mobile-input-btn.css', '../../global/global.css', '../../global/host.css'],
     shadow: true,
 })
 export class MobileUploadBtn {

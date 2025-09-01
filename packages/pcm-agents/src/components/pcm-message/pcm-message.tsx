@@ -2,7 +2,7 @@ import { Component, h, Prop, State, Element, Method } from '@stencil/core';
 
 @Component({
   tag: 'pcm-message',
-  styleUrl: 'pcm-message.css',
+  styleUrls: ['pcm-message.css', '../../global/host.css'],
   shadow: true,
 })
 export class PcmMessage {

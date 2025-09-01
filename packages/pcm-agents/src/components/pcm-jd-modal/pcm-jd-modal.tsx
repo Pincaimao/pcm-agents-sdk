@@ -12,7 +12,7 @@ import { SentryReporter } from '../../utils/sentry-reporter';
 
 @Component({
     tag: 'pcm-jd-modal',
-    styleUrls: ['pcm-jd-modal.css', '../../global/global.css'],
+    styleUrls: ['pcm-jd-modal.css', '../../global/global.css', '../../global/host.css'],
     shadow: true,
 })
 export class PcmJdModal {

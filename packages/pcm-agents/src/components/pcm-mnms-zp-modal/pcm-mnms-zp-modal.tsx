@@ -18,7 +18,7 @@ import { Message } from '../../services/message.service';
 
 @Component({
     tag: 'pcm-mnms-zp-modal',
-    styleUrls: ['pcm-mnms-zp-modal.css', '../../global/global.css'],
+    styleUrls: ['pcm-mnms-zp-modal.css', '../../global/global.css', '../../global/host.css'],
     shadow: true,
 })
 export class MnmsZpModal {

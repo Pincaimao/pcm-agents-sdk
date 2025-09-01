@@ -8,7 +8,7 @@ import { SentryReporter } from '../../utils/sentry-reporter';
 
 @Component({
   tag: 'pcm-hr-chat-modal',
-  styleUrl: 'pcm-hr-chat-modal.css',
+  styleUrls: ['pcm-hr-chat-modal.css', '../../global/host.css'],
   shadow: true,
 })
 export class ChatHRModal {

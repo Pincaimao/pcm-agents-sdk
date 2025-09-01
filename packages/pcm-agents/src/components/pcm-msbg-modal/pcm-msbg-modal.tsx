@@ -12,7 +12,7 @@ import { SentryReporter } from '../../utils/sentry-reporter';
 
 @Component({
     tag: 'pcm-msbg-modal',
-    styleUrls: ['pcm-msbg-modal.css', '../../global/global.css'],
+    styleUrls: ['pcm-msbg-modal.css', '../../global/global.css', '../../global/host.css'],
     shadow: true,
 })
 export class MsbgModal {

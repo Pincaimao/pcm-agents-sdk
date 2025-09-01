@@ -8,7 +8,7 @@ import { authStore } from '../../../store/auth.store';
  */
 @Component({
     tag: 'pcm-card',
-    styleUrl: 'pcm-card.css',
+    styleUrls: ['pcm-card.css', '../../global/host.css'],
     shadow: true,
 })
 export class PcmCard {

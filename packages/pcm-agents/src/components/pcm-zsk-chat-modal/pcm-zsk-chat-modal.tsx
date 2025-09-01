@@ -40,7 +40,7 @@ interface EmployeeDetails {
 
 @Component({
   tag: 'pcm-zsk-chat-modal',
-  styleUrl: 'pcm-zsk-chat-modal.css',
+  styleUrls: ['pcm-zsk-chat-modal.css', '../../global/host.css'],
   shadow: true,
 })
 export class ChatKBModal {

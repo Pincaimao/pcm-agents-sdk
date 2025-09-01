@@ -17,7 +17,7 @@ import { SentryReporter } from '../../utils/sentry-reporter';
 
 @Component({
     tag: 'pcm-mnms-video-modal',
-    styleUrls: ['pcm-mnms-video-modal.css', '../../global/global.css'],
+    styleUrls: ['pcm-mnms-video-modal.css', '../../global/global.css', '../../global/host.css'],
     shadow: true,
 })
 export class MnmsVideoModal {

@@ -6,7 +6,7 @@ import { Byte, Encoder } from '@nuintun/qrcode'
 
 @Component({
     tag: 'pcm-mobile-upload-btn',
-    styleUrls: ['pcm-mobile-upload-btn.css', '../../global/global.css'],
+    styleUrls: ['pcm-mobile-upload-btn.css', '../../global/global.css', '../../global/host.css'],
     shadow: true,
 })
 export class MobileUploadBtn {

@@ -14,7 +14,7 @@ export type CareerPlanType = '长期规划' | '转行建议' | '晋升路径';
 
 @Component({
     tag: 'pcm-zygh-modal',
-    styleUrls: ['../../global/global.css', 'pcm-zygh-modal.css'],
+    styleUrls: ['../../global/global.css', 'pcm-zygh-modal.css', '../../global/host.css'],
     shadow: true,
 })
 export class ZyghModal {

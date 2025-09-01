@@ -108,7 +108,7 @@ interface HistoryTaskPageData {
 
 @Component({
     tag: 'pcm-jlsx-modal',
-    styleUrls: ['../../global/global.css', 'pcm-jlsx-modal.css', '../../global/markdown.css'],
+    styleUrls: ['../../global/global.css', 'pcm-jlsx-modal.css', '../../global/markdown.css', '../../global/host.css'],
     shadow: true,
 })
 export class JlsxModal {

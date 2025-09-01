@@ -16,7 +16,7 @@ import { configStore } from '../../../store/config.store';
 
 @Component({
     tag: 'pcm-1zhanshi-mnms-modal',
-    styleUrls: ['pcm-1zhanshi-mnms-modal.css', '../../global/global.css'],
+    styleUrls: ['pcm-1zhanshi-mnms-modal.css', '../../global/global.css', '../../global/host.css'],
     shadow: true,
 })
 export class ZhanshiMnmsModal {

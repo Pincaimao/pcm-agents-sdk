@@ -12,7 +12,7 @@ import { SentryReporter } from '../../utils/sentry-reporter';
 
 @Component({
     tag: 'pcm-htws-modal',
-    styleUrls: ['pcm-htws-modal.css', '../../global/global.css'],
+    styleUrls: ['pcm-htws-modal.css', '../../global/global.css', '../../global/host.css'],
     shadow: true,
 })
 export class HtwsModal {

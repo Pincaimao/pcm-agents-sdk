@@ -12,7 +12,7 @@ import { SentryReporter } from '../../utils/sentry-reporter';
 
 @Component({
   tag: 'pcm-qgqjl-modal',
-  styleUrls: ['pcm-qgqjl-modal.css', '../../global/global.css'],
+  styleUrls: ['pcm-qgqjl-modal.css', '../../global/global.css', '../../global/host.css'],
   shadow: true,
 })
 export class QgqjlModal {

@@ -12,7 +12,7 @@ import { SentryReporter } from '../../utils/sentry-reporter';
 
 @Component({
     tag: 'pcm-jlpp-modal',
-    styleUrls: ['pcm-jlpp-modal.css', '../../global/global.css'],
+    styleUrls: ['pcm-jlpp-modal.css', '../../global/global.css', '../../global/host.css'],
     shadow: true,
 })
 export class JlppModal {

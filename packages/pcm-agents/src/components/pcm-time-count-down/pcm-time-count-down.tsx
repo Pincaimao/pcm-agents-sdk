@@ -15,7 +15,7 @@ const timeToHMS = (time: number) => {
 
 @Component({
     tag: 'pcm-time-count-down',
-    styleUrls: ['pcm-time-count-down.css', '../../global/global.css'],
+    styleUrls: ['pcm-time-count-down.css', '../../global/global.css', '../../global/host.css'],
     shadow: true,
 })
 export class TimeCountDown {

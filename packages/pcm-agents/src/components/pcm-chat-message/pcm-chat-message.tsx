@@ -8,7 +8,7 @@ import { SentryReporter } from '../../utils/sentry-reporter';
 
 @Component({
     tag: 'pcm-chat-message',
-    styleUrls: ['../../global/markdown.css', 'pcm-chat-message.css'],
+    styleUrls: ['../../global/markdown.css', 'pcm-chat-message.css', '../../global/host.css'],
     shadow: true,
 })
 export class ChatMessageComponent {

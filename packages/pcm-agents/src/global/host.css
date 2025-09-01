@@ -1,0 +1,61 @@
+:host {
+    /* 字体相关属性 */
+    font-size: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    font-variant: normal;
+    line-height: 1.5;
+    letter-spacing: normal;
+    word-spacing: normal;
+    
+    /* 文本相关属性 */
+    color: #333; /* 重置文字颜色，避免继承外部的red */
+    text-align: left;
+    text-indent: 0;
+    text-transform: none;
+    white-space: normal;
+    word-wrap: normal;
+    word-break: normal;
+    
+    /* 可见性 */
+    visibility: visible;
+    
+    /* 列表相关 */
+    list-style: none;
+    list-style-image: none;
+    list-style-position: outside;
+    list-style-type: disc;
+    
+    /* 表格相关 */
+    border-collapse: separate;
+    border-spacing: 0;
+    caption-side: top;
+    empty-cells: show;
+    table-layout: auto;
+    
+    /* 引用 */
+    quotes: auto;
+    
+    /* 光标 */
+    cursor: auto;
+    
+    /* 文本方向 */
+    direction: ltr;
+    
+    /* 打印相关 */
+    orphans: 2;
+    widows: 2;
+    page-break-inside: auto;
+    
+    /* 其他可能被继承的属性 */
+    text-decoration: none;
+    text-shadow: none;
+    
+    /* 确保组件有独立的盒模型 */
+    box-sizing: border-box;
+    
+    /* 重置一些可能影响布局的继承属性 */
+    writing-mode: horizontal-tb;
+    text-orientation: mixed;
+}

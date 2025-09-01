@@ -10,6 +10,7 @@
     <style>
       body {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        color: red;
       }
 
       .demo-controls {
@@ -156,10 +157,10 @@
         show-copy-button="false"
         show-feedback-buttons="false"
         show-workspace-history="true"
-        digital-id="5"
         icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
         conversation-id=""
         fullscreen="true"
+        show-end-interview-button="true"
         interview-mode="text"
         default-query="请您提问"
       >
@@ -203,7 +204,7 @@
         default-query="请您提问"
       ></pcm-htws-modal>
 
-      <pcm-zsk-chat-modal id="pcm-zsk-chat-modal" employee-id="137" conversation-id="" fullscreen="true" default-query="请您提问"></pcm-zsk-chat-modal>
+      <pcm-zsk-chat-modal id="pcm-zsk-chat-modal" employee-id="137" conversation-id="" fullscreen="false" default-query="请您提问"></pcm-zsk-chat-modal>
 
       <pcm-jd-modal
         id="pcm-jd-modal"
@@ -269,7 +270,7 @@
     <script>
       // 定义全局 token 变量，所有组件共享使用
       const SHARED_TOKEN =
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc1NTA3NzU1MX0.14c_tSxGbpuiiw50p2eVbg9EupLjiE-s_IhizpcvW3A';
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc1Njc4MjMwNn0.RXfFMMxb7k1AIY0Anutt00u4p0_GWDroo0C2zy_EqE0';
       const SHARED_TOKEN_NEW = '11';
       let stream = null;
       const urlParams = new URLSearchParams(window.location.search);
@@ -574,6 +575,10 @@
           console.log('错误事件:', event.detail);
         });
 
+        mnmsModal.addEventListener('interviewEnd', event => {
+          console.log('点击面试结束:', event.detail);
+        });
+
         // 打开聊天按钮事件监听
         openChatButton.addEventListener('click', () => {
           mnmsModal.isOpen = true;
@@ -585,7 +590,7 @@
           //   job_info: "对接商家和用户,负责B端活动的策划落地以及C端客户的引流；负责产品的上下架,以及线下活动的开展；负责C端产品的线上线下的引流推广",
           // file_url: "/resources/file/20250416/d258f91a1ff6061822f00b4e245dbd00.pdf",
           // file_name: "简历.pdf",
-          interview_type: '1',
+          // interview_type: '1',
         };
       };
 

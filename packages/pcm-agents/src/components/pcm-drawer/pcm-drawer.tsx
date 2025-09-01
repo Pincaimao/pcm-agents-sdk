@@ -7,7 +7,7 @@ import { configStore } from '../../../store/config.store';
  */
 @Component({
   tag: 'pcm-drawer',
-  styleUrl: 'pcm-drawer.css',
+  styleUrls: ['pcm-drawer.css', '../../global/host.css'],
   shadow: true,
 })
 export class PcmDrawer {
