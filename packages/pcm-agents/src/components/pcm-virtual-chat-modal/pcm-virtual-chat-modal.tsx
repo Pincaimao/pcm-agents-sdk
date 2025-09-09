@@ -603,6 +603,7 @@ export class ChatVirtualAPPModal {
       }else if (conversationStatus) {
         // 如果会话已结束，设置任务完成状态
         this.isTaskCompleted = true;
+        this.handleVideoElementEnded()
       }
     }
   }
