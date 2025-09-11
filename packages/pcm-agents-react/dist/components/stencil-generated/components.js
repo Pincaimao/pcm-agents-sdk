@@ -18,7 +18,6 @@ import { PcmJlzzModal as PcmJlzzModalElement, defineCustomElement as definePcmJl
 import { PcmMessage as PcmMessageElement, defineCustomElement as definePcmMessage } from "pcm-agents/dist/components/pcm-message.js";
 import { PcmMnctModal as PcmMnctModalElement, defineCustomElement as definePcmMnctModal } from "pcm-agents/dist/components/pcm-mnct-modal.js";
 import { PcmMnmsModal as PcmMnmsModalElement, defineCustomElement as definePcmMnmsModal } from "pcm-agents/dist/components/pcm-mnms-modal.js";
-import { PcmMnmsVideoModal as PcmMnmsVideoModalElement, defineCustomElement as definePcmMnmsVideoModal } from "pcm-agents/dist/components/pcm-mnms-video-modal.js";
 import { PcmMnmsZpModal as PcmMnmsZpModalElement, defineCustomElement as definePcmMnmsZpModal } from "pcm-agents/dist/components/pcm-mnms-zp-modal.js";
 import { PcmMobileInputBtn as PcmMobileInputBtnElement, defineCustomElement as definePcmMobileInputBtn } from "pcm-agents/dist/components/pcm-mobile-input-btn.js";
 import { PcmMobileUploadBtn as PcmMobileUploadBtnElement, defineCustomElement as definePcmMobileUploadBtn } from "pcm-agents/dist/components/pcm-mobile-upload-btn.js";
@@ -266,22 +265,6 @@ export const PcmMnmsModal = createComponent({
         onRecordingError: 'recordingError'
     },
     defineCustomElement: definePcmMnmsModal
-});
-export const PcmMnmsVideoModal = createComponent({
-    tagName: 'pcm-mnms-video-modal',
-    elementClass: PcmMnmsVideoModalElement,
-    react: React,
-    events: {
-        onModalClosed: 'modalClosed',
-        onUploadSuccess: 'uploadSuccess',
-        onStreamComplete: 'streamComplete',
-        onConversationStart: 'conversationStart',
-        onInterviewComplete: 'interviewComplete',
-        onTokenInvalid: 'tokenInvalid',
-        onSomeErrorEvent: 'someErrorEvent',
-        onRecordingError: 'recordingError'
-    },
-    defineCustomElement: definePcmMnmsVideoModal
 });
 export const PcmMnmsZpModal = createComponent({
     tagName: 'pcm-mnms-zp-modal',
