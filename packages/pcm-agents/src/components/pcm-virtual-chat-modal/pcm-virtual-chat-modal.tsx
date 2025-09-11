@@ -603,7 +603,15 @@ export class ChatVirtualAPPModal {
       } else if (conversationStatus) {
         // 如果会话已结束，设置任务完成状态
         this.isTaskCompleted = true;
-        this.handleVideoElementEnded()
+        
+        // 确保数字人视频状态正确设置
+        if (this.digitalId) {
+          this.digitalHumanVideoUrl = this.digitalHumanDefaultVideoUrl;
+          this.isPlayingDigitalHumanVideo = false;
+          this.isPlayingWelcomeVideo = false;
+          this.digitalHumanVideoReady = true;
+          this.initializeDigitalHuman();
+        }
       }
     }
   }
