@@ -502,7 +502,7 @@ export class ChatVirtualAPPModal {
         if (this.digitalId) {
           this.waitingForDigitalHuman = true;
           console.log('等待数字人视频播放完成...');
-        } 
+        }
       },
     });
   }
@@ -600,7 +600,7 @@ export class ChatVirtualAPPModal {
           this.startWaitingToRecord();
         }, 200);
 
-      }else if (conversationStatus) {
+      } else if (conversationStatus) {
         // 如果会话已结束，设置任务完成状态
         this.isTaskCompleted = true;
         this.handleVideoElementEnded()
@@ -1111,24 +1111,24 @@ export class ChatVirtualAPPModal {
         // 处理开场白内容（JSON格式）
         if (opening_contents && Array.isArray(opening_contents) && opening_contents.length > 0) {
           this.digitalHumanOpeningContents = opening_contents;
-          
+
           // 验证并调整开场白索引
           const validIndex = Math.max(0, Math.min(2, this.openingIndex || 0)); // 限制索引范围0-2
           const selectedOpeningContent = this.digitalHumanOpeningContents[validIndex] || this.digitalHumanOpeningContents[0];
-          
+
           // 按顺序准备预加载列表：1.选择的欢迎视频 2.默认占位视频 3.其他视频
           const orderedVideosToPreload: string[] = [];
-          
+
           // 1. 首先加载选择的欢迎视频
           if (selectedOpeningContent.video_url) {
             orderedVideosToPreload.push(selectedOpeningContent.video_url);
           }
-          
+
           // 2. 然后加载默认占位视频（如果不同于选择的欢迎视频）
           if (placeholder_video_url && placeholder_video_url !== selectedOpeningContent.video_url) {
             orderedVideosToPreload.push(placeholder_video_url);
           }
-          
+
 
           console.log('数字人初始化完成:', {
             defaultVideoUrl: this.digitalHumanDefaultVideoUrl,
@@ -1181,7 +1181,7 @@ export class ChatVirtualAPPModal {
     }
 
     console.log('开始生成数字人视频，文本内容：', text);
-    
+
     // 设置正在生成视频的状态
     this.isGeneratingDigitalHumanVideo = true;
 
@@ -1404,7 +1404,7 @@ export class ChatVirtualAPPModal {
       // 监听多种成功事件，提高兼容性
       preloadVideo.addEventListener('canplaythrough', handleSuccess);
       preloadVideo.addEventListener('loadeddata', handleSuccess);
-      
+
       // 监听错误事件
       preloadVideo.addEventListener('error', handleError);
       preloadVideo.addEventListener('abort', handleError);
@@ -1446,13 +1446,13 @@ export class ChatVirtualAPPModal {
     for (let i = 0; i < validUrls.length; i++) {
       const url = validUrls[i];
       const fileName = url.split('/').pop() || url;
-      
+
       try {
         console.log(`⏳ [${i + 1}/${validUrls.length}] 正在预加载: ${fileName.substring(0, 50)}${fileName.length > 50 ? '...' : ''}`);
         const startTime = Date.now();
-        
+
         await this.preloadVideo(url);
-        
+
         const duration = Date.now() - startTime;
         console.log(`✅ [${i + 1}/${validUrls.length}] 预加载完成 (${duration}ms): ${fileName.substring(0, 50)}${fileName.length > 50 ? '...' : ''}`);
       } catch (error) {
@@ -1464,7 +1464,7 @@ export class ChatVirtualAPPModal {
     console.log('🎉 所有视频顺序预加载处理完成');
   }
 
-  
+
   /**
    * 顺序视频URL处理器
    * 一旦获得视频URL，按顺序预加载
@@ -1592,7 +1592,7 @@ export class ChatVirtualAPPModal {
           {/* 关闭按钮 */}
           <button class="close-button" onClick={this.handleCloseClick}>
             <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
             </svg>
           </button>
 
@@ -1607,8 +1607,8 @@ export class ChatVirtualAPPModal {
                 src={this.digitalHumanVideoUrl}
                 class="digital-human-background-video"
                 onEnded={this.handleVideoElementEnded}
-                // onLoadedData={() => console.log('视频数据加载完成:', this.digitalHumanVideoUrl)}
-                // onPlay={() => console.log('视频开始播放:', this.digitalHumanVideoUrl, '静音:', !this.isPlayingDigitalHumanVideo)}
+              // onLoadedData={() => console.log('视频数据加载完成:', this.digitalHumanVideoUrl)}
+              // onPlay={() => console.log('视频开始播放:', this.digitalHumanVideoUrl, '静音:', !this.isPlayingDigitalHumanVideo)}
               />
             </div>
           )}
