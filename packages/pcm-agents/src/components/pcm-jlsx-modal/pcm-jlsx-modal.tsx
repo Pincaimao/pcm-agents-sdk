@@ -168,6 +168,11 @@ export class JlsxModal {
     @Prop() mobileUploadAble: boolean = false;
 
     /**
+     * 是否显示“批量导出报告”功能
+     */
+    @Prop() showBatchExport: boolean = false;
+
+    /**
      * 上传成功事件
      */
     @Event() uploadSuccess: EventEmitter<FileUploadResponse>;
@@ -846,7 +851,7 @@ export class JlsxModal {
                         <h4>简历列表</h4>
                         <div class="section-header-side">
                             {
-                                !!this.resumeRecords?.find(item => item.evaluate_status == 1) && <div class="export-actions">
+                                this.showBatchExport && !!this.resumeRecords?.find(item => item.evaluate_status == 1) && <div class="export-actions">
                                     <div
                                         class="export-btn"
                                         onClick={this.exportAllPDF}

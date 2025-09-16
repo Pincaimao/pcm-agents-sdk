@@ -930,6 +930,11 @@ export namespace Components {
          */
         "modalTitle": string;
         /**
+          * 是否显示“批量导出报告”功能
+          * @default false
+         */
+        "showBatchExport": boolean;
+        /**
           * SDK鉴权密钥
          */
         "token": string;
@@ -3847,6 +3852,11 @@ declare namespace LocalJSX {
           * 上传成功事件
          */
         "onUploadSuccess"?: (event: PcmJlsxModalCustomEvent<FileUploadResponse>) => void;
+        /**
+          * 是否显示“批量导出报告”功能
+          * @default false
+         */
+        "showBatchExport"?: boolean;
         /**
           * SDK鉴权密钥
          */
