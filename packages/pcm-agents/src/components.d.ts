@@ -39,6 +39,15 @@ export namespace Components {
          */
         "defaultQuery": string;
         /**
+          * 虚拟数字人ID，指定则开启虚拟数字人功能
+         */
+        "digitalId"?: string;
+        /**
+          * 是否启用全屏虚拟数字人模式，此模式下面试结果只会通过interviewComplete事件返回或者通过url_callback回调返回
+          * @default false
+         */
+        "enableVirtualHuman": boolean;
+        /**
           * 是否以全屏模式打开，移动端建议设置为true
           * @default false
          */
@@ -72,6 +81,11 @@ export namespace Components {
           * @default '模拟面试'
          */
         "modalTitle": string;
+        /**
+          * 数字人开场白索引，用于选择开场白和开场视频（可选：0, 1, 2） 0、您好，我是聘才猫 AI 面试助手。很高兴为你主持这场面试！在开始前，请确保：身处安静、光线充足的环境。网络顺畅，摄像头和麦克风工作正常。现在我正在查看本次面试的相关信息，为您生成专属面试题，马上就好，请稍等片刻。</br> 1、您好，我是您的 AI 面试助手。欢迎参加本次AI面试！为了获得最佳效果，请确认：您在安静、明亮的环境中。您的网络稳定，摄像头和麦克风已开启。我们正在后台为您准备本次专属面试内容，很快开始，请稍候。<br> 2、您好，我是您的 AI 面试助手。面试马上开始。趁此片刻，请快速确认：周围安静吗？光线足够吗？网络没问题？摄像头和麦克风准备好了吗？我们正在为您加载个性化的面试环节，稍等就好！
+          * @default 0
+         */
+        "openingIndex": number;
         /**
           * SDK鉴权密钥
          */
@@ -117,7 +131,7 @@ export namespace Components {
         "digitalId"?: string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
+          * @default 'drawer'
          */
         "filePreviewMode": 'drawer' | 'window';
         /**
@@ -494,6 +508,14 @@ export namespace Components {
           * @default '378px'
          */
         "width": string;
+    }
+    interface PcmExportRecordsModal {
+        "botId"?: string;
+        /**
+          * @default false
+         */
+        "open": boolean;
+        "sourceId"?: string;
     }
     interface PcmHrChatModal {
         /**
@@ -925,6 +947,7 @@ export namespace Components {
         "defaultQuery": string;
         /**
           * 导出按钮的文本
+          * @default '导出简历json数据'
          */
         "exportButtonText": string;
         /**
@@ -939,6 +962,7 @@ export namespace Components {
         "fullscreen": boolean;
         /**
           * 是否隐藏导出数据按钮
+          * @default false
          */
         "hideExportButton": boolean;
         /**
@@ -962,6 +986,7 @@ export namespace Components {
         "isShowHeader": boolean;
         /**
           * 是否成功，成功展示 iframe 官网
+          * @default false
          */
         "isSuccess": boolean;
         /**
@@ -1100,11 +1125,6 @@ export namespace Components {
          */
         "enableVirtualHuman": boolean;
         /**
-          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
-         */
-        "filePreviewMode": 'drawer' | 'window';
-        /**
           * 是否以全屏模式打开，移动端建议设置为true
           * @default false
          */
@@ -1133,6 +1153,11 @@ export namespace Components {
           * @default true
          */
         "isShowHeader": boolean;
+        /**
+          * 视频录制最大时长（秒）默认120
+          * @default 120
+         */
+        "maxRecordingTime": number;
         /**
           * 是否开启移动端上传JD（仅PC端生效）
           * @default false
@@ -1497,6 +1522,7 @@ export namespace Components {
         "defaultQuery": string;
         /**
           * 导出按钮的文本
+          * @default '导出简历json数据'
          */
         "exportButtonText": string;
         /**
@@ -1511,6 +1537,7 @@ export namespace Components {
         "fullscreen": boolean;
         /**
           * 是否隐藏导出数据按钮
+          * @default false
          */
         "hideExportButton": boolean;
         /**
@@ -1718,7 +1745,7 @@ export namespace Components {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
+          * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.type时，会直接开始聊天。<br>
           * @default {}
          */
         "customInputs": Record<string, string>;
@@ -1804,6 +1831,10 @@ export interface PcmDigitalHumanCustomEvent<T> extends CustomEvent<T> {
 export interface PcmDrawerCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLPcmDrawerElement;
+}
+export interface PcmExportRecordsModalCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLPcmExportRecordsModalElement;
 }
 export interface PcmHrChatModalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -2068,6 +2099,23 @@ declare global {
     var HTMLPcmDrawerElement: {
         prototype: HTMLPcmDrawerElement;
         new (): HTMLPcmDrawerElement;
+    };
+    interface HTMLPcmExportRecordsModalElementEventMap {
+        "cancel": void;
+    }
+    interface HTMLPcmExportRecordsModalElement extends Components.PcmExportRecordsModal, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLPcmExportRecordsModalElementEventMap>(type: K, listener: (this: HTMLPcmExportRecordsModalElement, ev: PcmExportRecordsModalCustomEvent<HTMLPcmExportRecordsModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLPcmExportRecordsModalElementEventMap>(type: K, listener: (this: HTMLPcmExportRecordsModalElement, ev: PcmExportRecordsModalCustomEvent<HTMLPcmExportRecordsModalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLPcmExportRecordsModalElement: {
+        prototype: HTMLPcmExportRecordsModalElement;
+        new (): HTMLPcmExportRecordsModalElement;
     };
     interface HTMLPcmHrChatModalElementEventMap {
         "modalClosed": void;
@@ -2564,6 +2612,7 @@ declare global {
         "pcm-confirm-modal": HTMLPcmConfirmModalElement;
         "pcm-digital-human": HTMLPcmDigitalHumanElement;
         "pcm-drawer": HTMLPcmDrawerElement;
+        "pcm-export-records-modal": HTMLPcmExportRecordsModalElement;
         "pcm-hr-chat-modal": HTMLPcmHrChatModalElement;
         "pcm-htws-modal": HTMLPcmHtwsModalElement;
         "pcm-hyzj-modal": HTMLPcmHyzjModalElement;
@@ -2606,6 +2655,15 @@ declare namespace LocalJSX {
           * @default '请开始模拟面试'
          */
         "defaultQuery"?: string;
+        /**
+          * 虚拟数字人ID，指定则开启虚拟数字人功能
+         */
+        "digitalId"?: string;
+        /**
+          * 是否启用全屏虚拟数字人模式，此模式下面试结果只会通过interviewComplete事件返回或者通过url_callback回调返回
+          * @default false
+         */
+        "enableVirtualHuman"?: boolean;
         /**
           * 是否以全屏模式打开，移动端建议设置为true
           * @default false
@@ -2673,6 +2731,11 @@ declare namespace LocalJSX {
          */
         "onUploadSuccess"?: (event: Pcm1zhanshiMnmsModalCustomEvent<FileUploadResponse>) => void;
         /**
+          * 数字人开场白索引，用于选择开场白和开场视频（可选：0, 1, 2） 0、您好，我是聘才猫 AI 面试助手。很高兴为你主持这场面试！在开始前，请确保：身处安静、光线充足的环境。网络顺畅，摄像头和麦克风工作正常。现在我正在查看本次面试的相关信息，为您生成专属面试题，马上就好，请稍等片刻。</br> 1、您好，我是您的 AI 面试助手。欢迎参加本次AI面试！为了获得最佳效果，请确认：您在安静、明亮的环境中。您的网络稳定，摄像头和麦克风已开启。我们正在后台为您准备本次专属面试内容，很快开始，请稍候。<br> 2、您好，我是您的 AI 面试助手。面试马上开始。趁此片刻，请快速确认：周围安静吗？光线足够吗？网络没问题？摄像头和麦克风准备好了吗？我们正在为您加载个性化的面试环节，稍等就好！
+          * @default 0
+         */
+        "openingIndex"?: number;
+        /**
           * SDK鉴权密钥
          */
         "token": string;
@@ -2717,7 +2780,7 @@ declare namespace LocalJSX {
         "digitalId"?: string;
         /**
           * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
+          * @default 'drawer'
          */
         "filePreviewMode"?: 'drawer' | 'window';
         /**
@@ -3179,6 +3242,15 @@ declare namespace LocalJSX {
           * @default '378px'
          */
         "width"?: string;
+    }
+    interface PcmExportRecordsModal {
+        "botId"?: string;
+        "onCancel"?: (event: PcmExportRecordsModalCustomEvent<void>) => void;
+        /**
+          * @default false
+         */
+        "open"?: boolean;
+        "sourceId"?: string;
     }
     interface PcmHrChatModal {
         /**
@@ -3793,6 +3865,7 @@ declare namespace LocalJSX {
         "defaultQuery"?: string;
         /**
           * 导出按钮的文本
+          * @default '导出简历json数据'
          */
         "exportButtonText"?: string;
         /**
@@ -3807,6 +3880,7 @@ declare namespace LocalJSX {
         "fullscreen"?: boolean;
         /**
           * 是否隐藏导出数据按钮
+          * @default false
          */
         "hideExportButton"?: boolean;
         /**
@@ -3830,6 +3904,7 @@ declare namespace LocalJSX {
         "isShowHeader"?: boolean;
         /**
           * 是否成功，成功展示 iframe 官网
+          * @default false
          */
         "isSuccess"?: boolean;
         /**
@@ -4022,11 +4097,6 @@ declare namespace LocalJSX {
          */
         "enableVirtualHuman"?: boolean;
         /**
-          * 附件预览模式 'drawer': 在右侧抽屉中预览 'window': 在新窗口中打开
-          * @default 'window'
-         */
-        "filePreviewMode"?: 'drawer' | 'window';
-        /**
           * 是否以全屏模式打开，移动端建议设置为true
           * @default false
          */
@@ -4055,6 +4125,11 @@ declare namespace LocalJSX {
           * @default true
          */
         "isShowHeader"?: boolean;
+        /**
+          * 视频录制最大时长（秒）默认120
+          * @default 120
+         */
+        "maxRecordingTime"?: number;
         /**
           * 是否开启移动端上传JD（仅PC端生效）
           * @default false
@@ -4545,6 +4620,7 @@ declare namespace LocalJSX {
         "defaultQuery"?: string;
         /**
           * 导出按钮的文本
+          * @default '导出简历json数据'
          */
         "exportButtonText"?: string;
         /**
@@ -4559,6 +4635,7 @@ declare namespace LocalJSX {
         "fullscreen"?: boolean;
         /**
           * 是否隐藏导出数据按钮
+          * @default false
          */
         "hideExportButton"?: boolean;
         /**
@@ -4849,7 +4926,7 @@ declare namespace LocalJSX {
          */
         "conversationId"?: string;
         /**
-          * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.job_info时，会直接开始聊天。<br>
+          * 自定义输入参数，传入customInputs.type则可以指定规划类型，可传入"长期规划"、"转行建议"、"晋升路径"<br> 传入customInputs.file_url时，会隐藏简历上传区域。<br> 传入customInputs.file_url和customInputs.type时，会直接开始聊天。<br>
           * @default {}
          */
         "customInputs"?: Record<string, string>;
@@ -4947,6 +5024,7 @@ declare namespace LocalJSX {
         "pcm-confirm-modal": PcmConfirmModal;
         "pcm-digital-human": PcmDigitalHuman;
         "pcm-drawer": PcmDrawer;
+        "pcm-export-records-modal": PcmExportRecordsModal;
         "pcm-hr-chat-modal": PcmHrChatModal;
         "pcm-htws-modal": PcmHtwsModal;
         "pcm-hyzj-modal": PcmHyzjModal;
@@ -5001,6 +5079,7 @@ declare module "@stencil/core" {
              * 从屏幕边缘滑出的浮层面板，类似 Ant Design 的 Drawer 组件
              */
             "pcm-drawer": LocalJSX.PcmDrawer & JSXBase.HTMLAttributes<HTMLPcmDrawerElement>;
+            "pcm-export-records-modal": LocalJSX.PcmExportRecordsModal & JSXBase.HTMLAttributes<HTMLPcmExportRecordsModalElement>;
             "pcm-hr-chat-modal": LocalJSX.PcmHrChatModal & JSXBase.HTMLAttributes<HTMLPcmHrChatModalElement>;
             /**
              * 劳动合同卫士
