@@ -36,6 +36,7 @@
 
 ### Used by
 
+ - [pcm-1zhanshi-mnms-modal](../pcm-1zhanshi-mnms-modal)
  - [pcm-mnms-modal](../pcm-mnms-modal)
  - [pcm-mnms-zp-modal](../pcm-mnms-zp-modal)
 
@@ -47,6 +48,7 @@
 ```mermaid
 graph TD;
   pcm-virtual-chat-modal --> pcm-confirm-modal
+  pcm-1zhanshi-mnms-modal --> pcm-virtual-chat-modal
   pcm-mnms-modal --> pcm-virtual-chat-modal
   pcm-mnms-zp-modal --> pcm-virtual-chat-modal
   style pcm-virtual-chat-modal fill:#f9f,stroke:#333,stroke-width:4px
