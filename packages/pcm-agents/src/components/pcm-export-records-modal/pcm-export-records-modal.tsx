@@ -23,7 +23,7 @@ const DEFAULT_PAGINATION = {
 const EXPORT_BATCH_STATUS_MAP: Record<string, { text: string; color: string }> = {
   '0': { text: '处理中', color: '#1890ff' },
   '1': { text: '已完成', color: '#52c41a' },
-  '2': { text: '失败', color: '#ff4d4f' },
+  '-1': { text: '失败', color: '#ff4d4f' },
 };
 
 @Component({
@@ -101,6 +101,23 @@ export class PcmExportRecordsModal {
     }
   }
 
+  private async handleDelete(record: ExportRecord) {
+    try {
+      const response = await sendHttpRequest({
+        url: `/sdk/v1/export_batch/delete/${record.id}`,
+        method: "DELETE",
+      });
+      if (response?.success) {
+        this.showMessageToast('删除成功', 'success');
+        setTimeout(() => {
+          this.fetchData(this.pagination);
+        }, 100);
+      }
+    } catch (error) {
+      this.showMessageToast(`删除失败: ${error.message}`, 'error');
+    }
+  }
+
   private showMessageToast(text: string, type: 'success' | 'error') {
     this.messageText = text;
     this.messageType = type;
@@ -153,7 +170,7 @@ export class PcmExportRecordsModal {
     );
   }
 
-  private renderButton(text: string, onClick: () => void, variant: 'primary' | 'default' = 'default', size: 'small' | 'medium' = 'medium') {
+  private renderButton(text: string, onClick: () => void, variant: 'primary' | 'default' | 'danger' = 'default', size: 'small' | 'medium' = 'medium') {
     return (
       <button
         class={`btn btn-${variant} btn-${size}`}
@@ -201,6 +218,12 @@ export class PcmExportRecordsModal {
                 </td>
                 <td style={{ textAlign: 'left' }}>
                   <div class="action-buttons">
+                    {record.status !== 0 && this.renderButton(
+                      '删除',
+                      () => this.handleDelete(record),
+                      'danger',
+                      'small'
+                    )}
                     {record.cos_key && this.renderButton(
                       '下载',
                       () => this.handleDownload(record),

@@ -114,6 +114,17 @@
   color: #40a9ff;
 }
 
+.btn-danger {
+  background-color: #f5222d;
+  color: white;
+  border: 1px solid #f5222d;
+}
+
+.btn-danger:hover {
+  background-color: #cf1322;
+  border-color: #cf1322;
+}
+
 /* 表格容器 */
 .table-container {
   border: 1px solid #f0f0f0;
