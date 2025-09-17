@@ -1,6 +1,6 @@
 {
   "name": "pcm-agents-vue",
-  "version": "0.3.25",
+  "version": "0.3.26",
   "description": "Vue wrapper components for pcm-agents",
   "main": "dist/components.js",
   "module": "dist/components.js",
@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@stencil/vue-output-target": "^0.10.7",
-    "pcm-agents": "^0.6.29"
+    "pcm-agents": "^0.6.31"
   },
   "repository": {
     "type": "git",
