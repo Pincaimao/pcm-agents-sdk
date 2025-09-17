@@ -449,3 +449,15 @@ export default {
 - 向用户展示适当的错误提示信息
 - 错误上报与分析
 
+
+## 测试发版流程
+
+1. 前往packages/pcm-agents修改package.json版本号
+2. 执行
+
+```bash
+pnpm version:beta # 报错可忽略
+pnpm upload:beta
+```
+
+pcm-agents-react 操作如上
