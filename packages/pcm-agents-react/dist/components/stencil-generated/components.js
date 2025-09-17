@@ -8,6 +8,7 @@ import { PcmChatMessage as PcmChatMessageElement, defineCustomElement as defineP
 import { PcmConfirmModal as PcmConfirmModalElement, defineCustomElement as definePcmConfirmModal } from "pcm-agents/dist/components/pcm-confirm-modal.js";
 import { PcmDigitalHuman as PcmDigitalHumanElement, defineCustomElement as definePcmDigitalHuman } from "pcm-agents/dist/components/pcm-digital-human.js";
 import { PcmDrawer as PcmDrawerElement, defineCustomElement as definePcmDrawer } from "pcm-agents/dist/components/pcm-drawer.js";
+import { PcmExportRecordsModal as PcmExportRecordsModalElement, defineCustomElement as definePcmExportRecordsModal } from "pcm-agents/dist/components/pcm-export-records-modal.js";
 import { PcmHrChatModal as PcmHrChatModalElement, defineCustomElement as definePcmHrChatModal } from "pcm-agents/dist/components/pcm-hr-chat-modal.js";
 import { PcmHtwsModal as PcmHtwsModalElement, defineCustomElement as definePcmHtwsModal } from "pcm-agents/dist/components/pcm-htws-modal.js";
 import { PcmHyzjModal as PcmHyzjModalElement, defineCustomElement as definePcmHyzjModal } from "pcm-agents/dist/components/pcm-hyzj-modal.js";
@@ -80,6 +81,7 @@ export const PcmChatMessage = createComponent({
     elementClass: PcmChatMessageElement,
     react: React,
     events: {
+        onSaveJd: 'saveJd',
         onFilePreviewRequest: 'filePreviewRequest',
         onRetryRequest: 'retryRequest'
     },
@@ -119,6 +121,13 @@ export const PcmDrawer = createComponent({
         onAfterClose: 'afterClose'
     },
     defineCustomElement: definePcmDrawer
+});
+export const PcmExportRecordsModal = createComponent({
+    tagName: 'pcm-export-records-modal',
+    elementClass: PcmExportRecordsModalElement,
+    react: React,
+    events: { onCancel: 'cancel' },
+    defineCustomElement: definePcmExportRecordsModal
 });
 export const PcmHrChatModal = createComponent({
     tagName: 'pcm-hr-chat-modal',
