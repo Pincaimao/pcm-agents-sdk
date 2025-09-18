@@ -514,7 +514,7 @@ export class JlsxModal {
         //     record.scoreDetail || '暂无评估详情',
         //     'markdown'
         // );
-        const url = `${PCM_DOMAIN}/exportFile?id=${record.id}&title=${this.jobTitle || ''}&token=${authStore.getToken()}&isSdk=1`;
+        const url = `${PCM_DOMAIN}/exportFile?id=${record.id}&title=${this.jobTitle || ''}&token=${authStore.getToken()}&referrer=sdk`;
         this.showPreview(
             `${record.fileName} - 评估详情`,
             '',
