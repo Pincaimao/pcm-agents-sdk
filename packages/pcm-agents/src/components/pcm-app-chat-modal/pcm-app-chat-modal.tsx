@@ -1,7 +1,7 @@
 import { Component, Prop, h, State, Event, EventEmitter, Element, Watch } from '@stencil/core';
 import { sendSSERequest, sendHttpRequest, uploadFileToBackend, fetchAgentInfo, getSupportedMimeType, getSupportedAudioMimeType, convertAudioToText } from '../../utils/utils';
 import { ChatMessage, ConversationItem } from '../../interfaces/chat';
-import { StreamCompleteEventData, ConversationStartEventData, InterviewCompleteEventData, RecordingErrorEventData, RecordingStatusChangeEventData, InterviewEndEventData } from '../../interfaces/events';
+import { StreamCompleteEventData, ConversationStartEventData, InterviewCompleteEventData, RecordingErrorEventData, RecordingStatusChangeEventData } from '../../interfaces/events';
 import { marked } from 'marked';
 import { ErrorEventBus } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store'; // 导入 authStore
@@ -299,10 +299,6 @@ export class ChatAPPModal {
    */
   @Prop() showEndInterviewButton: boolean = false;
 
-  /**
-   * 点击结束按钮事件
-   */
-  @Event() interviewEnd: EventEmitter<InterviewEndEventData>;
 
   @Watch('token')
   handleTokenChange(newToken: string) {
@@ -1772,11 +1768,6 @@ export class ChatAPPModal {
     try {
       // 发送结束面试消息
       const endMessage = '请结束面试';
-      // 抛出面试结束事件
-      this.interviewEnd.emit({
-        conversation_id: this.conversationId || '',
-        message: endMessage,
-      });
       console.log('面试结束消息已发送:', {
         conversation_id: this.conversationId,
         message: endMessage,

@@ -5,7 +5,6 @@ import {
     ConversationStartEventData,
     InterviewCompleteEventData,
     RecordingErrorEventData,
-    InterviewEndEventData,
 } from '../../interfaces/events';
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store';
@@ -137,10 +136,6 @@ export class MnmsZpModal {
      */
     @Prop() showEndInterviewButton: boolean = false;
 
-    /**
-     * 点击结束按钮触发事件
-     */
-    @Event() interviewEnd: EventEmitter<InterviewEndEventData>;
 
     /**
      * 上传成功事件

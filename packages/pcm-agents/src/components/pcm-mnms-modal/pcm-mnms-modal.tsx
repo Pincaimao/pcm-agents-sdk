@@ -5,7 +5,6 @@ import {
     ConversationStartEventData,
     InterviewCompleteEventData,
     RecordingErrorEventData,
-    InterviewEndEventData,
 } from '../../interfaces/events';
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store';
@@ -115,7 +114,10 @@ export class MnmsModal {
     @Prop() mobileUploadAble: boolean = false;
 
     /**
-     * 虚拟数字人ID，指定则开启虚拟数字人功能
+     * 虚拟数字人ID，指定则开启虚拟数字人功能</br>
+     * 智琪：79202506752 </br>
+     * 艾綝：79402522624 </br>
+     * 艾姮：79597885440 </br>
      */
     @Prop() digitalId?: string;
 
@@ -128,7 +130,7 @@ export class MnmsModal {
     @Prop() openingIndex: number = 0;
 
     /**
-     * 是否启用全屏虚拟数字人模式，此模式下面试结果只会通过interviewComplete事件返回或者通过url_callback回调返回
+     * 是否启用全屏数字人模式，此模式下面试结果只会通过interviewComplete事件返回或者通过url_callback回调返回
      */
     @Prop() enableVirtualHuman: boolean = false;
 
@@ -137,10 +139,6 @@ export class MnmsModal {
      */
     @Prop() showEndInterviewButton: boolean = false;
 
-    /**
-     * 点击结束按钮触发事件
-     */
-    @Event() interviewEnd: EventEmitter<InterviewEndEventData>;
 
     /**
      * 上传成功事件
