@@ -143,7 +143,7 @@
         icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
         fullscreen="false"
         conversation-id=""
-        digital-id="4"
+        digital-id="79202506752"
         opening-index="2"
         enable-virtual-human="true"
         interview-mode="video"
@@ -159,7 +159,7 @@
         show-workspace-history="true"
         icon="https://pub.pincaimao.com/static/common/i_pcm_logo.png"
         conversation-id=""
-        fullscreen="true"
+        fullscreen="false"
         show-end-interview-button="true"
         interview-mode="text"
         default-query="请您提问"
@@ -270,7 +270,7 @@
     <script>
       // 定义全局 token 变量，所有组件共享使用
       const SHARED_TOKEN =
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6IkJlbm55IiwidWlkIjozNTY5NjcwMjE1NzQ4ODEyOCwiY2hhdF91c2VyIjoicGNtLTEyMyIsInNlY3JldF9pZCI6IlIxUXFkYTkzNzVkZmhwblZvYUZUZUppbCIsImV4cCI6MTc1Njc4MjMwNn0.RXfFMMxb7k1AIY0Anutt00u4p0_GWDroo0C2zy_EqE0';
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6Ilx1NTMzYlx1ODA1OFx1NzMyYjgxMDMiLCJ1aWQiOjcsImNoYXRfdXNlciI6InBjbS0xMjMiLCJzZWNyZXRfaWQiOiJUU0tCbGxpVTVJWDhaSTE1Z2NxSmVPSEkiLCJleHAiOjE3NTg2MTUzMzB9.g44eLm7x0Vh0L4hmaQN7yTnThfTAJpoGlK9e94x6vJo';
       const SHARED_TOKEN_NEW = '11';
       let stream = null;
       const urlParams = new URLSearchParams(window.location.search);
@@ -573,10 +573,6 @@
 
         mnmsModal.addEventListener('someErrorEvent', event => {
           console.log('错误事件:', event.detail);
-        });
-
-        mnmsModal.addEventListener('interviewEnd', event => {
-          console.log('点击面试结束:', event.detail);
         });
 
         // 打开聊天按钮事件监听

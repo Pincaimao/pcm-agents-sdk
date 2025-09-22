@@ -30,6 +30,7 @@
 | `showWorkspaceHistory`   | `show-workspace-history`    | 是否显示工作区历史会话按钮                               | `boolean`               | `false`                                                    |
 | `token`                  | `token`                     | SDK鉴权密钥                                     | `string`                | `undefined`                                                |
 | `userAvatar`             | `user-avatar`               | 用户头像URL                                     | `string`                | `'https://pub.pincaimao.com/static/common/i_pcm_logo.png'` |
+| `waitingTime`            | `waiting-time`              | 等待录制时间（秒）                                   | `number`                | `10`                                                       |
 | `zIndex`                 | `z-index`                   | 聊天框的页面层级                                    | `number`                | `undefined`                                                |
 
 
@@ -39,7 +40,6 @@
 | ----------------------- | ----------------------- | --------------------------------------------- |
 | `conversationStart`     | 新会话开始的回调，只会在一轮对话开始时触发一次 | `CustomEvent<ConversationStartEventData>`     |
 | `interviewComplete`     | 当聊天完成时触发                | `CustomEvent<InterviewCompleteEventData>`     |
-| `interviewEnd`          | 点击结束按钮事件                | `CustomEvent<InterviewEndEventData>`          |
 | `modalClosed`           | 当点击模态框关闭时触发             | `CustomEvent<void>`                           |
 | `recordingError`        | 录制错误事件                  | `CustomEvent<RecordingErrorEventData>`        |
 | `recordingStatusChange` | 录制状态变化事件                | `CustomEvent<RecordingStatusChangeEventData>` |
@@ -51,6 +51,7 @@
 
 ### Used by
 
+ - [pcm-1zhanshi-mnms-modal](../pcm-1zhanshi-mnms-modal)
  - [pcm-htws-modal](../pcm-htws-modal)
  - [pcm-hyzj-modal](../pcm-hyzj-modal)
  - [pcm-jd-modal](../pcm-jd-modal)
@@ -77,6 +78,7 @@ graph TD;
   pcm-app-chat-modal --> pcm-digital-human
   pcm-app-chat-modal --> pcm-drawer
   pcm-app-chat-modal --> pcm-confirm-modal
+  pcm-1zhanshi-mnms-modal --> pcm-app-chat-modal
   pcm-htws-modal --> pcm-app-chat-modal
   pcm-hyzj-modal --> pcm-app-chat-modal
   pcm-jd-modal --> pcm-app-chat-modal

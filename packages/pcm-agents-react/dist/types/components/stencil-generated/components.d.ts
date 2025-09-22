@@ -1,5 +1,5 @@
 import type { EventName, StencilReactComponent } from '@stencil/react-output-target/runtime';
-import { type CareerPlanType, type ConversationStartEventData, type ErrorEventDetail, type FileUploadResponse, type InterviewCompleteEventData, type InterviewEndEventData, type Pcm1zhanshiMnmsModalCustomEvent, type PcmAppChatModalCustomEvent, type PcmHrChatModalCustomEvent, type PcmHtwsModalCustomEvent, type PcmHyzjModalCustomEvent, type PcmJdModalCustomEvent, type PcmJlppModalCustomEvent, type PcmJlsxModalCustomEvent, type PcmJlzzModalCustomEvent, type PcmMnctModalCustomEvent, type PcmMnmsModalCustomEvent, type PcmMnmsZpModalCustomEvent, type PcmMsbgModalCustomEvent, type PcmQgqjlModalCustomEvent, type PcmUploadCustomEvent, type PcmVirtualChatModalCustomEvent, type PcmZskChatModalCustomEvent, type PcmZyghModalCustomEvent, type RecordingErrorEventData, type RecordingStatusChangeEventData, type ResumeAnalysisCompleteEventData, type ResumeAnalysisStartEventData, type ResumeDeletedEventData, type StreamCompleteEventData, type TaskCreatedEventData, type TaskSwitchEventData, type UploadFailedEvent } from "pcm-agents";
+import { type CareerPlanType, type ConversationStartEventData, type ErrorEventDetail, type FileUploadResponse, type InterviewCompleteEventData, type Pcm1zhanshiMnmsModalCustomEvent, type PcmAppChatModalCustomEvent, type PcmHrChatModalCustomEvent, type PcmHtwsModalCustomEvent, type PcmHyzjModalCustomEvent, type PcmJdModalCustomEvent, type PcmJlppModalCustomEvent, type PcmJlsxModalCustomEvent, type PcmJlzzModalCustomEvent, type PcmMnctModalCustomEvent, type PcmMnmsModalCustomEvent, type PcmMnmsZpModalCustomEvent, type PcmMsbgModalCustomEvent, type PcmQgqjlModalCustomEvent, type PcmUploadCustomEvent, type PcmVirtualChatModalCustomEvent, type PcmZskChatModalCustomEvent, type PcmZyghModalCustomEvent, type RecordingErrorEventData, type RecordingStatusChangeEventData, type ResumeAnalysisCompleteEventData, type ResumeAnalysisStartEventData, type ResumeDeletedEventData, type StreamCompleteEventData, type TaskCreatedEventData, type TaskSwitchEventData, type UploadFailedEvent } from "pcm-agents";
 import { Pcm1zhanshiMnmsModal as Pcm1zhanshiMnmsModalElement } from "pcm-agents/dist/components/pcm-1zhanshi-mnms-modal.js";
 import { PcmAppChatModal as PcmAppChatModalElement } from "pcm-agents/dist/components/pcm-app-chat-modal.js";
 import { PcmButton as PcmButtonElement } from "pcm-agents/dist/components/pcm-button.js";
@@ -47,7 +47,6 @@ type PcmAppChatModalEvents = {
     onRecordingError: EventName<PcmAppChatModalCustomEvent<RecordingErrorEventData>>;
     onRecordingStatusChange: EventName<PcmAppChatModalCustomEvent<RecordingStatusChangeEventData>>;
     onTokenInvalid: EventName<CustomEvent<void>>;
-    onInterviewEnd: EventName<PcmAppChatModalCustomEvent<InterviewEndEventData>>;
 };
 export declare const PcmAppChatModal: StencilReactComponent<PcmAppChatModalElement, PcmAppChatModalEvents>;
 type PcmButtonEvents = NonNullable<unknown>;
@@ -186,7 +185,6 @@ type PcmMnctModalEvents = {
 export declare const PcmMnctModal: StencilReactComponent<PcmMnctModalElement, PcmMnctModalEvents>;
 type PcmMnmsModalEvents = {
     onModalClosed: EventName<CustomEvent<void>>;
-    onInterviewEnd: EventName<PcmMnmsModalCustomEvent<InterviewEndEventData>>;
     onUploadSuccess: EventName<PcmMnmsModalCustomEvent<FileUploadResponse>>;
     onStreamComplete: EventName<PcmMnmsModalCustomEvent<StreamCompleteEventData>>;
     onConversationStart: EventName<PcmMnmsModalCustomEvent<ConversationStartEventData>>;
@@ -198,7 +196,6 @@ type PcmMnmsModalEvents = {
 export declare const PcmMnmsModal: StencilReactComponent<PcmMnmsModalElement, PcmMnmsModalEvents>;
 type PcmMnmsZpModalEvents = {
     onModalClosed: EventName<CustomEvent<void>>;
-    onInterviewEnd: EventName<PcmMnmsZpModalCustomEvent<InterviewEndEventData>>;
     onUploadSuccess: EventName<PcmMnmsZpModalCustomEvent<FileUploadResponse>>;
     onStreamComplete: EventName<PcmMnmsZpModalCustomEvent<StreamCompleteEventData>>;
     onConversationStart: EventName<PcmMnmsZpModalCustomEvent<ConversationStartEventData>>;

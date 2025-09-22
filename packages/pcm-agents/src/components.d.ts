@@ -6,14 +6,14 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { FileUploadResponse } from "./utils/utils";
-import { ConversationStartEventData, InterviewCompleteEventData, InterviewEndEventData, RecordingErrorEventData, RecordingStatusChangeEventData, ResumeAnalysisCompleteEventData, ResumeAnalysisStartEventData, ResumeDeletedEventData, StreamCompleteEventData, TaskCreatedEventData, TaskSwitchEventData } from "./interfaces/events";
+import { ConversationStartEventData, InterviewCompleteEventData, RecordingErrorEventData, RecordingStatusChangeEventData, ResumeAnalysisCompleteEventData, ResumeAnalysisStartEventData, ResumeDeletedEventData, StreamCompleteEventData, TaskCreatedEventData, TaskSwitchEventData } from "./interfaces/events";
 import { ErrorEventDetail } from "./utils/error-event";
 import { ChatMessage } from "./interfaces/chat";
 import { ConversationStartEventData as ConversationStartEventData1, ErrorEventDetail as ErrorEventDetail1, InterviewCompleteEventData as InterviewCompleteEventData1, StreamCompleteEventData as StreamCompleteEventData1 } from "./components";
 import { UploadFailedEvent } from "./components/pcm-upload/pcm-upload";
 import { CareerPlanType } from "./components/pcm-zygh-modal/pcm-zygh-modal";
 export { FileUploadResponse } from "./utils/utils";
-export { ConversationStartEventData, InterviewCompleteEventData, InterviewEndEventData, RecordingErrorEventData, RecordingStatusChangeEventData, ResumeAnalysisCompleteEventData, ResumeAnalysisStartEventData, ResumeDeletedEventData, StreamCompleteEventData, TaskCreatedEventData, TaskSwitchEventData } from "./interfaces/events";
+export { ConversationStartEventData, InterviewCompleteEventData, RecordingErrorEventData, RecordingStatusChangeEventData, ResumeAnalysisCompleteEventData, ResumeAnalysisStartEventData, ResumeDeletedEventData, StreamCompleteEventData, TaskCreatedEventData, TaskSwitchEventData } from "./interfaces/events";
 export { ErrorEventDetail } from "./utils/error-event";
 export { ChatMessage } from "./interfaces/chat";
 export { ConversationStartEventData as ConversationStartEventData1, ErrorEventDetail as ErrorEventDetail1, InterviewCompleteEventData as InterviewCompleteEventData1, StreamCompleteEventData as StreamCompleteEventData1 } from "./components";
@@ -80,6 +80,10 @@ export namespace Components {
           * SDK鉴权密钥
          */
         "token": string;
+        /**
+          * 等待录制时间（秒）默认10
+         */
+        "waitingTime": number;
         /**
           * 聊天框的页面层级
          */
@@ -179,6 +183,10 @@ export namespace Components {
           * 用户头像URL
          */
         "userAvatar"?: string;
+        /**
+          * 等待录制时间（秒）
+         */
+        "waitingTime": number;
         /**
           * 聊天框的页面层级
          */
@@ -915,11 +923,11 @@ export namespace Components {
          */
         "defaultQuery": string;
         /**
-          * 虚拟数字人ID，指定则开启虚拟数字人功能
+          * 虚拟数字人ID，指定则开启虚拟数字人功能</br> 智琪：79202506752 </br> 艾綝：79402522624 </br> 艾姮：79597885440 </br>
          */
         "digitalId"?: string;
         /**
-          * 是否启用全屏虚拟数字人模式，此模式下面试结果只会通过interviewComplete事件返回或者通过url_callback回调返回
+          * 是否启用全屏数字人模式，此模式下面试结果只会通过interviewComplete事件返回或者通过url_callback回调返回
          */
         "enableVirtualHuman": boolean;
         /**
@@ -986,6 +994,10 @@ export namespace Components {
           * SDK鉴权密钥
          */
         "token": string;
+        /**
+          * 等待录制时间（秒）默认10
+         */
+        "waitingTime": number;
         /**
           * 聊天框的页面层级
          */
@@ -1079,6 +1091,10 @@ export namespace Components {
           * SDK鉴权密钥
          */
         "token": string;
+        /**
+          * 等待录制时间（秒）默认10
+         */
+        "waitingTime": number;
         /**
           * 聊天框的页面层级
          */
@@ -1587,7 +1603,6 @@ declare global {
         "recordingError": RecordingErrorEventData;
         "recordingStatusChange": RecordingStatusChangeEventData;
         "tokenInvalid": void;
-        "interviewEnd": InterviewEndEventData;
     }
     interface HTMLPcmAppChatModalElement extends Components.PcmAppChatModal, HTMLStencilElement {
         addEventListener<K extends keyof HTMLPcmAppChatModalElementEventMap>(type: K, listener: (this: HTMLPcmAppChatModalElement, ev: PcmAppChatModalCustomEvent<HTMLPcmAppChatModalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -1947,7 +1962,6 @@ declare global {
     };
     interface HTMLPcmMnmsModalElementEventMap {
         "modalClosed": void;
-        "interviewEnd": InterviewEndEventData;
         "uploadSuccess": FileUploadResponse;
         "streamComplete": StreamCompleteEventData;
         "conversationStart": ConversationStartEventData;
@@ -1975,7 +1989,6 @@ declare global {
     };
     interface HTMLPcmMnmsZpModalElementEventMap {
         "modalClosed": void;
-        "interviewEnd": InterviewEndEventData;
         "uploadSuccess": FileUploadResponse;
         "streamComplete": StreamCompleteEventData;
         "conversationStart": ConversationStartEventData;
@@ -2318,6 +2331,10 @@ declare namespace LocalJSX {
          */
         "token": string;
         /**
+          * 等待录制时间（秒）默认10
+         */
+        "waitingTime"?: number;
+        /**
           * 聊天框的页面层级
          */
         "zIndex"?: number;
@@ -2401,10 +2418,6 @@ declare namespace LocalJSX {
          */
         "onInterviewComplete"?: (event: PcmAppChatModalCustomEvent<InterviewCompleteEventData>) => void;
         /**
-          * 点击结束按钮事件
-         */
-        "onInterviewEnd"?: (event: PcmAppChatModalCustomEvent<InterviewEndEventData>) => void;
-        /**
           * 当点击模态框关闭时触发
          */
         "onModalClosed"?: (event: PcmAppChatModalCustomEvent<void>) => void;
@@ -2448,6 +2461,10 @@ declare namespace LocalJSX {
           * 用户头像URL
          */
         "userAvatar"?: string;
+        /**
+          * 等待录制时间（秒）
+         */
+        "waitingTime"?: number;
         /**
           * 聊天框的页面层级
          */
@@ -3470,11 +3487,11 @@ declare namespace LocalJSX {
          */
         "defaultQuery"?: string;
         /**
-          * 虚拟数字人ID，指定则开启虚拟数字人功能
+          * 虚拟数字人ID，指定则开启虚拟数字人功能</br> 智琪：79202506752 </br> 艾綝：79402522624 </br> 艾姮：79597885440 </br>
          */
         "digitalId"?: string;
         /**
-          * 是否启用全屏虚拟数字人模式，此模式下面试结果只会通过interviewComplete事件返回或者通过url_callback回调返回
+          * 是否启用全屏数字人模式，此模式下面试结果只会通过interviewComplete事件返回或者通过url_callback回调返回
          */
         "enableVirtualHuman"?: boolean;
         /**
@@ -3526,10 +3543,6 @@ declare namespace LocalJSX {
          */
         "onInterviewComplete"?: (event: PcmMnmsModalCustomEvent<InterviewCompleteEventData>) => void;
         /**
-          * 点击结束按钮触发事件
-         */
-        "onInterviewEnd"?: (event: PcmMnmsModalCustomEvent<InterviewEndEventData>) => void;
-        /**
           * 当点击模态框关闭时触发
          */
         "onModalClosed"?: (event: PcmMnmsModalCustomEvent<void>) => void;
@@ -3577,6 +3590,10 @@ declare namespace LocalJSX {
           * SDK鉴权密钥
          */
         "token": string;
+        /**
+          * 等待录制时间（秒）默认10
+         */
+        "waitingTime"?: number;
         /**
           * 聊天框的页面层级
          */
@@ -3655,10 +3672,6 @@ declare namespace LocalJSX {
          */
         "onInterviewComplete"?: (event: PcmMnmsZpModalCustomEvent<InterviewCompleteEventData>) => void;
         /**
-          * 点击结束按钮触发事件
-         */
-        "onInterviewEnd"?: (event: PcmMnmsZpModalCustomEvent<InterviewEndEventData>) => void;
-        /**
           * 当点击模态框关闭时触发
          */
         "onModalClosed"?: (event: PcmMnmsZpModalCustomEvent<void>) => void;
@@ -3706,6 +3719,10 @@ declare namespace LocalJSX {
           * SDK鉴权密钥
          */
         "token": string;
+        /**
+          * 等待录制时间（秒）默认10
+         */
+        "waitingTime"?: number;
         /**
           * 聊天框的页面层级
          */
