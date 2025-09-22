@@ -76,6 +76,11 @@ export class ZhanshiMnmsModal {
     @Prop() maxRecordingTime: number = 120;
 
     /**
+     * 等待录制时间（秒）默认10
+     */
+    @Prop() waitingTime: number = 10;
+
+    /**
      * 是否以全屏模式打开，移动端建议设置为true
      */
     @Prop() fullscreen: boolean = false;
@@ -280,7 +285,7 @@ export class ZhanshiMnmsModal {
                                     }}
                                 ></pcm-virtual-chat-modal>
                             ) : (
-                                <pcm-app-chat-modalW
+                                <pcm-app-chat-modal
                                     isOpen={true}
                                     modalTitle={this.modalTitle}
                                     icon={this.icon}
@@ -291,13 +296,14 @@ export class ZhanshiMnmsModal {
                                     conversationId={this.conversationId}
                                     defaultQuery={this.defaultQuery}
                                     maxRecordingTime={this.maxRecordingTime}
+                                    waitingTime={this.waitingTime}
                                     customInputs={{
                                         ...this.customInputs,
                                         file_url: this.uploadedFileInfo?.cos_key,
                                         file_name: this.uploadedFileInfo?.file_name,
                                     }}
                                     interviewMode='video'
-                                ></pcm-app-chat-modalW>
+                                ></pcm-app-chat-modal>
                             )}
                         </div>
                     )}

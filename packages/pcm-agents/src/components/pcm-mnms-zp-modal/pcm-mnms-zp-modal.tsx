@@ -78,6 +78,11 @@ export class MnmsZpModal {
     @Prop() maxRecordingTime: number = 120;
 
     /**
+     * 等待录制时间（秒）默认10
+     */
+    @Prop() waitingTime: number = 10;
+
+    /**
      * 是否以全屏模式打开，移动端建议设置为true
      */
     @Prop() fullscreen: boolean = false;
@@ -455,6 +460,7 @@ export class MnmsZpModal {
                                     conversationId={this.conversationId}
                                     defaultQuery={this.defaultQuery}
                                     maxRecordingTime={this.maxRecordingTime}
+                                    waitingTime={this.waitingTime}
                                     showCopyButton={this.showCopyButton}
                                     showFeedbackButtons={this.showFeedbackButtons}
                                     showEndInterviewButton={this.showEndInterviewButton}

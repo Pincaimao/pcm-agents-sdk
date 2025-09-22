@@ -108,6 +108,11 @@ export class ChatAPPModal {
    */
   @Prop() countdownWarningTime: number = 30;
 
+  /**
+   * 等待录制时间（秒）
+   */
+  @Prop() waitingTime: number = 10;
+
   @Prop() closeResume?: () => void;
 
   // 添加视频录制相关状态
@@ -121,7 +126,7 @@ export class ChatAPPModal {
   @State() recordingStartTime: number = 0;
   @State() waitingToRecord: boolean = false;
   @State() waitingTimer: any = null;
-  @State() waitingTimeLeft: number = 10; // 等待时间（秒）
+  @State() waitingTimeLeft: number = 0; // 等待时间（秒）
 
   // 添加一个新的私有属性来存储视频元素的引用
   private videoRef: HTMLVideoElement | null = null;
@@ -769,7 +774,7 @@ export class ChatAPPModal {
     }
 
     this.waitingToRecord = true;
-    this.waitingTimeLeft = 10;
+    this.waitingTimeLeft = this.waitingTime;
 
     this.waitingTimer = setInterval(() => {
       this.waitingTimeLeft--;
