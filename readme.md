@@ -452,13 +452,14 @@ export default {
 
 ## 测试发版流程
 
-1. 前往packages/pcm-agents修改package.json版本号
+1. 前往 packages/pcm-agents 修改package.json版本号
 2. 执行
 
 ```bash
 pnpm version:beta # 报错可忽略
 pnpm upload:beta
 ```
+packages/pcm-agents-react 和 packages/pcm-agents-vue 同上
 
 pcm-agents-react 操作如上
 
@@ -473,5 +474,5 @@ pnpm upload
 4. 在 packages/pcm-agents-react 和 packages/pcm-agents-vue 目录执行
 ```
 pnpm build
-pnpm upload
+pnpm publish
 ```
