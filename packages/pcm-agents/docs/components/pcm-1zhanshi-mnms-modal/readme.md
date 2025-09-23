@@ -24,6 +24,7 @@
 | `modalTitle`         | `modal-title`          | 模态框标题                                                                                                                                                                                                                                                                                                                                                  | `string`                   | `'模拟面试'`    |
 | `openingIndex`       | `opening-index`        | 数字人开场白索引，用于选择开场白和开场视频（可选：0, 1, 2） 0、您好，我是聘才猫 AI 面试助手。很高兴为你主持这场面试！在开始前，请确保：身处安静、光线充足的环境。网络顺畅，摄像头和麦克风工作正常。现在我正在查看本次面试的相关信息，为您生成专属面试题，马上就好，请稍等片刻。</br> 1、您好，我是您的 AI 面试助手。欢迎参加本次AI面试！为了获得最佳效果，请确认：您在安静、明亮的环境中。您的网络稳定，摄像头和麦克风已开启。我们正在后台为您准备本次专属面试内容，很快开始，请稍候。<br> 2、您好，我是您的 AI 面试助手。面试马上开始。趁此片刻，请快速确认：周围安静吗？光线足够吗？网络没问题？摄像头和麦克风准备好了吗？我们正在为您加载个性化的面试环节，稍等就好！ | `number`                   | `0`         |
 | `token` _(required)_ | `token`                | SDK鉴权密钥                                                                                                                                                                                                                                                                                                                                                | `string`                   | `undefined` |
+| `waitingTime`        | `waiting-time`         | 等待录制时间（秒）默认10                                                                                                                                                                                                                                                                                                                                          | `number`                   | `10`        |
 | `zIndex`             | `z-index`              | 聊天框的页面层级                                                                                                                                                                                                                                                                                                                                               | `number`                   | `1000`      |
 
 
@@ -46,12 +47,19 @@
 ### Depends on
 
 - [pcm-virtual-chat-modal](../pcm-virtual-chat-modal)
+- [pcm-app-chat-modal](../pcm-app-chat-modal)
 
 ### Graph
 ```mermaid
 graph TD;
   pcm-1zhanshi-mnms-modal --> pcm-virtual-chat-modal
+  pcm-1zhanshi-mnms-modal --> pcm-app-chat-modal
   pcm-virtual-chat-modal --> pcm-confirm-modal
+  pcm-virtual-chat-modal --> pcm-message
+  pcm-app-chat-modal --> pcm-chat-message
+  pcm-app-chat-modal --> pcm-digital-human
+  pcm-app-chat-modal --> pcm-drawer
+  pcm-app-chat-modal --> pcm-confirm-modal
   style pcm-1zhanshi-mnms-modal fill:#f9f,stroke:#333,stroke-width:4px
 ```
 

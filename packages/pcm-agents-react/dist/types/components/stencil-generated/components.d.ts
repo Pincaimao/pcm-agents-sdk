@@ -1,5 +1,5 @@
 import type { EventName, StencilReactComponent } from '@stencil/react-output-target/runtime';
-import { type CareerPlanType, type ConversationStartEventData, type ErrorEventDetail, type FileUploadResponse, type InterviewCompleteEventData, type Pcm1zhanshiMnmsModalCustomEvent, type PcmAppChatModalCustomEvent, type PcmChatMessageCustomEvent, type PcmHrChatModalCustomEvent, type PcmHtwsModalCustomEvent, type PcmHyzjModalCustomEvent, type PcmJdModalCustomEvent, type PcmJlppModalCustomEvent, type PcmJlsxModalCustomEvent, type PcmJlzzModalCustomEvent, type PcmMnctModalCustomEvent, type PcmMnmsModalCustomEvent, type PcmMnmsVideoModalCustomEvent, type PcmMnmsZpModalCustomEvent, type PcmMsbgModalCustomEvent, type PcmQgqjlModalCustomEvent, type PcmUploadCustomEvent, type PcmVirtualChatModalCustomEvent, type PcmZskChatModalCustomEvent, type PcmZyghModalCustomEvent, type RecordingErrorEventData, type RecordingStatusChangeEventData, type ResumeAnalysisCompleteEventData, type ResumeAnalysisStartEventData, type ResumeDeletedEventData, type StreamCompleteEventData, type TaskCreatedEventData, type TaskSwitchEventData, type UploadFailedEvent } from "pcm-agents";
+import { type CareerPlanType, type ConversationStartEventData, type ErrorEventDetail, type FileUploadResponse, type InterviewCompleteEventData, type Pcm1zhanshiMnmsModalCustomEvent, type PcmAppChatModalCustomEvent, type PcmChatMessageCustomEvent, type PcmHrChatModalCustomEvent, type PcmHtwsModalCustomEvent, type PcmHyzjModalCustomEvent, type PcmJdModalCustomEvent, type PcmJlppModalCustomEvent, type PcmJlsxModalCustomEvent, type PcmJlzzModalCustomEvent, type PcmMnctModalCustomEvent, type PcmMnmsModalCustomEvent, type PcmMnmsZpModalCustomEvent, type PcmMsbgModalCustomEvent, type PcmQgqjlModalCustomEvent, type PcmUploadCustomEvent, type PcmVirtualChatModalCustomEvent, type PcmZskChatModalCustomEvent, type PcmZyghModalCustomEvent, type RecordingErrorEventData, type RecordingStatusChangeEventData, type ResumeAnalysisCompleteEventData, type ResumeAnalysisStartEventData, type ResumeDeletedEventData, type StreamCompleteEventData, type TaskCreatedEventData, type TaskSwitchEventData, type UploadFailedEvent } from "pcm-agents";
 import { Pcm1zhanshiMnmsModal as Pcm1zhanshiMnmsModalElement } from "pcm-agents/dist/components/pcm-1zhanshi-mnms-modal.js";
 import { PcmAppChatModal as PcmAppChatModalElement } from "pcm-agents/dist/components/pcm-app-chat-modal.js";
 import { PcmButton as PcmButtonElement } from "pcm-agents/dist/components/pcm-button.js";
@@ -19,7 +19,6 @@ import { PcmJlzzModal as PcmJlzzModalElement } from "pcm-agents/dist/components/
 import { PcmMessage as PcmMessageElement } from "pcm-agents/dist/components/pcm-message.js";
 import { PcmMnctModal as PcmMnctModalElement } from "pcm-agents/dist/components/pcm-mnct-modal.js";
 import { PcmMnmsModal as PcmMnmsModalElement } from "pcm-agents/dist/components/pcm-mnms-modal.js";
-import { PcmMnmsVideoModal as PcmMnmsVideoModalElement } from "pcm-agents/dist/components/pcm-mnms-video-modal.js";
 import { PcmMnmsZpModal as PcmMnmsZpModalElement } from "pcm-agents/dist/components/pcm-mnms-zp-modal.js";
 import { PcmMobileInputBtn as PcmMobileInputBtnElement } from "pcm-agents/dist/components/pcm-mobile-input-btn.js";
 import { PcmMobileUploadBtn as PcmMobileUploadBtnElement } from "pcm-agents/dist/components/pcm-mobile-upload-btn.js";
@@ -205,17 +204,6 @@ type PcmMnmsModalEvents = {
     onRecordingError: EventName<PcmMnmsModalCustomEvent<RecordingErrorEventData>>;
 };
 export declare const PcmMnmsModal: StencilReactComponent<PcmMnmsModalElement, PcmMnmsModalEvents>;
-type PcmMnmsVideoModalEvents = {
-    onModalClosed: EventName<CustomEvent<void>>;
-    onUploadSuccess: EventName<PcmMnmsVideoModalCustomEvent<FileUploadResponse>>;
-    onStreamComplete: EventName<PcmMnmsVideoModalCustomEvent<StreamCompleteEventData>>;
-    onConversationStart: EventName<PcmMnmsVideoModalCustomEvent<ConversationStartEventData>>;
-    onInterviewComplete: EventName<PcmMnmsVideoModalCustomEvent<InterviewCompleteEventData>>;
-    onTokenInvalid: EventName<CustomEvent<void>>;
-    onSomeErrorEvent: EventName<PcmMnmsVideoModalCustomEvent<ErrorEventDetail>>;
-    onRecordingError: EventName<PcmMnmsVideoModalCustomEvent<RecordingErrorEventData>>;
-};
-export declare const PcmMnmsVideoModal: StencilReactComponent<PcmMnmsVideoModalElement, PcmMnmsVideoModalEvents>;
 type PcmMnmsZpModalEvents = {
     onModalClosed: EventName<CustomEvent<void>>;
     onUploadSuccess: EventName<PcmMnmsZpModalCustomEvent<FileUploadResponse>>;
@@ -272,6 +260,7 @@ type PcmVirtualChatModalEvents = {
     onRecordingError: EventName<PcmVirtualChatModalCustomEvent<RecordingErrorEventData>>;
     onRecordingStatusChange: EventName<PcmVirtualChatModalCustomEvent<RecordingStatusChangeEventData>>;
     onTokenInvalid: EventName<CustomEvent<void>>;
+    onModalClosed: EventName<CustomEvent<void>>;
 };
 export declare const PcmVirtualChatModal: StencilReactComponent<PcmVirtualChatModalElement, PcmVirtualChatModalEvents>;
 type PcmZskChatModalEvents = {

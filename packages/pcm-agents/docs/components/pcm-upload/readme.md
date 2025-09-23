@@ -13,6 +13,7 @@
 | `multiple`             | `multiple`                | 是否支持多文件上传           | `boolean`               | `false`     |
 | `uploadHeaders`        | `upload-headers`          | 上传请求头               | `{ [x: string]: any; }` | `undefined` |
 | `uploadParams`         | `upload-params`           | 上传请求参数              | `{ [x: string]: any; }` | `undefined` |
+| `uploadText`           | `upload-text`             | 自定义上传文本             | `string`                | `'点击上传简历'`  |
 
 
 ## Events
@@ -50,9 +51,14 @@ Type: `Promise<boolean>`
 
 ### Used by
 
+ - [pcm-htws-modal](../pcm-htws-modal)
+ - [pcm-jlpp-modal](../pcm-jlpp-modal)
  - [pcm-jlsx-modal](../pcm-jlsx-modal)
+ - [pcm-jlzz-modal](../pcm-jlzz-modal)
  - [pcm-mnms-modal](../pcm-mnms-modal)
  - [pcm-mnms-zp-modal](../pcm-mnms-zp-modal)
+ - [pcm-qgqjl-modal](../pcm-qgqjl-modal)
+ - [pcm-zygh-modal](../pcm-zygh-modal)
 
 ### Depends on
 
@@ -63,9 +69,14 @@ Type: `Promise<boolean>`
 graph TD;
   pcm-upload --> pcm-mobile-upload-btn
   pcm-mobile-upload-btn --> pcm-time-count-down
+  pcm-htws-modal --> pcm-upload
+  pcm-jlpp-modal --> pcm-upload
   pcm-jlsx-modal --> pcm-upload
+  pcm-jlzz-modal --> pcm-upload
   pcm-mnms-modal --> pcm-upload
   pcm-mnms-zp-modal --> pcm-upload
+  pcm-qgqjl-modal --> pcm-upload
+  pcm-zygh-modal --> pcm-upload
   style pcm-upload fill:#f9f,stroke:#333,stroke-width:4px
 ```
 

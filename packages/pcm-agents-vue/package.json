@@ -1,6 +1,6 @@
 {
   "name": "pcm-agents-vue",
-  "version": "0.3.29",
+  "version": "0.3.30",
   "description": "Vue wrapper components for pcm-agents",
   "main": "dist/components.js",
   "module": "dist/components.js",
@@ -19,6 +19,8 @@
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1",
     "build": "npm run tsc",
+    "upload": "npm run build && npm publish",
+    "version:beta": "npm version prerelease --preid=beta",
     "upload:beta": "npm run tsc && npm publish --tag beta",
     "tsc": "tsc -p . --outDir ./dist"
   },
@@ -27,7 +29,7 @@
   },
   "dependencies": {
     "@stencil/vue-output-target": "^0.10.7",
-    "pcm-agents": "^0.6.25"
+    "pcm-agents": "^0.6.35"
   },
   "devDependencies": {
     "@types/node": "^22.13.10",

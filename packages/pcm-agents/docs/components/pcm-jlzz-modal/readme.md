@@ -16,6 +16,7 @@
 | `isOpen`             | `is-open`            | 是否显示聊天模态框                                   | `boolean`              | `false`        |
 | `isShowHeader`       | `is-show-header`     | 是否展示顶部标题栏                                   | `boolean`              | `true`         |
 | `isSuccess`          | `is-success`         | 是否成功，成功展示 iframe 官网                         | `boolean`              | `false`        |
+| `mobileUploadAble`   | `mobile-upload-able` | 是否开启移动端上传简历（仅PC端生效）                         | `boolean`              | `false`        |
 | `modalTitle`         | `modal-title`        | 模态框标题                                       | `string`               | `'简历制作'`       |
 | `token` _(required)_ | `token`              | SDK鉴权密钥                                     | `string`               | `undefined`    |
 | `zIndex`             | `z-index`            | 聊天框的页面层级                                    | `number`               | `1000`         |
@@ -38,12 +39,16 @@
 
 ### Depends on
 
+- [pcm-upload](../pcm-upload)
 - [pcm-app-chat-modal](../pcm-app-chat-modal)
 
 ### Graph
 ```mermaid
 graph TD;
+  pcm-jlzz-modal --> pcm-upload
   pcm-jlzz-modal --> pcm-app-chat-modal
+  pcm-upload --> pcm-mobile-upload-btn
+  pcm-mobile-upload-btn --> pcm-time-count-down
   pcm-app-chat-modal --> pcm-chat-message
   pcm-app-chat-modal --> pcm-digital-human
   pcm-app-chat-modal --> pcm-drawer

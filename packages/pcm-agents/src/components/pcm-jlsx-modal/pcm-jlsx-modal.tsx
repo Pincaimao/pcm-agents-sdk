@@ -517,7 +517,7 @@ export class JlsxModal {
         });
         this.exportAllPdfLoading = false;
         if (response.success) {
-            this.showMessage('导出任务已创建！', 'success');
+            showMessage('导出任务已创建！', 'success');
             this.handleExportRecordsClick();
         }
     }

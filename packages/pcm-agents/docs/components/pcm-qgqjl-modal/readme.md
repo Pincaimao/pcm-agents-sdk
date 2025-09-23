@@ -21,6 +21,7 @@
 | `isNeedClose`          | `is-need-close`          | 是否展示右上角的关闭按钮                                                                                                                                       | `boolean`                  | `true`         |
 | `isOpen`               | `is-open`                | 是否显示聊天模态框                                                                                                                                          | `boolean`                  | `false`        |
 | `isShowHeader`         | `is-show-header`         | 是否展示顶部标题栏                                                                                                                                          | `boolean`                  | `true`         |
+| `mobileUploadAble`     | `mobile-upload-able`     | 是否开启移动端上传简历（仅PC端生效）                                                                                                                                | `boolean`                  | `false`        |
 | `modalTitle`           | `modal-title`            | 模态框标题                                                                                                                                              | `string`                   | `'千岗千简历'`      |
 | `showWorkspaceHistory` | `show-workspace-history` | 是否显示工作区历史会话按钮                                                                                                                                      | `boolean`                  | `false`        |
 | `token` _(required)_   | `token`                  | SDK鉴权密钥                                                                                                                                            | `string`                   | `undefined`    |
@@ -45,12 +46,16 @@
 
 ### Depends on
 
+- [pcm-upload](../pcm-upload)
 - [pcm-app-chat-modal](../pcm-app-chat-modal)
 
 ### Graph
 ```mermaid
 graph TD;
+  pcm-qgqjl-modal --> pcm-upload
   pcm-qgqjl-modal --> pcm-app-chat-modal
+  pcm-upload --> pcm-mobile-upload-btn
+  pcm-mobile-upload-btn --> pcm-time-count-down
   pcm-app-chat-modal --> pcm-chat-message
   pcm-app-chat-modal --> pcm-digital-human
   pcm-app-chat-modal --> pcm-drawer
