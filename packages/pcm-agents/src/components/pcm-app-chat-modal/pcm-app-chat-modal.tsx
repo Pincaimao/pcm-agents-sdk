@@ -65,6 +65,16 @@ export class ChatAPPModal {
   @Prop({ mutable: true }) conversationId?: string;
 
   /**
+   * 是否显示“保存职位”按钮（仅JD助手智能体生效）
+   */
+  @Prop() showSaveJdButton: boolean = false;
+
+  /**
+   * 保存职位按钮文本
+   */
+  @Prop() saveJdButtonText: string = '保存职位';
+
+  /**
    * 是否正在加载回复
    */
   @State() isLoading: boolean = false;
@@ -2076,6 +2086,8 @@ export class ChatAPPModal {
                         showFeedbackButtons={this.showFeedbackButtons}
                         filePreviewMode={this.filePreviewMode}
                         onFilePreviewRequest={this.handleFilePreviewRequest}
+                        showSaveJdButton={this.showSaveJdButton}
+                        saveJdButtonText={this.saveJdButtonText}
                       ></pcm-chat-message>
                     </div>
                   ))}
@@ -2091,6 +2103,8 @@ export class ChatAPPModal {
                         showFeedbackButtons={this.showFeedbackButtons}
                         filePreviewMode={this.filePreviewMode}
                         onFilePreviewRequest={this.handleFilePreviewRequest}
+                        showSaveJdButton={this.showSaveJdButton}
+                        saveJdButtonText={this.saveJdButtonText}
                       ></pcm-chat-message>
                     </div>
                   )}

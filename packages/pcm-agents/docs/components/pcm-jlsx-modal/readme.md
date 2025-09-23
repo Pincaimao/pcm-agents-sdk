@@ -14,6 +14,7 @@
 | `isShowHeader`       | `is-show-header`     | 是否展示顶部标题栏                                      | `boolean`                  | `true`      |
 | `mobileUploadAble`   | `mobile-upload-able` | 是否开启移动端上传简历（仅PC端生效）                            | `boolean`                  | `false`     |
 | `modalTitle`         | `modal-title`        | 模态框标题                                          | `string`                   | `'简历筛选精灵'`  |
+| `showBatchExport`    | `show-batch-export`  | 是否显示“批量导出报告”功能                                 | `boolean`                  | `false`     |
 | `token` _(required)_ | `token`              | SDK鉴权密钥                                        | `string`                   | `undefined` |
 | `zIndex`             | `z-index`            | 聊天框的页面层级                                       | `number`                   | `1000`      |
 
@@ -37,16 +38,18 @@
 
 ### Depends on
 
+- [pcm-message](../pcm-message)
 - [pcm-upload](../pcm-upload)
 - [pcm-drawer](../pcm-drawer)
-- [pcm-message](../pcm-message)
+- [pcm-export-records-modal](../pcm-export-records-modal)
 
 ### Graph
 ```mermaid
 graph TD;
+  pcm-jlsx-modal --> pcm-message
   pcm-jlsx-modal --> pcm-upload
   pcm-jlsx-modal --> pcm-drawer
-  pcm-jlsx-modal --> pcm-message
+  pcm-jlsx-modal --> pcm-export-records-modal
   pcm-upload --> pcm-mobile-upload-btn
   pcm-mobile-upload-btn --> pcm-time-count-down
   style pcm-jlsx-modal fill:#f9f,stroke:#333,stroke-width:4px

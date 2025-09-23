@@ -449,3 +449,30 @@ export default {
 - 向用户展示适当的错误提示信息
 - 错误上报与分析
 
+
+## 测试发版流程
+
+1. 前往 packages/pcm-agents 修改package.json版本号
+2. 执行
+
+```bash
+pnpm version:beta # 报错可忽略
+pnpm upload:beta
+```
+packages/pcm-agents-react 和 packages/pcm-agents-vue 同上
+
+pcm-agents-react 操作如上
+
+## 正式服发版流程
+
+1. 修改 .env 为正式服配置
+2. 修改各 package.json 版本号
+3. 在 packages/pcm-agents 目录执行
+```
+pnpm upload
+```
+4. 在 packages/pcm-agents-react 和 packages/pcm-agents-vue 目录执行
+```
+pnpm build
+pnpm publish
+```

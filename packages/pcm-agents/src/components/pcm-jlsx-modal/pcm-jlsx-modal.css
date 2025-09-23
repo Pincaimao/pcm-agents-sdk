@@ -181,6 +181,43 @@
     flex-shrink: 0;
 }
 
+.section-header-side {
+    display: flex;
+    align-items: center;
+}
+
+.export-actions {
+    height: 32px;
+    display: flex;
+    border-radius: 6px;
+    background-color: white;
+    border: 1px solid #1890ff;
+    overflow: hidden;
+    margin-right: 16px;
+    color: #1890ff;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.export-btn {
+    width: 128px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.export-btn:hover {
+    background-color: #f5f5f5;
+    cursor: pointer;
+}
+
+.export-divide {
+    width: 1px;
+    height: 100%;
+    background-color: #1890ff;
+}
+
 .section-header h4 {
     margin: 0;
     font-size: 16px;

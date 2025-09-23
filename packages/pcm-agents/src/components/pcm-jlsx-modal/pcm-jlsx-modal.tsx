@@ -1,8 +1,8 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
-import {  FileUploadResponse, verifyApiKey, sendHttpRequest, sendSSERequest, getCosPreviewUrl } from '../../utils/utils';
+import {  FileUploadResponse, verifyApiKey, sendHttpRequest, sendSSERequest, getCosPreviewUrl,PCM_DOMAIN } from '../../utils/utils';
 import { showMessage } from '../../utils/message-utils';
 import { ErrorEventDetail } from '../../components';
-import { 
+import {
     TaskCreatedEventData,
     ResumeAnalysisStartEventData,
     ResumeAnalysisCompleteEventData,
@@ -169,6 +169,11 @@ export class JlsxModal {
     @Prop() mobileUploadAble: boolean = false;
 
     /**
+     * 是否显示“批量导出报告”功能
+     */
+    @Prop() showBatchExport: boolean = false;
+
+    /**
      * 上传成功事件
      */
     @Event() uploadSuccess: EventEmitter<FileUploadResponse>;
@@ -212,6 +217,7 @@ export class JlsxModal {
     // State 管理
     @State() currentStep: 'input' | 'task' = 'input'; // 当前步骤
     @State() jobDescription: string = '';
+    @State() jobTitle: string = '';
     @State() evaluationCriteria: EvaluationCriteria[] = [
         { name: '基础信息', value: 10, description: '评估简历中姓名、联系方式、性别、年龄等基础信息是否完整且准确。完整准确的基础信息有助于招聘方快速识别和联系求职者，是简历的基本要素。若基础信息缺失或有误，可能影响后续沟通与评估流程。' },
         { name: '教育背景', value: 20, description: '主要考察毕业院校、专业、入学及毕业时间、学历层次等内容。毕业院校的知名度与专业的匹配度，一定程度上反映求职者在知识储备基础和专业素养。学历层次及相关课程成绩，能辅助判断求职者在专业领域的学习深度与能力水平。' },
@@ -255,12 +261,16 @@ export class JlsxModal {
     // 添加简历列表加载状态
     @State() isLoadingResumeList: boolean = false;
 
+    // 添加导出记录模态框状态
+    @State() isExportRecordsModalOpen: boolean = false;
+
     // 使用 @Element 装饰器获取组件的 host 元素
     @Element() hostElement: HTMLElement;
 
     private tokenInvalidListener: () => void;
     private removeErrorListener: () => void;
-    
+    private botId = '3022316191018874';
+
     // 添加pcm-upload组件的引用
     private pcmUploadRef;
 
@@ -374,6 +384,7 @@ export class JlsxModal {
         this.taskHistoryPageSize = 10;
         this.taskHistoryTotal = 0;
         this.isLoadingResumeList = false;
+        this.isExportRecordsModalOpen = false;
     };
 
     private handleClose = () => {
@@ -480,12 +491,36 @@ export class JlsxModal {
     };
 
     private handleViewEvaluate = (record: ResumeRecord) => {
+        // this.showPreview(
+        //     `${record.fileName} - 评估详情`,
+        //     record.scoreDetail || '暂无评估详情',
+        //     'markdown'
+        // );
+        const url = `${PCM_DOMAIN}/exportFile?id=${record.id}&title=${this.jobTitle || ''}&token=${authStore.getToken()}&referrer=sdk`;
         this.showPreview(
             `${record.fileName} - 评估详情`,
-            record.scoreDetail || '暂无评估详情',
-            'markdown'
-        );
+            '',
+            'file',
+            url,
+        )
     };
+
+    @State() exportAllPdfLoading = false;
+    private exportAllPDF = async () => {
+        this.exportAllPdfLoading = true;
+        const response = await sendHttpRequest({
+            url: `/sdk/v1/agent/app_filter_task/export_all`,
+            method: "GET",
+            params: {
+                task_id: this.currentTask?.id,
+            }
+        });
+        this.exportAllPdfLoading = false;
+        if (response.success) {
+            this.showMessage('导出任务已创建！', 'success');
+            this.handleExportRecordsClick();
+        }
+    }
 
     private handleViewResume = async (record: ResumeRecord) => {
         if (record.file_url || record.resume_file_url) {
@@ -796,7 +831,25 @@ export class JlsxModal {
                 <div class="resume-table-section">
                     <div class="section-header">
                         <h4>简历列表</h4>
-                        <span class="record-count">已筛选{this.totalRecords} 条记录</span>
+                        <div class="section-header-side">
+                            {
+                                this.showBatchExport && !!this.resumeRecords?.find(item => item.evaluate_status == 1) && <div class="export-actions">
+                                    <div
+                                        class="export-btn"
+                                        onClick={this.exportAllPDF}
+                                    >
+                                        <span>批量导出报告</span>
+                                    </div>
+                                    <div class="export-divide"></div>
+                                    <div
+                                        class="export-btn"
+                                        onClick={this.handleExportRecordsClick}
+                                    >导出记录</div>
+                                </div>
+                            }
+                            
+                            <span class="record-count">已筛选{this.totalRecords} 条记录</span>
+                        </div>
                     </div>
 
                     <div class="table-container">
@@ -1408,17 +1461,18 @@ export class JlsxModal {
 
             // 使用从API获取的完整信息
             this.jobDescription = taskDetail.jd_info.description || '';
+            this.jobTitle = taskDetail.jd_info.title || '';
             this.evaluationCriteria = evaluationCriteria.length > 0 ? evaluationCriteria : this.evaluationCriteria;
-            
+
             // 切换到任务界面
             this.currentStep = 'task';
-            
+
             // 重置简历相关状态
             this.uploadedResumeRecords = [];
             this.filteredResumeRecords = [];
             this.currentPage = 1;
             this.totalRecords = 0;
-            
+
             // 关闭抽屉
             this.isTaskHistoryDrawerOpen = false;
 
@@ -1454,6 +1508,15 @@ export class JlsxModal {
         await this.loadHistoryTasks();
     };
 
+    // 添加导出记录模态框处理函数
+    private handleExportRecordsClick = () => {
+        this.isExportRecordsModalOpen = true;
+    };
+
+    private handleExportRecordsModalClose = () => {
+        this.isExportRecordsModalOpen = false;
+    };
+
     private handleDocumentClick = (event: Event) => {
         // 处理点击外部关闭下拉菜单的逻辑
         const target = event.target as HTMLElement;
@@ -1470,16 +1533,16 @@ export class JlsxModal {
 
         // 计算分析统计数据
         const allResumes = this.resumeRecords;
-        const analyzedResumes = allResumes.filter(record => 
+        const analyzedResumes = allResumes.filter(record =>
             record.evaluate_status === 1 && typeof record.score === 'number'
         );
         const failedResumes = allResumes.filter(record => record.evaluate_status === -1);
-        
+
         // 计算评分统计
         const scores = analyzedResumes.map(record => record.score).filter(score => typeof score === 'number') as number[];
         const averageScore = scores.length > 0 ? scores.reduce((sum, score) => sum + score, 0) / scores.length : 0;
         const highestScore = scores.length > 0 ? Math.max(...scores) : 0;
-        
+
 
         // 触发简历分析完成事件
         this.resumeAnalysisComplete.emit({
@@ -1503,23 +1566,23 @@ export class JlsxModal {
         }
 
         const currentUploadResults: FileUploadResponse[] = e.detail || [];
-        
+
         // 获取已存在的文件URL列表，用于比较
-        const existingFileUrls = this.uploadedResumeRecords.map(record => 
+        const existingFileUrls = this.uploadedResumeRecords.map(record =>
             record.file_url || record.fileInfo?.cos_key
         ).filter(url => url);
-        
+
         // 找出新增的文件（在当前结果中但不在已存在列表中的文件）
-        const newUploadResults = currentUploadResults.filter(result => 
+        const newUploadResults = currentUploadResults.filter(result =>
             !existingFileUrls.includes(result.cos_key)
         );
-        
+
         // 找出被删除的文件（在已存在列表中但不在当前结果中的文件）
         const currentFileUrls = currentUploadResults.map(result => result.cos_key);
-        const removedFileUrls = existingFileUrls.filter(url => 
+        const removedFileUrls = existingFileUrls.filter(url =>
             !currentFileUrls.includes(url)
         );
-        
+
         // 处理新增的文件
         if (newUploadResults.length > 0) {
             // 为每个新上传的文件创建简历记录
@@ -1549,7 +1612,7 @@ export class JlsxModal {
 
             showMessage(`成功上传 ${newRecords.length} 个简历文件！`, 'success');
         }
-        
+
         // 处理被删除的文件
         if (removedFileUrls.length > 0) {
             // 从上传记录列表中移除被删除的文件
@@ -1600,13 +1663,13 @@ export class JlsxModal {
                             <div class="header-left">
                                 {this.icon && <img src={this.icon} class="header-icon" alt="应用图标" />}
                                 <div>{this.modalTitle}</div>
-                                <span 
-                                        class="step-indicator clickable" 
-                                        onClick={this.handleTaskHistoryClick}
-                                        title="点击查看任务管理"
-                                    >
-                                        任务管理
-                                    </span>
+                                <span
+                                    class="step-indicator clickable"
+                                    onClick={this.handleTaskHistoryClick}
+                                    title="点击查看任务管理"
+                                >
+                                    任务管理
+                                </span>
                             </div>
                             {this.isNeedClose && (
                                 <button class="close-button" onClick={this.handleClose}>
@@ -1747,7 +1810,15 @@ export class JlsxModal {
                         )}
                     </div>
                 </pcm-drawer>
+
+                {/* 导出记录模态框 */}
+                <pcm-export-records-modal
+                    open={this.isExportRecordsModalOpen}
+                    botId={this.botId}
+                    sourceId={this.currentTask?.id?.toString()}
+                    onCancel={this.handleExportRecordsModalClose}
+                />
             </div>
         );
     }
-} 
+}

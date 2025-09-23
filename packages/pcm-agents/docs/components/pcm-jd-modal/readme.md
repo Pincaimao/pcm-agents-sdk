@@ -20,6 +20,8 @@
 | `isOpen`               | `is-open`                | 是否显示聊天模态框                                      | `boolean`                  | `false`       |
 | `isShowHeader`         | `is-show-header`         | 是否展示顶部标题栏                                      | `boolean`                  | `true`        |
 | `modalTitle`           | `modal-title`            | 模态框标题                                          | `string`                   | `'职位生成'`      |
+| `saveJdButtonText`     | `save-jd-button-text`    | 保存职位按钮文本                                       | `string`                   | `'保存职位'`      |
+| `showSaveJdButton`     | `show-save-jd-button`    | 是否显示“保存职位”按钮（仅JD助手智能体生效）                       | `boolean`                  | `false`       |
 | `showWorkspaceHistory` | `show-workspace-history` | 是否显示工作区历史会话按钮                                  | `boolean`                  | `false`       |
 | `token` _(required)_   | `token`                  | SDK鉴权密钥                                        | `string`                   | `undefined`   |
 | `zIndex`               | `z-index`                | 聊天框的页面层级                                       | `number`                   | `1000`        |
