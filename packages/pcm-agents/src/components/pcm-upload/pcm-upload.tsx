@@ -45,6 +45,10 @@ export class PcmUpload {
      */
     @Prop() uploadParams?: Record<string, any>;
     /**
+     * 自定义上传文本
+     */
+    @Prop() uploadText: string = '点击上传简历';
+    /**
      * 上传失败监听
      */
     @Event() uploadFailed: EventEmitter<UploadFailedEvent>;
@@ -261,7 +265,7 @@ export class PcmUpload {
             }
             <div class="upload-placeholder" onClick={this.handleUploadClick}>
                 <img src='https://pub.pincaimao.com/static/web/images/home/i_upload.png'></img>
-                <p class='upload-text'>点击上传简历</p>
+                <p class='upload-text'>{this.uploadText}</p>
                 {
                     !!this.acceptFileSuffixList?.length && <p class="upload-hint">支持 {this.acceptFileSuffixList.join('、')} 格式。</p>
                 }

@@ -1,10 +1,10 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
-import { uploadFileToBackend, FileUploadResponse, verifyApiKey } from '../../utils/utils';
+import { FileUploadResponse, verifyApiKey } from '../../utils/utils';
 import { ConversationStartEventData, ErrorEventDetail, InterviewCompleteEventData, StreamCompleteEventData } from '../../components';
 import { ErrorEventBus } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store';
 import { configStore } from '../../../store/config.store';
-import { SentryReporter } from '../../utils/sentry-reporter';
+import { Message } from '../../services/message.service';
 
 /**
  * 简历匹配
@@ -85,6 +85,11 @@ export class JlppModal {
     @Prop() showWorkspaceHistory: boolean = false;
 
     /**
+     * 是否开启移动端上传简历（仅PC端生效）
+     */
+    @Prop() mobileUploadAble: boolean = false;
+
+    /**
      * 上传成功事件
      */
     @Event() uploadSuccess: EventEmitter<FileUploadResponse>;
@@ -121,7 +126,6 @@ export class JlppModal {
      */
     @Prop() filePreviewMode: 'drawer' | 'window' = 'window';
 
-    @State() selectedFile: File | null = null;
     @State() isUploading: boolean = false;
     @State() uploadedFileInfo: FileUploadResponse | null = null;
     @State() showChatModal: boolean = false;
@@ -133,6 +137,7 @@ export class JlppModal {
 
     private tokenInvalidListener: () => void;
     private removeErrorListener: () => void;
+    private pcmUploadRef;
 
     @Watch('token')
     handleTokenChange(newToken: string) {
@@ -148,7 +153,6 @@ export class JlppModal {
     async handleIsOpenChange(newValue: boolean) {
         if (!newValue) {
             // 重置状态
-            this.clearSelectedFile();
             this.showChatModal = false;
             this.jobDescription = '';
 
@@ -203,102 +207,35 @@ export class JlppModal {
         this.modalClosed.emit();
     };
 
-    private handleFileChange = (event: Event) => {
-        const input = event.target as HTMLInputElement;
-        if (input.files && input.files.length > 0) {
-            this.selectedFile = input.files[0];
-        }
-    };
 
-    private handleUploadClick = () => {
-        const fileInput = this.hostElement.shadowRoot?.querySelector('.file-input') as HTMLInputElement;
-        fileInput?.click();
-    };
-
-    private clearSelectedFile = () => {
-        this.selectedFile = null;
-        this.uploadedFileInfo = null;
-        const fileInput = this.hostElement.shadowRoot?.querySelector('.file-input') as HTMLInputElement;
-        if (fileInput) {
-            fileInput.value = '';
-        }
-    };
 
     private handleJobDescriptionChange = (event: Event) => {
         const textarea = event.target as HTMLTextAreaElement;
         this.jobDescription = textarea.value;
     };
 
-    private async uploadFile() {
-        if (!this.selectedFile) return;
-
-        this.isUploading = true;
-
-        try {
-            const result = await uploadFileToBackend(this.selectedFile, {
-            }, {
-                'tags': ['resume']
-            });
-
-            this.uploadedFileInfo = result;
-            this.uploadSuccess.emit(result);
-        } catch (error) {
-            console.error('文件上传错误:', error);
-            this.clearSelectedFile();
-            SentryReporter.captureError(error, {
-                action: 'uploadFile',
-                component: 'pcm-jlpp-modal',
-                title: '文件上传失败'
-            });
-            ErrorEventBus.emitError({
-                error: error,
-                message: '文件上传失败，请重试'
-            });
-        } finally {
-            this.isUploading = false;
-        }
-    }
-
     private handleStartAnalysis = async () => {
-        if (!this.selectedFile) {
-            alert('请上传简历');
+        // 既没有预设 file_url，也没有上传文件，则提示
+        if (!this.customInputs?.file_url && !this.uploadedFileInfo) {
+            Message.info('请上传简历');
             return;
         }
 
         // 如果没有预设的job_info，则需要检查用户输入
         if (!this.customInputs?.job_info && !this.jobDescription.trim()) {
-            alert('请输入职位描述');
+            Message.info('请输入职位描述');
+            return;
+        }
+
+        // 判断文件是否正在上传
+        if (await this.pcmUploadRef?.getIsUploading?.()) {
+            Message.info('文件上传中，请稍后');
             return;
         }
 
         this.isSubmitting = true;
-
-        try {
-            // 如果还没上传，先上传文件
-            if (!this.uploadedFileInfo) {
-                await this.uploadFile();
-                if (!this.uploadedFileInfo) {
-                    this.isSubmitting = false;
-                    return; // 上传失败
-                }
-            }
-
-            // 直接显示聊天模态框
-            this.showChatModal = true;
-        } catch (error) {
-            console.error('开始分析时出错:', error);
-            SentryReporter.captureError(error, {
-                action: 'handleStartAnalysis',
-                component: 'pcm-jlpp-modal',
-                title: '开始分析时出错'
-            });
-            ErrorEventBus.emitError({
-                error: error,
-                message: '开始分析时出错，请重试'
-            });
-        } finally {
-            this.isSubmitting = false;
-        }
+        this.showChatModal = true;
+        this.isSubmitting = false;
     };
 
 
@@ -371,32 +308,27 @@ export class JlppModal {
                             {!hideResumeUpload && (
                                 <div class="resume-upload-section">
                                     <label>上传简历</label>
-                                    <div class="upload-area" onClick={this.handleUploadClick}>
-                                        {this.selectedFile ? (
-                                            <div class="file-item">
-                                                <div class="file-item-content">
-                                                    <span class="file-icon">📝</span>
-                                                    <span class="file-name">{this.selectedFile.name}</span>
-                                                </div>
-                                                <button class="remove-file" onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    this.clearSelectedFile();
-                                                }}>×</button>
-                                            </div>
-                                        ) : (
-                                            <div class="upload-placeholder">
-                                                <img src='https://pub.pincaimao.com/static/web/images/home/i_upload.png'></img>
-                                                <p class='upload-text'>点击上传简历</p>
-                                                <p class="upload-hint">支持 txt、markdown、pdf、docx、doc、md 格式</p>
-                                            </div>
-                                        )}
-                                    </div>
+                                    <pcm-upload
+                                        ref={el => this.pcmUploadRef = el}
+                                        maxFileSize={15 * 1024 * 1024}
+                                        multiple={false}
+                                        mobileUploadAble={this.mobileUploadAble}
+                                        acceptFileSuffixList={['.txt', '.md', '.pdf', '.docx', '.doc']}
+                                        uploadParams={{
+                                            tags: ['resume'],
+                                        }}
+                                        onUploadChange={(e) => {
+                                            const result: FileUploadResponse[] = e.detail ?? [];
+                                            this.uploadedFileInfo = result[0];
+                                            this.uploadSuccess.emit(this.uploadedFileInfo);
+                                        }}
+                                    />
                                 </div>
                             )}
 
                             <button
                                 class="submit-button"
-                                disabled={(!hideResumeUpload && !this.selectedFile) || (!hideJdInput && !this.jobDescription.trim()) || this.isUploading || this.isSubmitting}
+                                disabled={(!hideResumeUpload && !this.uploadedFileInfo) || (!hideJdInput && !this.jobDescription.trim()) || this.isUploading || this.isSubmitting}
                                 onClick={this.handleStartAnalysis}
                             >
                                 {this.isUploading ? '上传中...' : this.isSubmitting ? '处理中...' : '开始分析'}
@@ -409,12 +341,6 @@ export class JlppModal {
                                     <a href="https://www.pincaimao.com" target="_blank" rel="noopener noreferrer">Hunan-PinCaiMao-202412310003</a>
                                 </p>
                             </div>
-
-                            <input
-                                type="file"
-                                class="file-input"
-                                onChange={this.handleFileChange}
-                            />
                         </div>
                     )}
 

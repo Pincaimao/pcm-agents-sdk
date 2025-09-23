@@ -1,10 +1,10 @@
 import { Component, Prop, h, State, Element, Event, EventEmitter, Watch } from '@stencil/core';
-import { uploadFileToBackend, FileUploadResponse, verifyApiKey } from '../../utils/utils';
+import { FileUploadResponse, verifyApiKey } from '../../utils/utils';
 import { ConversationStartEventData, InterviewCompleteEventData, StreamCompleteEventData } from '../../components';
 import { ErrorEventBus, ErrorEventDetail } from '../../utils/error-event';
 import { authStore } from '../../../store/auth.store';
 import { configStore } from '../../../store/config.store';
-import { SentryReporter } from '../../utils/sentry-reporter';
+import { Message } from '../../services/message.service';
 
 /**
  * 劳动合同卫士
@@ -82,6 +82,11 @@ export class HtwsModal {
     @Prop() showWorkspaceHistory: boolean = false;
 
     /**
+     * 是否开启移动端上传简历（仅PC端生效）
+     */
+    @Prop() mobileUploadAble: boolean = true;
+
+    /**
      * 上传成功事件
      */
     @Event() uploadSuccess: EventEmitter<FileUploadResponse>;
@@ -118,7 +123,6 @@ export class HtwsModal {
      */
     @Prop() filePreviewMode: 'drawer' | 'window' = 'window';
 
-    @State() selectedFile: File | null = null;
     @State() isUploading: boolean = false;
     @State() uploadedFileInfo: FileUploadResponse | null = null;
     @State() showChatModal: boolean = false;
@@ -137,6 +141,7 @@ export class HtwsModal {
     
     private tokenInvalidListener: () => void;
     private removeErrorListener: () => void;
+    private pcmUploadRef;
 
     @Watch('token')
     handleTokenChange(newToken: string) {
@@ -182,57 +187,7 @@ export class HtwsModal {
         this.modalClosed.emit();
     };
 
-    private handleFileChange = (event: Event) => {
-        const input = event.target as HTMLInputElement;
-        if (input.files && input.files.length > 0) {
-            this.selectedFile = input.files[0];
-        }
-    };
 
-    private handleUploadClick = () => {
-        const fileInput = this.hostElement.shadowRoot?.querySelector('.file-input') as HTMLInputElement;
-        fileInput?.click();
-    };
-
-    private clearSelectedFile = () => {
-        this.selectedFile = null;
-        this.uploadedFileInfo = null;
-        const fileInput = this.hostElement.shadowRoot?.querySelector('.file-input') as HTMLInputElement;
-        if (fileInput) {
-            fileInput.value = '';
-        }
-    };
-
-    private async uploadFile() {
-        if (!this.selectedFile) return;
-
-        this.isUploading = true;
-
-        try {
-            // 使用 uploadFileToBackend 工具函数上传文件
-            const result = await uploadFileToBackend(this.selectedFile, {
-            }, {
-                'tags': ['other']
-            });
-
-            this.uploadedFileInfo = result;
-            this.uploadSuccess.emit(result);
-        } catch (error) {
-            console.error('文件上传错误:', error);
-            this.clearSelectedFile();
-            SentryReporter.captureError(error, {
-                action: 'uploadFile',
-                component: 'pcm-htws-modal',
-                title: '文件上传失败'
-            });
-            ErrorEventBus.emitError({
-                error: error,
-                message: '文件上传失败，请重试'
-            });
-        } finally {
-            this.isUploading = false;
-        }
-    }
 
     // 添加切换输入模式的方法
     private handleToggleInput = () => {
@@ -246,53 +201,31 @@ export class HtwsModal {
     };
 
     private handleStartInterview = async () => {
-        if (this.inputMode === 'upload' && !this.selectedFile) {
-            alert('请上传合同文件');
+        if (this.inputMode === 'upload' && !this.uploadedFileInfo) {
+            Message.info('请上传合同文件');
             return;
         }
 
         if (this.inputMode === 'free' && !this.freeInputText.trim()) {
-            alert('请输入合同内容');
+            Message.info('请输入合同内容');
+            return;
+        }
+
+        // 判断文件是否正在上传
+        if (this.inputMode === 'upload' && await this.pcmUploadRef?.getIsUploading?.()) {
+            Message.info('文件上传中，请稍后');
             return;
         }
 
         this.isSubmitting = true;
-
-        try {
-            if (this.inputMode === 'upload') {
-                // 如果还没上传，先上传文件
-                if (!this.uploadedFileInfo) {
-                    await this.uploadFile();
-                    if (!this.uploadedFileInfo) {
-                        this.isSubmitting = false;
-                        return; // 上传失败
-                    }
-                }
-            }
-
-            // 直接显示聊天模态框
-            this.showChatModal = true;
-        } catch (error) {
-            console.error('开始分析时出错:', error);
-            SentryReporter.captureError(error, {
-                action: 'handleStartInterview',
-                component: 'pcm-htws-modal',
-                title: '开始分析时出错'
-            });
-            ErrorEventBus.emitError({
-                error: error,
-                message: '开始分析时出错，请重试'
-            });
-        } finally {
-            this.isSubmitting = false;
-        }
+        this.showChatModal = true;
+        this.isSubmitting = false;
     };
 
     @Watch('isOpen')
     async handleIsOpenChange(newValue: boolean) {
         if (!newValue) {
             // 重置状态
-            this.clearSelectedFile();
             this.showChatModal = false;
             this.freeInputText = '';
             this.inputMode = 'upload'; // 重置为默认上传模式
@@ -370,26 +303,22 @@ export class HtwsModal {
                             {/* 上传模式 */}
                             {this.inputMode === 'upload' && (
                                 <div class="resume-upload-section">
-                                    <div class="upload-area" onClick={this.handleUploadClick}>
-                                        {this.selectedFile ? (
-                                            <div class="file-item">
-                                                <div class="file-item-content">
-                                                    <span class="file-icon">📝</span>
-                                                    <span class="file-name">{this.selectedFile.name}</span>
-                                                </div>
-                                                <button class="remove-file" onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    this.clearSelectedFile();
-                                                }}>×</button>
-                                            </div>
-                                        ) : (
-                                            <div class="upload-placeholder">
-                                                <img src='https://pub.pincaimao.com/static/web/images/home/i_upload.png'></img>
-                                                <p class='upload-text'>点击上传合同</p>
-                                                <p class="upload-hint">支持markdown、pdf、docx、doc、md 格式</p>
-                                            </div>
-                                        )}
-                                    </div>
+                                    <pcm-upload
+                                        ref={el => this.pcmUploadRef = el}
+                                        maxFileSize={25 * 1024 * 1024}
+                                        multiple={false}
+                                        mobileUploadAble={this.mobileUploadAble}
+                                        uploadText="点击上传合同"
+                                        acceptFileSuffixList={['.txt', '.md', '.pdf', '.docx', '.doc']}
+                                        uploadParams={{
+                                            tags: ['other'],
+                                        }}
+                                        onUploadChange={(e) => {
+                                            const result: FileUploadResponse[] = e.detail ?? [];
+                                            this.uploadedFileInfo = result[0];
+                                            this.uploadSuccess.emit(this.uploadedFileInfo);
+                                        }}
+                                    />
                                 </div>
                             )}
 
@@ -422,7 +351,7 @@ export class HtwsModal {
 
                             <button
                                 class="submit-button"
-                                disabled={(this.inputMode === 'upload' && !this.selectedFile) ||
+                                disabled={(this.inputMode === 'upload' && !this.uploadedFileInfo) ||
                                     (this.inputMode === 'free' && !this.freeInputText.trim()) ||
                                     this.isUploading ||
                                     this.isSubmitting}
@@ -438,12 +367,6 @@ export class HtwsModal {
                                     <a href="https://www.pincaimao.com" target="_blank" rel="noopener noreferrer">Hunan-PinCaiMao-202412310003</a>
                                 </p>
                             </div>
-
-                            <input
-                                type="file"
-                                class="file-input"
-                                onChange={this.handleFileChange}
-                            />
                         </div>
                     )}
 
