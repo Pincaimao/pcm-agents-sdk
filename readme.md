@@ -1,3 +1,27 @@
+## 🙏 Acknowledgements | 致谢
+
+We would like to thank the following organizations for their support:
+我们要感谢以下组织的支持：
+
+<p align="center">
+  <a href="https://www.jetbrains.com/?from=pincaimao" target="_blank">
+    <img width="100" height="100" alt="JetBrains" src="https://github.com/user-attachments/assets/d68a03c9-2640-4643-8914-78ff3f73b165" />
+
+  </a>
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://www.terminus.com/?from=pincaimao" target="_blank">
+    <img width="100" height="100" alt="Termius" src="https://github.com/user-attachments/assets/6def2c6d-f7be-4ca8-b970-13099fb3449b" />
+  </a>
+</p>
+
+<p align="center">
+  <b>JetBrains</b> | Thanks for providing professional development tools
+  感谢提供专业开发工具<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <b>Terminus</b> | Thanks for the powerful SSH clients support
+  感谢强大 SSH 客户端支持<br/>
+</p>
+
 ## 设置
 
 ### 项目结构
